@@ -41,7 +41,14 @@
         {
           "id": "agent-browser",
           "url": "https://github.com/vercel-labs/agent-browser/tree/main/skills/agent-browser",
-          "desc": "浏览器自动化交互（需安装插件）"
+          "desc": "浏览器自动化交互（需安装插件）",
+          "cli": [
+            {
+              "name": "agent-browser",
+              "install_hint": "npm install -g agent-browser && agent-browser install",
+              "description": "浏览器自动化 CLI"
+            }
+          ]
         },
         {
           "id": "find-skills",
@@ -61,7 +68,21 @@
         {
           "id": "tavily-search",
           "url": "https://github.com/tavily-ai/skills",
-          "desc": "使用面向 LLM 优化的结果进行网页搜索，支持域名过滤、时间范围和多种搜索深度。"
+          "desc": "使用面向 LLM 优化的结果进行网页搜索，支持域名过滤、时间范围和多种搜索深度。",
+          "cli": [
+            {
+              "name": "tvly",
+              "install_hint": "curl -fsSL https://cli.tavily.com/install.sh | bash",
+              "description": "Tavily 搜索 CLI",
+              "env_vars": [
+                {
+                  "name": "TAVILY_API_KEY",
+                  "export_hint": "export TAVILY_API_KEY=tvly-YOUR_API_KEY",
+                  "description": "Tavily API Key"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -101,7 +122,21 @@
         {
           "id": "context7-cli",
           "url": "https://github.com/upstash/context7/tree/master/skills/context7-cli",
-          "desc": "Context7 CLI 技能"
+          "desc": "Context7 CLI 技能",
+          "cli": [
+            {
+              "name": "ctx7",
+              "install_hint": "npm install -g ctx7@latest",
+              "description": "Context7 CLI（文档检索）",
+              "env_vars": [
+                {
+                  "name": "CONTEXT7_API_KEY",
+                  "export_hint": "export CONTEXT7_API_KEY=your_key",
+                  "description": "Context7 API Key"
+                }
+              ]
+            }
+          ]
         },
         {
           "id": "find-docs",

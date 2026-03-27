@@ -9,9 +9,7 @@ Agent Skills 集合。
 - [codex-cli](./skills/codex-cli/SKILL.md): `codex` cli 使用技能
 - [prompt-optimizer](./skills/prompt-optimizer/SKILL.md): 提示词优化技能
 
-## Open Source Skills
-
-**技能列表**
+## 开源 Skills
 
 <!-- （以下内容由 scripts/render_readme_skills.py 生成，请勿手改） -->
 
@@ -26,11 +24,11 @@ Agent Skills 集合。
 - [git-commit](https://github.com/github/awesome-copilot/tree/main/skills/git-commit)：基于 Conventional Commits 生成标准提交
 - [read-github](https://github.com/am-will/codex-skills/tree/main/skills/read-github)：通过 gitmcp.io MCP 服务访问 GitHub 仓库文档和代码
 - [markdown-url](https://github.com/am-will/codex-skills/tree/main/skills/markdown-url)：在 URL 前添加前缀，通过 markdown.new 浏览网站
-- [agent-browser](https://github.com/vercel-labs/agent-browser/tree/main/skills/agent-browser)：浏览器自动化交互（需安装插件）
+- [agent-browser](https://github.com/vercel-labs/agent-browser/tree/main/skills/agent-browser)：浏览器自动化交互（需安装插件） (依赖`agent-browser`命令)
 - [find-skills](https://github.com/vercel-labs/skills/tree/main/skills/find-skills)：查找技能集合
 - [skill-judge](https://github.com/softaworks/agent-toolkit/tree/main/skills/skill-judge)：评估技能的有效性和性能
 - [excalidraw-diagram-generator](https://github.com/github/awesome-copilot/tree/main/skills/excalidraw-diagram-generator)：基于描述生成 Excalidraw 图表
-- [tavily-search](https://github.com/tavily-ai/skills)：使用面向 LLM 优化的结果进行网页搜索，支持域名过滤、时间范围和多种搜索深度。
+- [tavily-search](https://github.com/tavily-ai/skills)：使用面向 LLM 优化的结果进行网页搜索，支持域名过滤、时间范围和多种搜索深度。 (依赖`tvly`命令 和 环境变量`TAVILY_API_KEY`)
 
 ### Documentation
 
@@ -40,7 +38,7 @@ Agent Skills 集合。
 - [create-technical-spike](https://github.com/github/awesome-copilot/tree/main/skills/create-technical-spike)：创建技术探索文档
 - [changelog-automation](https://github.com/wshobson/agents/tree/main/plugins/documentation-generation/skills/changelog-automation)：基于提交历史和标签自动生成变更日志
 - [editorconfig](https://github.com/github/awesome-copilot/tree/main/skills/editorconfig)：生成符合最佳实践的 `.editorconfig`
-- [context7-cli](https://github.com/upstash/context7/tree/master/skills/context7-cli)：Context7 CLI 技能
+- [context7-cli](https://github.com/upstash/context7/tree/master/skills/context7-cli)：Context7 CLI 技能 (依赖`ctx7`命令 和 环境变量`CONTEXT7_API_KEY`)
 - [find-docs](https://github.com/upstash/context7/tree/master/skills/find-docs)：Context7 查找文档技能
 - [humanizer-zh](https://github.com/op7418/humanizer-zh)：AI 写作去痕工具（中文版）
 - [rewrite-en2zh](https://github.com/simonwong/agent-skills/tree/main/skills/rewrite-en2zh)：将英文内容重写为中文

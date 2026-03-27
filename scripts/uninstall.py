@@ -41,6 +41,20 @@ def get_category_skill_ids(root: Path, category_name: str) -> list[str]:
     raise ValueError(f"未找到分类: {category_name}")
 
 
+def get_all_skill_ids(root: Path) -> list[str]:
+    """从 index.json 中收集所有 skill id。"""
+    payload = load_index(root)
+    ids: list[str] = []
+    for category in payload["categories"]:
+        for item in category.get("items", []):
+            skill_id = str(item.get("id", "")).strip()
+            if skill_id:
+                ids.append(skill_id)
+    if not ids:
+        raise ValueError("index.json 中没有可卸载的技能")
+    return ids
+
+
 def build_remove_command(skill_id: str, global_install: bool, agents: list[str]) -> list[str]:
     cmd: list[str] = ["npx", "skills", "remove", skill_id]
     if global_install:
@@ -100,6 +114,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     )
     parser.add_argument("--skill", help="卸载指定技能 id")
     parser.add_argument("--category", help="卸载指定分类下的全部技能")
+    parser.add_argument(
+        "--all", dest="all", action="store_true", help="卸载 index.json 中的全部技能"
+    )
     parser.add_argument("-g", "--global", dest="global_install", action="store_true")
     parser.add_argument("-a", "--agent", action="append", default=[])
     parser.add_argument("--dry-run", action="store_true", help="仅打印命令，不实际执行")
@@ -109,15 +126,18 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
 
-    if bool(args.skill) == bool(args.category):
-        raise ValueError("必须且只能指定 --skill 或 --category 其中一个")
+    specified = sum([bool(args.skill), bool(args.category), args.all])
+    if specified != 1:
+        raise ValueError("必须且只能指定 --skill、--category 或 --all 其中一个")
 
     agents = normalize_agents(list(args.agent))
 
     if args.skill:
         skill_ids = [args.skill.strip()]
-    else:
+    elif args.category:
         skill_ids = get_category_skill_ids(ROOT, str(args.category).strip())
+    else:
+        skill_ids = get_all_skill_ids(ROOT)
 
     ensure_npx_available()
 

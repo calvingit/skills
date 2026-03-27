@@ -16,6 +16,48 @@ def load_index(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def format_cli_notes(item: dict) -> str:
+    clis = item.get("cli", [])
+    if clis is None:
+        return ""
+    if not isinstance(clis, list):
+        raise ValueError("技能索引格式错误: item.cli 应为数组")
+
+    cli_notes: list[str] = []
+    for cli in clis:
+        if not isinstance(cli, dict):
+            raise ValueError("技能索引格式错误: item.cli[] 应为对象")
+
+        name = str(cli.get("name", "")).strip()
+        description = str(cli.get("description", "")).strip()
+        if not name:
+            raise ValueError("技能索引格式错误: item.cli[].name 为空")
+
+        env_vars = cli.get("env_vars", [])
+        if env_vars is None:
+            env_vars = []
+        if not isinstance(env_vars, list):
+            raise ValueError("技能索引格式错误: item.cli[].env_vars 应为数组")
+
+        env_notes: list[str] = []
+        for env in env_vars:
+            if not isinstance(env, dict):
+                raise ValueError("技能索引格式错误: item.cli[].env_vars[] 应为对象")
+            env_name = str(env.get("name", "")).strip()
+            if not env_name:
+                raise ValueError("技能索引格式错误: item.cli[].env_vars[].name 为空")
+            env_notes.append(f"`{env_name}`")
+
+        note = f"依赖`{name}`命令"
+        if env_notes:
+            note += " 和 环境变量" + "、".join(env_notes)
+        cli_notes.append(note)
+
+    if not cli_notes:
+        return ""
+    return f"({'；'.join(cli_notes)})"
+
+
 def build_skills_block(index_data: dict) -> list[str]:
     categories = index_data.get("categories", [])
     if not isinstance(categories, list):
@@ -35,12 +77,19 @@ def build_skills_block(index_data: dict) -> list[str]:
             skill_id = str(item.get("id", "")).strip()
             url = str(item.get("url", "")).strip()
             desc = str(item.get("desc", "")).strip()
+            cli_notes = format_cli_notes(item)
             if not skill_id or not url:
                 raise ValueError("技能索引格式错误: item.id 或 item.url 为空")
             if desc:
-                lines.append(f"- [{skill_id}]({url})：{desc}")
+                if cli_notes:
+                    lines.append(f"- [{skill_id}]({url})：{desc} {cli_notes}")
+                else:
+                    lines.append(f"- [{skill_id}]({url})：{desc}")
             else:
-                lines.append(f"- [{skill_id}]({url})")
+                if cli_notes:
+                    lines.append(f"- [{skill_id}]({url})：{cli_notes}")
+                else:
+                    lines.append(f"- [{skill_id}]({url})")
         lines.append("")
     if lines[-1] == "":
         lines.pop()

@@ -78,12 +78,14 @@ def execute_installs(
     items: list[dict[str, str]],
     global_install: bool,
     agents: list[str],
-) -> list[str]:
-    """执行安装，返回失败的 skill id/url 列表。"""
+) -> tuple[list[str], list[str]]:
+    """执行安装，返回(失败项, 成功安装的 skill id 列表)。"""
     failures: list[str] = []
+    installed_skill_ids: list[str] = []
     for item in items:
         url = item["url"]
-        label = item.get("id") or url
+        skill_id = str(item.get("id", "")).strip()
+        label = skill_id or url
         cmd = build_install_command(url, global_install, agents)
         print(f"[INFO] 安装技能: {label}")
         print(f"[CMD]  {' '.join(cmd)}")
@@ -91,7 +93,12 @@ def execute_installs(
         if result.returncode != 0:
             failures.append(label)
             print(f"[WARN] 安装失败: {label}", file=sys.stderr)
-    return failures
+            continue
+
+        if skill_id:
+            installed_skill_ids.append(skill_id)
+
+    return failures, installed_skill_ids
 
 
 def normalize_agents(raw_agents: list[str]) -> list[str]:
@@ -131,7 +138,11 @@ def main(argv: list[str]) -> int:
         )
     install_list.extend(load_items(ROOT))
 
-    failures = execute_installs(install_list, args.global_install, agents)
+    failures, installed_skill_ids = execute_installs(
+        install_list,
+        args.global_install,
+        agents,
+    )
 
     print()
 
@@ -142,7 +153,10 @@ def main(argv: list[str]) -> int:
     try:
         import post_install  # noqa: PLC0415
 
-        check_rc = post_install.main([])
+        check_argv: list[str] = []
+        if installed_skill_ids:
+            check_argv = ["--installed-skills", ",".join(installed_skill_ids)]
+        check_rc = post_install.main(check_argv)
     except Exception as exc:  # noqa: BLE001
         print(f"[WARN] post_install 检查出错: {exc}", file=sys.stderr)
         check_rc = 0

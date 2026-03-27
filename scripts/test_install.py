@@ -1,7 +1,9 @@
 import json
 import sys
+import types
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 if str(SCRIPT_DIR) not in sys.path:
@@ -117,6 +119,62 @@ class BuildInstallCommandTests(unittest.TestCase):
     def test_yes_flag_always_last(self) -> None:
         cmd = install.build_install_command("https://x.com", True, ["a", "b"])
         self.assertEqual(cmd[-1], "-y")
+
+
+class ExecuteInstallsTests(unittest.TestCase):
+    def test_returns_failures_and_installed_skill_ids(self) -> None:
+        items = [
+            {"id": "context7-cli", "url": "https://a.com/context7", "desc": ""},
+            {"id": "tavily-search", "url": "https://a.com/tavily", "desc": ""},
+        ]
+
+        with patch("install.subprocess.run") as mocked_run:
+            mocked_run.side_effect = [
+                types.SimpleNamespace(returncode=0),
+                types.SimpleNamespace(returncode=1),
+            ]
+            failures, installed_ids = install.execute_installs(items, False, [])
+
+        self.assertEqual(failures, ["tavily-search"])
+        self.assertEqual(installed_ids, ["context7-cli"])
+
+
+class MainTests(unittest.TestCase):
+    def test_passes_installed_skills_to_post_install(self) -> None:
+        fake_post_install = types.ModuleType("post_install")
+        post_install_calls: list[list[str]] = []
+
+        def fake_post_install_main(argv: list[str]) -> int:
+            post_install_calls.append(argv)
+            return 0
+
+        fake_post_install.main = fake_post_install_main  # type: ignore[attr-defined]
+
+        with patch.object(install, "ensure_npx_available", return_value=None):
+            with patch.object(
+                install,
+                "load_items",
+                return_value=[
+                    {
+                        "id": "context7-cli",
+                        "url": "https://a.com/context7",
+                        "desc": "",
+                    }
+                ],
+            ):
+                with patch.object(
+                    install,
+                    "execute_installs",
+                    return_value=([], ["calvingit/skills", "context7-cli"]),
+                ):
+                    with patch.dict(sys.modules, {"post_install": fake_post_install}):
+                        rc = install.main([])
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(
+            post_install_calls,
+            [["--installed-skills", "calvingit/skills,context7-cli"]],
+        )
 
 
 if __name__ == "__main__":
