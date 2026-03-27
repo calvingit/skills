@@ -50,6 +50,42 @@ def load_items(root: Path) -> list[dict[str, str]]:
     return items
 
 
+def load_items_by_category(root: Path, category_name: str) -> list[dict[str, str]]:
+    """从 index.json 读取指定分类的技能条目。"""
+    index_path = root / "index.json"
+    if not index_path.is_file():
+        raise ValueError(f"未找到 index.json: {index_path}")
+
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    categories = payload.get("categories", [])
+    if not isinstance(categories, list):
+        raise ValueError("index.json 格式错误: categories 必须是数组")
+
+    for category in categories:
+        if not isinstance(category, dict):
+            continue
+        if str(category.get("name", "")).strip() != category_name:
+            continue
+        items: list[dict[str, str]] = []
+        for item in category.get("items", []):
+            if not isinstance(item, dict):
+                continue
+            url = str(item.get("url", "")).strip()
+            if not url:
+                continue
+            items.append(
+                {
+                    "id": str(item.get("id", "")).strip(),
+                    "url": url,
+                    "desc": str(item.get("desc", "")).strip(),
+                }
+            )
+        if not items:
+            raise ValueError(f"分类 {category_name} 下没有可安装的技能")
+        return items
+    raise ValueError(f"未找到分类: {category_name}")
+
+
 def build_install_command(
     url: str, global_install: bool, agents: list[str]
 ) -> list[str]:
@@ -120,8 +156,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         action="store_true",
         help=f"跳过默认技能包（{DEFAULT_SKILL_URL}）",
     )
+    parser.add_argument("--category", help="仅安装指定分类下的技能")
     parser.add_argument("-g", "--global", dest="global_install", action="store_true")
-    parser.add_argument("-a", "--agent", action="append", default=[])
+    parser.add_argument(
+        "-a",
+        "--agent",
+        action="append",
+        default=["claude-code", "codex"],
+        help="目标 Agent，可重复指定；默认包含 claude-code 和 codex",
+    )
     return parser.parse_args(argv)
 
 
@@ -136,7 +179,10 @@ def main(argv: list[str]) -> int:
         install_list.append(
             {"id": "calvingit/skills", "url": DEFAULT_SKILL_URL, "desc": "默认技能包"}
         )
-    install_list.extend(load_items(ROOT))
+    if args.category:
+        install_list.extend(load_items_by_category(ROOT, args.category.strip()))
+    else:
+        install_list.extend(load_items(ROOT))
 
     failures, installed_skill_ids = execute_installs(
         install_list,

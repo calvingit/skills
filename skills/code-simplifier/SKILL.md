@@ -1,6 +1,6 @@
 ---
 name: code-simplifier
-description: 当需要简化新写或刚修改的代码、统一写法、改善命名、减少嵌套和冗余，并在保持功能完整的前提下提升清晰度与一致性时使用。不用于结构性重构。
+description: Use when refining recently modified code for readability and maintainability without changing behavior. This skill is automatically invoked after every code writing or modification task completes — no explicit user trigger needed.
 ---
 
 ## 代码简化
