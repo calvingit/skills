@@ -29,6 +29,7 @@ Agent Skills 集合。
 - [skill-judge](https://github.com/softaworks/agent-toolkit/tree/main/skills/skill-judge)：评估技能的有效性和性能
 - [excalidraw-diagram-generator](https://github.com/github/awesome-copilot/tree/main/skills/excalidraw-diagram-generator)：基于描述生成 Excalidraw 图表
 - [tavily-search](https://github.com/tavily-ai/skills)：使用面向 LLM 优化的结果进行网页搜索，支持域名过滤、时间范围和多种搜索深度。 (依赖`tvly`命令 和 环境变量`TAVILY_API_KEY`)
+- [web-access](https://github.com/eze-is/web-access)：Web Access 技能，允许 AI 访问互联网以获取最新信息和资源
 
 ### Documentation
 

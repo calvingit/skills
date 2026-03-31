@@ -83,6 +83,11 @@
               ]
             }
           ]
+        },
+        {
+          "id": "web-access",
+          "url": "https://github.com/eze-is/web-access",
+          "desc": "Web Access 技能，允许 AI 访问互联网以获取最新信息和资源"
         }
       ]
     },
