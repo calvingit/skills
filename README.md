@@ -17,13 +17,12 @@ Agent Skills 集合。
 
 ### Tool
 
-- [chrome-devtools](https://github.com/github/awesome-copilot/tree/main/skills/chrome-devtools)：与 Chrome DevTools MCP 交互
+- [chrome-devtools](https://github.com/ChromeDevTools/chrome-devtools-mcp)：与 Chrome DevTools MCP 交互
 - [skill-creator](https://github.com/anthropics/skills/tree/main/skills/skill-creator)：创建自定义技能
 - [mcp-builder](https://github.com/anthropics/skills/tree/main/skills/mcp-builder)：构建自定义 MCP 技能
 - [xlsx](https://github.com/anthropics/skills/tree/main/skills/xlsx)：与 Excel 文件交互
 - [git-commit](https://github.com/github/awesome-copilot/tree/main/skills/git-commit)：基于 Conventional Commits 生成标准提交
 - [read-github](https://github.com/am-will/codex-skills/tree/main/skills/read-github)：通过 gitmcp.io MCP 服务访问 GitHub 仓库文档和代码
-- [markdown-url](https://github.com/am-will/codex-skills/tree/main/skills/markdown-url)：在 URL 前添加前缀，通过 markdown.new 浏览网站
 - [agent-browser](https://github.com/vercel-labs/agent-browser/tree/main/skills/agent-browser)：浏览器自动化交互（需安装插件） (依赖`agent-browser`命令)
 - [find-skills](https://github.com/vercel-labs/skills/tree/main/skills/find-skills)：查找技能集合
 - [skill-judge](https://github.com/softaworks/agent-toolkit/tree/main/skills/skill-judge)：评估技能的有效性和性能

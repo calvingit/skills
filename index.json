@@ -5,7 +5,7 @@
       "items": [
         {
           "id": "chrome-devtools",
-          "url": "https://github.com/github/awesome-copilot/tree/main/skills/chrome-devtools",
+          "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
           "desc": "与 Chrome DevTools MCP 交互"
         },
         {
@@ -32,16 +32,6 @@
           "id": "read-github",
           "url": "https://github.com/am-will/codex-skills/tree/main/skills/read-github",
           "desc": "通过 gitmcp.io MCP 服务访问 GitHub 仓库文档和代码"
-        },
-        {
-          "id": "markdown-url",
-          "url": "https://github.com/am-will/codex-skills/tree/main/skills/markdown-url",
-          "desc": "在 URL 前添加前缀，通过 markdown.new 浏览网站"
-        },
-        {
-          "id": "url-to-markdown",
-          "url": "https://github.com/am-will/codex-skills/tree/main/skills/url-to-markdown",
-          "desc": "将网站内容导出为适合 Agent 阅读的 Markdown 文件"
         },
         {
           "id": "agent-browser",
