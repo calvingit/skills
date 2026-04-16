@@ -1,218 +1,495 @@
 #!/usr/bin/env python3
-"""Skills 安装脚本：从 index.json 读取技能列表并通过 npx skills add 安装。
+"""Skill 安装脚本：从本地 skills/ 和 external-skills/ 目录复制 skill 到目标目录，
+并为多个 agent 目录创建软链接。
 
-默认行为：先安装 https://github.com/calvingit/skills，再安装 index.json 全部条目。
+默认目标目录：~/.agents/skills
+软链接目录：~/.claude/skills、~/.codex/skills、~/.hermes/skills
+
+用法：
+  python3 scripts/install.py                       # 交互式选择外部 skill 分类
+  python3 scripts/install.py --no-interactive      # 安装全部（含所有外部 skill）
+  python3 scripts/install.py --category Web        # 安装指定外部 skill 分类
+  python3 scripts/install.py --target /custom/dir  # 指定安装目标目录
 """
 
 from __future__ import annotations
 
 import argparse
-import json
+import curses
+import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-INDEX_PATH = ROOT / "index.json"
-DEFAULT_SKILL_URL = "https://github.com/calvingit/skills"
+LOCAL_SKILLS_DIR = ROOT / "skills"
+EXTERNAL_SKILLS_DIR = ROOT / "external-skills"
+
+DEFAULT_TARGET = Path.home() / ".agents" / "skills"
+# Agent 目标目录及模式配置
+_AGENT_DIR: dict[str, Path] = {
+    "claude": Path.home() / ".claude" / "skills",
+    "codex": Path.home() / ".codex" / "skills",
+    "hermes": Path.home() / ".hermes" / "skills",
+}
+_AGENT_DESC: dict[str, str] = {
+    "claude": "平铺模式（每个 skill 独立链接）",
+    "codex": "分类模式（按目录结构链接）",
+    "hermes": "分类模式（按目录结构链接）",
+}
+_FLAT_AGENTS = frozenset({"claude"})  # 不支持嵌套目录
+_NESTED_AGENTS = frozenset({"codex", "hermes"})  # 支持嵌套目录
+_ALL_AGENTS: list[str] = list(_AGENT_DIR)
+
+# 本地 skills/ 在选择器中显示的分类名
+_LOCAL_CATEGORY = "内置 Skills"
 
 
-def load_items(root: Path) -> list[dict[str, str]]:
-    """从 index.json 扁平化读取所有技能条目，按 url 去重。"""
-    index_path = root / "index.json"
-    if not index_path.is_file():
-        raise ValueError(f"未找到 index.json: {index_path}")
+def scan_local_skills(root: Path) -> list[Path]:
+    """扫描 skills/ 目录，返回所有包含 SKILL.md 的子目录路径列表。"""
+    skills_dir = root / "skills"
+    if not skills_dir.is_dir():
+        return []
+    return sorted(
+        [d for d in skills_dir.iterdir() if d.is_dir() and (d / "SKILL.md").exists()]
+    )
 
-    payload = json.loads(index_path.read_text(encoding="utf-8"))
-    categories = payload.get("categories", [])
-    if not isinstance(categories, list):
-        raise ValueError("index.json 格式错误: categories 必须是数组")
 
-    seen_urls: set[str] = set()
-    items: list[dict[str, str]] = []
-    for category in categories:
-        if not isinstance(category, dict):
+def scan_external_skills(root: Path) -> dict[str, list[Path]]:
+    """扫描 external-skills/ 目录，返回 {category_name: [skill_dirs]} 映射。
+
+    仅包含含有 SKILL.md 子目录的分类。
+    """
+    ext_dir = root / "external-skills"
+    if not ext_dir.is_dir():
+        return {}
+    result: dict[str, list[Path]] = {}
+    for cat_dir in sorted(ext_dir.iterdir()):
+        if not cat_dir.is_dir():
             continue
-        for item in category.get("items", []):
-            if not isinstance(item, dict):
-                continue
-            url = str(item.get("url", "")).strip()
-            if not url or url in seen_urls:
-                continue
-            seen_urls.add(url)
-            items.append(
-                {
-                    "id": str(item.get("id", "")).strip(),
-                    "url": url,
-                    "desc": str(item.get("desc", "")).strip(),
-                }
-            )
-    return items
-
-
-def load_items_by_category(root: Path, category_name: str) -> list[dict[str, str]]:
-    """从 index.json 读取指定分类的技能条目。"""
-    index_path = root / "index.json"
-    if not index_path.is_file():
-        raise ValueError(f"未找到 index.json: {index_path}")
-
-    payload = json.loads(index_path.read_text(encoding="utf-8"))
-    categories = payload.get("categories", [])
-    if not isinstance(categories, list):
-        raise ValueError("index.json 格式错误: categories 必须是数组")
-
-    for category in categories:
-        if not isinstance(category, dict):
-            continue
-        if str(category.get("name", "")).strip() != category_name:
-            continue
-        items: list[dict[str, str]] = []
-        for item in category.get("items", []):
-            if not isinstance(item, dict):
-                continue
-            url = str(item.get("url", "")).strip()
-            if not url:
-                continue
-            items.append(
-                {
-                    "id": str(item.get("id", "")).strip(),
-                    "url": url,
-                    "desc": str(item.get("desc", "")).strip(),
-                }
-            )
-        if not items:
-            raise ValueError(f"分类 {category_name} 下没有可安装的技能")
-        return items
-    raise ValueError(f"未找到分类: {category_name}")
-
-
-def build_install_command(
-    url: str, global_install: bool, agents: list[str]
-) -> list[str]:
-    cmd: list[str] = ["npx", "skills", "add", url]
-    if global_install:
-        cmd.append("-g")
-    for agent in agents:
-        cmd.extend(["-a", agent])
-    cmd.append("-y")
-    return cmd
-
-
-def ensure_npx_available() -> None:
-    try:
-        subprocess.run(
-            ["npx", "--version"],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+        skill_dirs = sorted(
+            [d for d in cat_dir.iterdir() if d.is_dir() and (d / "SKILL.md").exists()]
         )
-    except (subprocess.CalledProcessError, FileNotFoundError) as exc:
-        raise RuntimeError("未检测到可用的 npx，请先安装 Node.js/npm") from exc
+        if skill_dirs:
+            result[cat_dir.name] = skill_dirs
+    return result
 
 
-def execute_installs(
-    items: list[dict[str, str]],
-    global_install: bool,
-    agents: list[str],
-) -> tuple[list[str], list[str]]:
-    """执行安装，返回(失败项, 成功安装的 skill id 列表)。"""
+# ---------------------------------------------------------------------------
+# Curses TUI 分类选择
+# ---------------------------------------------------------------------------
+
+
+def _run_curses_selector(
+    categories: dict[str, list[Path]],
+    pre_selected: set[str] | None = None,
+) -> list[str] | None:
+    """curses TUI：方向键导航、空格切换选中、回车确认、q 取消（返回 None）。"""
+    cat_names = list(categories.keys())
+    selected = [name in (pre_selected or set()) for name in cat_names]
+    cursor = [0]  # 用列表使闭包可写
+
+    def draw(stdscr: "curses._CursesWindow") -> None:
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+        title = "选择要安装的外部 Skill 分类（上下键导航，空格切换，回车确认，q 取消）"
+        stdscr.addstr(0, 0, title[: w - 1], curses.A_BOLD)
+        stdscr.addstr(1, 0, "─" * min(len(title), w - 1))
+        for i, name in enumerate(cat_names):
+            y = i + 2
+            if y >= h - 2:
+                break
+            prefix = "[x]" if selected[i] else "[ ]"
+            line = f"  {prefix} {name}  ({len(categories[name])} 个 skill)"
+            attr = curses.A_REVERSE if i == cursor[0] else curses.A_NORMAL
+            stdscr.addstr(y, 0, line[: w - 1], attr)
+        hint = "a=全选  n=全不选"
+        stdscr.addstr(min(len(cat_names) + 2, h - 1), 0, hint[: w - 1])
+        stdscr.refresh()
+
+    def run(stdscr: "curses._CursesWindow") -> list[str]:
+        curses.curs_set(0)
+        while True:
+            draw(stdscr)
+            key = stdscr.getch()
+            if key == curses.KEY_UP:
+                cursor[0] = max(0, cursor[0] - 1)
+            elif key == curses.KEY_DOWN:
+                cursor[0] = min(len(cat_names) - 1, cursor[0] + 1)
+            elif key == ord(" "):
+                selected[cursor[0]] = not selected[cursor[0]]
+            elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
+                break
+            elif key == ord("q"):
+                return None
+            elif key == ord("a"):
+                for i in range(len(selected)):
+                    selected[i] = True
+            elif key == ord("n"):
+                for i in range(len(selected)):
+                    selected[i] = False
+        return [cat_names[i] for i, s in enumerate(selected) if s]
+
+    return curses.wrapper(run)
+
+
+def _select_categories_stdin(
+    categories: dict[str, list[Path]],
+    pre_selected: set[str] | None = None,
+) -> list[str] | None:
+    """终端不支持 curses 时的退化方案：stdin 数字选择。"""
+    cat_names = list(categories.keys())
+    _pre = pre_selected or set()
+    print("可用的外部 Skill 分类：")
+    for i, name in enumerate(cat_names, 1):
+        mark = " [默认选中]" if name in _pre else ""
+        print(f"  {i}. {name}  ({len(categories[name])} 个 skill){mark}")
+    print(
+        "请输入要安装的分类编号（空格分隔，q 取消，直接回车则全不选）：",
+        end=" ",
+        flush=True,
+    )
+    raw = input().strip()
+    if raw.lower() == "q":
+        return None
+    if not raw:
+        return []
+    result: list[str] = []
+    for token in raw.split():
+        try:
+            idx = int(token) - 1
+            if 0 <= idx < len(cat_names):
+                result.append(cat_names[idx])
+        except ValueError:
+            pass
+    return result
+
+
+def select_categories(
+    categories: dict[str, list[Path]],
+    pre_selected: set[str] | None = None,
+) -> list[str] | None:
+    """交互式选择分类：优先 curses TUI，不支持时退化为 stdin。返回 None 表示取消。"""
+    if not categories:
+        return []
+    try:
+        return _run_curses_selector(categories, pre_selected)
+    except Exception:
+        return _select_categories_stdin(categories, pre_selected)
+
+
+# ---------------------------------------------------------------------------
+# Agent 客户端选择
+# ---------------------------------------------------------------------------
+
+
+def _run_curses_agent_selector(pre_selected: set[str]) -> list[str] | None:
+    """curses TUI：选择 Agent 客户端。返回 None 表示取消。"""
+    names = _ALL_AGENTS
+    selected = [name in pre_selected for name in names]
+    cursor = [0]
+
+    def draw(stdscr: "curses._CursesWindow") -> None:
+        stdscr.clear()
+        h, w = stdscr.getmaxyx()
+        title = "选择安装目标 Agent 客户端（上下键导航，空格切换，回车确认，q 取消）"
+        stdscr.addstr(0, 0, title[: w - 1], curses.A_BOLD)
+        stdscr.addstr(1, 0, "─" * min(len(title), w - 1))
+        for i, name in enumerate(names):
+            y = i + 2
+            if y >= h - 2:
+                break
+            prefix = "[x]" if selected[i] else "[ ]"
+            desc = _AGENT_DESC.get(name, "")
+            line = f"  {prefix} {name:<8}  {desc}"
+            attr = curses.A_REVERSE if i == cursor[0] else curses.A_NORMAL
+            stdscr.addstr(y, 0, line[: w - 1], attr)
+        stdscr.addstr(min(len(names) + 2, h - 1), 0, "a=全选  n=全不选")
+        stdscr.refresh()
+
+    def run(stdscr: "curses._CursesWindow") -> list[str] | None:
+        curses.curs_set(0)
+        while True:
+            draw(stdscr)
+            key = stdscr.getch()
+            if key == curses.KEY_UP:
+                cursor[0] = max(0, cursor[0] - 1)
+            elif key == curses.KEY_DOWN:
+                cursor[0] = min(len(names) - 1, cursor[0] + 1)
+            elif key == ord(" "):
+                selected[cursor[0]] = not selected[cursor[0]]
+            elif key in (curses.KEY_ENTER, ord("\n"), ord("\r")):
+                break
+            elif key == ord("q"):
+                return None
+            elif key == ord("a"):
+                for i in range(len(selected)):
+                    selected[i] = True
+            elif key == ord("n"):
+                for i in range(len(selected)):
+                    selected[i] = False
+        return [names[i] for i, s in enumerate(selected) if s]
+
+    return curses.wrapper(run)
+
+
+def _select_agents_stdin(pre_selected: set[str]) -> list[str] | None:
+    """stdin 退化方案：数字选择 Agent 客户端。"""
+    names = _ALL_AGENTS
+    print("选择安装目标 Agent 客户端：")
+    for i, name in enumerate(names, 1):
+        mark = " [默认选中]" if name in pre_selected else ""
+        print(f"  {i}. {name:<8}  {_AGENT_DESC.get(name, '')}{mark}")
+    print("请输入编号（空格分隔，q 取消，直接回车则全不选）：", end=" ", flush=True)
+    raw = input().strip()
+    if raw.lower() == "q":
+        return None
+    if not raw:
+        return []
+    result: list[str] = []
+    for token in raw.split():
+        try:
+            idx = int(token) - 1
+            if 0 <= idx < len(names):
+                result.append(names[idx])
+        except ValueError:
+            pass
+    return result
+
+
+def select_agents(pre_selected: set[str] | None = None) -> list[str] | None:
+    """交互式选择 Agent 客户端：优先 curses TUI，不支持时退化为 stdin。返回 None 表示取消。"""
+    _pre = pre_selected or set()
+    try:
+        return _run_curses_agent_selector(_pre)
+    except Exception:
+        return _select_agents_stdin(_pre)
+
+
+# ---------------------------------------------------------------------------
+# 复制与软链接
+# ---------------------------------------------------------------------------
+
+
+def copy_skill(src: Path, target_dir: Path) -> None:
+    """将 skill 目录复制到 target_dir/<skill_name>，已存在则覆盖。"""
+    dst = target_dir / src.name
+    if dst.exists():
+        shutil.rmtree(dst)
+    shutil.copytree(str(src), str(dst))
+
+
+def install_skills(
+    skill_dirs: list[Path],
+    target_dir: Path,
+    label: str = "",
+) -> list[str]:
+    """将 skill 列表复制到目标目录，返回失败的 skill 名列表。"""
     failures: list[str] = []
-    installed_skill_ids: list[str] = []
-    for item in items:
-        url = item["url"]
-        skill_id = str(item.get("id", "")).strip()
-        label = skill_id or url
-        cmd = build_install_command(url, global_install, agents)
-        print(f"[INFO] 安装技能: {label}")
-        print(f"[CMD]  {' '.join(cmd)}")
-        result = subprocess.run(cmd)
-        if result.returncode != 0:
-            failures.append(label)
-            print(f"[WARN] 安装失败: {label}", file=sys.stderr)
-            continue
-
-        if skill_id:
-            installed_skill_ids.append(skill_id)
-
-    return failures, installed_skill_ids
+    for skill_dir in skill_dirs:
+        display = f"[{label}] {skill_dir.name}" if label else skill_dir.name
+        print(f"[INFO] 安装: {display}")
+        try:
+            copy_skill(skill_dir, target_dir)
+        except Exception as exc:
+            print(f"[WARN] 安装失败: {skill_dir.name} → {exc}", file=sys.stderr)
+            failures.append(skill_dir.name)
+    return failures
 
 
-def normalize_agents(raw_agents: list[str]) -> list[str]:
-    normalized: list[str] = []
-    for raw in raw_agents:
-        for item in raw.split(","):
-            agent = item.strip()
-            if agent:
-                normalized.append(agent)
-    return normalized
+def create_symlinks(target_dir: Path, symlink_dirs: list[Path]) -> None:
+    """为 target_dir 中每个 skill 目录，在各 symlink_dirs 中创建符号链接。
+
+    同名路径（文件、目录或旧链接）已存在时先删除再重建。
+    适用于不支持嵌套目录的 agent（如 Claude）。
+    """
+    if not target_dir.is_dir():
+        print(f"[WARN] 目标目录不存在，跳过软链接创建: {target_dir}", file=sys.stderr)
+        return
+    skill_dirs = sorted([d for d in target_dir.iterdir() if d.is_dir()])
+    if not skill_dirs:
+        print("[INFO] 目标目录中无 skill，跳过软链接创建")
+        return
+
+    for link_parent in symlink_dirs:
+        link_parent.mkdir(parents=True, exist_ok=True)
+        for skill_dir in skill_dirs:
+            link_path = link_parent / skill_dir.name
+            if link_path.exists() or link_path.is_symlink():
+                if link_path.is_symlink() or link_path.is_file():
+                    link_path.unlink()
+                else:
+                    shutil.rmtree(link_path)
+            os.symlink(str(skill_dir.resolve()), str(link_path))
+            print(f"[LINK] {link_path} → {skill_dir.resolve()}")
+
+
+def create_category_symlinks(
+    external_cat_dirs: list[Path],
+    local_skill_dirs: list[Path],
+    symlink_dirs: list[Path],
+) -> None:
+    """为支持嵌套目录的 agent（Codex/Hermes）创建软链接。
+
+    外部 skill 按选中的分类目录整体软链接，本地 skill 逐个软链接。
+    """
+    if not symlink_dirs:
+        return
+    for link_parent in symlink_dirs:
+        link_parent.mkdir(parents=True, exist_ok=True)
+        # 外部 skill：仅链接用户选中的分类目录
+        for cat_dir in external_cat_dirs:
+            if not cat_dir.is_dir():
+                continue
+            link_path = link_parent / cat_dir.name
+            if link_path.exists() or link_path.is_symlink():
+                if link_path.is_symlink() or link_path.is_file():
+                    link_path.unlink()
+                else:
+                    shutil.rmtree(link_path)
+            os.symlink(str(cat_dir.resolve()), str(link_path))
+            print(f"[LINK] {link_path} → {cat_dir.resolve()}")
+        # 本地 skill：逐个链接
+        for skill_dir in local_skill_dirs:
+            link_path = link_parent / skill_dir.name
+            if link_path.exists() or link_path.is_symlink():
+                if link_path.is_symlink() or link_path.is_file():
+                    link_path.unlink()
+                else:
+                    shutil.rmtree(link_path)
+            os.symlink(str(skill_dir.resolve()), str(link_path))
+            print(f"[LINK] {link_path} → {skill_dir.resolve()}")
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="安装本仓库 Skills 到 Agent（封装 npx skills add）",
+        description="安装本地 Skill 到 Agent 目录并创建软链接",
     )
     parser.add_argument(
-        "--skip-default",
+        "--target",
+        default=str(DEFAULT_TARGET),
+        help=f"安装目标目录（默认：{DEFAULT_TARGET}）",
+    )
+    parser.add_argument(
+        "--no-interactive",
         action="store_true",
-        help=f"跳过默认技能包（{DEFAULT_SKILL_URL}）",
+        help="跳过交互式选择，安装所有外部 skill 分类",
     )
-    parser.add_argument("--category", help="仅安装指定分类下的技能")
-    parser.add_argument("-g", "--global", dest="global_install", action="store_true")
     parser.add_argument(
-        "-a",
-        "--agent",
-        action="append",
-        default=["claude-code", "codex"],
-        help="目标 Agent，可重复指定；默认包含 claude-code 和 codex",
+        "--category",
+        help="安装指定外部 skill 分类名称（与 --no-interactive 互斥）",
     )
     return parser.parse_args(argv)
 
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    agents = normalize_agents(list(args.agent))
+    target_dir = Path(args.target).expanduser().resolve()
+    target_dir.mkdir(parents=True, exist_ok=True)
 
-    ensure_npx_available()
+    # Step 1: 扫描本地 skills/
+    local_skills = scan_local_skills(ROOT)
+    print(f"[INFO] 找到本地 skill: {len(local_skills)} 个")
 
-    install_list: list[dict[str, str]] = []
-    if not args.skip_default:
-        install_list.append(
-            {"id": "calvingit/skills", "url": DEFAULT_SKILL_URL, "desc": "默认技能包"}
-        )
+    # Step 2: 扫描 external-skills/
+    external_categories = scan_external_skills(ROOT)
+    print(f"[INFO] 找到外部 skill 分类: {len(external_categories)} 个")
+
+    # Step 2b: 若无外部 skill，自动调用 download.py 下载
+    if not external_categories:
+        print("[INFO] 未找到外部 skill，正在自动下载...")
+        download_script = ROOT / "scripts" / "download.py"
+        result = subprocess.run([sys.executable, str(download_script)])
+        if result.returncode != 0:
+            print("[WARN] 自动下载失败，继续安装本地 skill", file=sys.stderr)
+        else:
+            external_categories = scan_external_skills(ROOT)
+            print(f"[INFO] 下载后找到外部 skill 分类: {len(external_categories)} 个")
+
+    # Step 3: 决定要安装的分类
+    selected_local = False
+    selected_categories: list[str] = []
     if args.category:
-        install_list.extend(load_items_by_category(ROOT, args.category.strip()))
+        # 指定分类：仅安装该外部分类，不含本地 skills
+        cat = args.category.strip()
+        if cat not in external_categories:
+            print(f"[ERROR] 分类不存在或无可用 skill: {cat}", file=sys.stderr)
+            return 1
+        selected_categories = [cat]
+    elif args.no_interactive:
+        # 非交互：安装全部（含本地）
+        selected_local = bool(local_skills)
+        selected_categories = list(external_categories.keys())
     else:
-        install_list.extend(load_items(ROOT))
+        # 构建统一选择器：本地 skills 排首位，默认勾选
+        all_categories: dict[str, list[Path]] = {}
+        if local_skills:
+            all_categories[_LOCAL_CATEGORY] = local_skills
+        all_categories.update(external_categories)
+        if all_categories:
+            print()
+            chosen = select_categories(
+                all_categories,
+                pre_selected={_LOCAL_CATEGORY} if local_skills else None,
+            )
+            print()
+            if chosen is None:
+                print("[INFO] 已取消安装")
+                return 0
+            selected_local = _LOCAL_CATEGORY in chosen
+            selected_categories = [c for c in chosen if c != _LOCAL_CATEGORY]
 
-    failures, installed_skill_ids = execute_installs(
-        install_list,
-        args.global_install,
-        agents,
-    )
+    # Step 3b: 选择 Agent 客户端
+    if args.no_interactive:
+        selected_agents = _ALL_AGENTS[:]
+    else:
+        print()
+        result = select_agents(pre_selected=set(_ALL_AGENTS))
+        print()
+        if result is None:
+            print("[INFO] 已取消安装")
+            return 0
+        selected_agents = result
+    flat_dirs = [_AGENT_DIR[a] for a in selected_agents if a in _FLAT_AGENTS]
+    nested_dirs = [_AGENT_DIR[a] for a in selected_agents if a in _NESTED_AGENTS]
+
+    # Step 4: 安装本地 skills/
+    failures: list[str] = []
+    if selected_local:
+        failures += install_skills(local_skills, target_dir, label="local")
+
+    # Step 5: 安装选中的外部分类
+    for cat_name in selected_categories:
+        skill_dirs = external_categories.get(cat_name, [])
+        if skill_dirs:
+            failures += install_skills(skill_dirs, target_dir, label=cat_name)
 
     print()
 
-    # 安装完成后自动执行环境检查
-    scripts_dir = str(Path(__file__).resolve().parent)
-    if scripts_dir not in sys.path:
-        sys.path.insert(0, scripts_dir)
-    try:
-        import post_install  # noqa: PLC0415
+    # Step 6: 创建软链接
+    local_to_link = local_skills if selected_local else []
+    selected_cat_dirs = [EXTERNAL_SKILLS_DIR / cat for cat in selected_categories]
+    if flat_dirs:
+        print("[INFO] 创建软链接（Claude 平铺模式）...")
+        create_symlinks(target_dir, flat_dirs)
+    if nested_dirs:
+        print("[INFO] 创建软链接（Codex/Hermes 分类模式）...")
+        create_category_symlinks(selected_cat_dirs, local_to_link, nested_dirs)
 
-        check_argv: list[str] = []
-        if installed_skill_ids:
-            check_argv = ["--installed-skills", ",".join(installed_skill_ids)]
-        check_rc = post_install.main(check_argv)
-    except Exception as exc:  # noqa: BLE001
-        print(f"[WARN] post_install 检查出错: {exc}", file=sys.stderr)
-        check_rc = 0
+    print()
 
     if failures:
-        print(f"[ERROR] 以下技能安装失败: {', '.join(failures)}", file=sys.stderr)
+        print(f"[ERROR] 以下 skill 安装失败: {', '.join(failures)}", file=sys.stderr)
         return 1
 
-    print("[INFO] 安装完成")
-    return check_rc
+    print(f"[INFO] 安装完成 → {target_dir}")
+    return 0
 
 
 if __name__ == "__main__":

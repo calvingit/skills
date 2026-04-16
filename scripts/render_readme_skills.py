@@ -70,7 +70,12 @@ def build_skills_block(index_data: dict) -> list[str]:
         items = category.get("items", [])
         if not name or not isinstance(items, list):
             raise ValueError("技能索引格式错误: category.name 或 items 无效")
-        lines.append(f"### {name}\n")
+        description = str(category.get("description", "")).strip()
+        if description:
+            lines.append(f"### {name}\n")
+            lines.append(f"{description}\n")
+        else:
+            lines.append(f"### {name}\n")
         for item in items:
             if not isinstance(item, dict):
                 raise ValueError("技能索引格式错误: item 应为对象")

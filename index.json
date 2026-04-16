@@ -2,6 +2,7 @@
   "categories": [
     {
       "name": "Tool",
+      "description": "Agent 工具、CLI 实用程序、浏览器自动化、网络访问和开发者效率提升技能集合。",
       "items": [
         {
           "id": "chrome-devtools",
@@ -88,6 +89,7 @@
     },
     {
       "name": "Documentation",
+      "description": "项目文档、README 文件、规范文档和技术文章的创建与管理技能集合。",
       "items": [
         {
           "id": "create-agentsmd",
@@ -108,11 +110,6 @@
           "id": "create-technical-spike",
           "url": "https://github.com/github/awesome-copilot/tree/main/skills/create-technical-spike",
           "desc": "创建技术探索文档"
-        },
-        {
-          "id": "changelog-automation",
-          "url": "https://github.com/wshobson/agents/tree/main/plugins/documentation-generation/skills/changelog-automation",
-          "desc": "基于提交历史和标签自动生成变更日志"
         },
         {
           "id": "editorconfig",
@@ -156,7 +153,8 @@
       ]
     },
     {
-      "name": "Mobile App",
+      "name": "App-Dev",
+      "description": "Android、iOS 原生应用及 React Native 跨平台移动应用开发技能集合。",
       "items": [
         {
           "id": "android-native-dev",
@@ -176,7 +174,8 @@
       ]
     },
     {
-      "name": "Web",
+      "name": "Web-Dev",
+      "description": "基于 React、Vue、Next.js、Nuxt 等前端框架的 Web 应用开发与测试技能集合。",
       "items": [
         {
           "id": "composition-patterns",
@@ -222,6 +221,7 @@
     },
     {
       "name": "Backend",
+      "description": "全栈开发、SQL 查询优化和服务端工程最佳实践技能集合。",
       "items": [
         {
           "id": "fullstack-dev",
@@ -237,6 +237,7 @@
     },
     {
       "name": "DevOps",
+      "description": "代码审查、云平台部署和现代包管理工具的 DevOps 技能集合。",
       "items": [
         {
           "id": "code-review-expert",
@@ -257,6 +258,7 @@
     },
     {
       "name": "Design",
+      "description": "UI/UX 设计、Figma 集成、Web 设计规范和设计系统工作流技能集合。",
       "items": [
         {
           "id": "web-design-guidelines",
@@ -265,7 +267,7 @@
         },
         {
           "id": "ui-ux-pro-max",
-          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill",
+          "url": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill/tree/main/.claude/skills",
           "desc": "UI UX Pro Max 技能集合"
         },
         {
