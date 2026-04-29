@@ -6,7 +6,7 @@ Agent Skills 集合。
 
 - [code-refactor](./skills/code-refactor/SKILL.md) : 代码重构技能
 - [code-simplifier](./skills/code-simplifier/SKILL.md) : 代码简化技能
-- [codex-cli](./skills/codex-cli/SKILL.md): `codex` cli 使用技能
+- [codex-cli](./skills/codex-reviewer/SKILL.md): `codex` cli 使用技能
 - [prompt-optimizer](./skills/prompt-optimizer/SKILL.md): 提示词优化技能
 
 ## 开源 Skills
