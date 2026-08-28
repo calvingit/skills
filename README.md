@@ -44,6 +44,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 - **可组合**：workflow 可以调用 engineering discipline，但不复制其规则；每类规则只保留一个 owner。
 - **证据驱动**：代码事实、spec、测试、运行结果和 review evidence 优先于模型自报。
 - **渐进式上下文**：只读取当前任务需要的项目上下文，不假定固定 `docs/**` 路径，也不预加载整套项目知识。
+- **Runtime 能力优先**：Agent Runtime 已经提供可靠的 goal、task persistence、pause/resume、session recovery 等能力时，优先复用 Runtime 原生能力，不在 Skill 层重复实现生命周期控制。
 
 使用时按以下优先级发现项目上下文：
 
@@ -58,7 +59,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | --- | --- | --- |
 | Workflow | `grilling`, `to-spec`, `implement`, `wayfinding` | 组织需求澄清、规格化、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `examine-architecture` | 提供可复用的软件工程判断与实践。 |
-| Execution Control | `loop` | 控制需要多轮 evidence-driven iteration 的自主执行。 |
+| Execution Protocol | `loop` | 提供 Runtime-neutral 的 progress、evidence、iteration / retry 和 no-progress 规则；仅在 Runtime 缺少 long-running task 能力时承担最小执行控制。 |
 
 几个关键边界：
 
@@ -69,7 +70,8 @@ tdd knows HOW to test
 examine-architecture finds WHERE architecture hurts
 codebase-design reasons about HOW the boundary should look
 
-loop decides WHETHER to continue
+Runtime Goal owns lifecycle / pause / resume
+loop defines WHAT counts as progress in each iteration
 implement decides HOW to implement
 ```
 
@@ -84,7 +86,7 @@ implement decides HOW to implement
 | [`examine-architecture`](./skills/engineering/examine-architecture/SKILL.md) | 调查模块边界、依赖、ownership、接口和测试面，输出治理候选。 |
 | [`grilling`](./skills/engineering/grilling/SKILL.md) | 通过问题澄清需求、边界、风险和设计决策，不写代码。 |
 | [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
-| [`loop`](./skills/engineering/loop/SKILL.md) | 对路径已明确但需要多轮推进的任务执行 evidence-driven engineering loop，直到完成、阻塞、无进展或安全预算耗尽。 |
+| [`loop`](./skills/engineering/loop/SKILL.md) | Runtime-neutral Loop Engineering protocol；定义 progress invariant、evidence、iteration / retry 和 no-progress gate，不替代已有 Runtime Goal。 |
 | [`simplify`](./skills/engineering/simplify/SKILL.md) | 在行为不变前提下删除冗余抽象、测试专用接口和偶然复杂度。 |
 | [`tdd`](./skills/engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 Seam 验证行为。 |
 | [`to-spec`](./skills/engineering/to-spec/SKILL.md) | 将已收敛需求落盘为可追踪的 `SPEC.md` 与 `PLAN.md`。 |
@@ -98,7 +100,8 @@ implement decides HOW to implement
 | 目标已经明确，但关键技术路径仍处于 Fog of war | `wayfinding` |
 | 需求已经收敛，需要生成正式任务契约 | `to-spec` |
 | 路径明确，预计一次执行可以可靠完成 | `implement` |
-| 路径明确，但需要多轮实现、验证、修复和重新判断 | `loop` |
+| 路径明确，需要多轮自主推进，且 Runtime 已有 Goal / long-running task | 优先 Runtime Goal；需要统一工程迭代规则时参考 `loop` |
+| 路径明确，需要多轮自主推进，但 Runtime 没有可靠 Goal / resume 能力 | `loop` |
 | 已确认存在 bug，需要建立反馈循环并定位根因 | `debug` |
 | 需要判断 Module、Interface、Seam、Adapter 或 dependency boundary | `codebase-design` |
 | 需要调查一个区域的架构问题和治理候选 | `examine-architecture` |
@@ -109,17 +112,39 @@ implement decides HOW to implement
 可以进一步简化为：
 
 ```text
-需求不清楚         → grilling
-路径不清楚         → wayfinding
-需求已收敛要落盘   → to-spec
-路径清楚且单次可完成 → implement
-路径清楚但需要多轮   → loop
-根因不清楚         → debug
-设计边界不清楚      → codebase-design
-架构问题在哪里      → examine-architecture
+需求不清楚                  → grilling
+路径不清楚                  → wayfinding
+需求已收敛要落盘            → to-spec
+路径清楚且单次可完成         → implement
+需要多轮，Runtime 有 Goal    → Runtime Goal + loop protocol（按需）
+需要多轮，Runtime 无 Goal    → loop
+根因不清楚                  → debug
+设计边界不清楚              → codebase-design
+架构问题在哪里              → examine-architecture
 ```
 
-`loop` 不是普通重试器。它适用于目标、范围和验收已经明确，但实现过程需要经过多个基于新 evidence 的 engineering iterations。瞬态失败后原样重跑属于 retry，不属于新的 engineering round。
+`loop` 不是 Goal 的替代品，也不是普通重试器。大部分现代 Coding Agent 已经能持久化目标、暂停并恢复任务，这些生命周期能力应该由 Runtime 自己管理。`loop` 主要补充跨 Runtime 可复用的工程执行语义：每轮必须产生新的 evidence 或有效状态变化，区分 engineering iteration 与 retry，并在 no-progress 时停止。
+
+### Runtime Goal 与 Loop 的关系
+
+推荐分层：
+
+```text
+Runtime Goal / Task
+    │  lifecycle / persistence / pause / resume / recovery
+    ▼
+Loop Engineering protocol
+    │  evidence / progress invariant / iteration / no-progress
+    ▼
+Engineering Skills
+    ├── implement
+    ├── tdd
+    ├── debug
+    ├── simplify
+    └── code-review
+```
+
+如果外层 Goal 已经负责 continue/stop/checkpoint，不要再创建一个具有相同职责的 nested loop。此时 `loop` 只是执行协议，不是第二个 orchestrator。
 
 ### 典型组合
 
@@ -139,6 +164,27 @@ implement
 ```
 
 #### 大型且初始路径不清晰的任务
+
+如果 Runtime 提供 Goal：
+
+```text
+wayfinding
+    ↓
+grilling
+    ↓
+to-spec
+    ↓
+Runtime Goal
+    ↓
+loop protocol
+    ↓
+implement
+   ├── tdd
+   ├── simplify
+   └── code-review
+```
+
+如果 Runtime 没有可靠的 Goal / resume：
 
 ```text
 wayfinding
