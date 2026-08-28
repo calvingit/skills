@@ -34,6 +34,47 @@
 
 ## Engineering Skills
 
+Engineering skills 不是完整的软件开发框架，也不会接管项目流程。它们把可以跨语言、跨框架复用的软件工程方法拆成独立、可组合的 Agent Skills。
+
+### 设计原则
+
+- **通用优先**：不绑定语言、框架、目录结构、业务组件或 Agent Runtime。
+- **项目规则外置**：coding standards、架构约束、领域术语、ADR、Git 规则和测试约定属于目标仓库，而不是 Skill。
+- **单一职责**：每个 Skill 解决一种明确的工程问题，避免把完整生命周期塞进一个巨型 prompt。
+- **可组合**：workflow 可以调用 engineering discipline，但不复制其规则；每类规则只保留一个 owner。
+- **证据驱动**：代码事实、spec、测试、运行结果和 review evidence 优先于模型自报。
+- **渐进式上下文**：只读取当前任务需要的项目上下文，不假定固定 `docs/**` 路径，也不预加载整套项目知识。
+
+使用时按以下优先级发现项目上下文：
+
+1. 用户明确要求和当前任务约束。
+2. 仓库级 Agent 指令与项目文档。
+3. 已存在的 coding standards、架构文档、ADR、领域词汇、测试与构建配置。
+4. 当前代码、调用链和可运行验证所证明的事实。
+
+### Skill 类型
+
+| 类型 | Skill | 职责 |
+| --- | --- | --- |
+| Workflow | `grilling`, `to-spec`, `implement`, `wayfinding` | 组织需求澄清、规格化、实现或长期探索阶段。 |
+| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `examine-architecture` | 提供可复用的软件工程判断与实践。 |
+| Execution Control | `loop` | 控制需要多轮 evidence-driven iteration 的自主执行。 |
+
+几个关键边界：
+
+```text
+implement knows WHEN to test
+tdd knows HOW to test
+
+examine-architecture finds WHERE architecture hurts
+codebase-design reasons about HOW the boundary should look
+
+loop decides WHETHER to continue
+implement decides HOW to implement
+```
+
+### Skills 一览
+
 | Skill | 用途 |
 | --- | --- |
 | [`code-review`](./skills/engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查代码 diff 或任务文档。 |
@@ -42,36 +83,119 @@
 | [`domain-modeling`](./skills/engineering/domain-modeling/SKILL.md) | 统一领域术语，并在满足条件时记录长期架构决策。 |
 | [`examine-architecture`](./skills/engineering/examine-architecture/SKILL.md) | 调查模块边界、依赖、ownership、接口和测试面，输出治理候选。 |
 | [`grilling`](./skills/engineering/grilling/SKILL.md) | 通过问题澄清需求、边界、风险和设计决策，不写代码。 |
-| [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的 `SPEC.md` 与 `PLAN.md` 实现、验证和审查任务。 |
+| [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
 | [`loop`](./skills/engineering/loop/SKILL.md) | 对路径已明确但需要多轮推进的任务执行 evidence-driven engineering loop，直到完成、阻塞、无进展或安全预算耗尽。 |
 | [`simplify`](./skills/engineering/simplify/SKILL.md) | 在行为不变前提下删除冗余抽象、测试专用接口和偶然复杂度。 |
-| [`tdd`](./skills/engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 seam 验证行为。 |
+| [`tdd`](./skills/engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 Seam 验证行为。 |
 | [`to-spec`](./skills/engineering/to-spec/SKILL.md) | 将已收敛需求落盘为可追踪的 `SPEC.md` 与 `PLAN.md`。 |
 | [`wayfinding`](./skills/engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
 
-## Engineering Skills 的边界
-
-Engineering skills 只定义可复用的工程方法，不携带具体项目或技术栈规则。使用时按以下优先级发现项目上下文：
-
-1. 用户明确要求和当前任务约束。
-2. 仓库级 Agent 指令与项目文档。
-3. 已存在的 coding standards、架构文档、ADR、领域词汇、测试与构建配置。
-4. 当前代码、调用链和可运行验证所证明的事实。
-
-Skill 不应假定目标仓库存在固定的 `docs/**` 路径，也不应为了自身流程创建项目级目录约定。项目规则属于项目，通用方法属于 Skill。
-
 ### 如何选择 Engineering Skill
 
+| 场景 | 推荐 Skill |
+| --- | --- |
+| 需求、边界或设计决策还没有收敛 | `grilling` |
+| 目标已经明确，但关键技术路径仍处于 Fog of war | `wayfinding` |
+| 需求已经收敛，需要生成正式任务契约 | `to-spec` |
+| 路径明确，预计一次执行可以可靠完成 | `implement` |
+| 路径明确，但需要多轮实现、验证、修复和重新判断 | `loop` |
+| 已确认存在 bug，需要建立反馈循环并定位根因 | `debug` |
+| 需要判断 Module、Interface、Seam、Adapter 或 dependency boundary | `codebase-design` |
+| 需要调查一个区域的架构问题和治理候选 | `examine-architecture` |
+| 需要 test-first / red-green 实现行为 | `tdd` |
+| 需要在行为不变前提下收缩复杂度或接口 | `simplify` |
+| 代码或任务文档已经完成，需要检查规范与需求符合度 | `code-review` |
+
+可以进一步简化为：
+
 ```text
-需求不清楚        → grilling
-路径不清楚        → wayfinding
-路径清楚且任务较小 → implement
-路径清楚且需要多轮 → loop
-根因不清楚        → debug
+需求不清楚         → grilling
+路径不清楚         → wayfinding
+需求已收敛要落盘   → to-spec
+路径清楚且单次可完成 → implement
+路径清楚但需要多轮   → loop
+根因不清楚         → debug
+设计边界不清楚      → codebase-design
+架构问题在哪里      → examine-architecture
 ```
 
-`loop` 不是普通重试器。它只适用于目标、范围和验收已经明确，但实现、验证、修复、简化或审查需要经过多个基于新 evidence 的 engineering iterations 的任务。
+`loop` 不是普通重试器。它适用于目标、范围和验收已经明确，但实现过程需要经过多个基于新 evidence 的 engineering iterations。瞬态失败后原样重跑属于 retry，不属于新的 engineering round。
+
+### 典型组合
+
+这些只是常见组合，不是强制生命周期。简单任务可以直接使用单个 Skill。
+
+#### 普通 Feature
+
+```text
+grilling
+   ↓
+to-spec
+   ↓
+implement
+   ├── tdd
+   ├── simplify
+   └── code-review
+```
+
+#### 大型且初始路径不清晰的任务
+
+```text
+wayfinding
+    ↓
+grilling
+    ↓
+to-spec
+    ↓
+loop
+  └── implement
+       ├── tdd
+       ├── simplify
+       └── code-review
+```
+
+#### Bug 修复
+
+```text
+debug
+  ↓
+reproduction
+  ↓
+root cause
+  ↓
+regression test
+  ↓
+fix
+  ↓
+simplify
+```
+
+#### 架构治理
+
+```text
+examine-architecture
+        ↓
+    candidate
+        ↓
+codebase-design
+        ↓
+grilling / to-spec
+        ↓
+implement
+```
+
+### 不需要 Skill 的情况
+
+Skill 是工程方法，不是每个任务都必须经过的仪式。以下情况通常直接处理即可：
+
+- 明确的一行或局部修改；
+- 简单配置调整；
+- 明确且低风险的机械性修改；
+- 只需要查询事实或阅读代码；
+- 已经有明确反馈循环，不需要额外工程流程的任务。
+
+只有当 Skill 能明显降低不确定性、错误率或长期维护成本时再使用。
 
 ## 使用
 
-按需将目标 skill 目录复制到 Agent 客户端的 skills 目录；skill 内的脚本、参考文档和模板随目录一起使用。
+按需将目标 Skill 目录复制到 Agent 客户端的 skills 目录；Skill 内的脚本、参考文档和模板随目录一起使用。README 负责说明 **What / Why / When / How they compose**，具体执行规则以各自 `SKILL.md` 为准。
