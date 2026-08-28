@@ -5,7 +5,7 @@
 ## 目录
 
 - `skills/global/`：来自全局 `~/.agents/skills`，提供工具、文档、委托和通用工作流。
-- `skills/engineering/`：通用工程的Coding流程，不绑定具体框架、项目目录或业务组件。
+- `skills/engineering/`：通用工程 Coding 流程，不绑定具体框架、项目目录、业务组件或 Agent Runtime。
 
 ## Global Skills
 
@@ -37,15 +37,28 @@
 | Skill | 用途 |
 | --- | --- |
 | [`code-review`](./skills/engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查代码 diff 或任务文档。 |
+| [`codebase-design`](./skills/engineering/codebase-design/SKILL.md) | 设计和评估 Module、Interface、Seam、Adapter 与依赖边界。 |
 | [`debug`](./skills/engineering/debug/SKILL.md) | 基于复现证据定位并修复 bug、性能回归和不稳定行为。 |
-| [`domain-modeling`](./skills/engineering/domain-modeling/SKILL.md) | 统一领域术语，维护领域模型和架构决策记录。 |
+| [`domain-modeling`](./skills/engineering/domain-modeling/SKILL.md) | 统一领域术语，并在满足条件时记录长期架构决策。 |
 | [`examine-architecture`](./skills/engineering/examine-architecture/SKILL.md) | 调查模块边界、依赖、ownership、接口和测试面，输出治理候选。 |
 | [`grilling`](./skills/engineering/grilling/SKILL.md) | 通过问题澄清需求、边界、风险和设计决策，不写代码。 |
 | [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的 `SPEC.md` 与 `PLAN.md` 实现、验证和审查任务。 |
 | [`loop`](./skills/engineering/loop/SKILL.md) | 按轮次自动推进实现、简化、验证和审查，直到任务收尾。 |
 | [`simplify`](./skills/engineering/simplify/SKILL.md) | 在行为不变前提下删除冗余抽象、测试专用接口和偶然复杂度。 |
+| [`tdd`](./skills/engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 seam 验证行为。 |
 | [`to-spec`](./skills/engineering/to-spec/SKILL.md) | 将已收敛需求落盘为可追踪的 `SPEC.md` 与 `PLAN.md`。 |
 | [`wayfinding`](./skills/engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
+
+## Engineering Skills 的边界
+
+Engineering skills 只定义可复用的工程方法，不携带具体项目或技术栈规则。使用时按以下优先级发现项目上下文：
+
+1. 用户明确要求和当前任务约束。
+2. 仓库级 Agent 指令与项目文档。
+3. 已存在的 coding standards、架构文档、ADR、领域词汇、测试与构建配置。
+4. 当前代码、调用链和可运行验证所证明的事实。
+
+Skill 不应假定目标仓库存在固定的 `docs/**` 路径，也不应为了自身流程创建项目级目录约定。项目规则属于项目，通用方法属于 Skill。
 
 ## 使用
 
