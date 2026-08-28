@@ -12,7 +12,7 @@
 | Skill | 用途 |
 | --- | --- |
 | [`claude-coder`](./skills/global/claude-coder/SKILL.md) | 将明确的编码、修复、重构或测试任务委托给 Claude Code。 |
-| [`codex-reviewer`](./skills/global/codex-reviewer/SKILL.md) | 使用 Codex CLI 执行代码分析、重构或自动编辑。 |
+| [`codex-reviewer`](./skills/global/codex-reviewer/SKILL.md) | 使用无头 Codex CLI 执行代码分析、审查、实现或自动化任务。 |
 | [`find-docs`](./skills/global/find-docs/SKILL.md) | 查询开发技术、库、SDK 和 CLI 的最新文档。 |
 | [`fuck-my-shit-mountain`](./skills/global/fuck-my-shit-mountain/SKILL.md) | 对项目进行证据驱动的全面工程审计。 |
 | [`handoff`](./skills/global/handoff/SKILL.md) | 将当前任务整理为可供下一次会话接续的交接文档。 |
