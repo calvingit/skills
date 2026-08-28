@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -gt 0 ]; then
+  TASK="$*"
+else
+  TASK="$(cat)"
+fi
+
+if [ -z "${TASK//[[:space:]]/}" ]; then
+  echo "用法：kimi-worker '<任务摘要>'，或通过 stdin 传入任务摘要" >&2
+  exit 2
+fi
+
+STATUS="$(git status --short || true)"
+PROMPT_FILE="/tmp/kimi_prompt.txt"
+
+cat > "$PROMPT_FILE" <<EOF
+You are modifying the current repository with Kimi CLI.
+
+Follow the repository instructions, including AGENTS.md files. Make the minimal necessary code changes. Do not refactor, reformat, or fix unrelated issues.
+
+Hard rules:
+- Find relevant files and call chains yourself.
+- Do not commit, push, create branches, rewrite history, reset, or revert user changes.
+- Do not modify unrelated pre-existing worktree changes.
+- Do not add dependencies unless the task explicitly requires it.
+- Run the requested verification commands after editing. If a command cannot run or fails, report it honestly.
+
+Current worktree before Kimi:
+\`\`\`
+${STATUS:-<clean>}
+\`\`\`
+
+Task from caller:
+\`\`\`
+$TASK
+\`\`\`
+
+Output:
+1. Summary of changes.
+2. Changed files.
+3. Verification commands and exact pass/fail/not-run results.
+4. Blockers or remaining risks.
+EOF
+
+if [ "${KIMI_WORKER_DRY_RUN:-}" = "1" ]; then
+  cat "$PROMPT_FILE"
+  exit 0
+fi
+
+kimi -p "$(cat "$PROMPT_FILE")" 2>&1 | tail -200

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Kimi Worker"
+  short_description: "Use Kimi CLI for focused code implementation."
+  default_prompt: "Use kimi-worker to implement this change."

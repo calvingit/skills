@@ -1,0 +1,7 @@
+interface:
+  display_name: "Wayfinding"
+  short_description: "跨会话探索 Fog of war，产出 MAP 与 decision tickets"
+  default_prompt: "使用 wayfinding skill 对不确定领域做跨会话调查。"
+
+policy:
+  allow_implicit_invocation: false

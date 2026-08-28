@@ -1,0 +1,7 @@
+interface:
+  display_name: "Loop"
+  short_description: "把已落盘 SPEC/PLAN 自动循环跑到收尾并提交"
+  default_prompt: "使用 loop skill 把已落盘的 SPEC/PLAN 自动循环跑到收尾并提交。"
+
+policy:
+  allow_implicit_invocation: false

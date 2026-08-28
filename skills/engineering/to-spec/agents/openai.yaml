@@ -1,0 +1,7 @@
+interface:
+  display_name: "To Spec"
+  short_description: "将已收敛需求落盘为 SPEC.md 与 PLAN.md"
+  default_prompt: "使用 to-spec skill 将已收敛的需求落盘为任务文档。"
+
+policy:
+  allow_implicit_invocation: false

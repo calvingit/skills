@@ -1,0 +1,7 @@
+interface:
+  display_name: "Grilling"
+  short_description: "拷问需求与设计方案，收敛未决决策"
+  default_prompt: "使用 grilling skill 澄清并收敛当前需求。"
+
+policy:
+  allow_implicit_invocation: false
