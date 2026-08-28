@@ -5,7 +5,7 @@
 ## 目录
 
 - `skills/global/`：来自全局 `~/.agents/skills`，提供工具、文档、委托和通用工作流。
-- `skills/engineering/`：跨 **Flutter、Web、后端** 等技术栈的通用工程流程，不绑定具体框架、项目目录或业务组件。
+- `skills/engineering/`：通用工程的Coding流程，不绑定具体框架、项目目录或业务组件。
 
 ## Global Skills
 
