@@ -7,7 +7,7 @@
 - `skills/global/`：来自全局 `~/.agents/skills`
 - `skills/engineering/`：可脱离当前 Flutter 项目，用于 Web 或后端工程的通用 skills
 
-`skills/engineering/` 当前包含：`debug`、`domain-modeling`、`examine-architecture`、`grilling`、`loop`、`to-spec`、`wayfinding`。
+`skills/engineering/` 当前包含：`code-review`、`debug`、`domain-modeling`、`examine-architecture`、`grilling`、`implement`、`loop`、`simplify`、`to-spec`、`wayfinding`。
 
 ## 使用
 

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simplify"
+  short_description: "在行为不变的前提下收缩当前任务实现与生产接口复杂度"
+  default_prompt: "使用 simplify skill 简化当前任务 diff，保留已确认行为并删除fake seam、测试专用路径和冗余抽象。"
