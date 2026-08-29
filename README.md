@@ -58,7 +58,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | 类型 | Skill | 职责 |
 | --- | --- | --- |
 | Workflow | `grilling`, `to-spec`, `implement`, `wayfinding` | 组织需求澄清、规格化、实现或长期探索阶段。 |
-| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `examine-architecture` | 提供可复用的软件工程判断与实践。 |
+| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的软件工程判断与实践。 |
 | Execution Protocol | `loop` | 提供 Runtime-neutral 的 progress、evidence、iteration / retry 和 no-progress 规则；仅在 Runtime 缺少 long-running task 能力时承担最小执行控制。 |
 
 几个关键边界：
@@ -67,8 +67,8 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 implement knows WHEN to test
 tdd knows HOW to test
 
-examine-architecture finds WHERE architecture hurts
-codebase-design reasons about HOW the boundary should look
+review-architecture judges WHETHER the current architecture is sound
+codebase-design reasons about HOW the target boundary should look
 
 Runtime Goal owns lifecycle / pause / resume
 loop defines WHAT counts as progress in each iteration
@@ -83,7 +83,7 @@ implement decides HOW to implement
 | [`codebase-design`](./skills/engineering/codebase-design/SKILL.md) | 设计和评估 Module、Interface、Seam、Adapter 与依赖边界。 |
 | [`debug`](./skills/engineering/debug/SKILL.md) | 基于复现证据定位并修复 bug、性能回归和不稳定行为。 |
 | [`domain-modeling`](./skills/engineering/domain-modeling/SKILL.md) | 统一领域术语，并在满足条件时记录长期架构决策。 |
-| [`examine-architecture`](./skills/engineering/examine-architecture/SKILL.md) | 调查模块边界、依赖、ownership、接口和测试面，输出治理候选。 |
+| [`review-architecture`](./skills/engineering/review-architecture/SKILL.md) | 评审现有架构是否合理、是否符合项目约束与相关技术栈最佳实践，并输出有证据支撑的 findings。 |
 | [`grilling`](./skills/engineering/grilling/SKILL.md) | 通过问题澄清需求、边界、风险和设计决策，不写代码。 |
 | [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
 | [`loop`](./skills/engineering/loop/SKILL.md) | Runtime-neutral Loop Engineering protocol；定义 progress invariant、evidence、iteration / retry 和 no-progress gate，不替代已有 Runtime Goal。 |
@@ -103,8 +103,8 @@ implement decides HOW to implement
 | 路径明确，需要多轮自主推进，且 Runtime 已有 Goal / long-running task | 优先 Runtime Goal；需要统一工程迭代规则时参考 `loop` |
 | 路径明确，需要多轮自主推进，但 Runtime 没有可靠 Goal / resume 能力 | `loop` |
 | 已确认存在 bug，需要建立反馈循环并定位根因 | `debug` |
-| 需要判断 Module、Interface、Seam、Adapter 或 dependency boundary | `codebase-design` |
-| 需要调查一个区域的架构问题和治理候选 | `examine-architecture` |
+| 需要判断目标 Module、Interface、Seam、Adapter 或 dependency boundary 应如何设计 | `codebase-design` |
+| 需要评审当前架构是否合理、是否符合项目约束或相关技术栈最佳实践 | `review-architecture` |
 | 需要 test-first / red-green 实现行为 | `tdd` |
 | 需要在行为不变前提下收缩复杂度或接口 | `simplify` |
 | 代码或任务文档已经完成，需要检查规范与需求符合度 | `code-review` |
@@ -119,8 +119,8 @@ implement decides HOW to implement
 需要多轮，Runtime 有 Goal    → Runtime Goal + loop protocol（按需）
 需要多轮，Runtime 无 Goal    → loop
 根因不清楚                  → debug
-设计边界不清楚              → codebase-design
-架构问题在哪里              → examine-architecture
+当前架构是否合理            → review-architecture
+目标架构边界怎么设计         → codebase-design
 ```
 
 `loop` 不是 Goal 的替代品，也不是普通重试器。大部分现代 Coding Agent 已经能持久化目标、暂停并恢复任务，这些生命周期能力应该由 Runtime 自己管理。`loop` 主要补充跨 Runtime 可复用的工程执行语义：每轮必须产生新的 evidence 或有效状态变化，区分 engineering iteration 与 retry，并在 no-progress 时停止。
@@ -219,9 +219,9 @@ simplify
 #### 架构治理
 
 ```text
-examine-architecture
+review-architecture
         ↓
-    candidate
+      finding
         ↓
 codebase-design
         ↓
