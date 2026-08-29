@@ -1,11 +1,13 @@
 ---
 name: codebase-design
-description: "Used when 需要设计或评估 Module、Interface、Seam、Adapter、依赖方向或可测试边界时（触发词：模块设计、接口设计、seam、deep module、dependency boundary、test seam）。提供通用设计纪律，不做全仓扫描、不直接实现。"
+description: "Used when 需要设计或评估具体 Module、Interface、Seam、Adapter、依赖方向或可测试边界时（触发词：模块设计、接口设计、seam、deep module、dependency boundary、test seam）。提供通用设计纪律，不做全仓架构评审、不直接实现。"
 ---
 
 # Codebase Design
 
 用于在具体设计点上判断代码应该如何分层、暴露什么 Interface、复杂度应该由谁拥有，以及生产代码与测试应该在哪个 Seam 相遇。它是一套可复用设计纪律，不绑定架构流派、语言、框架或目录结构。
+
+重点回答：**一个已经明确需要处理的设计边界应该 HOW 设计。** 它不负责判断整个现有架构是否 sound，也不负责主动扫描代码库寻找架构问题；这类任务使用 `review-architecture`。
 
 ## Canonical terms
 
@@ -81,7 +83,7 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 
 ## Workflow
 
-1. 明确当前设计问题和目标调用方；不要自动扩大成全仓架构审计。
+1. 明确当前设计问题、目标调用方和需要形成的目标 boundary；不要自动扩大成全仓架构评审。
 2. 读取目标 Module、代表性生产调用方、composition/configuration 入口、下游依赖和相关测试。
 3. 写出当前 observable behavior、ownership、必须保留的不变量和真实外部边界。
 4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
@@ -91,7 +93,8 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 
 ## Boundaries
 
-- 全仓发现架构债、hot spot 和治理候选：使用 `examine-architecture`。
+- 评审现有架构是否合理、是否符合项目/技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
+- 已确认某个 boundary / Interface / Seam 需要调整，需要形成目标设计：使用 `codebase-design`。
 - 需求或行为尚未决定：使用 `grilling`。
 - bug 根因调查：使用 `debug`。
 - 行为不变的 diff 收缩：使用 `simplify`。
