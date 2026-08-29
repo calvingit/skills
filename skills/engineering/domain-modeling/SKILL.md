@@ -18,6 +18,8 @@ description: "Used when 维护领域术语或长期架构决策时（触发词�
 3. 已存在的 glossary、CONTEXT、domain model、ADR/decision record 结构。
 4. 当前代码、公开 contract、调用链和测试所证明的事实。
 
+适用 `AGENTS.md` 的 `Engineering Skills Profile` 指定 glossary 或 ADR 入口时优先使用；值为 `auto` 或没有 Profile 时继续按上述顺序发现，不自动运行 setup。
+
 若项目没有术语表或 ADR 约定，不为执行本 skill 擅自引入固定 `docs/**` 目录；确实需要新增长期文档时，优先沿用仓库已有文档结构，仍无约定且位置会影响后续使用时再询问用户。
 
 ## 何时更新术语表
@@ -27,7 +29,7 @@ description: "Used when 维护领域术语或长期架构决策时（触发词�
 - 用户或 spec 使用的词与现有术语冲突。
 - 一个词在会话、代码或文档里承载多个含义。
 - 新概念会进入代码命名、接口命名、任务文档或长期 specs。
-- `grilling`、`to-spec`、`examine-architecture` 或 `code-review` 需要稳定的领域词来描述 Module、Seam 或需求。
+- `grilling`、`to-spec`、`review-architecture` 或 `code-review` 需要稳定的领域词来描述 Module、Seam 或需求。
 
 不要把实现细节写进领域术语表。文件路径、类名、API path、字段映射、缓存策略和发布步骤应进入 task spec、API 文档、规则文档或 ADR，而不是领域词汇。
 

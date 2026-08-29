@@ -1,6 +1,6 @@
 ---
 name: wayfinding
-description: "Used when 用户明确要求对不确定领域做跨会话调查探索时（触发词：技术调研、方案探索、fog of war、跨会话调查）。产出 MAP.md 与 decision tickets，不写代码。"
+description: "用于跨会话探索不确定的技术领域，产出 MAP.md 与 decision tickets，不写代码。"
 ---
 
 # Wayfinding

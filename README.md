@@ -12,7 +12,7 @@
 | Skill | 用途 |
 | --- | --- |
 | [`claude-coder`](./skills/global/claude-coder/SKILL.md) | 将明确的编码、修复、重构或测试任务委托给 Claude Code。 |
-| [`codex-reviewer`](./skills/global/codex-reviewer/SKILL.md) | 使用无头 Codex CLI 执行代码分析、审查、实现或自动化任务。 |
+| [`codex-executor`](./skills/global/codex-executor/SKILL.md) | 将边界清晰的编码任务委托给 Codex CLI 子智能体执行。 |
 | [`find-docs`](./skills/global/find-docs/SKILL.md) | 查询开发技术、库、SDK 和 CLI 的最新文档。 |
 | [`fuck-my-shit-mountain`](./skills/global/fuck-my-shit-mountain/SKILL.md) | 对项目进行证据驱动的全面工程审计。 |
 | [`handoff`](./skills/global/handoff/SKILL.md) | 将当前任务整理为可供下一次会话接续的交接文档。 |
@@ -44,6 +44,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 - **可组合**：workflow 可以调用 engineering discipline，但不复制其规则；每类规则只保留一个 owner。
 - **证据驱动**：代码事实、spec、测试、运行结果和 review evidence 优先于模型自报。
 - **渐进式上下文**：只读取当前任务需要的项目上下文，不假定固定 `docs/**` 路径，也不预加载整套项目知识。
+- **可选项目配置**：`project-setup` 可以把已确认的稳定入口写入项目 `AGENTS.md`；未配置的项目继续动态发现，不以 setup 作为使用前置条件。
 - **Runtime 能力优先**：Agent Runtime 已经提供可靠的 goal、task persistence、pause/resume、session recovery 等能力时，优先复用 Runtime 原生能力，不在 Skill 层重复实现生命周期控制。
 
 使用时按以下优先级发现项目上下文：
@@ -53,10 +54,13 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 3. 已存在的 coding standards、架构文档、ADR、领域词汇、测试与构建配置。
 4. 当前代码、调用链和可运行验证所证明的事实。
 
+项目使用 `project-setup` 后，各 Skill 按“当前用户指定、适用 `AGENTS.md` Profile、仓库已有结构、通用默认行为、仍有歧义时询问”的顺序解析约定。Profile 只保存稳定入口和策略，不保存运行进度或具体任务状态。
+
 ### Skill 类型
 
 | 类型 | Skill | 职责 |
 | --- | --- | --- |
+| Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化可选的 Engineering Skills Profile。 |
 | Workflow | `grilling`, `to-spec`, `implement`, `wayfinding` | 组织需求澄清、规格化、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的软件工程判断与实践。 |
 | Execution Protocol | `loop` | 提供 Runtime-neutral 的 progress、evidence、iteration / retry 和 no-progress 规则；仅在 Runtime 缺少 long-running task 能力时承担最小执行控制。 |
@@ -80,6 +84,7 @@ implement decides HOW to implement
 
 | Skill | 用途 |
 | --- | --- |
+| [`project-setup`](./skills/engineering/project-setup/SKILL.md) | 检测并初始化项目级 Engineering Skills 工作流约定；支持推荐、自定义、自动发现或取消。 |
 | [`code-review`](./skills/engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查代码 diff 或任务文档。 |
 | [`codebase-design`](./skills/engineering/codebase-design/SKILL.md) | 设计和评估 Module、Interface、Seam、Adapter 与依赖边界。 |
 | [`debug`](./skills/engineering/debug/SKILL.md) | 基于复现证据定位并修复 bug、性能回归和不稳定行为。 |
@@ -97,6 +102,7 @@ implement decides HOW to implement
 
 | 场景 | 推荐 Skill |
 | --- | --- |
+| 希望一次性统一任务目录、项目上下文、术语、ADR 或归档入口 | `project-setup`（可选） |
 | 需求、边界或设计决策还没有收敛 | `grilling` |
 | 目标已经明确，但关键技术路径仍处于 Fog of war | `wayfinding` |
 | 需求已经收敛，需要生成正式任务契约 | `to-spec` |

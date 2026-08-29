@@ -1,7 +1,6 @@
 ---
 name: tavily-cli
-description: |
-  Web search, content extraction, crawling, and deep research via the Tavily CLI. Use this skill whenever the user wants to search the web, find articles, research a topic, look something up online, extract content from a URL, grab text from a webpage, crawl documentation, download a site's pages, discover URLs on a domain, or conduct in-depth research with citations. Also use when they say "fetch this page", "pull the content from", "get the page at https://", "find me articles about", or reference extracting data from external websites. This provides LLM-optimized web search, content extraction, site crawling, URL discovery, and AI-powered deep research — capabilities beyond what agents can do natively. Do NOT trigger for local file operations, git commands, deployments, or code editing tasks.
+description: Use when the user explicitly asks to use the Tavily CLI or needs help choosing its commands. For a concrete web task, use tavily-search, tavily-extract, tavily-map, tavily-crawl, or tavily-research instead.
 compatibility: Requires tavily-cli (`curl -fsSL https://cli.tavily.com/install.sh | bash`) and a Tavily API key from tavily.com.
 allowed-tools: Bash(tvly *)
 ---

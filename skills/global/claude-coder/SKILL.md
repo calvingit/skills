@@ -1,6 +1,6 @@
 ---
 name: claude-coder
-description: 将具体的编码任务（实现功能、修复 Bug、重构、补充测试）委托给 Claude Code 子agent执行。
+description: 仅当用户明确要求使用 Claude Code，或授权委托具体编码任务时使用。
 ---
 
 # Claude Coder

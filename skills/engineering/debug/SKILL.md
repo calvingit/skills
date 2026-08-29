@@ -1,6 +1,6 @@
 ---
 name: debug
-description: "Used when 用户明确要求排查、诊断或修复 bug 时（触发词：debug、排查、诊断、修复 bug、flaky、性能回归）。确认真实 bug 后默认修复。"
+description: "用于排查已有 bug、非确定性故障或性能回归；仅在用户明确要求修复时修改代码。"
 ---
 
 # Debug
@@ -11,7 +11,7 @@ description: "Used when 用户明确要求排查、诊断或修复 bug 时（触
 
 先写清：预期行为、实际行为、预期来源。预期未确认时，不修改代码；说明证据缺口，并建议使用 `grilling` 收敛预期。
 
-用户要求 `debug`、诊断、排查或修复时，确认 bug 后默认继续修复。只有用户明确说“仅诊断”“只分析”或“不要修改代码”时，才停在诊断阶段。
+用户要求修复时，确认 bug 后继续最小修复；用户只要求诊断、排查或分析时，停在诊断阶段。
 
 - 已确认 bug：修复根因，不只遮盖症状。
 - 证据不足或不是 bug：不改代码，说明缺口。
@@ -90,7 +90,7 @@ description: "Used when 用户明确要求排查、诊断或修复 bug 时（触
 - `simplify` 已返回 `completed` 或 `no_change`。
 - 报告包含根因、修改、验证、未验证项和剩余风险。
 
-若问题需要架构调整，在修复完成后再转 `examine-architecture`，不要在本次 debug 中扩大范围。
+若问题需要架构调整，在修复完成后再转 `review-architecture`，不要在本次 debug 中扩大范围。
 
 ## 跨会话
 

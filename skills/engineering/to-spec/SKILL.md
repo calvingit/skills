@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: "Used when 用户明确要求将已收敛的需求编译为可执行任务契约时（触发词：生成 SPEC、写 PLAN、落盘任务文档、需求文档）。输出规范性的 SPEC.md 与由其派生的静态 declarative PLAN.md，不自动实现。"
+description: "用于将已收敛需求编译为可执行的 SPEC.md 与 PLAN.md 契约；不自动实现。"
 ---
 
 # To-Spec
@@ -28,6 +28,8 @@ contract  execution graph
 - 目标和关键路径仍不清楚且需要跨会话调查时，先用 `wayfinding`。
 - 用户确认前不创建正式文档；不编造字段、错误、接口、实现选择或任务依赖。
 - `to-spec` 只把已确认事实结构化；如果生成 PLAN 时发现新的产品、协议、架构、边界或验收选择，停止并回到 `grilling`，不要在 PLAN 中偷偷完成设计。
+
+任务目录优先采用用户本次指定，其次采用适用 `AGENTS.md` 的 `Engineering Skills Profile`，再沿用仓库已有任务文档约定；仍无约定且落盘位置会影响项目结构时询问用户。没有 Profile 不阻塞本 Skill，也不自动调用 setup。
 
 ## SPEC.md — normative contract
 

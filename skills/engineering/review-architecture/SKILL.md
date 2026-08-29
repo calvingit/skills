@@ -1,6 +1,6 @@
 ---
 name: review-architecture
-description: "Used when 用户明确要求评审现有架构是否合理、是否符合项目约束或技术栈最佳实践时（触发词：架构评审、架构审查、架构是否合理、模块边界、依赖方向、架构债）。基于当前代码和可验证规则输出有证据支撑的架构 findings；默认只读，不实现修复。"
+description: "评审既有架构是否符合项目约束与相关技术标准，输出有证据支撑的只读 findings；目标模块或边界设计使用 codebase-design。"
 ---
 
 # Review Architecture
@@ -46,6 +46,8 @@ description: "Used when 用户明确要求评审现有架构是否合理、是�
 - 范围过大时说明本轮 coverage 和未覆盖部分，并优先评审高耦合、高变更或关键 runtime path。
 
 ### 2. Discover current architecture and rules
+
+适用 `AGENTS.md` 的 `Engineering Skills Profile` 指定 architecture authorities 时，将其作为项目声明入口并继续用当前代码验证；没有 Profile 时沿用动态发现，不自动运行 setup。
 
 按实际存在情况读取：
 

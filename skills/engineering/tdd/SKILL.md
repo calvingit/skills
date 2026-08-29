@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: "Used when 需要 test-first 实现功能或 bug fix 时（触发词：TDD、test-first、red-green、red-green-refactor、integration test）。通过公开 Seam 逐个 vertical slice 验证行为，避免实现耦合和 tautological tests。"
+description: "用于以 test-first / red-green 方式实现功能或修复 bug，通过公开 Seam 的 vertical slice 验证行为。"
 ---
 
 # Test-Driven Development

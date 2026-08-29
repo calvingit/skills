@@ -16,4 +16,4 @@
 4. 只报告有证据证明由本次变更引入或扩大的问题。
 5. 返回 `references/output-and-rules.md` 规定的 Markdown receipt。
 
-需要根因定位时转交 `debug`；需要全仓架构分析时转交 `examine-architecture`。模型自报、测试输出或 receipt 不能替代实际 diff 判断。
+需要根因定位时转交 `debug`；需要全仓架构分析时转交 `review-architecture`。模型自报、测试输出或 receipt 不能替代实际 diff 判断。

@@ -12,7 +12,7 @@ description: "Used when 用户明确要求按已落盘 SPEC/PLAN 实现任务时
 1. 要求任务目录；缺少 `SPEC.md` 或 `PLAN.md` 时停止并转回 `to-spec`。
 2. 校验 `R`、`AC`、`T` ID 唯一且覆盖完整；阻塞性未决问题转回 `grilling`。
 3. 记录 `HEAD`、staged/unstaged/untracked 状态和 baseline，保护既有改动。
-4. 动态发现仓库指导文件、coding standards、领域词汇、长期决策、相关代码、调用链、错误路径、测试和配置；不假定固定文档路径或技术栈。
+4. 动态发现仓库指导文件、coding standards、领域词汇、长期决策、相关代码、调用链、错误路径、测试和配置；适用 `AGENTS.md` 存在 `Engineering Skills Profile` 时把它作为项目入口索引，没有时继续发现现有结构，不假定固定文档路径或技术栈。
 5. 形成当前 task 的最小实现方案；若关键 Module / Interface / Seam 本身仍未确定，调用或参考 `codebase-design`，不要在实现中临时发明边界。
 
 ## 实现循环

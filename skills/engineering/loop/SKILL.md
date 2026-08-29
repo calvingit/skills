@@ -1,6 +1,6 @@
 ---
 name: loop
-description: "Used when 需要跨 Agent Runtime 保持一致的 evidence-driven loop 语义，或当前 Runtime 缺少可靠的 goal/long-running task 能力时（触发词：loop、持续推进、run loop、execution protocol）。若 Runtime 已提供成熟的 goal/task 生命周期管理，优先使用原生能力，本 Skill 只提供可移植的 iteration/progress 规则，避免形成嵌套 orchestrator。"
+description: "仅当 Runtime 缺少可靠任务生命周期能力时，定义可移植的 evidence、progress 与 retry 规则；否则优先使用 Runtime 原生 goal/task 管理。"
 ---
 
 # Loop

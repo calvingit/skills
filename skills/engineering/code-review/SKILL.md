@@ -35,4 +35,4 @@ description: "Used when 审查代码改动或 SPEC/PLAN 任务文档时（触发
 
 ## 边界
 
-这是只读审查，不修改文件、版本控制状态或外部系统。运行时异常、测试失败和构建失败交给 `debug`；全仓架构诊断交给 `examine-architecture`。详细模板见 `references/output-and-rules.md`，reviewer 输入契约见 `references/worker.md`。
+这是只读审查，不修改文件、版本控制状态或外部系统。运行时异常、测试失败和构建失败交给 `debug`；全仓架构诊断交给 `review-architecture`。详细模板见 `references/output-and-rules.md`，reviewer 输入契约见 `references/worker.md`。

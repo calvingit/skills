@@ -1,6 +1,6 @@
 ---
 name: fuck-my-shit-mountain
-description: Only invoke when the user explicitly calls this skill by name or path. Never auto-invoke it based on task content, keywords, or inferred relevance.
+description: Perform an evidence-driven multidimensional engineering audit of a project; use only when the user explicitly calls this skill by name or path.
 ---
 
 # Fuck My Shit Mountain — Skill Definition
