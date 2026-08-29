@@ -69,6 +69,7 @@ tdd knows HOW to test
 
 review-architecture judges WHETHER the current architecture is sound
 codebase-design reasons about HOW the target boundary should look
+simplify asks WHETHER a concept, state, contract or abstraction needs to exist at all
 
 Runtime Goal owns lifecycle / pause / resume
 loop defines WHAT counts as progress in each iteration
@@ -87,7 +88,7 @@ implement decides HOW to implement
 | [`grilling`](./skills/engineering/grilling/SKILL.md) | 通过问题澄清需求、边界、风险和设计决策，不写代码。 |
 | [`implement`](./skills/engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
 | [`loop`](./skills/engineering/loop/SKILL.md) | Runtime-neutral Loop Engineering protocol；定义 progress invariant、evidence、iteration / retry 和 no-progress gate，不替代已有 Runtime Goal。 |
-| [`simplify`](./skills/engineering/simplify/SKILL.md) | 在行为不变前提下删除冗余抽象、测试专用接口和偶然复杂度。 |
+| [`simplify`](./skills/engineering/simplify/SKILL.md) | 在行为不变前提下删除没有当前生产 ownership 的偶然复杂度，包括 AI coding 沉积的 test-induced architecture、verification scaffolding 和推测性抽象。 |
 | [`tdd`](./skills/engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 Seam 验证行为。 |
 | [`to-spec`](./skills/engineering/to-spec/SKILL.md) | 将已收敛需求落盘为可追踪的 `SPEC.md` 与 `PLAN.md`。 |
 | [`wayfinding`](./skills/engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
@@ -106,7 +107,7 @@ implement decides HOW to implement
 | 需要判断目标 Module、Interface、Seam、Adapter 或 dependency boundary 应如何设计 | `codebase-design` |
 | 需要评审当前架构是否合理、是否符合项目约束或相关技术栈最佳实践 | `review-architecture` |
 | 需要 test-first / red-green 实现行为 | `tdd` |
-| 需要在行为不变前提下收缩复杂度或接口 | `simplify` |
+| 需要在行为不变前提下收缩当前 diff 或执行长期代码库 entropy reclamation | `simplify` |
 | 代码或任务文档已经完成，需要检查规范与需求符合度 | `code-review` |
 
 可以进一步简化为：
@@ -121,6 +122,7 @@ implement decides HOW to implement
 根因不清楚                  → debug
 当前架构是否合理            → review-architecture
 目标架构边界怎么设计         → codebase-design
+哪些维护义务其实不需要存在    → simplify
 ```
 
 `loop` 不是 Goal 的替代品，也不是普通重试器。大部分现代 Coding Agent 已经能持久化目标、暂停并恢复任务，这些生命周期能力应该由 Runtime 自己管理。`loop` 主要补充跨 Runtime 可复用的工程执行语义：每轮必须产生新的 evidence 或有效状态变化，区分 engineering iteration 与 retry，并在 no-progress 时停止。
@@ -229,6 +231,24 @@ grilling / to-spec
         ↓
 implement
 ```
+
+#### 长期 AI Coding 熵回收
+
+```text
+长期 Agent-driven development
+        ↓
+simplify Survey
+        ↓
+识别 support-only / test-induced / speculative obligations
+        ↓
+证明 runtime consumer、contract 与 behavior
+        ↓
+simplify Change
+        ↓
+删除完整维护义务并验证
+```
+
+这个流程针对“为了验证 AI 写得对不对而逐渐进入生产代码”的 abstraction、injection point、wrapper、hook、debug state、compatibility path 和实验残留。重点不是识别 AI 作者，而是判断这些维护义务是否仍有真实生产 ownership。
 
 ### 不需要 Skill 的情况
 
