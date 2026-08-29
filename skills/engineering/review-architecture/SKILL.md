@@ -11,6 +11,8 @@ description: "Used when 用户明确要求评审现有架构是否合理、是�
 
 重点回答：**当前 architecture 是否 sound，问题在哪里，为什么是问题，影响是什么。** 不负责设计最终目标架构，也不在本 Skill 内实施重构。
 
+与 `codebase-design` 的边界：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个 finding 已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 boundary / Interface / Seam 应该设计**。
+
 ## Review authority
 
 按以下优先级判断，不把个人偏好包装成规范：
@@ -26,6 +28,7 @@ description: "Used when 用户明确要求评审现有架构是否合理、是�
 ## Boundaries
 
 - 默认只读；不修改源码、测试、配置、规则、baseline 或架构文档。
+- 不负责形成具体目标架构；需要设计目标 boundary / Interface / Seam 时转给 `codebase-design`。
 - 不把目录结构、命名风格或“看起来不优雅”自动升级为架构问题。
 - 不把普通 bug、局部代码质量或性能问题纳入，除非证据表明根因来自 ownership、boundary、dependency、state lifecycle 或 architecture policy。
 - 不强行套用 Clean Architecture、DDD、MVVM 等固定风格；只有项目选择了该约束，或技术栈官方规则与当前问题直接相关时才检查符合度。
