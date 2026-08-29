@@ -1,4 +1,4 @@
 interface:
   display_name: "Simplify"
-  short_description: "在行为不变的前提下收缩当前任务实现与生产接口复杂度"
-  default_prompt: "使用 simplify skill 简化当前任务 diff，保留已确认行为并删除fake seam、测试专用路径和冗余抽象。"
+  short_description: "发现或移除偶然复杂度，默认聚焦当前任务并以证据证明安全简化"
+  default_prompt: "使用 simplify skill 审查当前任务或指定范围的偶然复杂度。默认聚焦当前 diff；先证明 consumer、contract 和行为，再完整移除不必要的维护义务并验证。"
