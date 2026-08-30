@@ -1,6 +1,6 @@
 ---
 name: debug
-description: "用于排查已有 bug、非确定性故障或性能回归；仅在用户明确要求修复时修改代码。"
+description: "用于定位已有 bug、非确定性故障或性能回归；修复须明确授权。"
 ---
 
 # Debug

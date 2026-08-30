@@ -1,6 +1,6 @@
 ---
 name: url-to-markdown
-description: Use when converting one or more public webpage URLs into local Markdown files for later agent reading, summarization, translation, archiving, or further processing.
+description: Convert public URLs into local Markdown files.
 ---
 
 # URL To Markdown

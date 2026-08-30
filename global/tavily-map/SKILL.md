@@ -1,7 +1,6 @@
 ---
 name: tavily-map
-description: |
-  Discover and list all URLs on a website without extracting content, via the Tavily CLI. Use this skill when the user wants to find a specific page on a large site, list all URLs, see the site structure, find where something is on a domain, or says "map the site", "find the URL for", "what pages are on", "list all pages", or "site structure". Faster than crawling — returns URLs only. Essential when you know the site but not the exact page. Combine with extract for targeted content retrieval.
+description: List a site's URLs with Tavily without extracting content.
 allowed-tools: Bash(tvly *)
 ---
 

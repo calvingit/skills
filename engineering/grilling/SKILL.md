@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: "用于澄清未收敛的需求或设计决策；只提问并收敛决策，不写代码或正式文档。"
+description: "用于在实现前 grill 未定稿方案：拷问方案、查证事实并收敛决策。"
 ---
 
 # Grilling

@@ -1,6 +1,6 @@
 ---
 name: implement
-description: "Used when 用户明确要求按已落盘 SPEC/PLAN 实现任务时（触发词：implement、实现 spec、按 PLAN 实现、执行任务文档、实现任务）。"
+description: "用于按已确认任务契约实现、验证并审查代码改动。"
 ---
 
 # Implement

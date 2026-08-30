@@ -1,6 +1,6 @@
 ---
 name: prompt-optimizer
-description: Use to improve prompts for clearer goals, useful context, stable outputs, practical boundaries, verification checks, reusable templates, or to diagnose prompts that produced weak, verbose, incorrect, or inconsistent results.
+description: Improve or diagnose prompts for clearer, more reliable results.
 ---
 
 # Prompt Optimizer

@@ -1,6 +1,6 @@
 ---
 name: project-setup
-description: "Used when 用户明确要求为项目初始化、统一或更新 engineering Skills 的任务目录、项目上下文、领域词汇、架构依据、ADR、归档或执行状态约定时。先检测现有结构，一次性给出推荐配置；用户可接受、自定义、保留自动发现或取消。"
+description: "用于检测并初始化项目工程工作流约定；变更须用户确认。"
 ---
 
 # Project Setup

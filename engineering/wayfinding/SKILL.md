@@ -1,6 +1,6 @@
 ---
 name: wayfinding
-description: "用于跨会话探索不确定的技术领域，产出 MAP.md 与 decision tickets，不写代码。"
+description: "用于跨会话探索不确定技术路径，维护决策地图而不写代码。"
 ---
 
 # Wayfinding

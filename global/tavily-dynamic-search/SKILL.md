@@ -1,6 +1,6 @@
 ---
 name: tavily-dynamic-search
-description: Search and filter web results programmatically when a task needs curated, noise-free material before targeted extraction. Do not use for a simple search, known-URL extraction, site crawling, or citation-led deep research.
+description: Programmatically search and filter web results before extraction.
 allowed-tools: Bash(tvly *), Bash(python3 *), Bash(uv run *), Bash(jq *)
 ---
 

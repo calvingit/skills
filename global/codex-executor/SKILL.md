@@ -1,6 +1,6 @@
 ---
 name: codex-executor
-description: Use Codex CLI as a coding execution sub-agent for analysis, implementation, debugging, refactoring, testing, and review tasks.
+description: Delegate a focused coding task to Codex CLI as a sub-agent.
 ---
 
 # Codex Executor

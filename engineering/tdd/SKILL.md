@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: "用于以 test-first / red-green 方式实现功能或修复 bug，通过公开 Seam 的 vertical slice 验证行为。"
+description: "用于以 test-first / red-green 实现功能或修复 bug，并验证行为。"
 ---
 
 # Test-Driven Development

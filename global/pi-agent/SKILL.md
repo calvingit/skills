@@ -1,6 +1,6 @@
 ---
 name: pi-agent
-description: Use Pi CLI as an external adviser, multi-model committee, or bounded implementer, including follow-up in an exact saved Pi session. Use for Pi second opinions, committee review, cross-model validation, delegated Pi implementation, or challenging a prior Pi finding. Do not use for ordinary local work that does not need Pi.
+description: Use Pi for external review or bounded implementation.
 ---
 
 # Pi Agent

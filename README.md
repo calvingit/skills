@@ -85,7 +85,7 @@ implement decides HOW to implement
 | Skill | 用途 |
 | --- | --- |
 | [`project-setup`](./engineering/project-setup/SKILL.md) | 检测并初始化项目级 Engineering Skills 工作流约定；支持推荐、自定义、自动发现或取消。 |
-| [`code-review`](./engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查代码 diff 或任务文档。 |
+| [`code-review`](./engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查已完成的代码改动。 |
 | [`codebase-design`](./engineering/codebase-design/SKILL.md) | 设计和评估 Module、Interface、Seam、Adapter 与依赖边界。 |
 | [`debug`](./engineering/debug/SKILL.md) | 基于复现证据定位并修复 bug、性能回归和不稳定行为。 |
 | [`domain-modeling`](./engineering/domain-modeling/SKILL.md) | 统一领域术语，并在满足条件时记录长期架构决策。 |
@@ -114,7 +114,7 @@ implement decides HOW to implement
 | 需要评审当前架构是否合理、是否符合项目约束或相关技术栈最佳实践 | `review-architecture` |
 | 需要 test-first / red-green 实现行为 | `tdd` |
 | 需要在行为不变前提下收缩当前 diff 或执行长期代码库 entropy reclamation | `simplify` |
-| 代码或任务文档已经完成，需要检查规范与需求符合度 | `code-review` |
+| 代码已经完成，需要检查规范与需求符合度 | `code-review` |
 
 可以进一步简化为：
 

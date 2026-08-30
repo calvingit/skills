@@ -1,6 +1,6 @@
 ---
 name: review-architecture
-description: "评审既有架构是否符合项目约束与相关技术标准，输出有证据支撑的只读 findings；目标模块或边界设计使用 codebase-design。"
+description: "用于只读评审既有架构是否符合项目约束和技术标准。"
 ---
 
 # Review Architecture

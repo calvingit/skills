@@ -1,15 +1,15 @@
 ---
 name: code-review
-description: "Used when 审查代码改动或 SPEC/PLAN 任务文档时（触发词：code review、审查改动、审查 SPEC、审查 PLAN、review diff、提交前审查）。"
+description: "用于审查已完成的代码改动，按项目标准和需求契约报告问题。"
 ---
 
 # Code Review
 
-对代码变更或任务文档做只读审查，始终分开报告 Standards 轴和 Spec 轴。当前 Agent 可以直接审查；只有确实需要独立视角且运行环境支持时，才委派 reviewer。不要把某个特定 sub-agent 或 Agent Runtime 当作审查前提。
+对已完成的代码变更做只读审查，始终分开报告 Standards 轴和 Spec 轴。当前 Agent 可以直接审查；只有确实需要独立视角且运行环境支持时，才委派 reviewer。不要把某个特定 sub-agent 或 Agent Runtime 当作审查前提。
 
 ## 流程
 
-1. 记录 `review_mode`（`standalone` 或 `implementation`）、`review_target`（`diff`、`task-docs` 或 `both`）和准确范围。
+1. 记录 `review_mode`（`standalone` 或 `implementation`）、代码审查范围（`diff`、指定代码路径或提交范围）和准确范围。
 2. 固定 baseline、既有改动、包含/排除范围，以及 SPEC/PLAN 或用户请求等需求来源。
 3. 动态发现目标仓库自己的 Agent 指令、coding standards、架构/领域文档、配置、直接调用方、相关测试和外部边界；不假定固定文档路径或技术栈。
 4. 分别完成 Standards 和 Spec 审查，主动寻找现有 guard、调用约束和反证。

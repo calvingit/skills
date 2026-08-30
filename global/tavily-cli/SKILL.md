@@ -1,6 +1,6 @@
 ---
 name: tavily-cli
-description: Use when the user explicitly asks to use the Tavily CLI or needs help choosing its commands. For a concrete web task, use tavily-search, tavily-extract, tavily-map, tavily-crawl, or tavily-research instead.
+description: Use Tavily CLI or choose commands; not for concrete web tasks.
 compatibility: Requires tavily-cli (`curl -fsSL https://cli.tavily.com/install.sh | bash`) and a Tavily API key from tavily.com.
 allowed-tools: Bash(tvly *)
 ---

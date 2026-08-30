@@ -1,7 +1,6 @@
 ---
 name: tavily-crawl
-description: |
-  Crawl websites and extract content from multiple pages via the Tavily CLI. Use this skill when the user wants to crawl a site, download documentation, extract an entire docs section, bulk-extract pages, save a site as local markdown files, or says "crawl", "get all the pages", "download the docs", "extract everything under /docs", "bulk extract", or needs content from many pages on the same domain. Supports depth/breadth control, path filtering, semantic instructions, and saving each page as a local markdown file.
+description: Crawl and extract multiple pages from one site with Tavily.
 allowed-tools: Bash(tvly *)
 ---
 

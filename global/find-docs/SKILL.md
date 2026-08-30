@@ -1,6 +1,6 @@
 ---
 name: find-docs
-description: Fetch current official documentation, API references, and examples for a specific library, framework, SDK, CLI, or cloud service when API behavior, configuration, setup, or version details matter.
+description: Fetch current official docs for a library or service.
 ---
 
 # Documentation Lookup

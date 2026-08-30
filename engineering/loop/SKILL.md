@@ -1,6 +1,6 @@
 ---
 name: loop
-description: "仅当 Runtime 缺少可靠任务生命周期能力时，定义可移植的 evidence、progress 与 retry 规则；否则优先使用 Runtime 原生 goal/task 管理。"
+description: "用于在 Runtime 缺少可靠任务管理时维持工程迭代的进度与证据。"
 ---
 
 # Loop

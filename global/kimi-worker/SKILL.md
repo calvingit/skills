@@ -1,6 +1,6 @@
 ---
 name: kimi-worker
-description: Use when the user explicitly asks to use Kimi/kimi CLI for a focused code implementation, bug fix, refactor, or test change in the current repository.
+description: Delegate a focused coding task to Kimi CLI; explicit request required.
 ---
 
 # Kimi Worker

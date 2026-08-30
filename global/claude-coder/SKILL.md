@@ -1,6 +1,6 @@
 ---
 name: claude-coder
-description: 仅当用户明确要求使用 Claude Code，或授权委托具体编码任务时使用。
+description: 将具体编码任务委托给 Claude Code；须用户明确要求或授权。
 ---
 
 # Claude Coder

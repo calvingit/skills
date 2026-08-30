@@ -1,6 +1,6 @@
 ---
 name: codebase-design
-description: "Used when 需要设计或评估具体 Module、Interface、Seam、Adapter、依赖方向或可测试边界时（触发词：模块设计、接口设计、seam、deep module、dependency boundary、test seam）。提供通用设计纪律，不做全仓架构评审、不直接实现。"
+description: "用于设计或评估具体模块、接口、依赖方向和可测试边界。"
 ---
 
 # Codebase Design

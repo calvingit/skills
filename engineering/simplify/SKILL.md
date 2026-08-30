@@ -1,6 +1,6 @@
 ---
 name: simplify
-description: "Used when 需要发现或移除代码中的偶然复杂度时（触发词：简化代码、删除过度设计、收缩 diff、简化审计、熵回收、清理 AI 生成复杂度）。默认用于当前任务，也支持长期 AI coding 后的代码库简化审计；审计请求只读。"
+description: "用于审计或移除已有代码或当前 diff 中的偶然复杂度；审计只读，修改需明确授权。"
 ---
 
 # Simplify

@@ -1,6 +1,6 @@
 ---
 name: domain-modeling
-description: "Used when 维护领域术语或长期架构决策时（触发词：领域建模、术语统一、ubiquitous language、glossary、CONTEXT.md、新增 ADR、记录架构决策）。"
+description: "用于统一领域术语，并按需记录长期架构决策。"
 ---
 
 # Domain Modeling

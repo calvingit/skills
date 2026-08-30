@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: "用于将已收敛需求编译为可执行的 SPEC.md 与 PLAN.md 契约；不自动实现。"
+description: "用于将已收敛需求写成可执行的 SPEC.md 与 PLAN.md；不自动实现。"
 ---
 
 # To-Spec

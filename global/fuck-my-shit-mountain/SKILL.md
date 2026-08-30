@@ -1,6 +1,6 @@
 ---
 name: fuck-my-shit-mountain
-description: Perform an evidence-driven multidimensional engineering audit of a project; use only when the user explicitly calls this skill by name or path.
+description: Run an evidence-driven project audit; explicit invocation only.
 ---
 
 # Fuck My Shit Mountain — Skill Definition
