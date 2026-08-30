@@ -1,0 +1,7 @@
+interface:
+  display_name: "Handoff"
+  short_description: "将当前对话压缩为可供下一位 Agent 接续的安全交接文档"
+  default_prompt: "使用 $handoff 为下一次 session 生成交接文档，并按我提供的后续目标定制内容。"
+
+policy:
+  allow_implicit_invocation: false

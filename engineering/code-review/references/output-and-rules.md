@@ -14,7 +14,7 @@ Diff: <命令或范围>
 Commits: <固定 baseline 后的提交>
 Standards 来源: <仓库指导文件、规范、配置和相关 skill>
 
-逐个 finding 报告：违反的规则或异味、位置、影响、建议、验证。
+逐个 finding 报告：违反的规则或异味、位置、影响、建议、验证。通用 smell 只能作为 judgement call，必须点名并引用 hunk；项目明确规则优先，工具已强制的规则跳过。
 只报告本次变更引入或扩大的问题；现有 guard 或约束已覆盖的风险不报告。
 ```
 
@@ -25,7 +25,7 @@ Standards 来源: <仓库指导文件、规范、配置和相关 skill>
 
 这是只读审查，不得修改工作区、版本控制状态或外部系统。
 Diff: <命令或范围>
-Spec 来源: <SPEC.md、PLAN.md、PRD、issue 或用户请求>
+需求契约来源: <SPEC.md、当前 ticket、issue/spec 或用户请求>
 
 报告：需求缺失、未授权行为、语义错误，以及验收标准到可观察证据的追踪缺口。
 没有来源时标记 no_spec_available，不补写需求。
@@ -78,3 +78,5 @@ Spec 来源: <SPEC.md、PLAN.md、PRD、issue 或用户请求>
 ```
 
 没有 finding 时仍保留上述章节并写 `No findings` 或 `Skipped: no_spec_available`。
+
+两个轴独立计数，分别给出最严重 finding。不要合并、跨轴重新排序或评出一个跨轴最严重项；提交建议不得省略任一轴的失败。

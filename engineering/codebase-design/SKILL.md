@@ -7,20 +7,22 @@ description: "用于设计或评估具体模块、接口、依赖方向和可测
 
 用于在具体设计点上判断代码应该如何分层、暴露什么 Interface、复杂度应该由谁拥有，以及生产代码与测试应该在哪个 Seam 相遇。它是一套可复用设计纪律，不绑定架构流派、语言、框架或目录结构。
 
-重点回答：**一个已经明确需要处理的设计边界应该 HOW 设计。** 它不负责判断整个现有架构是否 sound，也不负责主动扫描代码库寻找架构问题；这类任务使用 `review-architecture`。
+重点回答：**一个已经明确需要处理的 Module / Interface / Seam 应该 HOW 设计。** 它不负责判断整个现有架构是否 sound，也不负责主动扫描代码库寻找架构问题；这类任务使用 `review-architecture`。
 
 ## Canonical terms
 
-- **Module**：拥有一组相关行为和状态、对外提供明确能力的单元；可以是函数、类、package、service 或其他技术栈中的等价边界。
-- **Interface**：调用方需要理解和依赖的表面。
-- **Implementation**：Module 内部为了兑现 Interface 而存在的细节。
-- **Depth**：Module 提供的能力相对于调用方需要理解的 Interface 复杂度。优先 deep module：较小 Interface 承担较多必要复杂度。
-- **Seam**：可以通过公开行为观察、替换或组合系统的稳定边界。
-- **Adapter**：把外部系统、协议或运行时差异转换成领域/应用内部需要的形状。
-- **Leverage**：一个小而稳定的 Interface 能封装多少有价值的行为。
-- **Locality**：相关知识、变化原因和不变量是否由最接近它们的 Module 拥有。
+讨论这些概念时，统一使用以下术语，不用 component、service、API 或 boundary 替代。目标项目不必采用同名文件或类型，但各 Skill 必须共享同一套语义。
 
-这些术语是分析工具，不要求目标项目采用同名文件、类型或架构层。
+- **Module**：任何同时拥有 Interface 与 Implementation 的单元，可以是函数、类、package 或跨层 vertical slice。
+- **Interface**：调用方正确使用 Module 必须知道的全部表面，不只有类型签名，还包括不变量、顺序约束、错误模式、所需配置和性能特征。
+- **Implementation**：Module 内部为了兑现 Interface 而存在的代码和行为。它不同于 Adapter；Implementation 描述内部，Adapter 描述在 Seam 上承担的角色。
+- **Depth**：衡量 Interface 带来的杠杆。调用方需要理解的内容越少、获得的能力越多，Module 越 deep；Interface 与 Implementation 几乎一样复杂的 Module 较 shallow。
+- **Seam**：无需在该位置编辑代码，就能改变行为的位置；也就是 Module 的 Interface 所在之处。Seam 是“放在哪里”的设计决定，不等同于一般意义的 boundary。
+- **Adapter**：在某个 Seam 上满足 Interface 的具体实现角色，不限于外部系统转换器。
+- **Leverage**：Depth 为调用方带来的收益，体现一个 Interface 能以多小的理解成本，为生产调用方和测试提供多少能力。
+- **Locality**：Depth 为维护者带来的收益；变化、知识、不变量、bug 和验证是否集中在一个 Module 内，而不是扩散到调用方。
+
+这些概念的关系是：Module 对调用方提供一个 Interface；Depth 相对于该 Interface 判断；Seam 是 Interface 所在的位置；Adapter 位于 Seam 并满足 Interface；生产调用方和测试通过同一个 Interface 使用 Module。
 
 ## Core principles
 
@@ -47,9 +49,9 @@ Interface 应尽量：
 - 对真实错误和生命周期约束保持明确；
 - 能被真实生产调用方自然使用。
 
-### 3. Put Seams at real boundaries
+### 3. Put Seams at real variation points
 
-好的 Seam 通常已经存在于真实系统边界：公共 API、I/O Adapter、process boundary、clock/random source、external service、storage boundary、UI/user interaction boundary 等。
+好的 Seam 通常已经存在于真实变化点：公共 Interface、I/O Adapter、process boundary、clock/random source、external system、storage 或 UI/user interaction 等位置。
 
 不要仅因为“测试不好写”就新增 Seam。先问：
 
@@ -59,11 +61,13 @@ Interface 应尽量：
 
 若只有测试需要而生产调用方不需要，默认不扩大生产 Interface。
 
+一个 Adapter 只说明存在假想 Seam，两个有真实理由存在的 Adapter 才说明 Seam 成立，常见组合是 production Adapter 与 test Adapter。不要为单一实现增加只有转发作用的 port。
+
 ### 4. Keep adapters at the edge
 
 第三方 SDK、HTTP、数据库、文件系统、平台 API 等外部形状应尽量停留在 Adapter 一侧。核心 Module 不应无必要地传播 vendor-specific 类型、错误或配置。
 
-但不要机械地给每个依赖加 wrapper；只有当 Adapter 能形成真实稳定边界、隔离变化或提供更合适的内部 contract 时才值得存在。
+但不要机械地给每个依赖加 wrapper；只有当 Adapter 能占据真实稳定的 Seam、隔离变化或提供更合适的内部 contract 时才值得存在。
 
 ### 5. Prefer locality over speculative reuse
 
@@ -83,7 +87,7 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 
 ## Workflow
 
-1. 明确当前设计问题、目标调用方和需要形成的目标 boundary；不要自动扩大成全仓架构评审。
+1. 明确当前设计问题、目标调用方和需要形成的 Module / Interface / Seam；不要自动扩大成全仓架构评审。
 2. 读取目标 Module、代表性生产调用方、composition/configuration 入口、下游依赖和相关测试。
 3. 写出当前 observable behavior、ownership、必须保留的不变量和真实外部边界。
 4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
@@ -91,10 +95,12 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 6. 推荐最简单、能把必要复杂度放到正确 owner 且不扩大公共表面的方案。
 7. 本 skill 默认停在设计判断；需要落盘契约交给 `grilling` / `to-spec`，需要实现交给 `implement`。
 
+当依赖类型会影响 Module 的深化方式时，读取 [DEEPENING.md](DEEPENING.md)。只有用户明确要求比较候选 Interface，或单一方案不足以形成可靠判断时，才读取 [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md)，使用其中的多方案比较流程。
+
 ## Boundaries
 
 - 评审现有架构是否合理、是否符合项目/技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
-- 已确认某个 boundary / Interface / Seam 需要调整，需要形成目标设计：使用 `codebase-design`。
+- 已确认某个 Module / Interface / Seam 需要调整，需要形成目标设计：使用 `codebase-design`。
 - 需求或行为尚未决定：使用 `grilling`。
 - bug 根因调查：使用 `debug`。
 - 行为不变的 diff 收缩：使用 `simplify`。

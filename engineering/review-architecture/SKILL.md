@@ -11,7 +11,7 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 重点回答：**当前 architecture 是否 sound，问题在哪里，为什么是问题，影响是什么。** 不负责设计最终目标架构，也不在本 Skill 内实施重构。
 
-与 `codebase-design` 的边界：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个 finding 已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 boundary / Interface / Seam 应该设计**。
+与 `codebase-design` 的职责区别：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个 finding 已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 Module / Interface / Seam 应该设计**。
 
 ## Review authority
 
@@ -28,7 +28,7 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 ## Boundaries
 
 - 默认只读；不修改源码、测试、配置、规则、baseline 或架构文档。
-- 不负责形成具体目标架构；需要设计目标 boundary / Interface / Seam 时转给 `codebase-design`。
+- 不负责形成具体目标架构；需要设计目标 Module / Interface / Seam 时转给 `codebase-design`。
 - 不把目录结构、命名风格或“看起来不优雅”自动升级为架构问题。
 - 不把普通 bug、局部代码质量或性能问题纳入，除非证据表明根因来自 ownership、boundary、dependency、state lifecycle 或 architecture policy。
 - 不强行套用 Clean Architecture、DDD、MVVM 等固定风格；只有项目选择了该约束，或技术栈官方规则与当前问题直接相关时才检查符合度。
@@ -110,7 +110,7 @@ finding 不按“违反了多少原则”排序，而按 evidence 与实际影�
 
 本 Skill 到评审结论为止。若用户选择处理某项 finding：
 
-- 需要收敛目标 boundary / Interface → `codebase-design`；
+- 需要收敛目标 Module / Interface / Seam → `codebase-design`；
 - 需求或权衡未确定 → `grilling`；
 - 需要正式任务契约 → `to-spec`；
 - 已有明确方案 → `implement`；

@@ -1,7 +1,6 @@
 ---
 name: tavily-cli
 description: Use Tavily CLI or choose commands; not for concrete web tasks.
-compatibility: Requires tavily-cli (`curl -fsSL https://cli.tavily.com/install.sh | bash`) and a Tavily API key from tavily.com.
 allowed-tools: Bash(tvly *)
 ---
 

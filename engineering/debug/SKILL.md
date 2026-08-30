@@ -5,7 +5,7 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 
 # Debug
 
-定位并修复已确认的运行时问题。不要把 bug 工作转交给 `SPEC.md` 或 `PLAN.md`。
+定位并修复已确认的运行时问题。不要把 bug 工作转交给 SPEC 或 ticket 拆分流程。
 
 ## 授权与路线
 
@@ -16,7 +16,7 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 - 已确认 bug：修复根因，不只遮盖症状。
 - 证据不足或不是 bug：不改代码，说明缺口。
 - 不自动 commit、push、建分支或改写历史。
-- 反馈循环明确且复现最小：走直接修复。
+- 只有反馈循环已经证明 red-capable、deterministic、fast、agent-runnable，且复现已经最小化时，才可说明理由后跳过已满足的诊断阶段并直接修复。
 - 跨层、间歇性、环境相关或性能问题：走完整诊断流程。
 
 探索代码时按项目现有约定发现领域文档、ADRs/decision records 和 coding standards；修改前检查工作区状态，不覆盖已有改动。不要假定这些资料存在于固定目录。

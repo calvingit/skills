@@ -25,7 +25,7 @@ TDD 在这里指 **red → green 的 vertical-slice 反馈循环**。目标不�
 
 - 用户或调用方真正可观察的结果；
 - 真实生产构造和公开入口；
-- 与生产路径一致的 Adapter / boundary；
+- 与生产路径一致的 Interface / Seam / Adapter；
 - 独立于被测实现计算方式的 expected value。
 
 避免：
@@ -33,6 +33,8 @@ TDD 在这里指 **red → green 的 vertical-slice 反馈循环**。目标不�
 - 测 private method、内部字段或调用顺序，而这些不是 contract；
 - 为测试新增 `forTest`、noop、mutable callback、delay 参数或公开内部状态；
 - 用数据库旁路、内部日志或源码字符串存在性代替真实行为，除非这些本身就是公开 contract。
+
+具体正反例见 [tests.md](tests.md)，mocking 取舍见 [mocking.md](mocking.md)。
 
 ## Anti-patterns
 
@@ -62,14 +64,16 @@ one behavior → one red test → minimal green implementation → next behavior
 
 ## Choose the Seam first
 
-写测试前明确：
+写任何测试前先列出并确认：
 
 - 被观察的 public behavior 是什么；
 - 测试从哪个生产 Seam 进入；
 - 哪些外部边界可以使用真实依赖，哪些需要稳定替身；
 - 本轮不测试什么。
 
-Seam 应优先来自真实 Module / Interface / Adapter 边界。如果测试只能通过新增生产 API 才能建立，先用 `codebase-design` 判断边界是否真的应该改变，而不是直接为可测性扩 API。
+Seam 应位于真实 Module 的 Interface，必要时由 Adapter 满足。如果测试只能通过新增生产 Interface 才能建立，先用 `codebase-design` 判断 Module 或 Seam 是否真的应该改变，而不是直接为可测性扩大 Interface。
+
+`SPEC.md` 已记录且用户已确认的 Seam 可以直接复用，不重复提问。新增、替换、下移 Seam，或让测试越过原确认范围时，必须先向用户说明新 Seam、覆盖行为与取舍并取得确认；未经确认不写测试。
 
 ## The loop
 

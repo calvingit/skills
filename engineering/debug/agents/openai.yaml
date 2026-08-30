@@ -1,7 +1,7 @@
 interface:
   display_name: "Debug"
   short_description: "复现并诊断已有问题，按用户授权完成最小修复和回归验证"
-  default_prompt: "使用 debug skill 复现并诊断当前问题；如果我要求修复，再完成最小修复和回归验证。"
+  default_prompt: "使用 $debug 复现并诊断当前问题；如果我要求修复，再完成最小修复和回归验证。"
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

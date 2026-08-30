@@ -1,6 +1,6 @@
 ---
 name: loop
-description: "用于在 Runtime 缺少可靠任务管理时维持工程迭代的进度与证据。"
+description: "为跨 session 的工程工作维护进度与证据。"
 ---
 
 # Loop
@@ -77,11 +77,22 @@ Engineering Skills
 
 ## 输入与授权
 
-Loop 使用目标仓库已有的任务契约。优先使用 `SPEC.md` / `PLAN.md`；如果项目采用 issue、ticket、goal 或其他等价格式，只要能明确 Destination、范围、acceptance criteria、依赖和完成条件，也可以使用，不因本 Skill 强制改成固定文件格式。
+Loop 使用目标仓库已有的任务契约。当前 workflow 中，`SPEC.md` 提供规范性需求，`tickets/` 提供 execution graph；其他等价格式只要能明确 Destination、范围、acceptance criteria、依赖和完成条件，也可以使用，不因本 Skill 强制改成固定文件格式。
 
 Loop 的调用只授权按当前任务契约推进工程工作，**不隐含 commit、push、建分支或改写历史授权**。版本控制写操作必须来自用户明确授权或上层 workflow 已提供的授权。
 
 如果外层 Runtime Goal 已提供 baseline、checkpoint 或任务状态，本 Skill 复用外层状态，不再创建重复 artifact。
+
+## Ticket graph mode
+
+当任务目录存在由 `to-tickets` 生成的 `tickets/` 时：
+
+1. 读取 `SPEC.md`、每张 ticket 的 Status 与 Blocked by，计算 ready frontier；
+2. 每轮只选择一张 `ready` ticket，并调用 `implement` 执行它；
+3. ticket 完成后重新计算 frontier：所有 blocker 都 `done` 的后继 ticket 转为 `ready`；
+4. 所有 ticket 都 `done` 时进入 `done`；没有 ready ticket 但存在未完成 ticket 时进入 `blocked`，并报告未完成 blocker、状态冲突或 dependency cycle。
+
+Runtime Goal 已拥有同等状态时，优先由 Runtime 持久化 lifecycle；Loop 只依据等价状态选择下一张 ticket。Loop 不得改写 ticket 的 What to build、Constraints、Acceptance criteria 或 Blocked by。
 
 ## Loop state
 
@@ -127,7 +138,7 @@ Runtime 如果已经有 interruption recovery / retry 机制，优先交给 Runt
 
 ### 2. Select next action
 
-从当前可执行 frontier 里选择最能减少剩余不确定性或推进验收的最小工作单元。优先完成 vertical slice，而不是制造大量并行半成品。
+从当前可执行 frontier 里选择最能减少剩余不确定性或推进验收的最小工作单元。ticket graph mode 下，这个单元就是一张 ready ticket；优先完成 vertical slice，而不是制造大量并行半成品。
 
 需要实现时使用 `implement` 的规则；适合 test-first 时使用 `tdd`；发现 bug 根因未知时切到 `debug`；涉及 Interface / Seam 重新设计时参考 `codebase-design`。Loop 只提供执行协议，不复制这些 Skill 的内部纪律。
 

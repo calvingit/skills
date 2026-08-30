@@ -1,7 +1,7 @@
 interface:
   display_name: "Project Setup"
-  short_description: "检测并初始化项目的 Engineering Skills 工作流约定"
-  default_prompt: "Use $project-setup to 检测当前项目并一次性配置 Engineering Skills Profile。"
+  short_description: "配置项目 Workflow、领域文档与可选协作入口"
+  default_prompt: "使用 $project-setup 检测当前项目并配置 Engineering Skills Profile。"
 
 policy:
   allow_implicit_invocation: false

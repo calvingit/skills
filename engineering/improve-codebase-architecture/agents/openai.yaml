@@ -1,0 +1,7 @@
+interface:
+  display_name: "Improve Codebase Architecture"
+  short_description: "发现 deepening 候选并用可视化报告推进架构设计"
+  default_prompt: "使用 $improve-codebase-architecture 扫描当前范围的 deepening 候选并生成可视化报告。"
+
+policy:
+  allow_implicit_invocation: false

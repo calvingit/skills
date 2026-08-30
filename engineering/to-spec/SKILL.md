@@ -1,179 +1,137 @@
 ---
 name: to-spec
-description: "用于将已收敛需求写成可执行的 SPEC.md 与 PLAN.md；不自动实现。"
+description: "将已收敛的对话与代码库事实整理为实现前规格，确认测试 seam 后生成规范性 SPEC.md；不重新进行需求访谈，也不拆 ticket 或实现。"
 ---
 
-# To-Spec
+# To Spec
 
-把已经收敛的需求编译为同一任务目录中的 `SPEC.md` 与 `PLAN.md`，不自动实现。
+把当前对话中已经达成的共识和代码库事实整理成一份 `SPEC.md`，存放在同一任务目录中。不要重新进行一轮需求访谈；本 Skill 只负责调查、设计检查和归纳，不再展开已经收敛的产品讨论。
 
-`SPEC.md` 是规范性需求契约；`PLAN.md` 是从 SPEC 派生出的静态 declarative task graph，供 `implement`、Runtime-native Goal/Task 或 `loop` 消费。两者共同构成一个原子任务契约，但职责不同：
+`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、运行时状态或逐步实现配方。下游 `to-tickets` 从 SPEC 派生 tickets，`implement` 再交付其中一张 ready ticket。
 
-```text
-confirmed decisions
-        ↓
-     to-spec
-      /   \
-SPEC.md   PLAN.md
-contract  execution graph
-      \   /
-    R → AC → T
-```
+上游版本会把 spec 发布到配置好的 issue tracker，本仓库则使用本地 artifact。任务目录中的 `SPEC.md` 是唯一的规范来源，供 `to-tickets` 直接读取。除非用户明确要求，否则不向外部 tracker 发布，也不创建第二份需求 authority。
 
-运行时进度、retry 次数、当前 round、临时 finding、实际验证命令和 resume 状态不属于 PLAN；这些由 Agent Runtime 的 Goal/Task 状态或执行 checkpoint 保存。
+## 入口边界
 
-## 入口
+- 需求、行为、边界或接口仍有会改变方案的未决选择时，停止并交回 `grilling`。
+- Destination 可以命名，但关键路径仍处于 Fog of war 且需要跨 session 调查时，停止并交回 `wayfinding`。
+- 用户提供一份已完成的 `MAP.md` 时，确认 `Frontier` 为空，`Not yet specified` 中没有仍指向 Destination 的 Fog，阻塞性 decision 均已完成且结论得到最终确认。读取 Map 的 low-resolution view，以及所有会影响需求、接口、边界、测试或验收的 decision 文件。
+- 不编造缺失的字段、错误、接口、模块、测试 seam、实现选择或 expected result。发现缺口时先判断性质：能从代码库验证的事实继续调查，必须由用户决定的内容则停止并说明。
 
-- 需求仍有会改变行为、边界、接口或验收的未决选择时，先用 `grilling` 收敛。
-- 目标和关键路径仍不清楚且需要跨会话调查时，先用 `wayfinding`。
-- 用户确认前不创建正式文档；不编造字段、错误、接口、实现选择或任务依赖。
-- `to-spec` 只把已确认事实结构化；如果生成 PLAN 时发现新的产品、协议、架构、边界或验收选择，停止并回到 `grilling`，不要在 PLAN 中偷偷完成设计。
+## Process
 
-任务目录优先采用用户本次指定，其次采用适用 `AGENTS.md` 的 `Engineering Skills Profile`，再沿用仓库已有任务文档约定；仍无约定且落盘位置会影响项目结构时询问用户。没有 Profile 不阻塞本 Skill，也不自动调用 setup。
+### 1. 汇集已确认上下文
 
-## SPEC.md — normative contract
+整理当前对话、用户提供的文档和已完成的 decision，保留已经明确的事实、约束、术语、取舍和 Out of scope，不要为了填满模板而扩张范围。
 
-至少包含：背景、变更摘要、目标生效需求、边界与默认行为、验收标准。
+任务目录优先采用用户本次指定，其次采用适用 `AGENTS.md` 的 `Engineering Skills Profile`，再沿用仓库已有任务文档约定。没有 Profile 不阻塞本 Skill；仍无法确定且落盘位置会改变项目结构时再询问用户。
 
-- 需求使用稳定 `R1`、`R2`…；
-- 验收使用稳定 `AC1`、`AC2`…，并明确覆盖的需求；
-- 每条需求描述角色/触发、输入来源、状态变化、输出以及失败/取消行为；
-- 每条验收必须能在不查看实现细节的情况下独立判定；
-- 每条验收说明独立 expected source，例如用户确认、公开 contract、协议文档、worked example 或其他权威依据；
-- 不把文件结构、类名、内部调用顺序或某种实现方案写成 acceptance criterion，除非它们本身就是明确 contract。
+### 2. 调查代码库
 
-SPEC 是需求 authority。PLAN、Goal 或实现过程不得静默改变 SPEC 语义。
+如果当前会话还没有完成足够的调查，写 SPEC 前先查清：
 
-## PLAN.md — declarative task graph
+- 适用的 `AGENTS.md`、领域 glossary、架构说明和相关 ADR；
+- 当前外部行为、相关模块与调用关系、既有接口和约束；
+- 现有测试通过哪些 seam 验证相似行为，以及有哪些 prior art 可以沿用；
+- 用户已有工作区改动，避免覆盖或把无关变化纳入规格。
 
-PLAN 引用同目录 `SPEC.md`，把 `R / AC` 派生为可执行的 Task Graph。它描述 **需要达到什么结果、依赖什么、如何证明完成**，不描述实现 Agent 应该逐步怎么写代码。
+SPEC 使用项目自身的领域语言。调查到足以确定范围、接口和验证边界即可，不进入实现阶段。
 
-PLAN 至少包含以下部分。
+### 3. 设计并确认测试 seam
 
-### Destination
+在写正式 SPEC 前，先草拟这次变更应通过哪些 seam 测试，并寻找可以形成 deep module 的边界：用小而稳定的接口封装较多功能，让测试约束外部行为，而不是内部结构。
 
-用一小段话描述 PLAN 全部完成后的目标状态。Destination 必须与 SPEC 一致，不增加新的 scope。
+- 优先使用既有 seam；确需新增时，选择能够覆盖目标行为的最高层 seam。
+- seam 越少越好；如果一个稳定 seam 足以覆盖整项变更，优先只使用一个。
+- 说明每个 seam 覆盖哪些行为、expected result 的来源，以及仓库中是否有相似测试可供参考。
+- 不为了方便测试而预设不必要的生产接口，也不把文件路径、内部调用顺序或 mock 结构当成 contract。
 
-### Constraints
+向用户简洁说明建议的 seam、选择依据和必要取舍，并请用户确认。这一步只确认实现与测试边界，不重新进行全面的需求访谈。如果确认过程中出现新的产品、协议、架构、范围或验收选择，先回到 `grilling` 或 `wayfinding` 收敛，再继续生成 SPEC。
 
-仅记录会约束所有或多个 task 的已确认事实，例如必须保持的 contract、明确 non-goals、兼容性要求或不能突破的边界。项目已有规则只引用，不复制整套规则。
+### 4. 写 SPEC.md
 
-### Task Graph
-
-有多个 task 或存在依赖时，提供稳定、可直接计算 frontier 的摘要表：
+用户确认测试 seam 后，使用以下结构写正式文档。章节内容必须具体；不适用的内容明确说明为什么不适用，不使用占位符。
 
 ```markdown
-| Task | Blocked by | Covers |
-| --- | --- | --- |
-| T1 | — | AC1, AC2 |
-| T2 | T1 | AC3 |
-| T3 | T1 | AC4 |
+# <Spec title>
+
+## Problem Statement
+
+<从用户或调用方视角说明什么缺失或有问题，以及为什么值得解决。>
+
+## Solution
+
+<从用户或调用方视角描述解决方案的整体方向，不写逐步实现配方。>
+
+## Destination
+
+<全部 in-scope 行为完成后可观察的目标状态与边界。>
+
+## User Stories
+
+1. **R1** — As a <domain actor>, I want <behavior>, so that <benefit>.
+2. **R2** — ...
+
+## Boundaries and Defaults
+
+- <输入来源、默认行为、失败/取消行为、权限或兼容性边界。>
+
+## Implementation Decisions
+
+- <已确认的模块、稳定接口、架构、schema、API contract 或交互决策。>
+
+## Testing Decisions
+
+- <已确认的测试 seam、覆盖行为、测试层级、expected result 来源和相关 prior art。>
+
+## Acceptance Criteria
+
+- **AC1** — Covers: R1. <可在不查看实现细节的情况下独立判定的结果。> Expected source: <用户确认、decision、公开 contract、协议、worked example 或其他权威依据>.
+
+## Out of Scope
+
+- <明确不属于本次交付的内容。>
+
+## Further Notes
+
+- <必要的决策依据、相对链接或无法放入以上章节但下游必须保留的信息。>
 ```
 
-只记录真实 blocking edge；不为制造线性流程添加伪依赖。无 blocker 的 task 都属于 initial ready frontier。
+写作规则：
 
-### Tasks
+- User Stories 使用稳定 `R1`、`R2`…，列出一份详尽的行为清单，逐项编号并确保可以独立检查，覆盖功能的所有已确认情形。每条说明 actor、行为与价值。如果工作没有传统终端用户，就使用真实的领域角色或调用方，不虚构 persona。
+- Implementation Decisions 记录已经确定的模块、接口和技术选择，但不写容易过期的具体文件路径或代码片段。唯一例外是原型产出的状态机、reducer、schema 或类型形状比文字描述更准确时，可以内联最能体现决策的必要片段，并注明来源。
+- Testing Decisions 必须记录已确认的 seam、为什么选择它、从该 seam 观察哪些外部行为、expected result 的独立来源，以及可参考的现有测试。
+- Acceptance Criteria 使用稳定 `AC1`、`AC2`…，明确覆盖的 `R`；每个 in-scope `R` 至少被一个 AC 覆盖。AC 验证外部行为，不锁定类名、文件结构、内部调用顺序或某种实现方案，除非它们本身就是明确 contract。
+- 从 Map 压缩而来时，在 Implementation Decisions 或 Further Notes 中记录必要 decision 的相对链接或名称，使后续 session 能追溯“决定了什么、为什么”。
 
-任务使用稳定 `T1`、`T2`…，标题面向 outcome。每个 task 固定表达五类信息：
+### 5. 一致性检查
 
-```markdown
-### T1 — <Outcome-oriented title>
+生成后静态检查：
 
-**Outcome**
-<完成后可观察或可验证的状态>
+1. Problem、Solution 与 Destination 描述的是同一个问题和目标；
+2. `R` 与 `AC` ID 唯一且稳定，每个 in-scope `R` 至少被一个 AC 覆盖；
+3. 每个 AC 都可独立判定，并能追溯到已确认需求或权威 expected source；
+4. Implementation Decisions 与已调查的代码库、glossary 和 ADR 一致；
+5. Testing Decisions 完整记录用户确认的 seam，并尽可能从最高层 seam 验证外部行为；
+6. Boundaries、默认行为、Out of Scope 与验收没有冲突或悄然扩张；
+7. 文档中没有占位符、未处理冲突、虚构事实或被静默跳过的 blocker。
 
-**Blocked by**
-- none
+能根据已确认上下文或代码库事实修正的问题直接修正；需要新决策时，停止并交回 `grilling` 或 `wayfinding`。
 
-**Covers**
-- AC1
-- AC2
+### 6. 落盘与 handoff
 
-**Constraints**
-- <本 task 必须保持的 contract / boundary>
+确认一致性后写入任务目录 `SPEC.md`，报告路径、采用的测试 seam、关键实现/测试决策和任何未验证项。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
 
-**Verification**
-- <完成时需要获得的 evidence target>
-```
+SPEC 获确认后：
 
-字段语义：
+- 普通且能在单个 session 内完成的任务可以直接交给 `implement`；
+- 需要多个 session、多个 vertical slice 或真实 blocking edge 时，建议用户调用 `to-tickets`；由它提出拆分、取得确认并创建 `tickets/`。
 
-- **Outcome**：这个 task 应造成的完整状态变化，不写操作清单；
-- **Blocked by**：只有真实前置结果缺失会使本 task 无法正确开始时才记录依赖；
-- **Covers**：至少一个 `AC`；全部 `AC` 必须被某个 task 覆盖；
-- **Constraints**：只写该 task 特有且已确认的边界，不重复 SPEC；
-- **Verification**：描述需要证明的行为或结果，而不是提前指定测试框架、文件或 shell command。
-
-例如 Verification 应写“未授权调用无法改变状态”“取消后不留下部分持久化结果”，而不是写 `npm test ...`、`flutter test ...` 或某个测试文件路径。实际命令和结果属于执行 evidence，由 `implement` / Runtime Goal / `loop` 在执行时记录。
-
-PLAN 不写：
-
-- 文件清单、类名清单或代码片段；
-- 具体 shell 命令和逐步 implementation recipe；
-- `todo / doing / done` 等运行时状态；
-- retry 次数、round 次数、模型/Agent 分配、Token 预算；
-- 为了“看起来完整”而创建的测试、文档、清理等独立 task；这些默认属于对应 vertical slice，除非它们自身交付独立 AC。
-
-### Completion
-
-PLAN 末尾定义与技术栈无关的完成门槛：
-
-- 所有 in-scope task 已完成；
-- 每个 `AC` 都有可观察 verification evidence；
-- 没有未解决的真实 blocker；
-- 目标仓库或任务契约要求的 quality gates 已满足；
-- 未验证项如果存在，必须是 SPEC/任务契约明确允许的例外，而不是静默遗漏。
-
-不要在 PLAN 中永久硬编码 `simplify`、`code-review`、某个 CI 命令或特定框架测试作为所有项目的强制 gate；是否需要这些由目标仓库和实际任务决定。
-
-## PLAN 与 Runtime state 的边界
-
-PLAN 是相对稳定的执行图，不是运行日志。
-
-```text
-SPEC.md   → normative contract
-PLAN.md   → static declarative task graph
-Goal/Loop → runtime progress + evidence + checkpoint
-```
-
-执行过程中通常不因 `T1` 已完成就改写 PLAN。Runtime-native Goal/Task 优先拥有暂停、恢复、session recovery 和动态状态；只有运行环境缺少这些能力且任务确实跨会话时，执行层才创建最小 checkpoint。
-
-如果执行 evidence 证明原 Task Graph 的 dependency、scope 或 acceptance contract 错了，不能只改 runtime state：先判断是 PLAN 派生错误还是 SPEC 需要重新收敛，再回到 `to-spec` 或 `grilling` 更新正式契约。
-
-Runtime 可以为了执行方便把一个 task 临时拆成更小 action，但不得借 re-plan 静默改变 `AC`、Destination 或 scope。
-
-## Task decomposition
-
-多个 task、存在真实 blocking edge 或预计跨多个 fresh context 时，按 `references/task-decomposition.md` 拆分。
-
-优先 vertical slice：每个 task 交付一个对调用方有意义、可独立验证的结果。不要按“先建所有数据层、再建所有服务层、最后统一接 UI/API”的 horizontal layer 拆分，除非目标系统的真实依赖迫使这样做。
-
-需要人工交接材料时再生成 `IMPLEMENT_PROMPT.md`；它不是 SPEC/PLAN 的一部分，也不是 Goal/Loop 的状态文件。
-
-## Consistency validation
-
-生成后必须做一次静态一致性检查：
-
-1. `R`、`AC`、`T` ID 唯一且稳定；
-2. 每个 in-scope `R` 至少被一个 `AC` 覆盖；
-3. 每个 `AC` 至少被一个 `T` 覆盖；
-4. 每个 `T` 至少服务于一个 `AC`；
-5. 不存在 orphan AC、orphan task 或超出 SPEC 的 task；
-6. `Blocked by` 引用存在，且依赖代表真实 blocking edge；
-7. Task Graph 不存在明显 dependency cycle；
-8. Verification 是 evidence target，不是 implementation recipe；
-9. PLAN 未包含运行时 status；
-10. Destination、Constraints 与 Completion 没有扩张 SPEC；
-11. 文档中不存在占位符、未处理冲突或被静默跳过的 blocker。
-
-发现一致性问题时先修正文档；如果问题来自尚未收敛的需求或设计决策，停止并回到 `grilling`。
+本 Skill 不拆 tickets、不实现业务代码，也不自动获得外部发布、commit、push、建分支或改写历史的授权。
 
 ## 变更规则
 
-SPEC/PLAN 是一个原子任务契约：
-
-- **规范性变化**：需求、范围、接口 contract、acceptance criterion 或明确约束变化时，同时检查并更新 SPEC 与 PLAN，再重新确认；
-- **派生变化**：SPEC 语义不变，但原 Task Graph 的 decomposition / dependency 经新事实证明不合理时，可以只调整 PLAN，但必须保持 `R → AC → T` 完整追踪并说明依据；
-- **运行时变化**：task 已完成、验证失败、发生 retry、round 前进等，只更新 Runtime state/checkpoint，不改 PLAN。
-
-除非用户另行要求，不运行实现测试、不修改业务代码、不 commit/push。
+- **规范性变化**：需求、范围、接口 contract、testing decision、acceptance criterion 或明确约束变化时，更新 SPEC、重新确认，并由 `to-tickets` 更新受影响 tickets。
+- **执行拆分变化**：SPEC 语义不变，但 ticket 粒度或依赖经新事实证明不合理时，仅由 `to-tickets` 调整 tickets，不能反向改写 SPEC。
+- **运行时变化**：ticket 完成、验证失败、retry 或 round 前进只更新 ticket 或 Runtime state，不改 SPEC。

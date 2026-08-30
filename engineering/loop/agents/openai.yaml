@@ -1,7 +1,7 @@
 interface:
   display_name: "Loop"
-  short_description: "把已落盘 SPEC/PLAN 自动循环跑到收尾并提交"
-  default_prompt: "使用 loop skill 把已落盘的 SPEC/PLAN 自动循环跑到收尾并提交。"
+  short_description: "维护跨 session 的工程进度"
+  default_prompt: "使用 loop skill 持续推进当前工程工作并维护进度证据。"
 
 policy:
   allow_implicit_invocation: false

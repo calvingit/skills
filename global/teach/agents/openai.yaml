@@ -1,0 +1,7 @@
+interface:
+  display_name: "Teach"
+  short_description: "在当前 workspace 中跨 session 教授技能或概念并维护学习记录"
+  default_prompt: "使用 $teach 在当前 workspace 中教授我指定的主题，并维护跨 session 学习状态。"
+
+policy:
+  allow_implicit_invocation: false
