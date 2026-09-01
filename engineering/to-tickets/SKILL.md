@@ -1,6 +1,6 @@
 ---
 name: to-tickets
-description: "将已明确的工作拆成带真实依赖的可执行 tickets。"
+description: "将已确认的 SPEC 拆成多张可独立领取、带真实 blocking edges 的 delivery tickets，形成供 loop 调度的 execution graph；不实现代码或管理执行进度。"
 ---
 
 # To Tickets
@@ -81,15 +81,15 @@ tickets/
 ready
 ```
 
-没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`to-tickets` 只写入初始状态；执行期间由 `loop` 维护依赖解除产生的 `blocked → ready`，由 `implement` 负责 `ready → in-progress → done/blocked`、验收勾选和 execution evidence。除这些执行状态外，不得在执行中静默改写 ticket 契约。
+没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`to-tickets` 只写入初始状态；执行期间由 `loop` 在证据表明阻塞已经解除后维护 `blocked → ready`，由 `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。除这些执行状态外，不得在执行中静默改写 ticket 契约。
 
 ## Handoff
 
 写入后报告 initial ready frontier、每个 ticket 的相对路径，以及尚未解决的阻塞或未验证项：
 
-- 只有一张 ready ticket，或用户指定某张 ticket 时，推荐调用 `implement` 处理该 ticket；
-- 存在多张 ticket、需要持续推进 dependency graph 或判断安全并行时，调用 `loop` 维护 frontier 与调度；具体每张 ticket 仍由独立的 `implement` 执行。
+- execution graph 只有一张 ticket，或用户明确只要求处理其中一张 ticket 时，调用 `implement`；
+- execution graph 有多张 tickets 时，调用 `loop` 维护 frontier 与调度，即使 initial ready frontier 只有一张；具体每张 ticket 仍由独立的 `implement` 执行。
 
-Ticket Status、acceptance evidence 和 ready frontier 描述工程交付状态，由 `implement` 与 `loop` 消费和更新；conversation、session、context recovery 与 interruption persistence 属于 Runtime 状态。两类状态相互独立，不能互相替代或推导。
+Ticket Status、acceptance evidence 和 ready frontier 是 execution graph 的交付状态，由 `implement` 与 `loop` 按各自职责消费和更新。
 
 本 Skill 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。

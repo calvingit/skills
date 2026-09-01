@@ -29,18 +29,17 @@ Profile 只记录跨任务稳定的入口和策略：
 - 架构权威入口；
 - ADR 目录或 `auto`；
 - 已完成任务契约的归档目录或 `auto`；
-- Runtime 状态优先、必要时使用任务目录内最小 checkpoint 的策略；
 - 可选 issue tracker 模式与项目内操作说明入口；
 - triage skill 可用或用户明确启用时采用的 label vocabulary。
 
 不要把以下内容变成可配置变量：
 
 - `SPEC.md` 与 `tickets/` 的名称及其契约职责；
-- 当前任务目录、当前 task、进度、retry、round 或 verification evidence；
+- 当前任务目录、当前 task、进度、retry、iteration 或 verification evidence；
 - 具体测试命令、Agent/模型选择或 commit/push 权限；
 - 临时报告路径。
 
-不预建空 ADR、空 `STATUS.md`、示例 SPEC 或 tickets/ 占位目录。真正需要产物时由对应 Skill 按项目约定创建。
+不预建空 ADR、示例 SPEC 或 tickets/ 占位目录。真正需要产物时由对应 Skill 按项目约定创建。
 
 ## Detect before asking
 
@@ -48,7 +47,6 @@ Profile 只记录跨任务稳定的入口和策略：
 
 - 适用的 `AGENTS.md`、README、CONTRIBUTING 和更深层指令；
 - 已有 task/spec、project context、glossary、architecture、ADR 和 archive 结构；
-- Runtime/项目是否已有 checkpoint 或状态持久化约定；
 - Git remote、已有 issue tracker instructions、`.scratch/` 或其他协作约定；
 - `triage` skill 是否可用，以及仓库是否已有对应 labels；
 - Git 状态，避免覆盖用户现有改动。
@@ -86,9 +84,6 @@ architecture_authorities:
   - <repo-relative-architecture-entry>
 adr_root: <repo-relative-adr-root-or-auto>
 archive_root: <repo-relative-archive-root-or-auto>
-execution_state:
-  owner: runtime
-  fallback: <task-directory-status-or-auto>
 issue_tracker:
   mode: <local-or-github-or-gitlab-or-other>
   instructions: <repo-relative-instructions-or-auto>
@@ -104,7 +99,7 @@ triage:
 <!-- engineering-skills-profile:end -->
 ````
 
-路径字段必须相对仓库根目录，不能指向用户主目录、全局 Skills 仓库或仓库外位置。不要从上述占位符推导项目目录。`execution_state.owner: runtime` 表示 Runtime-native Goal/Task 优先；`fallback: task-directory-status` 表示只有 Runtime 和项目都没有可靠恢复能力且任务确需跨会话时，才在当前任务目录维护最小 `STATUS.md`；`auto` 表示沿用项目现有恢复约定。
+路径字段必须相对仓库根目录，不能指向用户主目录、全局 Skills 仓库或仓库外位置。不要从上述占位符推导项目目录；`auto` 表示消费者继续动态发现项目现有约定。
 
 `triage.enabled: false` 时省略 `labels`。只有检测到 triage skill 或用户明确启用时才询问 labels，默认使用 `needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。GitHub、GitLab 或 other 模式的具体操作写入 `issue_tracker.instructions` 指向的项目内文档；Profile 只保存稳定入口。
 

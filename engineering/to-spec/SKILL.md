@@ -7,7 +7,7 @@ description: "将已收敛的对话与代码库事实整理为实现前规格，
 
 把当前对话中已经达成的共识和代码库事实整理成一份 `SPEC.md`，存放在同一任务目录中。不要重新进行一轮需求访谈；本 Skill 只负责调查、设计检查和归纳，不再展开已经收敛的产品讨论。
 
-`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、运行时状态或逐步实现配方。下游 `to-tickets` 从 SPEC 派生 tickets，`implement` 再交付其中一张 ready ticket。
+`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、执行状态或逐步实现配方。单一 scoped task 直接交给 `implement`；需要多个执行单元时，由 `to-tickets` 从 SPEC 派生 graph，再由 `loop` 调度每张 ticket 的 `implement`。
 
 上游版本会把 spec 发布到配置好的 issue tracker，本仓库则使用本地 artifact。任务目录中的 `SPEC.md` 是唯一的规范来源，供 `to-tickets` 直接读取。除非用户明确要求，否则不向外部 tracker 发布，也不创建第二份需求 authority。
 
@@ -125,8 +125,8 @@ SPEC 使用项目自身的领域语言。调查到足以确定范围、接口和
 
 SPEC 获确认后：
 
-- 普通且能在单个 session 内完成的任务可以直接交给 `implement`；
-- 需要多个 session、多个 vertical slice 或真实 blocking edge 时，建议用户调用 `to-tickets`；由它提出拆分、取得确认并创建 `tickets/`。
+- 单一 scoped task、不需要 execution graph 时，直接交给 `implement`；
+- 需要多个可独立领取的工作单元、dependency edge 或统一调度时，调用 `to-tickets`；由它提出拆分、取得确认并创建 `tickets/`，再交给 `loop` 推进完整 graph。
 
 本 Skill 不拆 tickets、不实现业务代码，也不自动获得外部发布、commit、push、建分支或改写历史的授权。
 
@@ -134,4 +134,4 @@ SPEC 获确认后：
 
 - **规范性变化**：需求、范围、接口 contract、testing decision、acceptance criterion 或明确约束变化时，更新 SPEC、重新确认，并由 `to-tickets` 更新受影响 tickets。
 - **执行拆分变化**：SPEC 语义不变，但 ticket 粒度或依赖经新事实证明不合理时，仅由 `to-tickets` 调整 tickets，不能反向改写 SPEC。
-- **运行时变化**：ticket 完成、验证失败、retry 或 round 前进只更新 ticket 或 Runtime state，不改 SPEC。
+- **执行变化**：ticket 完成、验证失败、retry、frontier 或 execution evidence 变化只更新对应 ticket 或执行证据，不改 SPEC。

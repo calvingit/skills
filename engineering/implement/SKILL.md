@@ -21,7 +21,7 @@ ticket mode 开始前：
 - 读取完整 ticket 与它引用的 `SPEC.md`；
 - 确认 ticket 含有 What to build、Constraints、Acceptance criteria、Blocked by 与 Status；
 - 只领取 `Status: ready` 的 ticket，并确认每个 Blocked by ticket 都是 `done`；
-- 将当前 ticket 更新为 `in-progress` 后才开始工作，避免并发 session 重复领取。
+- 将当前 ticket 更新为 `in_progress` 后才开始工作，避免并发执行单元重复领取。
 
 两种模式都必须：
 
@@ -43,7 +43,7 @@ ticket mode 开始前：
 1. 基于当前交付的完整 diff 串行执行 `simplify`；没有本任务代码改动则记录 `no_change`。
 2. 按 [references/verification-and-review.md](references/verification-and-review.md) 运行定向验证，并在收尾默认运行项目完整测试集。只有项目契约明确允许更窄 gate、完整测试不可用或成本明显不成比例时才能跳过，同时记录原因、替代证据和未验证范围。
 3. 按 [references/verification-and-review.md](references/verification-and-review.md) 使用 `code-review` 做 Standards 与需求契约两轴审查；修复 findings 后重新运行受影响验证。
-4. ticket mode 下，只有当全部 Acceptance criteria 都有可观察 evidence 时，勾选对应条目、写入 evidence，并将 Status 更新为 `done`。无法继续时改为 `blocked`，写明精确原因；不得将未完成工作标为 done。
+4. ticket mode 下，只有当全部 Acceptance criteria 都有可观察 evidence 时，勾选对应条目、写入 evidence，并将 Status 更新为 `done`。无法继续时改为 `blocked`，写明精确原因和判断阻塞解除所需的 evidence；不得将未完成工作标为 done。
 5. 只有用户明确授权时才 commit；不自动 push。提交范围只含本任务改动。
 
 ## 边界

@@ -1,11 +1,11 @@
 ---
 name: loop
-description: "调度带状态的工程工作，并通过证据持续推进直到完成或稳定停止。"
+description: "执行多-ticket dependency graph：计算 ready frontier，默认通过独立 subagent 串行调度 implement，在可证明隔离且有收益时并行，并依据 landed evidence 推进到完成或稳定停止。用于已有 SPEC 和 tickets/ 的多工作单元实现；不用于单一 scoped task 或需求澄清。"
 ---
 
 # Loop
 
-Loop 是一个 **Runtime-neutral engineering execution protocol**。它消费已经明确的任务契约或 ticket graph，负责计算当前可执行工作、选择调度策略、收集 evidence、判断 progress，并持续推进到 `done`、`blocked`、`no_progress` 或预算耗尽。
+Loop 是一个 **Runtime-neutral engineering execution protocol**。它消费已经明确的多-ticket execution graph，负责计算当前可执行工作、选择调度策略、收集 evidence、判断 progress，并持续推进到 `done`、`blocked`、`no_progress`，或调用方明确预算耗尽。
 
 Loop 不定义需求、不拆 tickets，也不复制具体实现纪律。`SPEC.md` 提供规范性需求，`tickets/` 提供 execution graph，每个工作单元由 `implement` 执行。
 
@@ -13,7 +13,6 @@ Loop 不定义需求、不拆 tickets，也不复制具体实现纪律。`SPEC.m
 
 使用 Loop：
 
-- 已有明确任务契约，但实现、验证、修复、简化或审查需要多轮反馈；
 - 已有多张 delivery tickets，需要持续计算 ready frontier 和推进依赖图；
 - 多个 ready tickets 可能安全并行，需要显式判断 isolation 与 integration 风险；
 - 需要统一 progress、evidence、iteration / retry 和 no-progress 语义。
@@ -31,29 +30,29 @@ Loop 不定义需求、不拆 tickets，也不复制具体实现纪律。`SPEC.m
 ```text
 需求不清楚                  → grilling
 路径不清楚                  → wayfinding
-路径清楚且单次可完成         → implement
-需要持续推进或调度 tickets   → loop
+单一 scoped task             → implement
+多-ticket execution graph    → loop
 根因不清楚                  → debug
 ```
 
 ## 输入与授权
 
-Loop 使用目标仓库已有的任务契约。当前 workflow 中，`SPEC.md` 提供规范性需求，`tickets/` 提供 execution graph；其他等价格式只要能明确 Destination、范围、acceptance criteria、依赖和完成条件，也可以使用，不因本 Skill 强制改成固定文件格式。
+Loop 使用目标仓库中已确认的 `SPEC.md` 与包含多张 delivery tickets 的 `tickets/`。`SPEC.md` 提供规范性需求，`tickets/` 提供 execution graph。单一 scoped task 或只有一个工作单元的 SPEC 直接交给 `implement`。
 
 Loop 的调用只授权按当前任务契约推进工程工作，**不隐含 commit、push、建分支或改写历史授权**。版本控制写操作必须来自用户明确授权或上层 workflow 已提供的授权。
 
 ## Ticket graph execution
 
-当任务目录存在由 `to-tickets` 生成的 `tickets/` 时：
+执行多-ticket graph 时：
 
 1. 读取 `SPEC.md`、所有 tickets 的 Status 与 Blocked by，计算 ready frontier；
 2. 从 frontier 选择当前可执行 tickets，并为每张 ticket 调用独立的 `implement` 执行单元；
 3. 收集每个执行单元的 landed state、verification evidence、阻塞和未验证项；
 4. 完成的 ticket 由其 `implement` 更新验收、evidence 和 Status；
-5. 重新读取 graph 并计算 frontier：Loop 将全部 blocker 都 `done`、且没有其他阻塞原因的后继 ticket 从 `blocked` 更新为 `ready`；
-6. 所有 tickets 都 `done` 时进入 `done`；没有 ready 或 in-progress ticket 但仍有未完成 ticket 时进入 `blocked`，并报告未完成 blocker、状态冲突或 dependency cycle。
+5. 重新读取 graph 并计算 frontier：Loop 只在 evidence 表明声明的依赖和 implement 记录的其他阻塞都已解除时，将 ticket 从 `blocked` 更新为 `ready`；
+6. 所有 tickets 都 `done` 时进入 `done`；没有 ready 或 `in_progress` ticket 但仍有未完成 ticket 时进入 `blocked`，并报告未完成 blocker、状态冲突或 dependency cycle。
 
-Loop 只读取 ticket contract 并调度执行，不改写 What to build、Constraints、Acceptance criteria 或 Blocked by。Loop 只拥有依赖解除产生的 `blocked → ready` 转换；`implement` 拥有 `ready → in-progress → done/blocked`、验收勾选和 execution evidence。
+Loop 读取 ticket contract 并调度执行，不改写 What to build、Constraints、Acceptance criteria 或 Blocked by。Loop 拥有经 evidence 证明阻塞解除后的 `blocked → ready` 转换；`implement` 拥有 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。
 
 ## Scheduling
 
@@ -86,9 +85,9 @@ Loop 只读取 ticket contract 并调度执行，不改写 What to build、Const
 - `done`：任务完成条件、验收和质量 gate 已满足；
 - `blocked`：继续需要用户决策、外部输入、权限或新的项目事实；
 - `no_progress`：当前 evidence 下不存在能改变状态的合理动作；
-- `budget_exhausted`：达到 safety round budget，但任务尚未进入其他稳定终态。
+- `budget_exhausted`：达到调用方明确提供的 safety budget，但任务尚未进入其他稳定终态。
 
-这些状态描述工程交付进度，不承担 conversation、session、context recovery 或 interruption persistence。
+这些状态只描述 execution graph 的工程交付进度。
 
 ## Progress invariant
 
@@ -114,7 +113,7 @@ Loop 只读取 ticket contract 并调度执行，不改写 What to build、Const
 
 ### 1. Observe
 
-读取当前任务契约、ticket graph、上一轮 receipts、landed changes、验证结果和未解决 findings，只加载决定当前 next action 所需的上下文。
+读取 `SPEC.md`、ticket graph、上一轮 receipts、landed changes、验证结果和未解决 findings，只加载决定当前 next action 所需的上下文。
 
 ### 2. Calculate frontier
 
@@ -138,7 +137,7 @@ Loop 只读取 ticket contract 并调度执行，不改写 What to build、Const
 
 `done` 不能由模型或 subagent 自报决定。至少满足：
 
-- ticket graph mode 下，所选任务范围内所有 tickets 都是 `done`；没有 tickets 时，当前任务契约的范围全部完成；
+- 当前 execution graph 的所有 tickets 都是 `done`；
 - acceptance criteria 有可观察 verification evidence；
 - 相关验证通过，或未验证项已明确且被任务契约允许；
 - 必要的 `simplify` / `code-review` 等质量 gate 已完成；
@@ -155,14 +154,14 @@ Loop 只读取 ticket contract 并调度执行，不改写 What to build、Const
 - 当前问题变成根因未知的 bug investigation → 转 `debug`；
 - 一轮没有满足 Progress invariant → `no_progress`；
 - 没有站得住脚的 next action → `no_progress`；
-- 达到 safety budget → 停止并报告当前 evidence。
+- 达到调用方明确提供的 safety budget → 停止并报告当前 evidence。
 
 ## Safety budget
 
-Safety budget 是防止无界自主执行的 fuse，不是任务规模估算。
+Safety budget 是调用方可以提供的执行边界，不是任务规模估算。
 
 - 优先使用调用方或项目已有的执行预算；
-- 没有既定预算时，默认最多 3 个 engineering iterations；
+- 没有既定预算时，不设置固定 iteration 上限，持续执行到 `done`、`blocked` 或 `no_progress`；
 - retry 不消耗 engineering iteration budget；
 - 达到 budget 时先记录 evidence 和剩余 frontier，再停止；不得为了“跑完”自动提高上限。
 
@@ -178,9 +177,8 @@ Loop completion 与版本控制写操作解耦。
 
 - `to-spec` 定义规范性需求，`to-tickets` 定义 execution graph，Loop 不改写二者的契约。
 - Loop 负责 ready frontier、调度、progress、evidence 聚合、重新计算和稳定停止。
-- Loop 只维护 dependency-derived readiness；`implement` 负责单个 ticket 的领取、调查、代码修改、验证、审查、完成状态和 execution evidence。
-- Runtime 负责 conversation、session、context recovery 和 interruption persistence；它们不属于 ticket delivery state。
+- Loop 只根据可复核 evidence 维护 readiness；`implement` 负责单个 ticket 的领取、调查、代码修改、验证、审查、完成状态和 execution evidence。
 - 不复述或放宽 `implement`、`tdd`、`debug`、`simplify`、`code-review`、`codebase-design` 的内部规则。
 - 不因为自主调度就降低 HITL、安全、权限、测试、审查或项目规则门槛。
-- 不把 round 数量、模型消息数量、Token 消耗或代码行数当作 progress。
-- 不要求所有项目采用相同 task artifact、文件名、subagent 或 worktree 机制。
+- 不把 iteration 数量、模型消息数量、Token 消耗或代码行数当作 progress。
+- 不要求所有项目采用相同 subagent 或 worktree 机制。

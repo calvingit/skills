@@ -65,7 +65,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化可选的 Engineering Skills Profile。 |
 | Workflow | `grilling`, `to-spec`, `to-tickets`, `implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
-| Execution Protocol | `loop` | 消费任务契约或 ticket graph，负责 ready frontier、调度、progress、evidence、iteration / retry 和 no-progress 规则。 |
+| Execution Protocol | `loop` | 消费多-ticket execution graph，负责 ready frontier、调度、progress、evidence、iteration / retry 和 no-progress 规则。 |
 
 ### 如何选择 Skill
 
@@ -91,7 +91,7 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | 已有 SPEC，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
 | 实现边界明确，可以开始交付代码 | `implement` | 已实现并验证的变更 |
 
-`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。是否拆 ticket 取决于工作能否由一个 fresh session 可靠完成，以及是否存在独立交付和真实 blocker，而不只取决于任务大小。
+`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。单一 scoped task 直接交给 `implement`；需要多个可独立领取的执行单元、dependency edge 或统一调度时，才由 `to-tickets` 创建 execution graph。
 
 #### 按需叠加 Engineering Discipline
 
@@ -113,10 +113,9 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | 能力 | 何时使用 |
 | --- | --- |
 | `project-setup` | 希望把稳定的项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
-| Runtime continuation | conversation、session、context recovery 或 interruption persistence 需要由当前 Agent Runtime 维护时使用 |
-| `loop` | 已有明确任务契约，需要持续计算 frontier、调度执行单元、聚合 evidence 并判断 progress 时使用 |
+| `loop` | 已有多-ticket execution graph，需要持续计算 frontier、调度执行单元、聚合 evidence 并判断 progress 时使用 |
 
-`loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立；Loop 只依据任务契约和 execution evidence 推进工程工作。
+`loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立。
 
 ```text
 Runtime
@@ -143,7 +142,7 @@ Engineering workflow
 | --- | --- | --- | --- | --- |
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 规范契约 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | ticket 拆分、进度或 retry 状态 |
-| 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立 session、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
+| 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
 | 执行证据 | ticket 状态、验收勾选、receipt | `implement`、`loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
 `SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
@@ -165,7 +164,7 @@ flowchart TD
     Q -->|最终决定| M[decision handoff]
     Q -->|Notes 允许直接变更| I
     E --> G[SPEC.md]
-    G --> H{是否需要跨 sessions 执行？}
+    G --> H{是否需要 execution graph？}
     H -->|否| I[implement]
     H -->|是| J[to-tickets]
     J --> K[tickets/]
@@ -188,7 +187,7 @@ stateDiagram-v2
     in_progress --> blocked: 出现真实阻塞
 ```
 
-执行时，`loop` 只维护 dependency-derived 的 `blocked → ready`；`implement` 负责 `ready → in-progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。这些内容需要变化时，应回到 `grilling` 或 `wayfinding`，再通过 `to-spec` 和 `to-tickets` 更新下游 artifact。
+执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。这些内容需要变化时，应回到 `grilling` 或 `wayfinding`，再通过 `to-spec` 和 `to-tickets` 更新下游 artifact。
 
 ### 执行约束
 
@@ -219,7 +218,7 @@ stateDiagram-v2
 
 | Skill | 用途 |
 | --- | --- |
-| [`project-setup`](./engineering/project-setup/SKILL.md) | 配置工作流、领域文档、Runtime 状态与可选 issue tracker/triage 入口。 |
+| [`project-setup`](./engineering/project-setup/SKILL.md) | 配置工作流、领域文档与可选 issue tracker/triage 入口。 |
 
 #### Workflow
 
