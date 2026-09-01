@@ -47,13 +47,17 @@ ticket 应描述结果，不写易过期的文件路径、代码片段或逐步�
 
 已有 tickets 且 SPEC 已确认修订时，先确认 `loop` 已停止受影响的新 dispatch，并已终止或收回仍在写入的对应 implementer；`to-tickets` 不自行管理 subagent。然后比较旧/新契约及现有 graph：
 
-- 未受影响 ticket 保留 contract、Status 和 evidence；
-- 受影响的 `ready` / `blocked` ticket 在确认后更新或替换；
-- 受影响的 `in_progress` ticket 停止继续写入，保留 landed evidence，再更新或重新规划；
-- 受影响的 `done` ticket 若原 contract 仍适用则重开并更新，否则创建 correction 或 replacement ticket；
-- 新 vertical slice 创建新 ticket；移除的需求不能只删除文件，必须说明既有落地内容是否需要回退或保留。
+- 未受影响 ticket 保留 contract、Status 和 evidence。
+- `ready` / `blocked` ticket 尚未产生 landed changes 且仍是同一交付边界时，可以原位更新 contract，再按新依赖计算 `ready` / `blocked`；边界已经改变时将旧 ticket 标为 `superseded`，创建 replacement ticket。
+- 受影响的 `in_progress` ticket 必须先由 `loop` 停止 implementer 并回收 partial evidence。已经产生 landed changes 时，保留原 ticket 与 evidence，将其标为 `superseded`，再创建 replacement/correction ticket；确认尚无 landed changes 且交付边界未变时才允许原位更新并重算状态。
+- `done` ticket 的既有 contract 与 landed behavior 对当前 SPEC 仍完全有效时保持 `done`。只需追加行为时保留原 ticket，另建 amendment ticket；原行为需要修改、替换或撤销时将旧 ticket 标为 `superseded`，并创建 replacement/correction ticket。
+- 新 vertical slice 创建新 ticket。移除的需求若已有 landed behavior，创建明确的 removal/correction ticket；不得只删除旧 ticket 或 evidence。
 
-向用户展示 impact plan 并确认后再写入。随后重算所有 blocking edges、Status 与 ready frontier，确保没有悬空引用或 dependency cycle。active implementer 仍在写入同一 ticket 时必须停止同步，交回 `loop` 处理其 lifecycle。
+需求变更不得把既有 `done` ticket 直接恢复为 `ready`。`done → ready` 只表示 SPEC 未变、whole-graph review 发现原 ticket 没有正确满足原 contract。需求契约变化必须保留有效的 `done`，或使用 `superseded` 加新 ticket 表达。
+
+向用户展示 impact plan 并确认后再写入。随后重算所有 blocking edges、Status 与 ready frontier；任何指向 `superseded` ticket 的依赖都必须删除、替换或重连，确保没有悬空引用或 dependency cycle。active implementer 仍在写入同一 ticket 时必须停止同步，交回 `loop` 处理其 lifecycle。
+
+`superseded` 是 terminal、non-active 状态：不进入 frontier，不作为当前 SPEC 的验收覆盖，也不等同于失败。保留原 ticket 的 acceptance 勾选、receipt 和 evidence，将既有 Status 值更新为 `superseded`，并追加 `Superseded by` 与 `Supersession reason`；没有 replacement 时将 `Superseded by` 写为 `None` 并说明原因。
 
 ## 写入本地 tickets
 
@@ -95,7 +99,23 @@ tickets/
 ready
 ```
 
-没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。初次拆分时，`to-tickets` 只写入初始状态；SPEC amendment 同步时，它按已确认 impact plan 修改受影响 contract 和相应状态。正常执行期间由 `loop` 在证据表明阻塞已经解除后维护 `blocked → ready`，并在 whole-graph review 发现既有范围内缺陷时维护 `done → ready`；由 `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。除已确认的 amendment 同步外，不得在执行中静默改写 ticket 契约。
+ticket 因 SPEC amendment 退出当前 graph 时保留原内容和 evidence，将原有 Status 更新为 `superseded`，再追加 lineage：
+
+```markdown
+## Status
+
+superseded
+
+## Superseded by
+
+- [07-<replacement>.md](07-<replacement>.md)
+
+## Supersession reason
+
+<受影响的 R/AC、需求变化，以及 landed behavior 是保留、修改还是撤销。>
+```
+
+没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。初次拆分时，`to-tickets` 只写入初始状态；SPEC amendment 同步时，它按已确认 impact plan 修改受影响 contract、创建 replacement/amendment tickets，并负责 `ready/blocked/in_progress/done → superseded`。正常执行期间由 `loop` 在 evidence 证明阻塞解除后维护 `blocked → ready`，并仅在 SPEC 未变、whole-graph review 发现既有范围内缺陷时维护 `done → ready`；由 `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。除已确认的 amendment 同步外，不得在执行中静默改写 ticket 契约。
 
 ## Handoff
 
@@ -104,6 +124,6 @@ ready
 - execution graph 只有一张 ticket，或用户明确只要求处理其中一张 ticket 时，调用 `implement`；
 - execution graph 有多张 tickets 时，调用 `loop` 维护 frontier 与调度，即使 initial ready frontier 只有一张；具体每张 ticket 仍由独立的 `implement` 执行。
 
-Ticket Status、acceptance evidence 和 ready frontier 是 execution graph 的交付状态，由 `implement` 与 `loop` 按各自职责消费和更新。
+Ticket Status、acceptance evidence 和 ready frontier 是 execution graph 的交付状态：`to-tickets` 只在初次拆分或已确认的 SPEC amendment reconciliation 中写入 graph 状态，正常执行由 `implement` 与 `loop` 按各自职责消费和更新。
 
 本 Skill 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。

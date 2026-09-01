@@ -22,7 +22,7 @@ ticket mode 开始前：
 
 - 读取完整 ticket 与它引用的 `SPEC.md`；
 - 确认 ticket 含有 What to build、Constraints、Acceptance criteria、Blocked by 与 Status；
-- 只领取 `Status: ready` 的 ticket，并确认每个 Blocked by ticket 都是 `done`；
+- 只领取 `Status: ready` 的 active ticket，并确认每个 Blocked by ticket 都是有效的 `done`，不是 `superseded`；
 - 将当前 ticket 更新为 `in_progress` 后才开始工作，避免并发执行单元重复领取。
 
 两种模式都必须：
@@ -31,6 +31,8 @@ ticket mode 开始前：
 2. 动态发现仓库指导文件、coding standards、领域词汇、长期决策、相关代码、调用链、错误路径、测试和配置；适用 `AGENTS.md` 存在 `Engineering Skills Profile` 时把它作为项目入口索引，没有时继续发现现有结构；
 3. 形成当前交付的最小实现方案；若关键 Module / Interface / Seam 本身仍未确定，调用或参考 `codebase-design`，不要在实现中临时发明边界；
 4. 发现会改变行为、协议、权限、验收或范围的新事实时停止。单个未决选择转回 `grilling`；重要路径重新进入 Fog 转回 `wayfinding`，再经 `to-spec` 更新契约与受影响 tickets。
+
+执行期间若 `loop` 通知当前 ticket 受到已确认的 SPEC amendment 影响，立即停止继续写入并返回 partial landed changes、验证结果和未完成项；不得自行修改 ticket contract、恢复为 `ready` 或标记 `superseded`。由 `loop` 回收执行单元，再由 `to-tickets` 协调状态和 replacement ticket。
 
 ## 实现循环
 

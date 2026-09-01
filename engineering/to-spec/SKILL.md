@@ -33,7 +33,7 @@ description: "根据项目需求权威、已收敛对话与代码库事实创建
 
 任务目录优先采用用户本次指定，其次采用适用 `AGENTS.md` 的 `Engineering Skills Profile`，再沿用仓库已有任务文档约定。需求权威按“用户本次明确指定 → Profile → 仓库事实 → 动态发现”解析；Profile 只提供稳定入口。没有 Profile 不阻塞本 Skill；仍无法确定且会改变需求语义或落盘位置时再询问用户。
 
-Amendment 模式先把 delta 分类为 `added`、`changed`、`removed` 或 `no normative effect`，列出受影响的 R、AC、边界、实现决策与测试决策。未受影响内容保持不动：保留既有 R/AC ID，新需求追加新 ID，删除项保留可追踪的变更说明，不重新编号。若 delta 引入未决产品选择，只将受影响分支交回 `grilling`；若需求已定但新增技术路径仍处于 Fog，才进行定向 `wayfinding`。
+Amendment 模式先把 delta 分类为 `added`、`changed`、`removed` 或 `no normative effect`，列出受影响的 R、AC、边界、实现决策与测试决策。已有 tickets 时，只读检查其 contract、Status 和 evidence，报告哪些交付可能仍有效、需要追加、需要替换或需要撤销，但不修改 ticket。未受影响内容保持不动：保留既有 R/AC ID，新需求追加新 ID，删除项保留可追踪的变更说明，不重新编号。若 delta 引入未决产品选择，只将受影响分支交回 `grilling`；若需求已定但新增技术路径仍处于 Fog，才进行定向 `wayfinding`。
 
 ### 2. 调查代码库
 
@@ -141,7 +141,7 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 
 ### 6. 落盘与 handoff
 
-确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的测试 seam、关键实现/测试决策和未验证项；Amendment 模式先展示需求 delta、规范影响与下游影响，取得确认后原位更新，并报告保留/新增/移除的 R/AC。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
+确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的测试 seam、关键实现/测试决策和未验证项；Amendment 模式先展示需求 delta、规范影响与可能受影响的 tickets，取得确认后原位更新，并报告保留/新增/移除的 R/AC。`to-spec` 不修改 ticket contract、Status 或 evidence；这些由 `to-tickets` 在 SPEC 确认后协调。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
 
 SPEC 获确认后：
 

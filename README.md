@@ -181,7 +181,7 @@ flowchart TD
 
 ### 本地 ticket 生命周期
 
-`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification` 链接、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。
+`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification` 链接、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
 
 ```mermaid
 stateDiagram-v2
@@ -192,9 +192,13 @@ stateDiagram-v2
     in_progress --> done: 验收与 evidence 完整
     in_progress --> blocked: 出现真实阻塞
     done --> ready: whole-graph review finding
+    ready --> superseded: SPEC amendment
+    blocked --> superseded: SPEC amendment
+    in_progress --> superseded: 停止并回收 implementer
+    done --> superseded: 原 contract 不再适用
 ```
 
-执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`，并在 whole-graph review 发现既有 ticket 范围内缺陷时维护 `done → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
+执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`，并且只在 SPEC 未变、whole-graph review 发现原 contract 内缺陷时维护 `done → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。需求变化由 `to-tickets` 保留仍有效的 `done`，或将旧 ticket 标为 `superseded` 并创建 amendment/replacement ticket，不能直接用 `done → ready` 表达。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
 
 ### 执行约束
 
@@ -203,7 +207,7 @@ stateDiagram-v2
 3. Ticket 模式默认串行调度一张 `ready` ticket，并由独立 `implement` 执行；只有能证明 tickets 与 writable surfaces 足够隔离时才并行，独立 worktree 仅在隔离确有需要时使用。
 4. `loop` 创建或选择 implementer execution unit，并要求该 Agent 使用 `implement`；`implement` 不递归创建另一个 implementer，也不调度 sibling ticket。
 5. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
-6. 所有 tickets 完成后，基于完整 landed scope 执行一次 whole-graph review 和 integration verification；未处理的必须修复 finding 会重新打开责任 ticket，不能直接宣告完成。
+6. 所有 active tickets 完成后，基于完整 landed scope（包括 superseded tickets 留下的代码）执行一次 whole-graph review 和 integration verification；当前 SPEC 的每个 R/AC 必须由 active `done` ticket 覆盖，未处理的必须修复 finding 会重新打开责任 ticket，不能直接宣告完成。
 7. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
 8. Commit、push、建分支等版本控制写操作始终需要用户明确授权。
 

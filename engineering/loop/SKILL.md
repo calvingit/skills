@@ -27,9 +27,12 @@ Loop 是一个 Runtime-neutral engineering execution protocol。它消费已经�
 
 Loop 只维护 execution graph，不改写 ticket 的 What to build、Constraints、Acceptance criteria 或 Blocked by。状态所有权如下：
 
+Status 为 `ready`、`blocked`、`in_progress` 或 `done` 的 ticket 属于 active graph；`superseded` ticket 只保留历史 contract 和 evidence，不属于 active graph。
+
 - `to-tickets` 创建 initial `ready` / `blocked`；
+- SPEC amendment 后，`to-tickets` 保留仍有效的状态，或将不再适用的 ticket 标为 `superseded` 并创建 amendment/replacement ticket；
 - `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence；
-- Loop 只在 evidence 证明阻塞解除后执行 `blocked → ready`，或在 whole-graph review 发现既有范围内缺陷时执行 `done → ready`。
+- Loop 只在 evidence 证明阻塞解除后执行 `blocked → ready`，或在 SPEC 未变、whole-graph review 发现既有范围内缺陷时执行 `done → ready`。不得用 `done → ready` 表达需求变化。
 
 调用 Loop 只授权按当前任务契约推进工程工作，不隐含 commit、push、建分支或改写历史授权。版本控制写操作必须来自用户明确授权或上层 workflow 已提供的授权。
 
@@ -38,12 +41,12 @@ Loop 只维护 execution graph，不改写 ticket 的 What to build、Constraint
 每轮按以下协议执行：
 
 1. **Observe**：读取 graph、上一轮 receipts、landed changes、验证结果和未解决 findings，只加载决定下一步所需的上下文。
-2. **Calculate frontier**：根据 Status、Blocked by 和其他已记录阻塞计算 ready frontier；先处理状态冲突、重复领取和 dependency cycle。
+2. **Calculate frontier**：排除 `superseded` tickets，再根据 Status、Blocked by 和其他已记录阻塞计算 ready frontier；先处理状态冲突、重复领取、指向 superseded ticket 的依赖和 dependency cycle。
 3. **Dispatch**：按调度规则选择一张或多张 ready ticket。为每个执行单元固定 parent SPEC、唯一当前 ticket、baseline、pre-existing changes、已落地依赖、必要项目上下文、workspace/isolation、版本控制授权和 receipt 契约。
 4. **Verify landed state**：核对实际 diff、ticket receipt、验证命令、退出状态和关键 evidence；并行执行时同时检查跨 ticket 冲突、共享假设和集成结果。失败是下一轮 evaluate 的 evidence，除非证明确属瞬态故障，否则不自动 retry。
 5. **Evaluate**：比较本轮前后的工程状态，检查 progress，重新计算 frontier，并决定继续或进入稳定结果。
 
-所有 tickets 都为 `done` 时进入 Whole-graph gate。没有 ready 或 `in_progress` ticket 但仍有未完成 ticket 时进入 `blocked`，并报告 blocker、状态冲突或 dependency cycle。
+所有 active tickets 都为 `done` 时进入 Whole-graph gate；`superseded` tickets 是保留 evidence 的非活动历史，不计入 frontier 或完成覆盖。没有 ready 或 `in_progress` active ticket 但仍有未完成 active ticket 时进入 `blocked`，并报告 blocker、状态冲突或 dependency cycle。
 
 ## Dispatch and isolation
 
@@ -90,9 +93,9 @@ Loop 只有以下稳定结果：
 
 ## Whole-graph gate
 
-所有 tickets 都进入 `done` 后：
+所有 active tickets 都进入 `done` 后：
 
-1. 从 graph baseline 到当前 landed state 构造完整审查范围，排除 pre-existing 和无关改动，并汇总 `SPEC.md`、全部 tickets、implementation receipts、simplification receipts、verification evidence 和未验证项。
+1. 从 graph baseline 到当前 landed state 构造完整审查范围，排除 pre-existing 和无关改动，并汇总 `SPEC.md`、全部 active 与 superseded tickets、implementation receipts、simplification receipts、verification evidence 和未验证项。superseded ticket 不提供当前验收覆盖，但它留下的代码仍属于 landed state，必须检查是否已被保留、修改或撤销。
 2. 调用 `code-review` 的 `implementation` mode，对完整 graph 分别执行 Standards 与 Spec 审查。Loop 只负责提供范围、聚合结果和后续调度。
 3. 必须修复的 finding 若属于既有 ticket contract，将最小责任 ticket 集合从 `done` 重新置为 `ready`，附上 finding evidence，再通过 `implement` 修复；不得改写 ticket 契约容纳 finding。
 4. finding 没有既有 ticket 承担、暴露 graph 缺口时交回 `to-tickets`；需要改变需求、范围、接口 contract 或 acceptance criteria 时交回 `to-spec`。
@@ -100,7 +103,8 @@ Loop 只有以下稳定结果：
 
 只有同时满足以下条件才能进入 `done`：
 
-- 所有 tickets 都是 `done`；
+- 所有 active tickets 都是 `done`，且不存在仍被引用的 `superseded` blocker；
+- 当前 SPEC 的每个 in-scope R/AC 都由至少一张 active `done` ticket 的 evidence 覆盖，不能使用 superseded ticket 充数；
 - acceptance criteria 有可观察 verification evidence；
 - 相关验证通过，或未验证项已明确且被任务契约允许；
 - 每个 ticket 必要的 `simplify` / `code-review` 已完成；
@@ -121,6 +125,8 @@ Loop 只有以下稳定结果：
 - 达到调用方明确提供的 safety budget：记录当前 evidence 和剩余 frontier，进入 `budget_exhausted`。
 
 Safety budget 是调用方提供的执行边界，不是任务规模估算。优先使用调用方或项目已有预算；没有既定预算时不设置固定 iteration 上限，持续执行到稳定结果。Retry 不消耗 engineering iteration budget，也不得为了“跑完”自动提高上限。
+
+执行中收到已确认的 requirement amendment 时，停止新的受影响 dispatch，终止或收回相关 implementer，保留 partial landed state 与 receipt，并交给 `to-spec` / `to-tickets` 完成 graph reconciliation。只有更新后的 graph 不再存在 active writer、状态冲突或 superseded dependency 后才恢复调度。
 
 ## Boundaries
 
