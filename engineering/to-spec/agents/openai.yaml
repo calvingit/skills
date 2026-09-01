@@ -1,7 +1,7 @@
 interface:
   display_name: "To Spec"
-  short_description: "综合代码库事实、确认测试 seam 并生成实现前规格"
-  default_prompt: "使用 $to-spec 综合当前共识与代码库事实，确认测试 seam 后生成 SPEC.md。"
+  short_description: "依据需求权威创建或修订规范性 SPEC，并评估影响"
+  default_prompt: "使用 $to-spec 依据当前需求权威创建 SPEC.md，或将已确认的需求变更修订进现有 SPEC。"
 
 policy:
   allow_implicit_invocation: false

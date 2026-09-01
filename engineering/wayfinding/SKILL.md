@@ -1,6 +1,6 @@
 ---
 name: wayfinding
-description: "为跨 session 的不确定工作建立并推进决策地图。"
+description: "为跨 session 的技术或方案不确定性建立并推进决策地图；不把不可访问的需求来源误判为 Fog of war。"
 ---
 
 # Wayfinding
@@ -16,6 +16,8 @@ description: "为跨 session 的不确定工作建立并推进决策地图。"
 ## Storage and claim
 
 默认使用本地工作文档。如果适用的 `Engineering Skills Profile` 配置了 external issue tracker，就读取其中的 instructions，使用 tracker 原生的 child issue、blocking 和 assignment。没有这项配置也不阻塞流程，继续使用本地模式。
+
+同时读取 Profile 的 `requirement_authority`，但只用它划分问题类型。外部需求不可访问、需求增量未提供或产品边界未确认属于 requirement gap，应交给用户或 `grilling`；只有目标已经成立而技术路径仍看不清时才属于 Fog of war。Wayfinding 不直接同步外部 PRD，也不把未验证需求写成 decision 结论。
 
 本地任务目录优先采用用户本次指定，其次采用项目既有任务文档约定；仍不明确且位置会影响项目结构时询问用户。Wayfinding 只在本流程下创建：
 

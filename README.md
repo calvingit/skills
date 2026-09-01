@@ -62,7 +62,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 
 | 类型 | Skill | 职责 |
 | --- | --- | --- |
-| Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化可选的 Engineering Skills Profile。 |
+| Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化需求权威、上下文与协作入口。 |
 | Workflow | `grilling`, `to-spec`, `to-tickets`, `implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
 | Execution Protocol | `loop` | 消费多-ticket execution graph，负责 ready frontier、调度、progress、evidence、whole-graph review、iteration / retry 和 no-progress 规则。 |
@@ -87,11 +87,11 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | --- | --- | --- |
 | 产品行为、边界或验收尚未收敛 | `grilling` | 已确认的需求与决策，以及同步更新的领域术语/必要 ADR |
 | 目标明确，但关键技术路径存在 Fog of war，且需要跨 session 探索 | `wayfinding` | `MAP.md` 与 `decisions/` |
-| 需求或 Map 已收敛，需要形成规范契约 | `to-spec` | `SPEC.md` |
+| 需求或 Map 已收敛，或已有 SPEC 需要吸收需求变更 | `to-spec` | 创建或修订同一份 `SPEC.md` |
 | 已有 SPEC，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
 | 实现边界明确，可以开始交付代码 | `implement` | 已实现并验证的变更 |
 
-`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。单一 scoped task 直接交给 `implement`；需要多个可独立领取的执行单元、dependency edge 或统一调度时，才由 `to-tickets` 创建 execution graph。
+`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。已有 SPEC 后出现需求新增、修改或删除时，再次调用 `to-spec` 修订同一文件；若已有 graph，再由 `to-tickets` 只同步受影响部分。单一 scoped task 直接交给 `implement`；需要多个可独立领取的执行单元、dependency edge 或统一调度时，才由 `to-tickets` 创建 execution graph。
 
 #### 按需叠加 Engineering Discipline
 
@@ -112,7 +112,7 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 
 | 能力 | 何时使用 |
 | --- | --- |
-| `project-setup` | 希望把稳定的项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
+| `project-setup` | 希望把稳定的需求权威模式、项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
 | `loop` | 已有多-ticket execution graph，需要持续计算 frontier、调度执行单元、聚合 evidence，并在完成前执行 whole-graph review 时使用 |
 
 `loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立。
@@ -149,12 +149,16 @@ Engineering workflow
 
 `SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
 
+外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`to-tickets`、`loop`、`implement` 和 `code-review` 不直接解释外部需求来源。
+
 Runtime continuation state 不属于 execution graph，不能替代 ticket Status、acceptance evidence 或 ready frontier。
 
 ```mermaid
 flowchart TD
     A[当前工作] --> B{是否已有已确认的 SPEC？}
-    B -->|是| G[SPEC.md]
+    B -->|是| P{是否有未合并的需求变更？}
+    P -->|否| G[SPEC.md]
+    P -->|是| E[to-spec]
     B -->|否| N{需求与关键路径是否收敛？}
     N -->|需求或边界未定| C[grilling]
     N -->|技术路径存在 Fog| D[wayfinding]
@@ -223,7 +227,7 @@ stateDiagram-v2
 
 | Skill | 用途 |
 | --- | --- |
-| [`project-setup`](./engineering/project-setup/SKILL.md) | 配置工作流、领域文档与可选 issue tracker/triage 入口。 |
+| [`project-setup`](./engineering/project-setup/SKILL.md) | 配置需求权威、工作流、领域文档与可选 issue tracker/triage 入口。 |
 
 #### Workflow
 
@@ -231,8 +235,8 @@ stateDiagram-v2
 | --- | --- |
 | [`grilling`](./engineering/grilling/SKILL.md) | 通过统一 Design Tree 收敛决策，并由 domain-modeling discipline 同步维护领域术语与必要 ADR。 |
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
-| [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求或完成的 Map 落盘为规范性 `SPEC.md`。 |
-| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 将已确认的 `SPEC.md` 拆成带真实 blocker 的本地 vertical-slice tickets。 |
+| [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求落盘为规范性 `SPEC.md`，并在需求变化时修订同一文件。 |
+| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 将已确认的 `SPEC.md` 拆成 tickets，并在 SPEC 修订后同步受影响 graph。 |
 | [`implement`](./engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
 
 #### Engineering Discipline

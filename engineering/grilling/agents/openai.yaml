@@ -1,7 +1,7 @@
 interface:
   display_name: "Grilling"
-  short_description: "通过统一 Design Tree 收敛未决决策并同步维护领域术语与必要 ADR"
-  default_prompt: "使用 $grilling 调查并收敛当前方案，同时按 domain-modeling 纪律维护领域术语与必要 ADR。"
+  short_description: "查证可访问事实并收敛需求或设计决策"
+  default_prompt: "使用 $grilling 按需求权威查证可访问事实并收敛当前未决选择，同时维护必要的领域术语与 ADR。"
 
 policy:
   allow_implicit_invocation: false

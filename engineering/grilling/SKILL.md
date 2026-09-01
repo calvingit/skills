@@ -1,6 +1,6 @@
 ---
 name: grilling
-description: "在实现前拷问方案、查证事实、收敛决策，并同步维护领域术语与必要 ADR。"
+description: "在实现前拷问方案、查证可访问事实、收敛需求或设计决策，并同步维护领域术语与必要 ADR。"
 ---
 
 # Grilling
@@ -16,6 +16,8 @@ description: "在实现前拷问方案、查证事实、收敛决策，并同步
 讨论过程中留意四类情况：用户用词与现有 glossary 冲突、同一术语承载多个含义、用户表述与代码或公开 contract 冲突，以及新术语或长期决策需要记录。发现这些情况后，不另开一轮访谈，而是把它们纳入 Design Tree，等依赖满足后随当前 frontier 一起提出。
 
 用户确认术语后，立即按 `domain-modeling` 更新领域词汇来源。长期决策同时满足难回滚、缺少上下文会令人意外、存在真实取舍三项 ADR gate 时，也应立即记录 ADR，不等整个 grilling 结束后再批量补写。没有可靠写入位置时先动态发现；仍无法确定时，只询问一次位置，并继续提出不依赖该位置的其他 frontier 问题。
+
+读取适用 Profile 的 `requirement_authority`。`repository` 或 `integrated` 模式下，按项目内 instructions 查证需求事实；`external-manual` 模式下，把用户提供的当前快照视为待确认输入，并明确哪些内容未从原始外部系统验证。不能访问的 PRD、飞书或企业微信内容不是代码调查任务：将会改变行为、边界或验收的缺口纳入 Design Tree 交给用户，不得自行补全。
 
 先用一两句话说清 **Destination**：任务完成后应达到的状态和边界，再把会改变方案的决策连成 **Design Tree**，让每个决策都能解锁、排除或改变后面的决策。
 
