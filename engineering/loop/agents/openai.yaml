@@ -1,7 +1,7 @@
 interface:
   display_name: "Loop"
-  short_description: "调度多-ticket frontier 并聚合 landed evidence"
-  default_prompt: "使用 $loop 计算当前 ready frontier，调度 implement 执行 tickets，并依据 landed evidence 推进 execution graph。"
+  short_description: "调度多-ticket frontier、聚合 evidence 并执行最终审查"
+  default_prompt: "使用 $loop 计算 ready frontier，调度 implement 执行 tickets，聚合 landed evidence，并在完成前执行 whole-graph review。"
 
 policy:
   allow_implicit_invocation: false

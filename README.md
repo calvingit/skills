@@ -65,7 +65,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化可选的 Engineering Skills Profile。 |
 | Workflow | `grilling`, `to-spec`, `to-tickets`, `implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
-| Execution Protocol | `loop` | 消费多-ticket execution graph，负责 ready frontier、调度、progress、evidence、iteration / retry 和 no-progress 规则。 |
+| Execution Protocol | `loop` | 消费多-ticket execution graph，负责 ready frontier、调度、progress、evidence、whole-graph review、iteration / retry 和 no-progress 规则。 |
 
 ### 如何选择 Skill
 
@@ -113,9 +113,11 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | 能力 | 何时使用 |
 | --- | --- |
 | `project-setup` | 希望把稳定的项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
-| `loop` | 已有多-ticket execution graph，需要持续计算 frontier、调度执行单元、聚合 evidence 并判断 progress 时使用 |
+| `loop` | 已有多-ticket execution graph，需要持续计算 frontier、调度执行单元、聚合 evidence，并在完成前执行 whole-graph review 时使用 |
 
 `loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立。
+
+`loop` 拥有 implementer subagent 的创建、scope、并发、workspace/isolation 和结果回收；`implement` 拥有单个工作单元内的调查、修改、验证与审查程序。调用路径是 `loop dispatch → subagent 使用 implement`，不是 `implement` 再创建 implementer。用户直接调用 `implement` 时，当前 Agent 就是 implementer。
 
 ```text
 Runtime
@@ -143,7 +145,7 @@ Engineering workflow
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 规范契约 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | ticket 拆分、进度或 retry 状态 |
 | 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
-| 执行证据 | ticket 状态、验收勾选、receipt | `implement`、`loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
+| 执行证据 | ticket 状态、验收勾选、implementation receipt、whole-graph review receipt | `implement`、`loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
 `SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
 
@@ -185,18 +187,21 @@ stateDiagram-v2
     ready --> in_progress: implement 领取
     in_progress --> done: 验收与 evidence 完整
     in_progress --> blocked: 出现真实阻塞
+    done --> ready: whole-graph review finding
 ```
 
-执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。这些内容需要变化时，应回到 `grilling` 或 `wayfinding`，再通过 `to-spec` 和 `to-tickets` 更新下游 artifact。
+执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`，并在 whole-graph review 发现既有 ticket 范围内缺陷时维护 `done → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
 
 ### 执行约束
 
 1. 先读取用户要求、目标项目的 `AGENTS.md`、现有规范、ADR、领域词汇、测试与构建配置。
 2. 只由对应 owner 修改其 artifact；下游 Skill 不静默改写上游结论。
 3. Ticket 模式默认串行调度一张 `ready` ticket，并由独立 `implement` 执行；只有能证明 tickets 与 writable surfaces 足够隔离时才并行，独立 worktree 仅在隔离确有需要时使用。
-4. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
-5. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
-6. Commit、push、建分支等版本控制写操作始终需要用户明确授权。
+4. `loop` 创建或选择 implementer execution unit，并要求该 Agent 使用 `implement`；`implement` 不递归创建另一个 implementer，也不调度 sibling ticket。
+5. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
+6. 所有 tickets 完成后，基于完整 landed scope 执行一次 whole-graph review 和 integration verification；未处理的必须修复 finding 会重新打开责任 ticket，不能直接宣告完成。
+7. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
+8. Commit、push、建分支等版本控制写操作始终需要用户明确授权。
 
 ### 典型组合
 
@@ -247,7 +252,7 @@ stateDiagram-v2
 
 | Skill | 用途 |
 | --- | --- |
-| [`loop`](./engineering/loop/SKILL.md) | 维护 ready frontier，调度 `implement` 执行单元，并依据 evidence 判断 progress、继续与稳定停止。 |
+| [`loop`](./engineering/loop/SKILL.md) | 维护 ready frontier，调度 `implement` 执行单元，聚合 evidence，并在完成前执行 whole-graph review。 |
 
 ## 使用
 

@@ -12,15 +12,16 @@ description: "审查已完成的代码变动是否符合标准和需求。"
 - **branch / commit**：用户提供 fixed point。先用 `git rev-parse` 验证，再固定 `git diff <fixed-point>...HEAD` 和 `git log <fixed-point>..HEAD --oneline`；ref 无效或 diff 为空时立即停止。
 - **working tree**：baseline 固定为 `HEAD`，分别审查 staged、unstaged，并记录 untracked inventory；不能把未读取的 untracked 文件算入覆盖范围。
 - **explicit path**：仅在用户明确指定路径时使用，报告没有 branch fixed point、无法证明完整提交范围的限制。
+- **implementation**：由实现流程提供 baseline、pre-existing changes、SPEC、当前 ticket 或完整 execution graph、实际 landed scope、receipts 和 verification evidence；既可审查单个工作单元，也可审查 whole-graph 集成结果。
 
-实现流程传入的 baseline、pre-existing changes 和当前 ticket 作为 working-tree review 的固定范围，不重新猜测。
+Implementation mode 使用调用方提供的范围，不重新猜测；无法从 baseline、receipts 和当前 landed state 证明完整覆盖时返回 `BLOCKER` 并说明 blind spot。
 
 ## Spec source
 
 按以下顺序寻找需求来源：
 
 1. 用户明确提供的 source；
-2. 当前 ticket 引用的 `SPEC.md`；
+2. 当前 ticket 或 execution graph 引用的 `SPEC.md`；
 3. commit message 中可从已配置 issue tracker 获取的 issue；
 4. 与 branch 或任务名匹配的本地 spec。
 

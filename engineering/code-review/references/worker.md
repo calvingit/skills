@@ -6,7 +6,7 @@
 
 必需：`review_mode`、`review_scope`、`user_request`。可选 `review_target`，默认 `diff`。
 
-`implementation` 还需要 baseline、pre-existing changes、SPEC、当前 ticket（如有）、实际范围、implementation receipts、simplification receipt 和 verification evidence。缺少必需输入时返回 `BLOCKER`。
+`implementation` 还需要 baseline、pre-existing changes、SPEC、当前 ticket 或完整 execution graph（如有）、实际范围、implementation receipts、simplification receipts 和 verification evidence。缺少必需输入时返回 `BLOCKER`。
 
 ## 执行
 

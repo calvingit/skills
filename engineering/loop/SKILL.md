@@ -1,11 +1,11 @@
 ---
 name: loop
-description: "执行多-ticket dependency graph：计算 ready frontier，默认通过独立 subagent 串行调度 implement，在可证明隔离且有收益时并行，并依据 landed evidence 推进到完成或稳定停止。用于已有 SPEC 和 tickets/ 的多工作单元实现；不用于单一 scoped task 或需求澄清。"
+description: "执行多-ticket dependency graph：计算 ready frontier，默认通过独立 subagent 串行调度 implement，在可证明隔离且有收益时并行，聚合 landed evidence，并在完成前执行 whole-graph review。用于已有 SPEC 和 tickets/ 的多工作单元实现；不用于单一 scoped task 或需求澄清。"
 ---
 
 # Loop
 
-Loop 是一个 **Runtime-neutral engineering execution protocol**。它消费已经明确的多-ticket execution graph，负责计算当前可执行工作、选择调度策略、收集 evidence、判断 progress，并持续推进到 `done`、`blocked`、`no_progress`，或调用方明确预算耗尽。
+Loop 是一个 **Runtime-neutral engineering execution protocol**。它消费已经明确的多-ticket execution graph，负责计算当前可执行工作、选择调度策略、收集 evidence、执行最终 whole-graph review、判断 progress，并持续推进到 `done`、`blocked`、`no_progress`，或调用方明确预算耗尽。
 
 Loop 不定义需求、不拆 tickets，也不复制具体实现纪律。`SPEC.md` 提供规范性需求，`tickets/` 提供 execution graph，每个工作单元由 `implement` 执行。
 
@@ -15,7 +15,7 @@ Loop 不定义需求、不拆 tickets，也不复制具体实现纪律。`SPEC.m
 
 - 已有多张 delivery tickets，需要持续计算 ready frontier 和推进依赖图；
 - 多个 ready tickets 可能安全并行，需要显式判断 isolation 与 integration 风险；
-- 需要统一 progress、evidence、iteration / retry 和 no-progress 语义。
+- 需要统一 progress、evidence、iteration / retry、whole-graph review 和 no-progress 语义。
 
 不要使用 Loop：
 
@@ -45,14 +45,15 @@ Loop 的调用只授权按当前任务契约推进工程工作，**不隐含 com
 
 执行多-ticket graph 时：
 
-1. 读取 `SPEC.md`、所有 tickets 的 Status 与 Blocked by，计算 ready frontier；
-2. 从 frontier 选择当前可执行 tickets，并为每张 ticket 调用独立的 `implement` 执行单元；
-3. 收集每个执行单元的 landed state、verification evidence、阻塞和未验证项；
-4. 完成的 ticket 由其 `implement` 更新验收、evidence 和 Status；
-5. 重新读取 graph 并计算 frontier：Loop 只在 evidence 表明声明的依赖和 implement 记录的其他阻塞都已解除时，将 ticket 从 `blocked` 更新为 `ready`；
-6. 所有 tickets 都 `done` 时进入 `done`；没有 ready 或 `in_progress` ticket 但仍有未完成 ticket 时进入 `blocked`，并报告未完成 blocker、状态冲突或 dependency cycle。
+1. 首次 dispatch 前在 Loop execution evidence 中记录 graph baseline 与 pre-existing working-tree inventory；恢复执行时从最早可信的 implementation receipt 还原，不能还原时记录 review coverage blind spot，不得假装拥有完整范围；
+2. 读取 `SPEC.md`、所有 tickets 的 Status 与 Blocked by，计算 ready frontier；
+3. 从 frontier 选择当前可执行 tickets，并为每张 ticket 调用独立的 `implement` 执行单元；
+4. 收集每个执行单元的 landed state、verification evidence、阻塞和未验证项；
+5. 完成的 ticket 由其 `implement` 更新验收、evidence 和 Status；
+6. 重新读取 graph 并计算 frontier：Loop 只在 evidence 表明声明的依赖和 implement 记录的其他阻塞都已解除时，将 ticket 从 `blocked` 更新为 `ready`；
+7. 所有 tickets 都 `done` 时执行 Whole-graph review；通过后才进入 `done`；没有 ready 或 `in_progress` ticket 但仍有未完成 ticket 时进入 `blocked`，并报告未完成 blocker、状态冲突或 dependency cycle。
 
-Loop 读取 ticket contract 并调度执行，不改写 What to build、Constraints、Acceptance criteria 或 Blocked by。Loop 拥有经 evidence 证明阻塞解除后的 `blocked → ready` 转换；`implement` 拥有 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。
+Loop 读取 ticket contract 并调度执行，不改写 What to build、Constraints、Acceptance criteria 或 Blocked by。Loop 拥有经 evidence 证明阻塞解除后的 `blocked → ready`，以及 whole-graph review 发现既有 ticket 范围内缺陷时的 `done → ready`；`implement` 拥有 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。
 
 ## Scheduling
 
@@ -76,6 +77,18 @@ Loop 读取 ticket contract 并调度执行，不改写 What to build、Constrai
 
 并行执行后，先逐项核对 receipts、验证 landed state 和解决集成问题，再重新计算 frontier。不得仅依据 subagent 自报更新 graph。
 
+## Implementer ownership
+
+Loop 拥有 implementer execution unit 的调度，不拥有其内部实现规则：
+
+- Loop 决定当前 ticket 是在当前 Agent 内执行，还是创建独立 subagent；Runtime 支持 subagent 时默认创建独立 implementer subagent。
+- Loop 为每个 execution unit 固定 parent SPEC、唯一当前 ticket、graph baseline、pre-existing changes、已落地依赖、必要项目上下文、workspace/isolation、版本控制授权和 receipt 返回契约。
+- Loop 决定执行单元的串行/并行、subagent identity，以及 Runtime 支持时的等待、恢复、中断或重新派发；这些属于 graph scheduling。
+- 接收任务的 Agent 必须调用 `implement` 执行当前 ticket。`implement` 定义调查、修改、验证、审查和 evidence 规则，但不再递归创建另一个 implementer，也不选择 sibling ticket。
+- 用户直接调用 `implement` 时，当前 Agent 就是 implementer；不为了保持形式再包装一层 subagent。
+
+不创建与 `implement` 重复的固定 implementer prompt 或 Agent definition。Runtime-specific 的 subagent 工具调用可以不同，但 dispatch contract 与 implementation procedure 的 owner 不变。
+
 ## Execution state
 
 每轮结束必须归一到以下状态之一：
@@ -98,6 +111,7 @@ Loop 读取 ticket contract 并调度执行，不改写 What to build、Constrai
 - 一个 unknown 被转化为 verified fact；
 - 一个 failing verification 变为 passing；
 - 一个 review finding 被解决，或因新 evidence 被有效重新分类；
+- whole-graph review 从存在必须修复 finding 变为通过；
 - ready frontier 发生有效变化；
 - 新 evidence 改变了下一步选择。
 
@@ -133,6 +147,18 @@ Loop 读取 ticket contract 并调度执行，不改写 What to build、Constrai
 
 比较 iteration 前后的工程状态，检查 Progress invariant，重新计算 frontier，并得出：继续、完成、阻塞、无进展或预算耗尽。
 
+## Whole-graph review
+
+所有 tickets 都进入 `done` 后、Loop 最终进入 `done` 前：
+
+1. 从 graph baseline 到当前 landed state 构造完整审查范围，排除 pre-existing 和无关改动；同时汇总 `SPEC.md`、全部 tickets、implementation receipts、simplification receipts、verification evidence 和未验证项。
+2. 调用 `code-review` 的 `implementation` mode，对完整 graph 分别执行 Standards 与 Spec 审查。`code-review` 拥有 reviewer dispatch、审查规则和 finding 判断；Loop 只负责提供范围、聚合结果和执行后续调度。
+3. 对必须修复的 finding，若修复仍属于一个或多个既有 ticket contract，将最小责任 ticket 集合从 `done` 重新置为 `ready`，附上 finding evidence，并继续通过 `implement` 串行修复；不得改写 ticket 契约来容纳 finding。
+4. finding 没有既有 ticket 承担、暴露 execution graph 缺口时，停止并交回 `to-tickets`；需要改变需求、范围、接口 contract 或 acceptance criteria 时，交回 `to-spec`。
+5. 修复后重新执行受影响验证，并再次进行 whole-graph review。只有两轴均无未处理的必须修复 finding，且 integration verification 完整时，才通过本 gate。
+
+不得仅根据各 ticket 已分别通过 review 推断完整 graph 已通过；跨 ticket 的接口、共享状态、数据流、错误路径和集成行为必须在最终 landed state 上检查。
+
 ## Done gate
 
 `done` 不能由模型或 subagent 自报决定。至少满足：
@@ -140,7 +166,7 @@ Loop 读取 ticket contract 并调度执行，不改写 What to build、Constrai
 - 当前 execution graph 的所有 tickets 都是 `done`；
 - acceptance criteria 有可观察 verification evidence；
 - 相关验证通过，或未验证项已明确且被任务契约允许；
-- 必要的 `simplify` / `code-review` 等质量 gate 已完成；
+- 每个 ticket 必要的 `simplify` / `code-review` 已完成，且 Whole-graph review 已通过；
 - 并行分支或 worktrees 的 landed state 已完成集成验证；
 - 没有未处理的必须修复 finding；
 - 没有属于当前 Destination 的 blocker 或 unknown 被静默遗留。
@@ -177,7 +203,8 @@ Loop completion 与版本控制写操作解耦。
 
 - `to-spec` 定义规范性需求，`to-tickets` 定义 execution graph，Loop 不改写二者的契约。
 - Loop 负责 ready frontier、调度、progress、evidence 聚合、重新计算和稳定停止。
-- Loop 只根据可复核 evidence 维护 readiness；`implement` 负责单个 ticket 的领取、调查、代码修改、验证、审查、完成状态和 execution evidence。
+- Loop 只根据可复核 evidence 维护 readiness、触发 whole-graph review 并聚合 review outcome；`implement` 负责单个 ticket 的领取、调查、代码修改、验证、审查、完成状态和 execution evidence。
+- Loop 拥有 implementer subagent 的 dispatch lifecycle；`implement` 拥有 implementer 的单工作单元执行程序。不得让两者同时创建或调度 implementer。
 - 不复述或放宽 `implement`、`tdd`、`debug`、`simplify`、`code-review`、`codebase-design` 的内部规则。
 - 不因为自主调度就降低 HITL、安全、权限、测试、审查或项目规则门槛。
 - 不把 iteration 数量、模型消息数量、Token 消耗或代码行数当作 progress。

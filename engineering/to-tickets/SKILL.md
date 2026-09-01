@@ -81,7 +81,7 @@ tickets/
 ready
 ```
 
-没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`to-tickets` 只写入初始状态；执行期间由 `loop` 在证据表明阻塞已经解除后维护 `blocked → ready`，由 `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。除这些执行状态外，不得在执行中静默改写 ticket 契约。
+没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`to-tickets` 只写入初始状态；执行期间由 `loop` 在证据表明阻塞已经解除后维护 `blocked → ready`，并在 whole-graph review 发现既有范围内缺陷时维护 `done → ready`；由 `implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 execution evidence。除这些执行状态外，不得在执行中静默改写 ticket 契约。
 
 ## Handoff
 

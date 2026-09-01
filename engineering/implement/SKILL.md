@@ -7,6 +7,8 @@ description: "实现、验证并审查一项已明确的工作。"
 
 实现已确认的任务契约并交付可复核 evidence。Implement 是单个 execution unit：可以由用户直接调用，也可以由 `loop` 为 ready ticket 调度。普通小任务可以直接以 `SPEC.md` 为输入；跨多个 fresh context 的工作必须先由 `to-tickets` 拆分，并且每次调用只实现一张 ready delivery ticket。实现前必须重新调查当前仓库；任务文档定义需求和验收，不是代码配方。
 
+接收本 Skill 的 Agent 就是当前 implementer。`implement` 只定义单个工作单元的执行程序，不决定是否创建 subagent、并行策略、worktree 或 sibling ticket 调度：由 `loop` 调用时，这些由 `loop` 决定；由用户直接调用时，当前 Agent 直接执行，不再递归创建另一个 implementer subagent。
+
 ## 入口与范围
 
 接受以下两种输入：
@@ -49,6 +51,7 @@ ticket mode 开始前：
 ## 边界
 
 - 不修改 SPEC、ticket 的 What to build、Constraints、Acceptance criteria 或 Blocked by 以迎合实现；只允许更新 ticket 的 Status、验收勾选和 execution evidence。
+- 不把当前完整工作单元再次委托给另一个 implementer；reviewer 或其他专门角色仍由其对应 Skill 按职责调度。
 - 不覆盖既有改动。
 - 不静默吞错。
 - 不把模型自报、单次测试通过或实现细节检查当作完整验收证据。
