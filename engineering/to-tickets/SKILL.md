@@ -81,13 +81,15 @@ tickets/
 ready
 ```
 
-没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。领取执行时由 `implement` 更新为 `in-progress`；每条验收都有 evidence 后更新为 `done`，无法继续时更新为 `blocked` 并写明原因。除状态、验收勾选和执行 evidence 外，不得在执行中静默改写 ticket 契约。
+没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`to-tickets` 只写入初始状态；执行期间由 `loop` 维护依赖解除产生的 `blocked → ready`，由 `implement` 负责 `ready → in-progress → done/blocked`、验收勾选和 execution evidence。除这些执行状态外，不得在执行中静默改写 ticket 契约。
 
 ## Handoff
 
 写入后报告 initial ready frontier、每个 ticket 的相对路径，以及尚未解决的阻塞或未验证项：
 
 - 只有一张 ready ticket，或用户指定某张 ticket 时，推荐调用 `implement` 处理该 ticket；
-- 存在多张 ticket、需要跨 session 推进或需要持续维护 frontier 时，推荐使用 Runtime Goal；Runtime 缺少可靠生命周期能力时，再使用 `loop`。两种情况下，具体每张 ticket 仍由 `implement` 执行。
+- 存在多张 ticket、需要持续推进 dependency graph 或判断安全并行时，调用 `loop` 维护 frontier 与调度；具体每张 ticket 仍由独立的 `implement` 执行。
+
+Ticket Status、acceptance evidence 和 ready frontier 描述工程交付状态，由 `implement` 与 `loop` 消费和更新；conversation、session、context recovery 与 interruption persistence 属于 Runtime 状态。两类状态相互独立，不能互相替代或推导。
 
 本 Skill 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。

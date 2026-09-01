@@ -47,7 +47,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 - **证据驱动**：代码事实、spec、测试、运行结果和 review evidence 优先于模型自报。
 - **渐进式上下文**：只读取当前任务需要的项目上下文，不假定固定 `docs/**` 路径，也不预加载整套项目知识。
 - **可选项目配置**：`project-setup` 可以把已确认的稳定入口写入项目 `AGENTS.md`。未配置的项目继续动态发现，不以 setup 作为使用前置条件。
-- **Runtime 能力优先**：Agent Runtime 已经提供可靠的 goal、task persistence、pause/resume、session recovery 等能力时，优先复用 Runtime 原生能力，不在 Skill 层重复实现生命周期控制。
+- **状态职责分离**：Runtime 负责 conversation、session、context recovery 和 interruption persistence；Engineering Skills 只维护规范、execution graph、交付进度与 evidence。
 
 使用时按以下优先级发现项目上下文：
 
@@ -65,7 +65,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化可选的 Engineering Skills Profile。 |
 | Workflow | `grilling`, `to-spec`, `to-tickets`, `implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
-| Execution Protocol | `loop` | 提供 Runtime-neutral 的 progress、evidence、iteration / retry 和 no-progress 规则，仅在 Runtime 缺少 long-running task 能力时承担最小执行控制。 |
+| Execution Protocol | `loop` | 消费任务契约或 ticket graph，负责 ready frontier、调度、progress、evidence、iteration / retry 和 no-progress 规则。 |
 
 ### 如何选择 Skill
 
@@ -113,25 +113,24 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | 能力 | 何时使用 |
 | --- | --- |
 | `project-setup` | 希望把稳定的项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
-| Runtime Goal / long-running task | Runtime 已能负责目标持久化、暂停、恢复和 session recovery 时，由 Runtime 管理生命周期 |
-| `loop` protocol | 需要统一 evidence、progress invariant、iteration / retry 和 no-progress 规则时使用 |
-| `loop` execution control | 只有 Runtime 缺少可靠 Goal / resume，且任务确实需要多轮推进时，才承担最小执行控制 |
+| Runtime continuation | conversation、session、context recovery 或 interruption persistence 需要由当前 Agent Runtime 维护时使用 |
+| `loop` | 已有明确任务契约，需要持续计算 frontier、调度执行单元、聚合 evidence 并判断 progress 时使用 |
 
-`loop` 不是 Goal 的替代品，也不是普通重试器。如果外层 Goal 已经负责 continue、stop 和 checkpoint，不要再创建具有相同职责的 nested loop。此时 `loop` 只是执行协议，不是第二个 orchestrator。
+`loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立；Loop 只依据任务契约和 execution evidence 推进工程工作。
 
 ```text
-Runtime Goal / Task
-    │  lifecycle / persistence / pause / resume / recovery
-    ▼
-Loop Engineering protocol
-    │  evidence / progress invariant / iteration / no-progress
-    ▼
-Engineering Skills
-    ├── implement
-    ├── tdd
-    ├── debug
-    ├── simplify
-    └── code-review
+Runtime
+    └── conversation / session / context recovery / interruption
+
+Engineering workflow
+    SPEC.md
+       │
+    tickets/
+       │
+      loop
+       │  frontier / scheduling / progress / evidence
+       ▼
+   implement
 ```
 
 进入某个 Skill 后，具体触发条件、边界和停止条件仍以对应的 `SKILL.md` 为准。
@@ -145,9 +144,11 @@ Engineering Skills
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 规范契约 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | ticket 拆分、进度或 retry 状态 |
 | 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立 session、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
-| 执行证据 | ticket 状态、验收勾选、receipt、Runtime state | `implement`、Runtime Goal 或 `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围或需求契约 |
+| 执行证据 | ticket 状态、验收勾选、receipt | `implement`、`loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
 `SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
+
+Runtime continuation state 不属于 execution graph，不能替代 ticket Status、acceptance evidence 或 ready frontier。
 
 ```mermaid
 flowchart TD
@@ -168,7 +169,8 @@ flowchart TD
     H -->|否| I[implement]
     H -->|是| J[to-tickets]
     J --> K[tickets/]
-    K --> I
+    K --> O[loop]
+    O --> I
     I --> L[code-review]
 ```
 
@@ -186,13 +188,13 @@ stateDiagram-v2
     in_progress --> blocked: 出现真实阻塞
 ```
 
-执行时，只有 `implement` 可以更新 ticket 的状态、验收勾选和 evidence。它不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。这些内容需要变化时，应回到 `grilling` 或 `wayfinding`，再通过 `to-spec` 和 `to-tickets` 更新下游 artifact。
+执行时，`loop` 只维护 dependency-derived 的 `blocked → ready`；`implement` 负责 `ready → in-progress → done/blocked`、验收勾选和 evidence。二者都不能为了继续实现而改写 `What to build`、`Constraints`、`Acceptance criteria` 或 `Blocked by`。这些内容需要变化时，应回到 `grilling` 或 `wayfinding`，再通过 `to-spec` 和 `to-tickets` 更新下游 artifact。
 
 ### 执行约束
 
 1. 先读取用户要求、目标项目的 `AGENTS.md`、现有规范、ADR、领域词汇、测试与构建配置。
 2. 只由对应 owner 修改其 artifact；下游 Skill 不静默改写上游结论。
-3. Ticket 模式下一次只领取一张 `ready` ticket，完成后写入 evidence、标记 `done`，再重新计算 frontier。
+3. Ticket 模式默认串行调度一张 `ready` ticket，并由独立 `implement` 执行；只有能证明 tickets 与 writable surfaces 足够隔离时才并行，独立 worktree 仅在隔离确有需要时使用。
 4. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
 5. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
 6. Commit、push、建分支等版本控制写操作始终需要用户明确授权。
@@ -246,7 +248,7 @@ stateDiagram-v2
 
 | Skill | 用途 |
 | --- | --- |
-| [`loop`](./engineering/loop/SKILL.md) | 定义 Runtime-neutral 的 progress invariant、evidence、iteration / retry 和 no-progress gate，不替代已有 Runtime Goal。 |
+| [`loop`](./engineering/loop/SKILL.md) | 维护 ready frontier，调度 `implement` 执行单元，并依据 evidence 判断 progress、继续与稳定停止。 |
 
 ## 使用
 

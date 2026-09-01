@@ -5,7 +5,7 @@ description: "实现、验证并审查一项已明确的工作。"
 
 # Implement
 
-实现已确认的任务契约并交付可复核 evidence。普通小任务可以直接以 `SPEC.md` 为输入；跨多个 fresh context 的工作必须先由 `to-tickets` 拆分，并且一次只实现一张 ready delivery ticket。实现前必须重新调查当前仓库；任务文档定义需求和验收，不是代码配方。
+实现已确认的任务契约并交付可复核 evidence。Implement 是单个 execution unit：可以由用户直接调用，也可以由 `loop` 为 ready ticket 调度。普通小任务可以直接以 `SPEC.md` 为输入；跨多个 fresh context 的工作必须先由 `to-tickets` 拆分，并且每次调用只实现一张 ready delivery ticket。实现前必须重新调查当前仓库；任务文档定义需求和验收，不是代码配方。
 
 ## 入口与范围
 
@@ -13,6 +13,8 @@ description: "实现、验证并审查一项已明确的工作。"
 
 1. **单次 SPEC mode**：一份 `SPEC.md` 的范围能够在一个 fresh context 内可靠完成，且不需要 execution graph；
 2. **ticket mode**：用户指定 `tickets/<NN>-<slug>.md`。这是多 session 工作的常规入口；对应 `SPEC.md` 是规范性需求来源，ticket 是当前交付范围。
+
+Parent SPEC 只提供需求背景、全局约束和验收依据，不会把 sibling tickets 自动纳入本次范围。无论由用户还是 `loop` 调用，都不得顺带实现、领取或修改其他 tickets。
 
 ticket mode 开始前：
 
@@ -52,4 +54,4 @@ ticket mode 开始前：
 - 不把模型自报、单次测试通过或实现细节检查当作完整验收证据。
 - 不把项目规则塞回通用 Skill；项目自己的 coding standards、架构规则和技术栈约定由目标仓库提供。
 
-输出实现 receipt，列明当前 SPEC 或 ticket、改动、验收/evidence、验证、审查和未验证项。
+输出实现 receipt，列明当前 SPEC 或 ticket、实际 landed changes、验收/evidence、验证、审查和未验证项；由 `loop` 调度时，将 receipt 返回给 `loop` 重新核对 graph 与 frontier。
