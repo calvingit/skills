@@ -1,0 +1,289 @@
+#!/usr/bin/env python3
+"""Inspect a Loop task graph without changing any files."""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from collections import Counter
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Iterable
+
+
+ALLOWED_STATUSES = {"ready", "blocked", "in_progress", "done", "superseded"}
+ACTIVE_STATUSES = ALLOWED_STATUSES - {"superseded"}
+NONE_MARKERS = ("none", "n/a", "not applicable", "无", "没有")
+HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
+LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
+MD_PATH_RE = re.compile(r"(?<![\w])([\w./-]+\.md)(?![\w])", re.IGNORECASE)
+NUMERIC_ID_RE = re.compile(r"^(\d+)(?:[-_ ]|$)")
+
+
+@dataclass
+class Ticket:
+    file: Path
+    relative: str
+    numeric_id: str | None
+    status: str | None
+    blocked_lines: list[str]
+    dependency_tokens: list[str] = field(default_factory=list)
+    dependencies: list[str] = field(default_factory=list)
+
+
+def problem(code: str, detail: str, ticket: str | None = None) -> dict[str, str]:
+    item = {"code": code, "detail": detail}
+    if ticket is not None:
+        item["ticket"] = ticket
+    return item
+
+
+def section_map(text: str) -> dict[str, list[str]]:
+    sections: dict[str, list[str]] = {}
+    current: str | None = None
+    for line in text.splitlines():
+        match = HEADING_RE.match(line)
+        if match:
+            current = match.group(1).strip().lower()
+            sections.setdefault(current, [])
+        elif current is not None:
+            sections[current].append(line)
+    return sections
+
+
+def first_value(lines: Iterable[str]) -> str | None:
+    for line in lines:
+        value = line.strip().lstrip("-*+ ").strip().strip("`").lower()
+        if value:
+            return value.split()[0]
+    return None
+
+
+def is_none_line(line: str) -> bool:
+    value = line.strip().lstrip("-*+ ").strip().lower()
+    return any(value == marker or value.startswith(marker + " ") or value.startswith(marker + "(") for marker in NONE_MARKERS)
+
+
+def dependency_tokens(lines: list[str]) -> tuple[list[str], list[str]]:
+    tokens: set[str] = set()
+    unparsed: list[str] = []
+    for line in lines:
+        value = line.strip()
+        if not value or is_none_line(value):
+            continue
+
+        found: set[str] = set()
+        for target in LINK_RE.findall(value):
+            clean = target.split("#", 1)[0].split("?", 1)[0].strip(" <>\"")
+            if clean.lower().endswith(".md"):
+                found.add(Path(clean).name)
+        for target in MD_PATH_RE.findall(value):
+            found.add(Path(target.split("#", 1)[0]).name)
+
+        if not found:
+            plain = value.lstrip("-*+ ").strip()
+            match = re.match(r"(?i)(?:ticket\s*)?#?(\d+)\b", plain)
+            if match:
+                found.add(match.group(1))
+
+        if found:
+            tokens.update(found)
+        else:
+            unparsed.append(value)
+    return sorted(tokens), unparsed
+
+
+def ticket_sort_key(ticket: Ticket) -> tuple[int, int | str, str]:
+    if ticket.numeric_id is not None:
+        return (0, int(ticket.numeric_id), ticket.relative)
+    return (1, ticket.relative, ticket.relative)
+
+
+def canonical_cycle(nodes: list[str]) -> tuple[str, ...]:
+    core = nodes[:-1]
+    rotations = [tuple(core[i:] + core[:i]) for i in range(len(core))]
+    best = min(rotations)
+    return best + (best[0],)
+
+
+def find_cycles(graph: dict[str, list[str]]) -> list[list[str]]:
+    state: dict[str, int] = {}
+    stack: list[str] = []
+    cycles: set[tuple[str, ...]] = set()
+
+    def visit(node: str) -> None:
+        state[node] = 1
+        stack.append(node)
+        for dependency in graph.get(node, []):
+            if state.get(dependency, 0) == 0:
+                visit(dependency)
+            elif state.get(dependency) == 1:
+                start = stack.index(dependency)
+                cycles.add(canonical_cycle(stack[start:] + [dependency]))
+        stack.pop()
+        state[node] = 2
+
+    for node in sorted(graph):
+        if state.get(node, 0) == 0:
+            visit(node)
+    return [list(cycle) for cycle in sorted(cycles)]
+
+
+def fatal(task_dir: Path, code: str, detail: str) -> int:
+    payload = {
+        "schema_version": 1,
+        "task_dir": str(task_dir),
+        "valid": False,
+        "problems": [problem(code, detail)],
+    }
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return 2
+
+
+def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
+    spec = task_dir / "SPEC.md"
+    tickets_dir = task_dir / "tickets"
+    if not task_dir.is_dir():
+        return {}, fatal(task_dir, "missing_task_directory", "Task directory does not exist.")
+    if not spec.is_file():
+        return {}, fatal(task_dir, "missing_spec", "SPEC.md was not found.")
+    if not tickets_dir.is_dir():
+        return {}, fatal(task_dir, "missing_tickets_directory", "tickets/ was not found.")
+
+    files = sorted(path for path in tickets_dir.glob("*.md") if path.is_file())
+    if not files:
+        return {}, fatal(task_dir, "no_tickets", "tickets/ contains no Markdown tickets.")
+
+    tickets: list[Ticket] = []
+    problems: list[dict[str, str]] = []
+    for path in files:
+        relative = path.relative_to(task_dir).as_posix()
+        try:
+            sections = section_map(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError) as exc:
+            problems.append(problem("unreadable_ticket", str(exc), relative))
+            continue
+
+        numeric_match = NUMERIC_ID_RE.match(path.stem)
+        numeric_id = numeric_match.group(1) if numeric_match else None
+        status_lines = sections.get("status", [])
+        status = first_value(status_lines)
+        blocked_lines = sections.get("blocked by", [])
+        ticket = Ticket(path, relative, numeric_id, status, blocked_lines)
+        ticket.dependency_tokens, unparsed = dependency_tokens(blocked_lines)
+        tickets.append(ticket)
+
+        if numeric_id is None:
+            problems.append(problem("missing_numeric_id", "Filename must start with a numeric ticket ID.", relative))
+        if "status" not in sections or status is None:
+            problems.append(problem("missing_status", "Ticket has no usable Status section.", relative))
+        elif status not in ALLOWED_STATUSES:
+            problems.append(problem("invalid_status", f"Unsupported status: {status}", relative))
+        if "blocked by" not in sections:
+            problems.append(problem("missing_blocked_by", "Ticket has no Blocked by section.", relative))
+        for line in unparsed:
+            problems.append(problem("unparsed_dependency", f"Could not resolve dependency entry: {line}", relative))
+
+    tickets.sort(key=ticket_sort_key)
+    by_relative = {ticket.relative: ticket for ticket in tickets}
+    by_basename: dict[str, list[Ticket]] = {}
+    by_numeric: dict[str, list[Ticket]] = {}
+    for ticket in tickets:
+        by_basename.setdefault(ticket.file.name, []).append(ticket)
+        if ticket.numeric_id is not None:
+            by_numeric.setdefault(ticket.numeric_id, []).append(ticket)
+
+    for numeric_id, matches in sorted(by_numeric.items(), key=lambda item: int(item[0])):
+        if len(matches) > 1:
+            paths = ", ".join(ticket.relative for ticket in matches)
+            problems.append(problem("duplicate_numeric_id", f"Ticket ID {numeric_id} is used by: {paths}"))
+
+    for ticket in tickets:
+        resolved: set[str] = set()
+        for token in ticket.dependency_tokens:
+            candidates = by_basename.get(Path(token).name, []) if token.lower().endswith(".md") else by_numeric.get(token, [])
+            if not candidates:
+                problems.append(problem("dangling_dependency", f"Dependency does not exist: {token}", ticket.relative))
+                continue
+            if len(candidates) > 1:
+                problems.append(problem("ambiguous_dependency", f"Dependency is ambiguous: {token}", ticket.relative))
+                continue
+            target = candidates[0]
+            if target.relative == ticket.relative:
+                problems.append(problem("self_dependency", "Ticket depends on itself.", ticket.relative))
+            else:
+                resolved.add(target.relative)
+        ticket.dependencies = sorted(resolved)
+
+    for ticket in tickets:
+        for dependency in ticket.dependencies:
+            target = by_relative[dependency]
+            if target.status == "superseded":
+                problems.append(problem("dependency_on_superseded", f"Dependency points to superseded ticket: {dependency}", ticket.relative))
+
+    graph = {
+        ticket.relative: [
+            dependency
+            for dependency in ticket.dependencies
+            if by_relative[dependency].status in ACTIVE_STATUSES
+        ]
+        for ticket in tickets
+        if ticket.status in ACTIVE_STATUSES
+    }
+    for cycle in find_cycles(graph):
+        problems.append(problem("dependency_cycle", " -> ".join(cycle)))
+
+    frontier: list[str] = []
+    releasable: list[str] = []
+    blocked: list[dict[str, object]] = []
+    for ticket in tickets:
+        if ticket.status not in ACTIVE_STATUSES:
+            continue
+        pending = [dependency for dependency in ticket.dependencies if by_relative[dependency].status != "done"]
+        if ticket.status == "ready":
+            if pending:
+                problems.append(problem("ready_with_unfinished_dependencies", f"Unfinished dependencies: {', '.join(pending)}", ticket.relative))
+            else:
+                frontier.append(ticket.relative)
+        elif ticket.status in {"in_progress", "done"} and pending:
+            problems.append(problem(f"{ticket.status}_with_unfinished_dependencies", f"Unfinished dependencies: {', '.join(pending)}", ticket.relative))
+        elif ticket.status == "blocked":
+            blocked.append({"ticket": ticket.relative, "blocked_by": ticket.dependencies, "pending": pending})
+            if not pending:
+                releasable.append(ticket.relative)
+
+    active = [ticket.relative for ticket in tickets if ticket.status in ACTIVE_STATUSES]
+    status_counts = Counter(ticket.status or "missing" for ticket in tickets)
+    payload: dict[str, object] = {
+        "schema_version": 1,
+        "task_dir": str(task_dir),
+        "valid": not problems,
+        "status_counts": dict(sorted(status_counts.items())),
+        "active": active,
+        "frontier": frontier,
+        "releasable": releasable,
+        "in_progress": [ticket.relative for ticket in tickets if ticket.status == "in_progress"],
+        "blocked": blocked,
+        "done": [ticket.relative for ticket in tickets if ticket.status == "done"],
+        "superseded": [ticket.relative for ticket in tickets if ticket.status == "superseded"],
+        "all_active_done": bool(active) and all(by_relative[path].status == "done" for path in active),
+        "problems": problems,
+    }
+    return payload, 0 if not problems else 1
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Inspect a Loop SPEC.md + tickets/ execution graph.")
+    parser.add_argument("task_dir", type=Path, help="Directory containing SPEC.md and tickets/")
+    args = parser.parse_args()
+    task_dir = args.task_dir.expanduser().resolve()
+    payload, exit_code = inspect(task_dir)
+    if payload:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    return exit_code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

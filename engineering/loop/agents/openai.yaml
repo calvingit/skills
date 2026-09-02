@@ -4,4 +4,4 @@ interface:
   default_prompt: "使用 $loop 计算 ready frontier，调度 implement 执行 tickets，聚合 landed evidence，并在完成前执行 whole-graph review。"
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true
