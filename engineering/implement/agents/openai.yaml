@@ -1,7 +1,0 @@
-interface:
-  display_name: "Implement"
-  short_description: "在已确认的 SPEC 或 ready ticket 内完成实现、验证与双轴审查"
-  default_prompt: "使用 $implement 重新调查当前代码，并完成当前工作的实现、验证和审查。"
-
-policy:
-  allow_implicit_invocation: false

@@ -93,7 +93,7 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
 5. 给最多 2-3 个真实候选设计，说明各自收益、成本、迁移影响和 test seam；不制造伪选项。
 6. 推荐最简单、能把必要复杂度放到正确 owner 且不扩大公共表面的方案。
-7. 本 skill 默认停在设计判断；需要落盘契约交给 `grilling` / `to-spec`，需要实现交给 `implement`。
+7. 本 skill 默认停在设计判断；需要落盘契约交给 `grilling` / `to-spec`，单一 SPEC 的实现交给 `quick-implement`，execution graph 交给 `loop`。
 
 当依赖类型会影响 Module 的深化方式时，读取 [DEEPENING.md](DEEPENING.md)。只有用户明确要求比较候选 Interface，或单一方案不足以形成可靠判断时，才读取 [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md)，使用其中的多方案比较流程。
 

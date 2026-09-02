@@ -1,0 +1,4 @@
+interface:
+  display_name: "Quick Implement"
+  short_description: "在已确认的单次 SPEC 内完成实现、验证与双轴审查"
+  default_prompt: "使用 $quick-implement 读取已确认的 SPEC.md，重新调查当前代码，并完成实现、验证和审查。"

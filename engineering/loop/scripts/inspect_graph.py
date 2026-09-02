@@ -20,6 +20,17 @@ HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)]+)\)")
 MD_PATH_RE = re.compile(r"(?<![\w])([\w./-]+\.md)(?![\w])", re.IGNORECASE)
 NUMERIC_ID_RE = re.compile(r"^(\d+)(?:[-_ ]|$)")
+CHECKLIST_RE = re.compile(r"^\s*[-*+]\s+\[([ xX])\]\s+(AC[\w.-]*)\s+[—–-]\s+(.+?)\s*$", re.IGNORECASE)
+EVIDENCE_RE = re.compile(r"^\s*[-*+]\s+(AC[\w.-]*)\s+[—–-]\s+passed\s+[—–-]\s+(.+?)\s*$", re.IGNORECASE)
+REQUIRED_SECTIONS = (
+    "specification",
+    "what to build",
+    "constraints",
+    "acceptance criteria",
+    "blocked by",
+    "execution evidence",
+    "execution blocker",
+)
 
 
 @dataclass
@@ -29,6 +40,9 @@ class Ticket:
     numeric_id: str | None
     status: str | None
     blocked_lines: list[str]
+    acceptance: dict[str, bool]
+    execution_evidence: set[str]
+    has_execution_blocker: bool
     dependency_tokens: list[str] = field(default_factory=list)
     dependencies: list[str] = field(default_factory=list)
 
@@ -64,6 +78,64 @@ def first_value(lines: Iterable[str]) -> str | None:
 def is_none_line(line: str) -> bool:
     value = line.strip().lstrip("-*+ ").strip().lower()
     return any(value == marker or value.startswith(marker + " ") or value.startswith(marker + "(") for marker in NONE_MARKERS)
+
+
+def acceptance_items(lines: Iterable[str]) -> tuple[dict[str, bool], set[str], list[str]]:
+    items: dict[str, bool] = {}
+    duplicates: set[str] = set()
+    unparsed: list[str] = []
+    for line in lines:
+        value = line.strip()
+        if not value:
+            continue
+        match = CHECKLIST_RE.match(line)
+        if match:
+            acceptance_id = match.group(2).upper()
+            if acceptance_id in items:
+                duplicates.add(acceptance_id)
+            else:
+                items[acceptance_id] = match.group(1).lower() == "x"
+        else:
+            unparsed.append(value)
+    return items, duplicates, unparsed
+
+
+def evidence_items(lines: Iterable[str]) -> tuple[set[str], set[str], list[str]]:
+    items: set[str] = set()
+    duplicates: set[str] = set()
+    unparsed: list[str] = []
+    for line in lines:
+        value = line.strip()
+        if not value or is_none_line(value):
+            continue
+        plain = value.lstrip("-*+ ").strip().lower()
+        if plain in {"pending", "待补充", "待填写"}:
+            continue
+        match = EVIDENCE_RE.match(line)
+        if match:
+            acceptance_id = match.group(1).upper()
+            evidence = match.group(2).strip().lower()
+            if evidence in {"pending", "待补充", "待填写"}:
+                unparsed.append(value)
+            elif acceptance_id in items:
+                duplicates.add(acceptance_id)
+            else:
+                items.add(acceptance_id)
+        else:
+            unparsed.append(value)
+    return items, duplicates, unparsed
+
+
+def has_meaningful_content(lines: Iterable[str]) -> bool:
+    for line in lines:
+        value = line.strip()
+        if not value or is_none_line(value):
+            continue
+        plain = value.lstrip("-*+ ").strip().lower()
+        if plain in {"pending", "待补充", "待填写"}:
+            continue
+        return True
+    return False
 
 
 def dependency_tokens(lines: list[str]) -> tuple[list[str], list[str]]:
@@ -133,7 +205,6 @@ def find_cycles(graph: dict[str, list[str]]) -> list[list[str]]:
 
 def fatal(task_dir: Path, code: str, detail: str) -> int:
     payload = {
-        "schema_version": 1,
         "task_dir": str(task_dir),
         "valid": False,
         "problems": [problem(code, detail)],
@@ -168,21 +239,56 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
 
         numeric_match = NUMERIC_ID_RE.match(path.stem)
         numeric_id = numeric_match.group(1) if numeric_match else None
+        for section in REQUIRED_SECTIONS:
+            if section not in sections:
+                problems.append(problem(f"missing_{section.replace(' ', '_')}", f"Ticket has no {section.title()} section.", relative))
+
         status_lines = sections.get("status", [])
         status = first_value(status_lines)
         blocked_lines = sections.get("blocked by", [])
-        ticket = Ticket(path, relative, numeric_id, status, blocked_lines)
+        acceptance, duplicate_acceptance, unparsed_acceptance = acceptance_items(sections.get("acceptance criteria", []))
+        execution_evidence, duplicate_evidence, unparsed_evidence = evidence_items(sections.get("execution evidence", []))
+        ticket = Ticket(
+            path,
+            relative,
+            numeric_id,
+            status,
+            blocked_lines,
+            acceptance,
+            execution_evidence,
+            has_meaningful_content(sections.get("execution blocker", [])),
+        )
         ticket.dependency_tokens, unparsed = dependency_tokens(blocked_lines)
         tickets.append(ticket)
 
         if numeric_id is None:
             problems.append(problem("missing_numeric_id", "Filename must start with a numeric ticket ID.", relative))
-        if "status" not in sections or status is None:
+        if status is None:
             problems.append(problem("missing_status", "Ticket has no usable Status section.", relative))
         elif status not in ALLOWED_STATUSES:
             problems.append(problem("invalid_status", f"Unsupported status: {status}", relative))
-        if "blocked by" not in sections:
-            problems.append(problem("missing_blocked_by", "Ticket has no Blocked by section.", relative))
+        if "acceptance criteria" in sections and not acceptance:
+            problems.append(problem("missing_acceptance_items", "Acceptance criteria has no usable checklist items.", relative))
+        if duplicate_acceptance:
+            problems.append(problem("duplicate_acceptance_id", f"Acceptance IDs are duplicated: {', '.join(sorted(duplicate_acceptance))}", relative))
+        for line in unparsed_acceptance:
+            problems.append(problem("unparsed_acceptance_item", f"Could not parse acceptance entry: {line}", relative))
+        if duplicate_evidence:
+            problems.append(problem("duplicate_execution_evidence", f"Execution evidence IDs are duplicated: {', '.join(sorted(duplicate_evidence))}", relative))
+        unknown_evidence = execution_evidence - acceptance.keys()
+        if unknown_evidence:
+            problems.append(problem("execution_evidence_for_unknown_acceptance", f"Execution evidence references unknown Acceptance IDs: {', '.join(sorted(unknown_evidence))}", relative))
+        for line in unparsed_evidence:
+            problems.append(problem("unparsed_execution_evidence", f"Could not parse execution evidence: {line}", relative))
+        if status == "done":
+            unchecked = {acceptance_id for acceptance_id, checked in acceptance.items() if not checked}
+            if unchecked:
+                problems.append(problem("done_with_unchecked_acceptance", "Done ticket has unchecked acceptance criteria.", relative))
+            missing_evidence = acceptance.keys() - execution_evidence
+            if missing_evidence:
+                problems.append(problem("done_without_acceptance_evidence", f"Done ticket has no execution evidence for: {', '.join(sorted(missing_evidence))}", relative))
+        if status in {"ready", "in_progress", "done"} and ticket.has_execution_blocker:
+            problems.append(problem("active_execution_blocker", f"{status} ticket still has an execution blocker.", relative))
         for line in unparsed:
             problems.append(problem("unparsed_dependency", f"Could not resolve dependency entry: {line}", relative))
 
@@ -236,7 +342,7 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
         problems.append(problem("dependency_cycle", " -> ".join(cycle)))
 
     frontier: list[str] = []
-    releasable: list[str] = []
+    dependency_releasable: list[str] = []
     blocked: list[dict[str, object]] = []
     for ticket in tickets:
         if ticket.status not in ACTIVE_STATUSES:
@@ -250,20 +356,26 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
         elif ticket.status in {"in_progress", "done"} and pending:
             problems.append(problem(f"{ticket.status}_with_unfinished_dependencies", f"Unfinished dependencies: {', '.join(pending)}", ticket.relative))
         elif ticket.status == "blocked":
-            blocked.append({"ticket": ticket.relative, "blocked_by": ticket.dependencies, "pending": pending})
+            blocked.append(
+                {
+                    "ticket": ticket.relative,
+                    "blocked_by": ticket.dependencies,
+                    "pending": pending,
+                    "execution_blocker": ticket.has_execution_blocker,
+                }
+            )
             if not pending:
-                releasable.append(ticket.relative)
+                dependency_releasable.append(ticket.relative)
 
     active = [ticket.relative for ticket in tickets if ticket.status in ACTIVE_STATUSES]
     status_counts = Counter(ticket.status or "missing" for ticket in tickets)
     payload: dict[str, object] = {
-        "schema_version": 1,
         "task_dir": str(task_dir),
         "valid": not problems,
         "status_counts": dict(sorted(status_counts.items())),
         "active": active,
         "frontier": frontier,
-        "releasable": releasable,
+        "dependency_releasable": dependency_releasable,
         "in_progress": [ticket.relative for ticket in tickets if ticket.status == "in_progress"],
         "blocked": blocked,
         "done": [ticket.relative for ticket in tickets if ticket.status == "done"],

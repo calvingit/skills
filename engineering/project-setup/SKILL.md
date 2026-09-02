@@ -113,7 +113,7 @@ triage:
 - `external-manual`：规范需求位于 Agent 无法直接访问的外部系统；由用户提供当前任务的确认快照，Agent 不得声称已验证原始来源。
 - `auto`：不固定模式，由消费者在每项任务中动态发现；无法确认时不得猜测。
 
-Profile 只保存稳定的模式和项目内说明入口，不保存当前 PRD 内容、临时链接或某次任务的需求快照。`to-spec` 是主要消费者；`grilling` 和 `wayfinding` 只用它判断哪些需求事实必须由用户提供。下游 `to-tickets`、`loop`、`implement` 和 `code-review` 只消费已确认的 SPEC 或 tickets，不直接解释该配置。
+Profile 只保存稳定的模式和项目内说明入口，不保存当前 PRD 内容、临时链接或某次任务的需求快照。`to-spec` 是主要消费者；`grilling` 和 `wayfinding` 只用它判断哪些需求事实必须由用户提供。下游 `to-tickets`、`quick-implement`、`loop` 和 `code-review` 只消费已确认的 SPEC 或 tickets，不直接解释该配置。
 
 `triage.enabled: false` 时省略 `labels`。只有检测到 triage skill 或用户明确启用时才询问 labels，默认使用 `needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。GitHub、GitLab 或 other 模式的具体操作写入 `issue_tracker.instructions` 指向的项目内文档；Profile 只保存稳定入口。
 

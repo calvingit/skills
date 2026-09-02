@@ -7,7 +7,7 @@ description: "根据项目需求权威、已收敛对话与代码库事实创建
 
 把当前对话中已经达成的共识、适用的需求权威和代码库事实整理成任务目录中的 `SPEC.md`。支持两种模式：没有 SPEC 时创建；已有 SPEC 且用户补充、修改或删除需求时，修订同一文件。不要重新进行一轮全面需求访谈；只处理当前创建范围或变更影响面。
 
-`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、执行状态或逐步实现配方。单一 scoped task 直接交给 `implement`；需要多个执行单元时，由 `to-tickets` 从 SPEC 派生 graph，再由 `loop` 调度每张 ticket 的 `implement`。
+`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、执行状态或逐步实现配方。单一 scoped task 直接交给 `quick-implement`；需要多个执行单元时，由 `to-tickets` 从 SPEC 派生 graph，再由 `loop` 执行。
 
 任务目录中的 `SPEC.md` 是工程工作流唯一的本地规范快照，供 `to-tickets` 直接读取。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认的 SPEC 直接驱动 tickets 或实现。除非用户明确要求，否则不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
 
@@ -145,13 +145,13 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 
 SPEC 获确认后：
 
-- 单一 scoped task、不需要 execution graph 时，直接交给 `implement`；
+- 单一 scoped task、不需要 execution graph 时，直接交给 `quick-implement`；
 - 需要多个可独立领取的工作单元、dependency edge 或统一调度时，调用 `to-tickets`；由它提出拆分、取得确认并创建 `tickets/`，再交给 `loop` 推进完整 graph。
 
 本 Skill 不拆 tickets、不实现业务代码，也不自动获得外部发布、commit、push、建分支或改写历史的授权。
 
 ## 变更规则
 
-- **规范性变化**：进入 Amendment 模式。需求、范围、接口 contract、testing decision、acceptance criterion 或明确约束变化时，更新同一份 SPEC 并重新确认受影响决策；testing seam 未受影响时不强制重新确认。已有 graph 且受影响 ticket 正在执行时，请求 `loop` 停止新的相关 dispatch、终止或收回对应 implementer 并保留 evidence；确认其不再写入后，再由 `to-tickets` 同步受影响 tickets。
+- **规范性变化**：进入 Amendment 模式。需求、范围、接口 contract、testing decision、acceptance criterion 或明确约束变化时，更新同一份 SPEC 并重新确认受影响决策；testing seam 未受影响时不强制重新确认。已有 graph 且受影响 ticket 正在执行时，请求 `loop` 停止新的相关 dispatch、终止或收回对应 worker 并保留 evidence；确认其不再写入后，再由 `to-tickets` 同步受影响 tickets。
 - **执行拆分变化**：SPEC 语义不变，但 ticket 粒度或依赖经新事实证明不合理时，仅由 `to-tickets` 调整 tickets，不能反向改写 SPEC。
 - **执行变化**：ticket 完成、验证失败、retry、frontier 或 execution evidence 变化只更新对应 ticket 或执行证据，不改 SPEC。

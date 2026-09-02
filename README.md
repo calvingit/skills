@@ -63,9 +63,9 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | 类型 | Skill | 职责 |
 | --- | --- | --- |
 | Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化需求权威、上下文与协作入口。 |
-| Workflow | `grilling`, `to-spec`, `to-tickets`, `implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、实现或长期探索阶段。 |
+| Workflow | `grilling`, `to-spec`, `to-tickets`, `quick-implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、单次实现或长期探索阶段。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
-| Execution Protocol | `loop` | 消费多-ticket execution graph，负责 ready frontier、调度、progress、evidence、whole-graph review、iteration / retry 和 no-progress 规则。 |
+| Execution Protocol | `loop` | 消费 ticket execution graph，负责 ready frontier、工作单元执行、progress、evidence、whole-graph review、iteration / retry 和 no-progress 规则。 |
 
 ### 如何选择 Skill
 
@@ -89,9 +89,9 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | 目标明确，但关键技术路径存在 Fog of war，且需要跨 session 探索 | `wayfinding` | `MAP.md` 与 `decisions/` |
 | 需求或 Map 已收敛，或已有 SPEC 需要吸收需求变更 | `to-spec` | 创建或修订同一份 `SPEC.md` |
 | 已有 SPEC，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
-| 实现边界明确，可以开始交付代码 | `implement` | 已实现并验证的变更 |
+| 已有无需 execution graph 的单一 SPEC | `quick-implement` | 已实现、验证并审查的单次交付 |
 
-`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。已有 SPEC 后出现需求新增、修改或删除时，再次调用 `to-spec` 修订同一文件；若已有 graph，再由 `to-tickets` 只同步受影响部分。单一 scoped task 直接交给 `implement`；需要多个可独立领取的执行单元、dependency edge 或统一调度时，才由 `to-tickets` 创建 execution graph。
+`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。已有 SPEC 后出现需求新增、修改或删除时，再次调用 `to-spec` 修订同一文件；若已有 graph，再由 `to-tickets` 只同步受影响部分。单一 scoped task 直接交给 `quick-implement`；需要多个执行单元、dependency edge 或统一调度时，由 `to-tickets` 创建 execution graph。只要 graph 已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
 
 #### 按需叠加 Engineering Discipline
 
@@ -113,11 +113,11 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | 能力 | 何时使用 |
 | --- | --- |
 | `project-setup` | 希望把稳定的需求权威模式、项目上下文入口和 Engineering Skills Profile 写入 `AGENTS.md` 时，可选使用 |
-| `loop` | 已有多-ticket execution graph，需要持续计算 frontier、调度执行单元、聚合 evidence，并在完成前执行 whole-graph review 时使用 |
+| `loop` | 已有 ticket execution graph，需要持续计算 frontier、执行工作单元、聚合 evidence，并在完成前执行 whole-graph review 时使用 |
 
 `loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。Runtime continuation state 与 ticket delivery state 相互独立。
 
-`loop` 拥有 implementer subagent 的创建、scope、并发、workspace/isolation 和结果回收；`implement` 拥有单个工作单元内的调查、修改、验证与审查程序。调用路径是 `loop dispatch → subagent 使用 implement`，不是 `implement` 再创建 implementer。用户直接调用 `implement` 时，当前 Agent 就是 implementer。
+`quick-implement` 负责无需 graph 的单次 SPEC 实现。`loop` 是 ticket graph 在正常执行期间的唯一写入者，并按自包含的内部 `references/ticket-worker.md` 协议执行每张 ticket；worker 不作为独立 Skill 暴露，也不修改 graph。当前 workspace 由调用方或 Agent Runtime 提供，Engineering Skills 不创建、切换或管理执行环境。
 
 ```text
 Runtime
@@ -129,9 +129,9 @@ Engineering workflow
     tickets/
        │
       loop
-       │  frontier / scheduling / progress / evidence
+       │  frontier / status / evidence
        ▼
-   implement
+ ticket-worker
 ```
 
 进入某个 Skill 后，具体触发条件、边界和停止条件仍以对应的 `SKILL.md` 为准。
@@ -145,11 +145,11 @@ Engineering workflow
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 规范契约 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | ticket 拆分、进度或 retry 状态 |
 | 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
-| 执行证据 | ticket 状态、验收勾选、implementation receipt、whole-graph review receipt | `implement`、`loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
+| 执行证据 | ticket 状态、验收勾选、worker receipt、whole-graph review receipt | `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
 `SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
 
-外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`to-tickets`、`loop`、`implement` 和 `code-review` 不直接解释外部需求来源。
+外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`to-tickets`、`quick-implement`、`loop` 和 `code-review` 不直接解释外部需求来源。
 
 Runtime continuation state 不属于 execution graph，不能替代 ticket Status、acceptance evidence 或 ready frontier。
 
@@ -168,44 +168,44 @@ flowchart TD
     F --> Q{Destination 需要构建契约？}
     Q -->|是| E
     Q -->|最终决定| M[decision handoff]
-    Q -->|Notes 允许直接变更| I
+    Q -->|Notes 允许直接变更| X[对应执行流程]
     E --> G[SPEC.md]
     G --> H{是否需要 execution graph？}
-    H -->|否| I[implement]
+    H -->|否| I[quick-implement]
     H -->|是| J[to-tickets]
     J --> K[tickets/]
-    K --> O[loop]
-    O --> I
-    I --> L[code-review]
+    K --> O[loop + ticket-worker]
+    I --> L[verified delivery]
+    O --> L
 ```
 
 ### 本地 ticket 生命周期
 
-`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification` 链接、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
+`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification` 链接、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by`、`Execution evidence`、`Execution blocker` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
 
 ```mermaid
 stateDiagram-v2
     [*] --> ready: 无未完成 blocker
     [*] --> blocked: 存在 blocker
     blocked --> ready: blocker 解除
-    ready --> in_progress: implement 领取
+    ready --> in_progress: loop 派发
     in_progress --> done: 验收与 evidence 完整
     in_progress --> blocked: 出现真实阻塞
     done --> ready: whole-graph review finding
     ready --> superseded: SPEC amendment
     blocked --> superseded: SPEC amendment
-    in_progress --> superseded: 停止并回收 implementer
+    in_progress --> superseded: 停止并回收 worker
     done --> superseded: 原 contract 不再适用
 ```
 
-执行时，`loop` 在 evidence 表明依赖或其他已记录阻塞解除后维护 `blocked → ready`，并且只在 SPEC 未变、whole-graph review 发现原 contract 内缺陷时维护 `done → ready`；`implement` 负责 `ready → in_progress → done/blocked`、验收勾选和 evidence。需求变化由 `to-tickets` 保留仍有效的 `done`，或将旧 ticket 标为 `superseded` 并创建 amendment/replacement ticket，不能直接用 `done → ready` 表达。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
+执行时，`loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、验收勾选、Execution evidence 和 Execution blocker，并且只在 SPEC 未变、whole-graph review 发现原 contract 内缺陷时执行 `done → ready`。ticket worker 只返回 landed changes 与 receipt，不写 graph。需求变化由 `to-tickets` 保留仍有效的 `done`，或将旧 ticket 标为 `superseded` 并创建 amendment/replacement ticket，不能直接用 `done → ready` 表达。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
 
 ### 执行约束
 
 1. 先读取用户要求、目标项目的 `AGENTS.md`、现有规范、ADR、领域词汇、测试与构建配置。
 2. 只由对应 owner 修改其 artifact；下游 Skill 不静默改写上游结论。
-3. Ticket 模式默认串行调度一张 `ready` ticket，并由独立 `implement` 执行；只有能证明 tickets 与 writable surfaces 足够隔离时才并行，独立 worktree 仅在隔离确有需要时使用。
-4. `loop` 创建或选择 implementer execution unit，并要求该 Agent 使用 `implement`；`implement` 不递归创建另一个 implementer，也不调度 sibling ticket。
+3. Loop 默认串行执行一张 `ready` ticket，使后续 ticket 直接基于当前 workspace 中已落地的前序代码继续工作；只有能证明 tickets 的 writable surfaces 和共享副作用均隔离时才并行。
+4. `loop` 按自包含的内部 ticket-worker protocol 创建或选择 execution unit；worker 不递归创建同类 worker、不调度 sibling ticket，也不写 graph。
 5. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
 6. 所有 active tickets 完成后，基于完整 landed scope（包括 superseded tickets 留下的代码）执行一次 whole-graph review 和 integration verification；当前 SPEC 的每个 R/AC 必须由 active `done` ticket 覆盖，未处理的必须修复 finding 会重新打开责任 ticket，不能直接宣告完成。
 7. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
@@ -217,10 +217,11 @@ stateDiagram-v2
 
 | 场景 | 典型组合 |
 | --- | --- |
-| 普通行为实现 | `implement` + `tdd` → `code-review` |
+| 单一 SPEC 实现 | `quick-implement` + `tdd` → `code-review` |
+| Ticket graph 执行 | `to-tickets` → `loop` + ticket-worker → whole-graph review |
 | Bug 修复 | `debug` → reproduction → root cause → regression test → fix |
-| 架构治理 | `review-architecture` → `codebase-design` → `to-spec` → `implement` |
-| 主动深化 Module | `improve-codebase-architecture` → `grilling` → `to-spec` → `implement` |
+| 架构治理 | `review-architecture` → `codebase-design` → `to-spec` → `quick-implement` / `loop` |
+| 主动深化 Module | `improve-codebase-architecture` → `grilling` → `to-spec` → `quick-implement` / `loop` |
 | 长期复杂度治理 | `simplify Survey` → evidence → `simplify Change` → verification |
 
 长期复杂度治理针对“为了验证 AI 写得对不对而逐渐进入生产代码”的 abstraction、injection point、wrapper、hook、debug state、compatibility path 和实验残留。重点不是识别 AI 作者，而是判断这些维护义务是否仍有真实生产 ownership。
@@ -241,7 +242,7 @@ stateDiagram-v2
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求落盘为规范性 `SPEC.md`，并在需求变化时修订同一文件。 |
 | [`to-tickets`](./engineering/to-tickets/SKILL.md) | 将已确认的 `SPEC.md` 拆成 tickets，并在 SPEC 修订后同步受影响 graph。 |
-| [`implement`](./engineering/implement/SKILL.md) | 按已确认的需求契约实现、验证和审查任务。 |
+| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 实现并验证一个已确认、无需 ticket graph 的单次 SPEC。 |
 
 #### Engineering Discipline
 
@@ -260,7 +261,7 @@ stateDiagram-v2
 
 | Skill | 用途 |
 | --- | --- |
-| [`loop`](./engineering/loop/SKILL.md) | 维护 ready frontier，调度 `implement` 执行单元，聚合 evidence，并在完成前执行 whole-graph review。 |
+| [`loop`](./engineering/loop/SKILL.md) | 维护 ready frontier，按内部 ticket-worker 协议执行工作单元，聚合 evidence，并在完成前执行 whole-graph review。 |
 
 ## 使用
 
