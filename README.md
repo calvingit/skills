@@ -31,6 +31,7 @@
 | [`tavily-search`](./global/tavily-search/SKILL.md) | 获取面向 Agent 优化的网页搜索结果。 |
 | [`teach`](./global/teach/SKILL.md) | 在工作区内组织连续的主题学习、参考资料和学习记录。 |
 | [`url-to-markdown`](./global/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
+| [`zh-terminology`](./global/zh-terminology/SKILL.md) | 按语境审校中文术语，避免英语硬翻译并同步多载体表达。 |
 
 ## Engineering Skills
 
