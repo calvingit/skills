@@ -13,7 +13,7 @@ description: "用于设计或评估具体模块、接口、依赖方向和可测
 
 讨论这些概念时，统一使用以下术语，不用 component、service、API 或 boundary 替代。目标项目不必采用同名文件或类型，但各 Skill 必须共享同一套语义。
 
-- **Module**：任何同时拥有 Interface 与 Implementation 的单元，可以是函数、类、package 或跨层 vertical slice。
+- **Module**：任何同时拥有 Interface 与 Implementation 的单元，可以是函数、类、package 或跨层端到端交付任务。
 - **Interface**：调用方正确使用 Module 必须知道的全部表面，不只有类型签名，还包括不变量、顺序约束、错误模式、所需配置和性能特征。
 - **Implementation**：Module 内部为了兑现 Interface 而存在的代码和行为。它不同于 Adapter；Implementation 描述内部，Adapter 描述在 Seam 上承担的角色。
 - **Depth**：衡量 Interface 带来的杠杆。调用方需要理解的内容越少、获得的能力越多，Module 越 deep；Interface 与 Implementation 几乎一样复杂的 Module 较 shallow。
@@ -101,8 +101,9 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 
 - 评审现有架构是否合理、是否符合项目/技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
 - 已确认某个 Module / Interface / Seam 需要调整，需要形成局部目标设计：使用 `codebase-design`。
-- 已确认 SPEC 需要跨 Module、调用方或 execution unit 的统一概要设计，并落盘 `HLD.md`：使用 `high-level-design`。
+- 已确认 SPEC 需要跨 Module、调用方或实现任务的统一概要设计，并落盘 `HLD.md`：使用 `high-level-design`。
 - 需求或行为尚未决定：使用 `grilling`。
 - bug 根因调查：使用 `debug`。
 - 行为不变的 diff 收缩：使用 `simplify`。
 - 不强制 Clean Architecture、DDD、Hexagonal、MVC、MVVM 等任何固定架构流派；只根据当前证据判断 ownership、Interface 和 Seam。
+

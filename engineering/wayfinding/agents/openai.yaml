@@ -1,6 +1,6 @@
 interface:
   display_name: "Wayfinding"
-  short_description: "建立跨 session 技术决策地图并推进 frontier"
+  short_description: "建立跨会话技术决策地图并推进当前可处理项"
   default_prompt: "使用 $wayfinding 为已确认目标中的技术或方案不确定性建立并推进决策地图。"
 
 policy:

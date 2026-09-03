@@ -11,9 +11,9 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 重点回答：**当前 architecture 是否 sound，问题在哪里，为什么是问题，影响是什么。** 不负责设计最终目标架构，也不在本 Skill 内实施重构。
 
-与 `codebase-design` 的职责区别：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个 finding 已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 Module / Interface / Seam 应该设计**。
+与 `codebase-design` 的职责区别：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个审查发现已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 Module / Interface / Seam 应该设计**。
 
-## Review authority
+## 评审依据
 
 按以下优先级判断，不把个人偏好包装成规范：
 
@@ -32,8 +32,8 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 - 不把目录结构、命名风格或“看起来不优雅”自动升级为架构问题。
 - 不把普通 bug、局部代码质量或性能问题纳入，除非证据表明根因来自 ownership、boundary、dependency、state lifecycle 或 architecture policy。
 - 不强行套用 Clean Architecture、DDD、MVVM 等固定风格；只有项目选择了该约束，或技术栈官方规则与当前问题直接相关时才检查符合度。
-- finding 必须包含当前 evidence、实际影响和期望的架构结果；候选阶段不写文件级实现配方。
-- 范围未覆盖的部分明确列为 blind spot，不假装完成全仓库审计。
+- 审查发现必须包含当前 evidence、实际影响和期望的架构结果；候选阶段不写文件级实现配方。
+- 范围未覆盖的部分明确列为未覆盖范围，不假装完成全仓库审计。
 
 ## Workflow
 
@@ -86,34 +86,34 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 主动寻找反证。现有设计如果确实隔离 failure domain、保护兼容性、集中复杂度或满足真实替换边界，应降级或否定 candidate。
 
-### 5. Classify findings by impact
+### 5. 按影响划分评审发现
 
-finding 不按“违反了多少原则”排序，而按 evidence 与实际影响排序：
+审查发现不按“违反了多少原则”排序，而按 evidence 与实际影响排序：
 
 - `Critical`：可能导致数据、安全、权限、持久化兼容或系统级生命周期错误；
 - `High`：持续造成明显变更扩散、错误 ownership、依赖失控或难以可靠验证；
 - `Medium`：存在稳定的架构摩擦和维护成本，但影响局部且可控；
 - `Low`：轻微偏离或改进机会，不足以单独推动架构变更；
-- `Speculative`：信号存在但关键事实未知，不作为确定 finding。
+- `Speculative`：信号存在但关键事实未知，不作为确定审查发现。
 
-没有成立问题时明确输出 `no finding`；不要为了报告完整度制造架构债。
+没有成立问题时明确输出 `未发现问题`；不要为了报告完整度制造架构债。
 
 ### 6. Report and stop
 
 使用 `references/report-template.md` 输出 Markdown 架构评审。报告应明确：
 
-- scope / coverage / blind spots；
+- scope / coverage / 未覆盖范围；
 - 当前 architecture 与适用 authorities；
-- findings 及 evidence、impact、rule/guidance basis；
-- not findings / counter-evidence；
+- 审查发现及 evidence、impact、rule/guidance basis；
+- 不构成问题的反证；
 - recommendation direction 和需要进一步确认的问题。
 
-本 Skill 到评审结论为止。若用户选择处理某项 finding：
+本 Skill 到评审结论为止。若用户选择处理某项审查发现：
 
 - 需要收敛目标 Module / Interface / Seam → `codebase-design`；
 - 需求或权衡未确定 → `grilling`；
 - 需要正式任务契约 → `to-spec`；
-- 已有明确方案 → `to-spec`，存在跨局部技术契约时经 `high-level-design`，再按范围进入 `quick-implement` 或 `loop`；
+- 已有明确方案 → `to-spec`，存在多处实现需要共同遵守的设计约定时经 `high-level-design`，再按范围进入 `quick-implement` 或 `loop`；
 - 目标只是删除已证明不必要的复杂度 → `simplify`。
 
 ## Done when
@@ -121,7 +121,7 @@ finding 不按“违反了多少原则”排序，而按 evidence 与实际影�
 - 已说明评审范围、判断依据和未覆盖部分；
 - 当前架构事实来自代码、关系、测试或可运行检查，而非只复述文档；
 - 项目规则、外部官方 guidance 与通用设计判断被明确区分；
-- 每个 finding 都有 evidence、impact 和对应的 architecture concern；
+- 每个审查发现都有 evidence、impact 和对应的 architecture concern；
 - 已寻找并记录重要反证，不把合理 trade-off 误判成问题；
-- 报告给出 `Critical/High/Medium/Low/Speculative` 或 `no finding` 的明确结论；
+- 报告给出 `Critical/High/Medium/Low/Speculative` 或 `未发现问题` 的明确结论；
 - 没有在架构评审阶段越权进入 redesign 或 implementation。

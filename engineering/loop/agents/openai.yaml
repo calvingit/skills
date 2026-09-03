@@ -1,7 +1,7 @@
 interface:
   display_name: "Loop"
-  short_description: "依据 SPEC/HLD 维护 frontier、evidence 与整图审查"
-  default_prompt: "使用 $loop 依据 SPEC.md、可选 HLD.md 和 tickets 计算 ready frontier，执行工作单元、聚合 evidence，并完成整图审查。"
+  short_description: "依据 SPEC/HLD 维护可执行任务、证据与整体交付审查"
+  default_prompt: "使用 $loop 依据 SPEC.md、可选 HLD.md 和 tickets 计算当前可执行任务，执行工作单元、聚合证据，并完成整体交付审查。"
 
 policy:
   allow_implicit_invocation: true

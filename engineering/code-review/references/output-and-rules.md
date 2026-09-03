@@ -14,7 +14,7 @@ Diff: <命令或范围>
 Commits: <固定 baseline 后的提交>
 Standards 来源: <仓库指导文件、规范、配置和相关 skill>
 
-逐个 finding 报告：违反的规则或异味、位置、影响、建议、验证。通用 smell 只能作为 judgement call，必须点名并引用 hunk；项目明确规则优先，工具已强制的规则跳过。
+逐个审查发现报告：违反的规则或异味、位置、影响、建议、验证。通用 smell 只能作为 judgement call，必须点名并引用 hunk；项目明确规则优先，工具已强制的规则跳过。
 只报告本次变更引入或扩大的问题；现有 guard 或约束已覆盖的风险不报告。
 ```
 
@@ -40,7 +40,7 @@ Diff: <命令或范围>
 Diff: <命令或范围>
 概要设计来源: <HLD.md 与当前 ticket 的 D IDs>
 
-报告：违反 Module ownership、共享 contract、dependency direction、状态/错误/生命周期语义或集成约束的问题。区分 HLD 强制决定与 Local Design Freedom；代码事实证明设计不可行时报告 design blocker，不自行修改 HLD。
+报告：违反模块职责、共享约定、依赖方向、状态/错误/生命周期语义或集成约束的问题。区分 HLD 强制决定与局部实现空间；代码事实证明设计不可行时报告设计阻塞，不自行修改 HLD。
 没有 HLD 时标记 not_applicable。
 ```
 
@@ -100,6 +100,7 @@ Diff: <命令或范围>
 - 提交前必须完成：
 ```
 
-没有 finding 时仍保留上述章节。Standards/Spec 写 `No findings` 或 `Skipped: no_spec_available`；HLD 写 `No findings` 或 `Skipped: not_applicable`。
+没有审查发现时仍保留上述章节。Standards/Spec 写 `No 审查发现` 或 `Skipped: no_spec_available`；HLD 写 `No 审查发现` 或 `Skipped: not_applicable`。
 
-各适用轴独立计数，分别给出最严重 finding。不要合并、跨轴重新排序或评出一个跨轴最严重项；提交建议不得省略任一适用轴的失败。
+各适用轴独立计数，分别给出最严重审查发现。不要合并、跨轴重新排序或评出一个跨轴最严重项；提交建议不得省略任一适用轴的失败。
+

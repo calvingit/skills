@@ -4834,7 +4834,7 @@
         <path d="M 72 112 L 908 112" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
         <text x="72" y="100" class="t-dim" font-size="10" font-weight="600">01 / 执行主路径</text>
         <path d="M 72 264 L 908 264" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
-        <text x="72" y="252" class="t-dim" font-size="10" font-weight="600">02 / 阻塞与恢复 + 上游契约变化</text>
+        <text x="72" y="252" class="t-dim" font-size="10" font-weight="600">02 / 阻塞与恢复 + 上游规范变化</text>
         <path d="M 72 436 L 908 436" class="a-default" stroke-width="0.8" stroke-dasharray="3,8"/>
         <text x="72" y="424" class="t-dim" font-size="10" font-weight="600">03 / 历史状态</text>
 
@@ -4842,22 +4842,22 @@
         <path d="M 154 157 L 594 157" class="a-emphasis" stroke-width="2.2" marker-end="url(#arrowhead-emphasis)"/>
 
         <!-- Transition paths -->
-        <path data-edge-from="created" data-edge-to="ready" data-edge-label="无未完成 blocker" data-edge-key="0" data-edge-id="created_ready" data-composition-points="153,157;189,157" d="M 153 157 L 189 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="created" data-edge-to="ready" data-edge-label="无未完成阻塞项" data-edge-key="0" data-edge-id="created_ready" data-composition-points="153,157;189,157" d="M 153 157 L 189 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="created" data-edge-to="blocked" data-edge-key="1" data-edge-id="created_blocked" data-composition-points="94,188;94,224;402,224;402,278" d="M 94 188 L 94 214 Q 94 224 104 224 L 392 224 Q 402 224 402 234 L 402 278" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="blocked" data-edge-to="ready" data-edge-label="blocker 解除" data-edge-key="2" data-edge-id="blocked_ready" data-composition-points="339,307;300,307;300,228;248,228;248,188" d="M 339 307 L 310 307 Q 300 307 300 297 L 300 238 Q 300 228 290 228 L 258 228 Q 248 228 248 218 L 248 188" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="blocked" data-edge-to="ready" data-edge-label="阻塞解除" data-edge-key="2" data-edge-id="blocked_ready" data-composition-points="339,307;300,307;300,228;248,228;248,188" d="M 339 307 L 310 307 Q 300 307 300 297 L 300 238 Q 300 228 290 228 L 258 228 Q 248 228 248 218 L 248 188" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="ready" data-edge-to="in_progress" data-edge-label="loop 派发" data-edge-key="3" data-edge-id="ready_progress" data-composition-points="307,157;343,157" d="M 307 157 L 343 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与 evidence 完整" data-edge-key="4" data-edge-id="progress_done" data-composition-points="461,157;497,157" d="M 461 157 L 497 157" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与验证证据完整" data-edge-key="4" data-edge-id="progress_done" data-composition-points="461,157;497,157" d="M 461 157 L 497 157" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="出现真实阻塞" data-edge-key="5" data-edge-id="progress_blocked" data-composition-points="402,188;402,278" d="M 402 188 L 402 278" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
-        <path data-edge-from="done" data-edge-to="ready" data-edge-label="whole-graph review finding" data-edge-key="6" data-edge-id="done_ready" data-composition-points="556,126;556,62;248,62;248,126" d="M 556 126 L 556 72 Q 556 62 546 62 L 258 62 Q 248 62 248 72 L 248 126" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="done" data-edge-to="ready" data-edge-label="整体交付审查发现问题" data-edge-key="6" data-edge-id="done_ready" data-composition-points="556,126;556,62;248,62;248,126" d="M 556 126 L 556 72 Q 556 62 546 62 L 258 62 Q 248 62 248 72 L 248 126" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="ready" data-edge-to="amendment" data-edge-key="7" data-edge-id="ready_amendment" data-composition-points="248,126;248,38;710,38;710,380;710,278" d="M 248 126 L 248 48 Q 248 38 258 38 L 700 38 Q 710 38 710 48 L 710 370 Q 710 380 710 370 L 710 278" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="blocked" data-edge-to="amendment" data-edge-key="8" data-edge-id="blocked_amendment" data-composition-points="402,336;402,380;710,380;710,336" d="M 402 336 L 402 370 Q 402 380 412 380 L 700 380 Q 710 380 710 370 L 710 336" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收 worker" data-edge-key="9" data-edge-id="progress_amendment" data-composition-points="461,157;480,157;480,250;620,250;620,307;647,307" d="M 461 157 L 470.5 157 Q 480 157 480 166.5 L 480 240 Q 480 250 490 250 L 610 250 Q 620 250 620 260 L 620 297 Q 620 307 630 307 L 647 307" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收实现任务" data-edge-key="9" data-edge-id="progress_amendment" data-composition-points="461,157;480,157;480,250;620,250;620,307;647,307" d="M 461 157 L 470.5 157 Q 480 157 480 166.5 L 480 240 Q 480 250 490 250 L 610 250 Q 620 250 620 260 L 620 297 Q 620 307 630 307 L 647 307" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="done" data-edge-to="amendment" data-edge-key="10" data-edge-id="done_amendment" data-composition-points="556,188;556,210;710,210;710,278" d="M 556 188 L 556 200 Q 556 210 566 210 L 700 210 Q 710 210 710 220 L 710 278" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="amendment" data-edge-to="superseded" data-edge-key="11" data-edge-id="amendment_superseded" data-composition-points="710,336;710,450" d="M 710 336 L 710 450" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
 
         <!-- States -->
-        <g id="node-created" data-node-id="created" data-node-label="Ticket 创建" tabindex="0" role="button" aria-label="聚焦Ticket 创建，按 blocker 选择入口, 执行主路径" aria-pressed="false" data-node-kind="start" data-node-sublabel="按 blocker 选择入口" data-node-tag="ENTRY" data-node-context="执行主路径">
-          <title>Ticket 创建 · 按 blocker 选择入口 · 执行主路径 · ENTRY</title>
+        <g id="node-created" data-node-id="created" data-node-label="Ticket 创建" tabindex="0" role="button" aria-label="聚焦Ticket 创建，按阻塞情况选择入口, 执行主路径" aria-pressed="false" data-node-kind="start" data-node-sublabel="按阻塞情况选择入口" data-node-tag="ENTRY" data-node-context="执行主路径">
+          <title>Ticket 创建 · 按阻塞情况选择入口 · 执行主路径 · ENTRY</title>
           <rect x="35" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="35" y="126" width="118" height="62" rx="7" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="start" class="semantic-sigil s-frontend" transform="translate(136 132) scale(0.6875)">
@@ -4866,12 +4866,12 @@
           </g>
         <text data-detail="fine" x="45" y="140" class="t-frontend" font-size="7" font-weight="700">01</text>
           <text data-node-label="" data-detail-anchor="" x="94" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Ticket 创建</text>
-          <text data-detail="context" x="94" y="163" class="t-muted" font-size="7" text-anchor="middle">按 blocker 选择入口</text>
+          <text data-detail="context" x="94" y="163" class="t-muted" font-size="7" text-anchor="middle">按阻塞情况选择入口</text>
         <text data-detail="fine" x="94" y="177" class="t-frontend" font-size="7" text-anchor="middle">ENTRY</text>
         </g>
 
-        <g id="node-ready" data-node-id="ready" data-node-label="ready" tabindex="0" role="button" aria-label="聚焦ready，进入 ready frontier, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="进入 ready frontier" data-node-context="执行主路径">
-          <title>ready · 进入 ready frontier · 执行主路径</title>
+        <g id="node-ready" data-node-id="ready" data-node-label="ready" tabindex="0" role="button" aria-label="聚焦ready，进入可执行任务集合, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="进入可执行任务集合" data-node-context="执行主路径">
+          <title>ready · 进入可执行任务集合 · 执行主路径</title>
           <rect x="189" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="189" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="active" class="semantic-sigil s-backend" transform="translate(290 132) scale(0.6875)">
@@ -4879,11 +4879,11 @@
           </g>
         <text data-detail="fine" x="199" y="140" class="t-backend" font-size="7" font-weight="700">02</text>
           <text data-node-label="" data-detail-anchor="" x="248" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">ready</text>
-          <text data-detail="context" x="248" y="163" class="t-muted" font-size="7" text-anchor="middle">进入 ready frontier</text>
+          <text data-detail="context" x="248" y="163" class="t-muted" font-size="7" text-anchor="middle">进入可执行任务集合</text>
         </g>
 
-        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，loop 已派发 worker, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="loop 已派发 worker" data-node-context="执行主路径">
-          <title>in_progress · loop 已派发 worker · 执行主路径</title>
+        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，loop 已派发实现任务, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="loop 已派发实现任务" data-node-context="执行主路径">
+          <title>in_progress · loop 已派发实现任务 · 执行主路径</title>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="active" class="semantic-sigil s-backend" transform="translate(444 132) scale(0.6875)">
@@ -4891,11 +4891,11 @@
           </g>
         <text data-detail="fine" x="353" y="140" class="t-backend" font-size="7" font-weight="700">03</text>
           <text data-node-label="" data-detail-anchor="" x="402" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">in_progress</text>
-          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">loop 已派发 worker</text>
+          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">loop 已派发实现任务</text>
         </g>
 
-        <g id="node-done" data-node-id="done" data-node-label="done" tabindex="0" role="button" aria-label="聚焦done，验收与 evidence 完整, 执行主路径" aria-pressed="false" data-node-kind="success" data-node-sublabel="验收与 evidence 完整" data-node-tag="COVERAGE" data-node-context="执行主路径">
-          <title>done · 验收与 evidence 完整 · 执行主路径 · COVERAGE</title>
+        <g id="node-done" data-node-id="done" data-node-label="done" tabindex="0" role="button" aria-label="聚焦done，验收与验证证据完整, 执行主路径" aria-pressed="false" data-node-kind="success" data-node-sublabel="验收与验证证据完整" data-node-tag="COVERAGE" data-node-context="执行主路径">
+          <title>done · 验收与验证证据完整 · 执行主路径 · COVERAGE</title>
           <rect x="497" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="497" y="126" width="118" height="62" rx="7" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="success" class="semantic-sigil s-database" transform="translate(598 132) scale(0.6875)">
@@ -4904,37 +4904,37 @@
           </g>
         <text data-detail="fine" x="507" y="140" class="t-database" font-size="7" font-weight="700">04</text>
           <text data-node-label="" data-detail-anchor="" x="556" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">done</text>
-          <text data-detail="context" x="556" y="163" class="t-muted" font-size="7" text-anchor="middle">验收与 evidence 完整</text>
+          <text data-detail="context" x="556" y="163" class="t-muted" font-size="7" text-anchor="middle">验收与验证证据完整</text>
         <text data-detail="fine" x="556" y="177" class="t-database" font-size="7" text-anchor="middle">COVERAGE</text>
         </g>
 
-        <g id="node-blocked" data-node-id="blocked" data-node-label="blocked" tabindex="0" role="button" aria-label="聚焦blocked，存在真实 blocker, 阻塞与恢复" aria-pressed="false" data-node-kind="waiting" data-node-sublabel="存在真实 blocker" data-node-tag="WAIT" data-node-context="阻塞与恢复">
-          <title>blocked · 存在真实 blocker · 阻塞与恢复 · WAIT</title>
+        <g id="node-blocked" data-node-id="blocked" data-node-label="blocked" tabindex="0" role="button" aria-label="聚焦blocked，存在真实阻塞, 阻塞与恢复" aria-pressed="false" data-node-kind="waiting" data-node-sublabel="存在真实阻塞" data-node-tag="WAIT" data-node-context="阻塞与恢复">
+          <title>blocked · 存在真实阻塞 · 阻塞与恢复 · WAIT</title>
           <rect x="339" y="278" width="126" height="58" rx="7" class="c-mask"/>
           <rect x="339" y="278" width="126" height="58" rx="7" class="c-cloud" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="waiting" class="semantic-sigil s-cloud" transform="translate(448 284) scale(0.6875)">
             <path d="M4 2.5h8M4 13.5h8M5 3c0 2.8 2 3.2 3 5-1 1.8-3 2.2-3 5M11 3c0 2.8-2 3.2-3 5 1 1.8 3 2.2 3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="402" y="299" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">blocked</text>
-          <text data-detail="context" x="402" y="315" class="t-muted" font-size="7" text-anchor="middle">存在真实 blocker</text>
+          <text data-detail="context" x="402" y="315" class="t-muted" font-size="7" text-anchor="middle">存在真实阻塞</text>
         <text data-detail="fine" x="402" y="325" class="t-cloud" font-size="7" text-anchor="middle">WAIT</text>
         </g>
 
-        <g id="node-amendment" data-node-id="amendment" data-node-label="SPEC/HLD amendment" tabindex="0" role="button" aria-label="聚焦SPEC/HLD amendment，同步 execution graph, 上游契约变化" aria-pressed="false" data-node-kind="external" data-node-sublabel="同步 execution graph" data-node-tag="EVENT" data-node-context="上游契约变化">
-          <title>SPEC/HLD amendment · 同步 execution graph · 上游契约变化 · EVENT</title>
+        <g id="node-amendment" data-node-id="amendment" data-node-label="SPEC/HLD 修订" tabindex="0" role="button" aria-label="聚焦SPEC/HLD 修订，同步任务执行图, 上游规范变化" aria-pressed="false" data-node-kind="external" data-node-sublabel="同步任务执行图" data-node-tag="EVENT" data-node-context="上游规范变化">
+          <title>SPEC/HLD 修订 · 同步任务执行图 · 上游规范变化 · EVENT</title>
           <rect x="647" y="278" width="126" height="58" rx="7" class="c-mask"/>
           <rect x="647" y="278" width="126" height="58" rx="7" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(756 284) scale(0.6875)">
             <rect x="2.5" y="5" width="8.5" height="8" rx="1.5"/>
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="710" y="299" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">SPEC/HLD amendment</text>
-          <text data-detail="context" x="710" y="315" class="t-muted" font-size="7" text-anchor="middle">同步 execution graph</text>
+          <text data-node-label="" data-detail-anchor="" x="710" y="299" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">SPEC/HLD 修订</text>
+          <text data-detail="context" x="710" y="315" class="t-muted" font-size="7" text-anchor="middle">同步任务执行图</text>
         <text data-detail="fine" x="710" y="325" class="t-muted" font-size="7" text-anchor="middle">EVENT</text>
         </g>
 
-        <g id="node-superseded" data-node-id="superseded" data-node-label="superseded" tabindex="0" role="button" aria-label="聚焦superseded，原 contract 不再适用, 历史状态" aria-pressed="false" data-node-kind="neutral" data-node-sublabel="原 contract 不再适用" data-node-tag="HISTORY" data-node-context="历史状态">
-          <title>superseded · 原 contract 不再适用 · 历史状态 · HISTORY</title>
+        <g id="node-superseded" data-node-id="superseded" data-node-label="superseded" tabindex="0" role="button" aria-label="聚焦superseded，原任务要求不再适用, 历史状态" aria-pressed="false" data-node-kind="neutral" data-node-sublabel="原任务要求不再适用" data-node-tag="HISTORY" data-node-context="历史状态">
+          <title>superseded · 原任务要求不再适用 · 历史状态 · HISTORY</title>
           <rect x="651" y="450" width="118" height="58" rx="7" class="c-mask"/>
           <rect x="651" y="450" width="118" height="58" rx="7" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="neutral" class="semantic-sigil s-external" transform="translate(752 456) scale(0.6875)">
@@ -4942,41 +4942,41 @@
             <circle cx="8" cy="8" r="1.2" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="710" y="471" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">superseded</text>
-          <text data-detail="context" x="710" y="487" class="t-muted" font-size="7" text-anchor="middle">原 contract 不再适用</text>
+          <text data-detail="context" x="710" y="487" class="t-muted" font-size="7" text-anchor="middle">原任务要求不再适用</text>
         <text data-detail="fine" x="710" y="497" class="t-muted" font-size="7" text-anchor="middle">HISTORY</text>
         </g>
 
         <!-- Transition labels -->
-        <g data-detail="context" data-edge-from="created" data-edge-to="ready" data-edge-label="无未完成 blocker" data-edge-key="0" data-edge-id="created_ready">
+        <g data-detail="context" data-edge-from="created" data-edge-to="ready" data-edge-label="无未完成阻塞项" data-edge-key="0" data-edge-id="created_ready">
           <rect x="125.8" y="101" width="90.4" height="16" rx="4" class="c-mask"/>
-          <text x="171" y="112" class="t-muted" font-size="8" text-anchor="middle">无未完成 blocker</text>
+          <text x="171" y="112" class="t-muted" font-size="8" text-anchor="middle">无未完成阻塞项</text>
         </g>
 
-        <g data-detail="context" data-edge-from="blocked" data-edge-to="ready" data-edge-label="blocker 解除" data-edge-key="2" data-edge-id="blocked_ready">
+        <g data-detail="context" data-edge-from="blocked" data-edge-to="ready" data-edge-label="阻塞解除" data-edge-key="2" data-edge-id="blocked_ready">
           <rect x="294.6" y="233" width="70.80000000000001" height="16" rx="4" class="c-mask"/>
-          <text x="330" y="244" class="t-backend" font-size="8" text-anchor="middle">blocker 解除</text>
+          <text x="330" y="244" class="t-backend" font-size="8" text-anchor="middle">阻塞解除</text>
         </g>
         <g data-detail="context" data-edge-from="ready" data-edge-to="in_progress" data-edge-label="loop 派发" data-edge-key="3" data-edge-id="ready_progress">
           <rect x="296.95" y="101" width="56.1" height="16" rx="4" class="c-mask"/>
           <text x="325" y="112" class="t-muted" font-size="8" text-anchor="middle">loop 派发</text>
         </g>
-        <g data-detail="context" data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与 evidence 完整" data-edge-key="4" data-edge-id="progress_done">
+        <g data-detail="context" data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与验证证据完整" data-edge-key="4" data-edge-id="progress_done">
           <rect x="424" y="101" width="110" height="16" rx="4" class="c-mask"/>
-          <text x="479" y="112" class="t-backend" font-size="8" text-anchor="middle">验收与 evidence 完整</text>
+          <text x="479" y="112" class="t-backend" font-size="8" text-anchor="middle">验收与验证证据完整</text>
         </g>
         <g data-detail="context" data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="出现真实阻塞" data-edge-key="5" data-edge-id="progress_blocked">
           <rect x="354.6" y="204" width="70.80000000000001" height="16" rx="4" class="c-mask"/>
           <text x="390" y="215" class="t-security" font-size="8" text-anchor="middle">出现真实阻塞</text>
         </g>
-        <g data-detail="context" data-edge-from="done" data-edge-to="ready" data-edge-label="whole-graph review finding" data-edge-key="6" data-edge-id="done_ready">
+        <g data-detail="context" data-edge-from="done" data-edge-to="ready" data-edge-label="整体交付审查发现问题" data-edge-key="6" data-edge-id="done_ready">
           <rect x="332.3" y="63" width="139.4" height="16" rx="4" class="c-mask"/>
-          <text x="402" y="74" class="t-muted" font-size="8" text-anchor="middle">whole-graph review finding</text>
+          <text x="402" y="74" class="t-muted" font-size="8" text-anchor="middle">整体交付审查发现问题</text>
         </g>
 
 
-        <g data-detail="context" data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收 worker" data-edge-key="9" data-edge-id="progress_amendment">
+        <g data-detail="context" data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收实现任务" data-edge-key="9" data-edge-id="progress_amendment">
           <rect x="502.35" y="229" width="95.30000000000001" height="16" rx="4" class="c-mask"/>
-          <text x="550" y="240" class="t-security" font-size="8" text-anchor="middle">停止并回收 worker</text>
+          <text x="550" y="240" class="t-security" font-size="8" text-anchor="middle">停止并回收实现任务</text>
         </g>
 
 

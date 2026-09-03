@@ -7,7 +7,7 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 
 在实现前把需求、方案或预期行为变更里没定下来的选择谈清楚。`grilling` 是唯一的会话控制者，负责调查事实、维护 Design Tree、计算 frontier、组织 round，并把真正的决策交给用户；已经确认的领域术语和必要 ADR 则按 `domain-modeling` 的纪律维护。
 
-不写业务代码，也不创建 `SPEC.md`、`HLD.md`、delivery tickets 或实现文档。glossary、CONTEXT 和 ADR 是允许的同步记录，由 `domain-modeling` 负责其规则和写入。
+不写业务代码，也不创建 `SPEC.md`、`HLD.md`、交付任务或实现文档。glossary、CONTEXT 和 ADR 是允许的同步记录，由 `domain-modeling` 负责其规则和写入。
 
 ## Domain-modeling discipline
 
@@ -44,3 +44,4 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 每轮回答都会更新 Design Tree：已确认的决定会让 frontier 向外扩展，并解锁依赖它的问题，记录选择、放弃的主要方案和默认假设；本轮确认的领域术语和 ADR 同步落盘。frontier 为空时，汇总已经确认的结论、更新过的领域文档和仍未落盘的领域结论，请用户最后确认，在此之前不执行方案。
 
 如果重要路径超出当前会话能看清的范围，说明依据并建议使用 `wayfinding`。如果实际行为违反已有权威来源定义的 expected behavior，停止本流程并建议使用 `debug`。对话和解释沿用用户的语言。
+

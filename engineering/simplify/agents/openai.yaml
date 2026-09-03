@@ -1,4 +1,5 @@
 interface:
   display_name: "Simplify"
   short_description: "发现或移除偶然复杂度，包括长期 AI coding 沉积的测试驱动抽象与验证脚手架"
-  default_prompt: "使用 simplify skill 审查当前任务或指定范围的偶然复杂度。默认聚焦当前 diff；长期代码库可执行只读 entropy reclamation survey。特别检查 support-only consumer、test-induced architecture、verification scaffolding 和 ownerless flexibility；先证明 consumer、contract 和行为，再完整移除不必要的维护义务并验证。"
+  default_prompt: "使用 simplify skill 审查当前任务或指定范围的偶然复杂度。默认聚焦当前 diff；长期代码库可执行只读累积复杂度清理。特别检查仅用于测试或文档的调用方、为测试便利引入的生产架构、一次性验证脚手架和没有实际需求支撑的扩展性；先证明 consumer、contract 和行为，再完整移除不必要的维护义务并验证。"
+

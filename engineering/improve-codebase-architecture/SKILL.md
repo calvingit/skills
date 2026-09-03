@@ -15,4 +15,5 @@ description: "扫描代码库中的 shallow Modules 与 deepening 机会，生�
 4. **等待选择**：先展示报告路径和最高推荐，不提前设计 Interface。用户选定候选后，使用 `grilling` 收敛约束、依赖、目标 Module、Seam 和测试；`grilling` 会通过 domain-modeling discipline 同步维护 glossary 与必要 ADR。
 5. **深入设计**：依赖分类复杂时读取 `../codebase-design/DEEPENING.md`；用户要求多方案或单一方案不足以判断时读取 `../codebase-design/DESIGN-IT-TWICE.md`。
 
-本 Skill 只调查、报告和收敛设计，不修改业务代码。形成需求契约交给 `to-spec`；已确认 SPEC 存在跨局部技术契约时交给 `high-level-design` 汇总为 `HLD.md`，再由 `quick-implement` 或 `loop` 按 execution routing 执行。
+本 Skill 只调查、报告和收敛设计，不修改业务代码。形成需求契约交给 `to-spec`；已确认 SPEC 存在多处实现需要共同遵守的设计约定时交给 `high-level-design` 汇总为 `HLD.md`，再由 `quick-implement` 或 `loop` 按执行路径执行。
+

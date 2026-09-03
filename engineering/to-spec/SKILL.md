@@ -1,13 +1,13 @@
 ---
 name: to-spec
-description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或 execution graph；不拆 ticket 或实现。"
+description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或执行图；不拆 ticket 或实现。"
 ---
 
 # To Spec
 
 把当前对话中已经达成的共识、适用的需求权威和代码库事实整理成任务目录中的 `SPEC.md`。支持两种模式：没有 SPEC 时创建；已有 SPEC 且用户补充、修改或删除需求时，修订同一文件。不要重新进行一轮全面需求访谈；只处理当前创建范围或变更影响面。
 
-`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、Solution Constraints、测试决策、边界与验收。它不包含派生的概要技术设计、delivery ticket graph、执行状态或逐步实现配方。存在跨局部技术契约时先由 `high-level-design` 创建或修订 `HLD.md`；随后单一 scoped task 交给 `quick-implement`，需要多个执行单元时由 `to-tickets` 派生 graph，再由 `loop` 执行。
+`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、Solution Constraints、测试决策、边界与验收。它不包含派生的概要技术设计、交付任务图、执行状态或逐步实现配方。存在多处实现需要共同遵守的设计约定时先由 `high-level-design` 创建或修订 `HLD.md`；随后单一范围明确的单项任务交给 `quick-implement`，需要多个执行单元时由 `to-tickets` 派生 graph，再由 `loop` 执行。
 
 任务目录中的 `SPEC.md` 是工程工作流唯一的本地需求规范快照。`HLD.md` 如存在，是从 SPEC 与代码库事实派生的概要技术设计权威；它不能改变需求语义。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认的 SPEC 直接驱动 HLD、tickets 或实现。除非用户明确要求，否则不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
 
@@ -15,7 +15,7 @@ description: "根据需求权威、已收敛对话与代码库事实创建或修
 
 - 先按用户本次指定、适用 Profile 的 `requirement_authority`、仓库事实和 Skill 默认规则解析需求来源。`external-manual` 模式下，只能使用用户提供的当前快照，并明确未验证的原始外部内容；不得假装已访问飞书、企业微信或其他系统。
 - 需求、外部行为、业务边界、权限、公开 contract 或验收仍有会改变方案的未决选择时，停止并交回 `grilling`。
-- Destination 可以命名，但关键路径仍处于 Fog of war 且需要跨 session 调查时，停止并交回 `wayfinding`。
+- Destination 可以命名，但关键路径仍存在技术迷雾且需要跨会话调查时，停止并交回 `wayfinding`。
 - 用户提供一份已完成的 `MAP.md` 时，确认 `Frontier` 为空，`Not yet specified` 中没有仍指向 Destination 的 Fog，阻塞性 decision 均已完成且结论得到最终确认。读取 Map 的 low-resolution view，以及所有会影响需求、公开 contract、边界、测试或验收的 decision 文件；纯技术概要决定留给 `high-level-design` 消费。
 - 模块职责、内部 Interface、共享类型、依赖方向或集成策略尚未确定，不阻塞需求规格；记录为 design concern，并在 SPEC 确认后路由到 `high-level-design`。
 - 不编造缺失的字段、错误、公开 contract、测试 seam、Solution Constraint 或 expected result。发现缺口时先判断性质：能从代码库验证的事实继续调查，必须由用户决定的内容则停止并说明。
@@ -143,14 +143,14 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 
 ### 6. 落盘与 handoff
 
-确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的验收 seam、Solution Constraints、design concerns、HLD/graph 路由和未验证项；Amendment 模式先展示需求 delta、规范影响与可能受影响的 HLD decisions / tickets，取得确认后原位更新，并报告保留/新增/移除的 R/AC。`to-spec` 不修改 HLD、ticket contract、Status 或 evidence；这些分别由 `high-level-design` 和 `to-tickets` 在 SPEC 确认后协调。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
+确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的验收 seam、Solution Constraints、design concerns、HLD/graph 路由和未验证项；Amendment 模式先展示需求 delta、规范影响与可能受影响的 HLD decisions / tickets，取得确认后原位更新，并报告保留/新增/移除的 R/AC。`to-spec` 不修改 HLD、ticket contract、Status 或 evidence；这些分别由 `high-level-design` 和 `to-tickets` 在 SPEC 确认后协调。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他执行图。
 
 SPEC 获确认后分别判断两件事，不能用 ticket 数量替代设计判断：
 
-1. **Design routing**：存在跨 Module、跨调用方或跨 execution unit 的共享类型、Interface、状态/错误语义、依赖方向、迁移或集成约束时，先调用 `high-level-design`；否则记录 `hld_not_required` 及依据。
-2. **Execution routing**：单一 scoped task、不需要 execution graph 时交给 `quick-implement`；需要多个 execution units、dependency edge 或统一调度时调用 `to-tickets`，再由 `loop` 推进 graph。
+1. **概要设计路径**：存在跨 Module、跨调用方或跨实现任务的共享类型、Interface、状态/错误语义、依赖方向、迁移或集成约束时，先调用 `high-level-design`；否则记录 `hld_not_required` 及依据。
+2. **执行路径**：单一范围明确的单项任务、不需要执行图时交给 `quick-implement`；需要多个实现任务、依赖关系或统一调度时调用 `to-tickets`，再由 `loop` 推进 graph。
 
-如果需要 HLD，必须先完成 HLD，再进入任一执行路径。`to-spec` 只能预判是否需要多个 execution units，不决定 ticket 数量或拆分。
+如果需要 HLD，必须先完成 HLD，再进入任一执行路径。`to-spec` 只能预判是否需要多个实现任务，不决定 ticket 数量或拆分。
 
 本 Skill 不拆 tickets、不实现业务代码，也不自动获得外部发布、commit、push、建分支或改写历史的授权。
 

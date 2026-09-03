@@ -1,7 +1,8 @@
 interface:
   display_name: "Review Architecture"
   short_description: "评审现有架构是否合理、是否符合项目约束与相关技术栈最佳实践"
-  default_prompt: "使用 review-architecture skill 对当前代码库执行只读架构评审，基于当前代码、项目规则和必要的官方技术栈依据给出有证据支撑的 findings。"
+  default_prompt: "使用 review-architecture skill 对当前代码库执行只读架构评审，基于当前代码、项目规则和必要的官方技术栈依据给出有证据支撑的审查发现。"
 
 policy:
   allow_implicit_invocation: false
+

@@ -1,6 +1,6 @@
 # Architecture Review Lenses
 
-这些 lenses 用于提出和检验 architecture findings，不是固定架构模板、必填 checklist 或技术栈分类。只使用与当前 scope 和 evidence 直接相关的部分。
+这些 lenses 用于提出和检验 architecture 审查发现，不是固定架构模板、必填 checklist 或技术栈分类。只使用与当前 scope 和 evidence 直接相关的部分。
 
 | Lens | 核心问题 | 常见 evidence |
 |---|---|---|
@@ -32,4 +32,5 @@
 - 一个实际 impact、风险或持续维护摩擦；
 - 一个不包含文件级实现步骤的 recommendation direction。
 
-只有风格差异、目录偏好、静态 smell 或未经确认的“最佳实践”不能单独成为 finding。
+只有风格差异、目录偏好、静态 smell 或未经确认的“最佳实践”不能单独成为审查发现。
+

@@ -8,7 +8,7 @@
 
 ## Review
 
-验证完成后使用 `code-review` 的 `implementation` mode，传入 baseline、pre-existing changes、SPEC、存在时的 HLD、实际 landed scope、simplification receipt 和 verification evidence。审查必须分别输出 Standards、SPEC，以及 HLD 存在时的 HLD conformance；修复 finding 后重新执行受影响验证和审查。
+验证完成后使用 `code-review` 的 `implementation` mode，传入 baseline、既有改动、SPEC、存在时的 HLD、实际已实现范围、简化检查回执和验证证据。审查必须分别输出 Standards、SPEC，以及 HLD 存在时的 HLD 符合性；修复审查发现后重新执行受影响验证和审查。
 
 ## Receipt
 
@@ -21,7 +21,7 @@
 - Baseline: <commit or equivalent fixed point>
 - Pre-existing changes: <included and excluded paths>
 
-### Landed changes
+### 已实现改动
 
 - <path>: <observable change>
 
@@ -39,11 +39,12 @@
 
 ### Review
 
-- Standards: pass | findings
-- SPEC: pass | findings
-- HLD: pass | findings | not_applicable
+- Standards: pass | 审查发现
+- SPEC: pass | 审查发现
+- HLD: pass | 审查发现 | not_applicable
 
 ### Unverified
 
 - None | <scope, reason, and risk>
 ```
+

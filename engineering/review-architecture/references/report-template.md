@@ -6,11 +6,11 @@
 # Architecture Review — <scope>
 
 ## Summary
-- Scope: <评审范围>
-- Coverage: <已覆盖区域与 blind spots>
-- Result: <critical/high/medium/low findings / no finding / needs more evidence>
-- Top finding: <ID、主题、severity>
-- Next step: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
+- 范围: <评审范围>
+- 覆盖范围: <已覆盖区域与未覆盖部分>
+- Result: <critical/high/medium/low 审查发现 / no 审查发现 / needs more evidence>
+- Top 审查发现: <ID、主题、severity>
+- 下一步: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
 
 ## Review Basis
 - Question: <本轮要回答的架构问题>
@@ -29,23 +29,24 @@
 |---|---|---|---|
 | code / call path / test / rule / history / command / official guidance | file:symbol / command / source | ... | Observed / Inferred / External guidance / Unknown |
 
-## Findings
+## 评审发现
 
-### A-001 — <finding> `[Critical | High | Medium | Low | Speculative]`
+### A-001 — <审查发现> `[Critical | High | Medium | Low | Speculative]`
 
 - Concern: <Boundary / Ownership / Dependency / State / ...>
 - Evidence: <当前代码、关系、测试、规则或命令>
 - Impact: <实际风险、变更扩散、维护成本或验证困难>
 - Basis: <project rule / current architecture evidence / external guidance / design judgment>
 - Recommendation direction: <目标架构结果，不写文件级实现步骤>
-- Unknowns: <仍需决策或验证的事实>
-- Counter-evidence / trade-off: <为什么现有设计可能合理，或已考虑但不足以否定 finding 的证据>
+- 未知项: <仍需决策或验证的事实>
+- 反证 / trade-off: <为什么现有设计可能合理，或已考虑但不足以否定审查发现的证据>
 
-## Not Findings
+## Not 评审发现
 - <被检查但 evidence 不支持的问题，以及反证>
 
 ## Next Step
-- <用户选择 finding 后交给对应 skill；review-architecture 本身不实现>
+- <用户选择审查发现后交给对应 skill；review-architecture 本身不实现>
 ```
 
 若项目存在 lint、dependency check、architecture guard 或 baseline，可作为 Evidence 记录命令、退出状态和摘要；不要为了填充模板要求项目必须具备这些机制。
+

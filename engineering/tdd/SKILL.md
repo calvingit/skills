@@ -56,7 +56,7 @@ expected value 必须尽量来自独立 source of truth：已确认 literal、sp
 
 先批量写所有测试，再批量实现。这样测试通常锁定想象中的结构，而不是根据每个反馈循环学到的事实演化。
 
-使用 vertical slice：
+使用端到端交付任务：
 
 ```text
 one behavior → one red test → minimal green implementation → next behavior
@@ -113,4 +113,5 @@ Refactor / simplify 不应掺进每个 red-green cycle 造成反馈失焦。完�
 
 - 不强制具体 test framework、目录、coverage 百分比或 mocking library。
 - 不要求所有任务都 TDD；无法建立有价值的快速反馈循环时，应选择目标仓库已有的更合适验证方式。
-- 不把“测试通过”当作需求完整实现的唯一证据；最终仍由 `code-review` 的 Spec 轴和任务验收判断完整性。
+- 不把“测试通过”当作需求完整实现的唯一证据；最终仍由 `code-review` 的需求实现审查和任务验收判断完整性。
+

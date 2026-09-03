@@ -1,6 +1,6 @@
 # Simplification Investigation
 
-用于 Survey、Broad scope，或存在动态加载、外部消费者、持久化兼容等不确定性的 Change。
+用于审查模式、全库范围，或存在动态加载、外部消费者、持久化兼容等不确定性的修改模式。
 
 ## Evidence ladder
 
@@ -12,15 +12,15 @@
 4. **Contract proof**：动态加载、外部使用、持久化、兼容性、ownership 和当前设计理由已确认或明确列为未知。
 5. **Behavior proof**：存在一个能暴露错误删除的 decisive check，并知道失败后的恢复路径。
 
-高置信度 Change 通常至少需要 consumer map、contract proof 和 behavior proof。
+高置信度修改模式通常至少需要 consumer map、contract proof 和 behavior proof。
 
 ## Consumer classification
 
 对命中结果分类，不只统计引用数量：
 
 - **Runtime**：生产代码、真实 entrypoint、运行配置、migration、loader、deployment 或其他实际执行路径。
-- **Support-only**：tests、纯说明 docs、snapshots、已确认仅用于示例的 examples、generated expectations。
-- **Uncertain**：public exports、fixtures、plugin registrations、reflection、lazy imports、string dispatch、manifests、generated code、可能被外部 package 使用的接口。
+- **仅供测试或文档使用**：tests、纯说明 docs、snapshots、已确认仅用于示例的 examples、generated expectations。
+- **不确定**：public exports、fixtures、plugin registrations、reflection、lazy imports、string dispatch、manifests、generated code、可能被外部 package 使用的接口。
 
 存在未解决的 dynamic / external consumer 时，不得把候选升级为高置信度删除。
 
@@ -28,9 +28,9 @@
 
 Focused：围绕用户指定的 subsystem、symbol、state machine、dependency 或 suspected duplication 完整追踪其 ownership 和 contract，不主动扩张。
 
-Broad：先按责任域建立 coverage map，再排名候选。至少考虑与当前仓库相关的 entrypoints、runtime control、public APIs/config、state/lifecycle、persistence/compatibility、plugins/DI/reflection/codegen、background workers、packages/adapters/tests/docs。无法检查的区域记录为 blind spot。
+Broad：先按责任域建立覆盖范围图，再排名候选。至少考虑与当前仓库相关的 entrypoints、runtime control、public APIs/config、state/lifecycle、persistence/compatibility、plugins/DI/reflection/codegen、background workers、packages/adapters/tests/docs。无法检查的区域记录为未覆盖范围。
 
-不要因为找到第一个可删点就结束 Broad survey。
+不要因为找到第一个可删点就结束全库审查。
 
 ## History as evidence
 
@@ -43,8 +43,9 @@ Broad：先按责任域建立 coverage map，再排名候选。至少考虑与�
 
 “很久没改”或“搜索不到调用”都只能作为发现线索。
 
-## Survey output
+## 审查模式输出
 
-Survey 不修改代码。报告：coverage、已证明并排序的候选、重要的 rejected / unresolved 候选，以及每个不确定项还缺少的具体事实。
+审查模式不修改代码。报告：coverage、已证明并排序的候选、重要的 rejected / unresolved 候选，以及每个不确定项还缺少的具体事实。
 
 排名时分别考虑 confidence、benefit、blast radius、reversibility 和 validation strength；不要按删除行数或候选数量排名。
+

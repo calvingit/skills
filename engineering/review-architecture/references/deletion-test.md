@@ -14,6 +14,7 @@ Deletion Test 只回答 Module 是否通过 Interface 集中了复杂度，不�
 
 - `pass-through` / `shallow`：说明当前 Module shape 可能缺少 leverage，值得作为 architecture review candidate。
 - `deep`：说明 Module 正在集中复杂度；不要仅因内部实现很大而拆散它。
-- `deep` 不是架构豁免。若 ownership、boundary、lifecycle 或 dependency direction 错误，仍按对应 evidence 保留 finding。
+- `deep` 不是架构豁免。若 ownership、boundary、lifecycle 或 dependency direction 错误，仍按对应 evidence 保留审查发现。
 
 结合“Interface is the test surface”判断：如果生产调用方和测试都必须绕过 Interface 才能验证关键行为，问题可能是 Interface 或 boundary，而不是 Implementation 大小。
+
