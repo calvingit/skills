@@ -63,7 +63,7 @@ Engineering skills 不是完整的软件开发框架，也不会接管项目流�
 | 类型 | Skill | 职责 |
 | --- | --- | --- |
 | Project Setup | `project-setup` | 检测现有项目结构，一次性建议并持久化需求权威、上下文与协作入口。 |
-| Workflow | `grilling`, `to-spec`, `to-tickets`, `quick-implement`, `wayfinding` | 组织需求澄清、规格化、ticket 拆分、单次实现或长期探索阶段。 |
+| Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 组织需求澄清、规格化、条件式概要设计、ticket 拆分和单次实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的软件工程判断与实践。 |
 | Execution Protocol | `loop` | 消费 ticket execution graph，负责 ready frontier、工作单元执行、progress、evidence、whole-graph review、iteration / retry 和 no-progress 规则。 |
 
@@ -88,10 +88,11 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | 产品行为、边界或验收尚未收敛 | `grilling` | 已确认的需求与决策，以及同步更新的领域术语/必要 ADR |
 | 目标明确，但关键技术路径存在 Fog of war，且需要跨 session 探索 | `wayfinding` | `MAP.md` 与 `decisions/` |
 | 需求或 Map 已收敛，或已有 SPEC 需要吸收需求变更 | `to-spec` | 创建或修订同一份 `SPEC.md` |
-| 已有 SPEC，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
+| 已确认 SPEC 存在跨局部技术契约，需要概要设计或修订 | `high-level-design` | 创建或修订同一份 `HLD.md` |
+| 已有 SPEC 与适用 HLD，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
 | 已有无需 execution graph 的单一 SPEC | `quick-implement` | 已实现、验证并审查的单次交付 |
 
-`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。已有 SPEC 后出现需求新增、修改或删除时，再次调用 `to-spec` 修订同一文件；若已有 graph，再由 `to-tickets` 只同步受影响部分。单一 scoped task 直接交给 `quick-implement`；需要多个执行单元、dependency edge 或统一调度时，由 `to-tickets` 创建 execution graph。只要 graph 已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
+`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。`to-spec` 只建立需求规范并分别判断 design routing 与 execution routing：存在跨 Module、调用方或 execution unit 的共享契约时先进入 `high-level-design`；ticket 数量不是 HLD 条件。单一 scoped task 交给 `quick-implement`；需要多个 execution units、dependency edge 或统一调度时，由 `to-tickets` 创建 graph。只要 graph 已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
 
 #### 按需叠加 Engineering Discipline
 
@@ -106,7 +107,7 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | 需要统一领域术语，或判断是否记录长期架构决策 | `domain-modeling` |
 | 需要通过 test-first / red-green 驱动行为实现 | `tdd` |
 | 需要证明并删除没有生产 ownership 的维护义务 | `simplify` |
-| 变更已经完成，需要检查项目规范和需求契约 | `code-review` |
+| 变更已经完成，需要检查项目规范、需求契约和适用概要设计 | `code-review` |
 
 #### 项目配置与执行控制
 
@@ -126,6 +127,8 @@ Runtime
 Engineering workflow
     SPEC.md
        │
+    HLD.md (when required)
+       │
     tickets/
        │
       loop
@@ -143,13 +146,14 @@ Engineering workflow
 | 层次 | Artifact | Owner | 它回答的问题 | 不应承担的职责 |
 | --- | --- | --- | --- | --- |
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
-| 规范契约 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | ticket 拆分、进度或 retry 状态 |
-| 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC 的需求或验收 |
+| 需求规范 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | 派生概要设计、ticket 拆分或执行状态 |
+| 概要设计 | `HLD.md` | `high-level-design` | 多个局部实现必须共同遵守哪些模块职责、共享契约与集成约束？ | 改写需求、ticket 拆分或局部详细设计 |
+| 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC/HLD |
 | 执行证据 | ticket 状态、验收勾选、worker receipt、whole-graph review receipt | `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
-`SPEC.md` 是唯一的规范性需求来源，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作，前者解决“应该如何决定”，后者交付“已经决定的行为”，两者之间必须经过 `to-spec`，由 SPEC 把分散结论压缩成可构建的单一契约。
+`SPEC.md` 是唯一的规范性需求来源，`HLD.md` 如存在是当前交付的概要技术设计权威，`tickets/` 是唯一的 execution graph。`wayfinding` 的 decision ticket 与 `to-tickets` 的 delivery ticket 不是一类工作：影响需求、公开 contract 或验收的决定必须先进入 SPEC；SPEC 已确认后的纯技术决定可以进入 HLD，但若反过来改变需求仍须回到 `to-spec`。
 
-外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`to-tickets`、`quick-implement`、`loop` 和 `code-review` 不直接解释外部需求来源。
+外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`high-level-design`、`to-tickets`、`quick-implement`、`loop` 和 `code-review` 不直接解释外部需求来源。
 
 Runtime continuation state 不属于 execution graph，不能替代 ticket Status、acceptance evidence 或 ready frontier。
 
@@ -170,7 +174,11 @@ flowchart TD
     Q -->|最终决定| M[decision handoff]
     Q -->|Notes 允许直接变更| X[对应执行流程]
     E --> G[SPEC.md]
-    G --> H{是否需要 execution graph？}
+    G --> R{是否存在跨局部技术契约？}
+    R -->|是| S[high-level-design]
+    S --> T[HLD.md]
+    R -->|否| H{是否需要 execution graph？}
+    T --> H
     H -->|否| I[quick-implement]
     H -->|是| J[to-tickets]
     J --> K[tickets/]
@@ -181,7 +189,7 @@ flowchart TD
 
 ### 本地 ticket 生命周期
 
-`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification` 链接、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by`、`Execution evidence`、`Execution blocker` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
+`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification`、可选 `High-Level Design`、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by`、`Execution evidence`、`Execution blocker` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC/HLD amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
 
 ```mermaid
 stateDiagram-v2
@@ -192,13 +200,13 @@ stateDiagram-v2
     in_progress --> done: 验收与 evidence 完整
     in_progress --> blocked: 出现真实阻塞
     done --> ready: whole-graph review finding
-    ready --> superseded: SPEC amendment
-    blocked --> superseded: SPEC amendment
+    ready --> superseded: SPEC/HLD amendment
+    blocked --> superseded: SPEC/HLD amendment
     in_progress --> superseded: 停止并回收 worker
     done --> superseded: 原 contract 不再适用
 ```
 
-执行时，`loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、验收勾选、Execution evidence 和 Execution blocker，并且只在 SPEC 未变、whole-graph review 发现原 contract 内缺陷时执行 `done → ready`。ticket worker 只返回 landed changes 与 receipt，不写 graph。需求变化由 `to-tickets` 保留仍有效的 `done`，或将旧 ticket 标为 `superseded` 并创建 amendment/replacement ticket，不能直接用 `done → ready` 表达。finding 没有既有 ticket 承担时回到 `to-tickets`，需要改变规范契约时回到 `to-spec`。
+执行时，`loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、验收勾选、Execution evidence 和 Execution blocker，并且只在 SPEC/HLD 均未变、whole-graph review 发现原 contract 内缺陷时执行 `done → ready`。ticket worker 只返回 landed changes 与 receipt，不写 graph。上游变化由 `to-tickets` 保留仍有效的 evidence，并创建 amendment/correction/migration/replacement ticket 或必要的 supersession；不能直接用 `done → ready` 表达。需求契约缺口回到 `to-spec`，概要设计缺口回到 `high-level-design`，graph 缺口回到 `to-tickets`。
 
 ### 执行约束
 
@@ -207,8 +215,8 @@ stateDiagram-v2
 3. Loop 默认串行执行一张 `ready` ticket，使后续 ticket 直接基于当前 workspace 中已落地的前序代码继续工作；只有能证明 tickets 的 writable surfaces 和共享副作用均隔离时才并行。
 4. `loop` 按自包含的内部 ticket-worker protocol 创建或选择 execution unit；worker 不递归创建同类 worker、不调度 sibling ticket，也不写 graph。
 5. 根据风险选择测试、构建、运行或审查，并记录可复查的 evidence。
-6. 所有 active tickets 完成后，基于完整 landed scope（包括 superseded tickets 留下的代码）执行一次 whole-graph review 和 integration verification；当前 SPEC 的每个 R/AC 必须由 active `done` ticket 覆盖，未处理的必须修复 finding 会重新打开责任 ticket，不能直接宣告完成。
-7. 执行中出现新的产品、协议、边界或验收选择时，停止猜测并回到决策或规范阶段。
+6. 所有 active tickets 完成后，基于完整 landed scope（包括 superseded tickets 留下的代码）执行一次 whole-graph review 和 integration verification；当前 SPEC 的每个 R/AC 必须由 active `done` ticket 覆盖，存在 HLD 时每个有效 D 也必须由 graph 与 landed code 遵守。
+7. 执行中出现新的需求、公开 contract、边界或验收选择时回到决策/规范阶段；出现跨局部概要设计缺口时回到 `high-level-design`，不得由 worker 猜测。
 8. Commit、push、建分支等版本控制写操作始终需要用户明确授权。
 
 ### 典型组合
@@ -217,11 +225,11 @@ stateDiagram-v2
 
 | 场景 | 典型组合 |
 | --- | --- |
-| 单一 SPEC 实现 | `quick-implement` + `tdd` → `code-review` |
-| Ticket graph 执行 | `to-tickets` → `loop` + ticket-worker → whole-graph review |
+| 单一 SPEC 实现 | `to-spec` → 条件式 `high-level-design` → `quick-implement` + `tdd` → `code-review` |
+| Ticket graph 执行 | `to-spec` → 条件式 `high-level-design` → `to-tickets` → `loop` + ticket-worker → whole-graph review |
 | Bug 修复 | `debug` → reproduction → root cause → regression test → fix |
-| 架构治理 | `review-architecture` → `codebase-design` → `to-spec` → `quick-implement` / `loop` |
-| 主动深化 Module | `improve-codebase-architecture` → `grilling` → `to-spec` → `quick-implement` / `loop` |
+| 架构治理 | `review-architecture` → `codebase-design` → `to-spec` → 条件式 `high-level-design` → `quick-implement` / `loop` |
+| 主动深化 Module | `improve-codebase-architecture` → `grilling` → `to-spec` → 条件式 `high-level-design` → `quick-implement` / `loop` |
 | 长期复杂度治理 | `simplify Survey` → evidence → `simplify Change` → verification |
 
 长期复杂度治理针对“为了验证 AI 写得对不对而逐渐进入生产代码”的 abstraction、injection point、wrapper、hook、debug state、compatibility path 和实验残留。重点不是识别 AI 作者，而是判断这些维护义务是否仍有真实生产 ownership。
@@ -240,8 +248,9 @@ stateDiagram-v2
 | --- | --- |
 | [`grilling`](./engineering/grilling/SKILL.md) | 通过统一 Design Tree 收敛决策，并由 domain-modeling discipline 同步维护领域术语与必要 ADR。 |
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
-| [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求落盘为规范性 `SPEC.md`，并在需求变化时修订同一文件。 |
-| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 将已确认的 `SPEC.md` 拆成 tickets，并在 SPEC 修订后同步受影响 graph。 |
+| [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求落盘为规范性 `SPEC.md`，并判断 HLD 与执行路径。 |
+| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 为已确认 SPEC 创建或修订任务级 `HLD.md`，统一跨局部概要技术契约。 |
+| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 从已确认的 SPEC 与可选 HLD 派生 tickets，并在上游修订后同步 graph。 |
 | [`quick-implement`](./engineering/quick-implement/SKILL.md) | 实现并验证一个已确认、无需 ticket graph 的单次 SPEC。 |
 
 #### Engineering Discipline
@@ -255,7 +264,7 @@ stateDiagram-v2
 | [`domain-modeling`](./engineering/domain-modeling/SKILL.md) | 统一领域术语，并在满足条件时记录长期架构决策。 |
 | [`tdd`](./engineering/tdd/SKILL.md) | 使用 red-green 的 vertical-slice 循环，通过公开 Seam 验证行为。 |
 | [`simplify`](./engineering/simplify/SKILL.md) | 在行为不变前提下删除没有当前生产 ownership 的偶然复杂度。 |
-| [`code-review`](./engineering/code-review/SKILL.md) | 分别从规范和需求两个轴审查已完成的代码改动。 |
+| [`code-review`](./engineering/code-review/SKILL.md) | 分别从 Standards、SPEC 和条件式 HLD 轴审查已完成的代码改动。 |
 
 #### Execution Protocol
 

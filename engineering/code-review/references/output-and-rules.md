@@ -31,6 +31,19 @@ Diff: <命令或范围>
 没有来源时标记 no_spec_available，不补写需求。
 ```
 
+## HLD 模板
+
+```text
+你是 HLD 审查 agent。审查指定 diff 是否遵守当前任务的概要技术设计。
+
+这是只读审查，不得修改工作区、版本控制状态或外部系统。
+Diff: <命令或范围>
+概要设计来源: <HLD.md 与当前 ticket 的 D IDs>
+
+报告：违反 Module ownership、共享 contract、dependency direction、状态/错误/生命周期语义或集成约束的问题。区分 HLD 强制决定与 Local Design Freedom；代码事实证明设计不可行时报告 design blocker，不自行修改 HLD。
+没有 HLD 时标记 not_applicable。
+```
+
 ## 分级
 
 - `必须修复`：会导致错误行为、数据/状态损坏、安全问题、明显回归或验证失败。
@@ -47,6 +60,7 @@ Diff: <命令或范围>
 - Baseline / pre-existing：
 - Spec source：
 - Standards sources：
+- HLD source：
 
 ## Standards
 1. [级别] 问题：
@@ -64,9 +78,18 @@ Diff: <命令或范围>
    建议：
    验证：
 
+## HLD
+1. [级别] 问题：
+   位置：
+   HLD / D ID 对照：
+   影响：
+   建议：
+   验证：
+
 ## Axis summary
 - Standards：
 - Spec：
+- HLD：
 
 ## Verification evidence
 - 已有证据：
@@ -77,6 +100,6 @@ Diff: <命令或范围>
 - 提交前必须完成：
 ```
 
-没有 finding 时仍保留上述章节并写 `No findings` 或 `Skipped: no_spec_available`。
+没有 finding 时仍保留上述章节。Standards/Spec 写 `No findings` 或 `Skipped: no_spec_available`；HLD 写 `No findings` 或 `Skipped: not_applicable`。
 
-两个轴独立计数，分别给出最严重 finding。不要合并、跨轴重新排序或评出一个跨轴最严重项；提交建议不得省略任一轴的失败。
+各适用轴独立计数，分别给出最严重 finding。不要合并、跨轴重新排序或评出一个跨轴最严重项；提交建议不得省略任一适用轴的失败。

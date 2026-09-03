@@ -1,7 +1,7 @@
 interface:
   display_name: "To Tickets"
-  short_description: "拆分已确认 SPEC，或在 SPEC 修订后同步 execution graph"
-  default_prompt: "使用 $to-tickets 将已确认的 SPEC.md 拆成 tickets，或在 SPEC 修订后同步受影响的 execution graph。"
+  short_description: "从 SPEC 与可选 HLD 派生或同步 execution graph"
+  default_prompt: "使用 $to-tickets 从已确认的 SPEC.md 与可选 HLD.md 派生 tickets，或在上游修订后同步受影响的 execution graph。"
 
 policy:
   allow_implicit_invocation: false

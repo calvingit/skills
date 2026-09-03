@@ -113,7 +113,7 @@ finding 不按“违反了多少原则”排序，而按 evidence 与实际影�
 - 需要收敛目标 Module / Interface / Seam → `codebase-design`；
 - 需求或权衡未确定 → `grilling`；
 - 需要正式任务契约 → `to-spec`；
-- 已有明确方案 → `to-spec`，再按范围进入 `quick-implement` 或 `loop`；
+- 已有明确方案 → `to-spec`，存在跨局部技术契约时经 `high-level-design`，再按范围进入 `quick-implement` 或 `loop`；
 - 目标只是删除已证明不必要的复杂度 → `simplify`。
 
 ## Done when

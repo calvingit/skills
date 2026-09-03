@@ -1,0 +1,7 @@
+interface:
+  display_name: "High-Level Design"
+  short_description: "为已确认 SPEC 建立跨实现单元的概要技术契约"
+  default_prompt: "使用 $high-level-design 读取已确认的 SPEC.md 和代码库事实，判断是否需要 HLD；需要时创建或修订 HLD.md。"
+
+policy:
+  allow_implicit_invocation: false

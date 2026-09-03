@@ -1,7 +1,7 @@
 interface:
   display_name: "To Spec"
-  short_description: "依据需求权威创建或修订规范性 SPEC，并评估影响"
-  default_prompt: "使用 $to-spec 依据当前需求权威创建 SPEC.md，或将已确认的需求变更修订进现有 SPEC。"
+  short_description: "创建或修订需求 SPEC，并判断 HLD 与执行路径"
+  default_prompt: "使用 $to-spec 依据需求权威创建或修订 SPEC.md，区分需求约束与概要设计，并判断下游是否需要 HLD 或 execution graph。"
 
 policy:
   allow_implicit_invocation: false

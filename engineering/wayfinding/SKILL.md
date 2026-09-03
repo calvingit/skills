@@ -91,7 +91,7 @@ Fog of war 是尚未看清的问题空间，Not yet specified 是 MAP.md 中记�
 8. 根据新结论创建已经可以精确表述的 decision tickets，并将对应内容从 Not yet specified 移出。
 9. 重算 frontier；发现超出 Destination 的内容时移入 Out of scope；若 frontier 非空，在汇报中推荐下一个可处理 ticket，但不得在同一会话继续解决另一个 decision ticket。
 
-MAP.md 和 decisions/ 可以在收敛前增量更新，但不得提前创建或修改下游 `to-spec` 生成的 SPEC 或 `to-tickets` 生成的 delivery tickets/。
+MAP.md 和 decisions/ 可以在收敛前增量更新，但不得提前创建或修改下游 `to-spec` 生成的 SPEC、`high-level-design` 生成的 HLD 或 `to-tickets` 生成的 delivery tickets/。
 
 ## 退出
 

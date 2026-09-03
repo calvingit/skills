@@ -22,6 +22,8 @@ MD_PATH_RE = re.compile(r"(?<![\w])([\w./-]+\.md)(?![\w])", re.IGNORECASE)
 NUMERIC_ID_RE = re.compile(r"^(\d+)(?:[-_ ]|$)")
 CHECKLIST_RE = re.compile(r"^\s*[-*+]\s+\[([ xX])\]\s+(AC[\w.-]*)\s+[—–-]\s+(.+?)\s*$", re.IGNORECASE)
 EVIDENCE_RE = re.compile(r"^\s*[-*+]\s+(AC[\w.-]*)\s+[—–-]\s+passed\s+[—–-]\s+(.+?)\s*$", re.IGNORECASE)
+DESIGN_DECL_RE = re.compile(r"^\s*[-*+]\s+\*{0,2}(D\d+)\*{0,2}\s+[—–-]", re.IGNORECASE)
+DESIGN_REF_RE = re.compile(r"\b(D\d+)\b", re.IGNORECASE)
 REQUIRED_SECTIONS = (
     "specification",
     "what to build",
@@ -43,6 +45,7 @@ class Ticket:
     acceptance: dict[str, bool]
     execution_evidence: set[str]
     has_execution_blocker: bool
+    design_decisions: set[str]
     dependency_tokens: list[str] = field(default_factory=list)
     dependencies: list[str] = field(default_factory=list)
 
@@ -215,6 +218,7 @@ def fatal(task_dir: Path, code: str, detail: str) -> int:
 
 def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
     spec = task_dir / "SPEC.md"
+    hld = task_dir / "HLD.md"
     tickets_dir = task_dir / "tickets"
     if not task_dir.is_dir():
         return {}, fatal(task_dir, "missing_task_directory", "Task directory does not exist.")
@@ -227,8 +231,31 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
     if not files:
         return {}, fatal(task_dir, "no_tickets", "tickets/ contains no Markdown tickets.")
 
-    tickets: list[Ticket] = []
     problems: list[dict[str, str]] = []
+    hld_decisions: set[str] = set()
+    if hld.is_file():
+        try:
+            hld_sections = section_map(hld.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError) as exc:
+            problems.append(problem("unreadable_hld", str(exc)))
+        else:
+            decision_ids = [
+                match.group(1).upper()
+                for line in hld_sections.get("design decisions", [])
+                if (match := DESIGN_DECL_RE.match(line))
+            ]
+            duplicates = sorted(
+                decision_id
+                for decision_id, count in Counter(decision_ids).items()
+                if count > 1
+            )
+            hld_decisions = set(decision_ids)
+            if not hld_decisions:
+                problems.append(problem("missing_hld_decisions", "HLD.md has no D IDs in Design Decisions."))
+            if duplicates:
+                problems.append(problem("duplicate_hld_decision", f"HLD decision IDs are duplicated: {', '.join(duplicates)}"))
+
+    tickets: list[Ticket] = []
     for path in files:
         relative = path.relative_to(task_dir).as_posix()
         try:
@@ -248,6 +275,12 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
         blocked_lines = sections.get("blocked by", [])
         acceptance, duplicate_acceptance, unparsed_acceptance = acceptance_items(sections.get("acceptance criteria", []))
         execution_evidence, duplicate_evidence, unparsed_evidence = evidence_items(sections.get("execution evidence", []))
+        design_lines = sections.get("high-level design", [])
+        design_decisions = {
+            match.upper()
+            for line in design_lines
+            for match in DESIGN_REF_RE.findall(line)
+        }
         ticket = Ticket(
             path,
             relative,
@@ -257,12 +290,22 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
             acceptance,
             execution_evidence,
             has_meaningful_content(sections.get("execution blocker", [])),
+            design_decisions,
         )
         ticket.dependency_tokens, unparsed = dependency_tokens(blocked_lines)
         tickets.append(ticket)
 
         if numeric_id is None:
             problems.append(problem("missing_numeric_id", "Filename must start with a numeric ticket ID.", relative))
+        if hld.is_file() and "high-level design" not in sections:
+            problems.append(problem("missing_high_level_design", "Ticket has no High-Level Design section.", relative))
+        if design_decisions and not hld.is_file():
+            problems.append(problem("missing_hld", "Ticket references HLD decisions but HLD.md was not found.", relative))
+        unknown_decisions = design_decisions - hld_decisions
+        if hld.is_file() and unknown_decisions:
+            problems.append(problem("unknown_hld_decision", f"Ticket references unknown HLD decisions: {', '.join(sorted(unknown_decisions))}", relative))
+        if "high-level design" in sections and not design_decisions and not any(is_none_line(line) for line in design_lines):
+            problems.append(problem("unparsed_hld_reference", "High-Level Design must list D IDs or None.", relative))
         if status is None:
             problems.append(problem("missing_status", "Ticket has no usable Status section.", relative))
         elif status not in ALLOWED_STATUSES:
@@ -371,6 +414,8 @@ def inspect(task_dir: Path) -> tuple[dict[str, object], int]:
     status_counts = Counter(ticket.status or "missing" for ticket in tickets)
     payload: dict[str, object] = {
         "task_dir": str(task_dir),
+        "hld": "HLD.md" if hld.is_file() else None,
+        "hld_decisions": sorted(hld_decisions),
         "valid": not problems,
         "status_counts": dict(sorted(status_counts.items())),
         "active": active,

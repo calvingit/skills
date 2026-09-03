@@ -24,7 +24,7 @@ description: "用于审计或移除已有代码或当前 diff 中的偶然复杂
 4. 对疑似 test-induced architecture，先回答：没有测试时它是否仍需要存在；是否有真实生产消费者需要替换该 dependency；是否对应真实 ownership / failure / process / I/O boundary；删除后是否仍能通过公开生产行为验证 correctness。`No / No / No / Yes` 是强候选信号，但不是自动删除授权。
 5. 优先完整移除一个 ownership boundary 内的维护义务，而不是局部减少代码；检查对应 declaration、wiring、state、tests、config、docs、generated artifacts 和 dependency，保留项需有明确理由。
 6. 保留输入校验、错误处理、安全、权限、可访问性、真实外部 adapter、持久化兼容、取消/dispose、事务和必要状态门禁。存在未解决的动态/外部消费者、迁移问题或行为保持证据不足时返回 `blocked`。
-7. Change 后至少执行 residue check、一个能暴露错误删除的 decisive/minimum affected verification，以及 diff audit。若改变契约、ownership、验收或阻塞关系，停止并转回 `grilling` / `to-spec`，再由 `quick-implement` 或 `loop` 按原执行范围继续。
+7. Change 后至少执行 residue check、一个能暴露错误删除的 decisive/minimum affected verification，以及 diff audit。若改变需求、公开 contract 或验收，停止并转回 `grilling` / `to-spec`；若只改变跨局部 ownership、共享契约、依赖方向或集成约束，停止并转回 `high-level-design`。上游 artifact 修订后，再由 `quick-implement` 或 `loop` 按原执行范围继续。
 
 ## 输出
 

@@ -93,14 +93,15 @@ Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Sea
 4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
 5. 给最多 2-3 个真实候选设计，说明各自收益、成本、迁移影响和 test seam；不制造伪选项。
 6. 推荐最简单、能把必要复杂度放到正确 owner 且不扩大公共表面的方案。
-7. 本 skill 默认停在设计判断；需要落盘契约交给 `grilling` / `to-spec`，单一 SPEC 的实现交给 `quick-implement`，execution graph 交给 `loop`。
+7. 本 skill 默认停在具体设计判断；已确认 SPEC 需要把多个设计点汇总为任务级概要技术契约时交给 `high-level-design`，需求契约交给 `grilling` / `to-spec`，实现交给 `quick-implement` 或 `loop`。
 
 当依赖类型会影响 Module 的深化方式时，读取 [DEEPENING.md](DEEPENING.md)。只有用户明确要求比较候选 Interface，或单一方案不足以形成可靠判断时，才读取 [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md)，使用其中的多方案比较流程。
 
 ## Boundaries
 
 - 评审现有架构是否合理、是否符合项目/技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
-- 已确认某个 Module / Interface / Seam 需要调整，需要形成目标设计：使用 `codebase-design`。
+- 已确认某个 Module / Interface / Seam 需要调整，需要形成局部目标设计：使用 `codebase-design`。
+- 已确认 SPEC 需要跨 Module、调用方或 execution unit 的统一概要设计，并落盘 `HLD.md`：使用 `high-level-design`。
 - 需求或行为尚未决定：使用 `grilling`。
 - bug 根因调查：使用 `debug`。
 - 行为不变的 diff 收缩：使用 `simplify`。

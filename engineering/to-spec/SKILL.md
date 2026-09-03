@@ -1,23 +1,24 @@
 ---
 name: to-spec
-description: "根据项目需求权威、已收敛对话与代码库事实创建规范性 SPEC.md，或在后续需求新增、修改、删除时修订同一份 SPEC 并评估下游影响；不拆 ticket 或实现。"
+description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或 execution graph；不拆 ticket 或实现。"
 ---
 
 # To Spec
 
 把当前对话中已经达成的共识、适用的需求权威和代码库事实整理成任务目录中的 `SPEC.md`。支持两种模式：没有 SPEC 时创建；已有 SPEC 且用户补充、修改或删除需求时，修订同一文件。不要重新进行一轮全面需求访谈；只处理当前创建范围或变更影响面。
 
-`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、实现决策、测试决策、边界与验收。它不包含 delivery ticket graph、执行状态或逐步实现配方。单一 scoped task 直接交给 `quick-implement`；需要多个执行单元时，由 `to-tickets` 从 SPEC 派生 graph，再由 `loop` 执行。
+`SPEC.md` 是本仓库工作流的规范性需求来源，说明问题、解决方案、行为、Solution Constraints、测试决策、边界与验收。它不包含派生的概要技术设计、delivery ticket graph、执行状态或逐步实现配方。存在跨局部技术契约时先由 `high-level-design` 创建或修订 `HLD.md`；随后单一 scoped task 交给 `quick-implement`，需要多个执行单元时由 `to-tickets` 派生 graph，再由 `loop` 执行。
 
-任务目录中的 `SPEC.md` 是工程工作流唯一的本地规范快照，供 `to-tickets` 直接读取。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认的 SPEC 直接驱动 tickets 或实现。除非用户明确要求，否则不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
+任务目录中的 `SPEC.md` 是工程工作流唯一的本地需求规范快照。`HLD.md` 如存在，是从 SPEC 与代码库事实派生的概要技术设计权威；它不能改变需求语义。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认的 SPEC 直接驱动 HLD、tickets 或实现。除非用户明确要求，否则不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
 
 ## 入口边界
 
 - 先按用户本次指定、适用 Profile 的 `requirement_authority`、仓库事实和 Skill 默认规则解析需求来源。`external-manual` 模式下，只能使用用户提供的当前快照，并明确未验证的原始外部内容；不得假装已访问飞书、企业微信或其他系统。
-- 需求、行为、边界或接口仍有会改变方案的未决选择时，停止并交回 `grilling`。
+- 需求、外部行为、业务边界、权限、公开 contract 或验收仍有会改变方案的未决选择时，停止并交回 `grilling`。
 - Destination 可以命名，但关键路径仍处于 Fog of war 且需要跨 session 调查时，停止并交回 `wayfinding`。
-- 用户提供一份已完成的 `MAP.md` 时，确认 `Frontier` 为空，`Not yet specified` 中没有仍指向 Destination 的 Fog，阻塞性 decision 均已完成且结论得到最终确认。读取 Map 的 low-resolution view，以及所有会影响需求、接口、边界、测试或验收的 decision 文件。
-- 不编造缺失的字段、错误、接口、模块、测试 seam、实现选择或 expected result。发现缺口时先判断性质：能从代码库验证的事实继续调查，必须由用户决定的内容则停止并说明。
+- 用户提供一份已完成的 `MAP.md` 时，确认 `Frontier` 为空，`Not yet specified` 中没有仍指向 Destination 的 Fog，阻塞性 decision 均已完成且结论得到最终确认。读取 Map 的 low-resolution view，以及所有会影响需求、公开 contract、边界、测试或验收的 decision 文件；纯技术概要决定留给 `high-level-design` 消费。
+- 模块职责、内部 Interface、共享类型、依赖方向或集成策略尚未确定，不阻塞需求规格；记录为 design concern，并在 SPEC 确认后路由到 `high-level-design`。
+- 不编造缺失的字段、错误、公开 contract、测试 seam、Solution Constraint 或 expected result。发现缺口时先判断性质：能从代码库验证的事实继续调查，必须由用户决定的内容则停止并说明。
 
 ## 模式选择
 
@@ -33,29 +34,29 @@ description: "根据项目需求权威、已收敛对话与代码库事实创建
 
 任务目录优先采用用户本次指定，其次采用适用 `AGENTS.md` 的 `Engineering Skills Profile`，再沿用仓库已有任务文档约定。需求权威按“用户本次明确指定 → Profile → 仓库事实 → 动态发现”解析；Profile 只提供稳定入口。没有 Profile 不阻塞本 Skill；仍无法确定且会改变需求语义或落盘位置时再询问用户。
 
-Amendment 模式先把 delta 分类为 `added`、`changed`、`removed` 或 `no normative effect`，列出受影响的 R、AC、边界、实现决策与测试决策。已有 tickets 时，只读检查其 contract、Status 和 evidence，报告哪些交付可能仍有效、需要追加、需要替换或需要撤销，但不修改 ticket。未受影响内容保持不动：保留既有 R/AC ID，新需求追加新 ID，删除项保留可追踪的变更说明，不重新编号。若 delta 引入未决产品选择，只将受影响分支交回 `grilling`；若需求已定但新增技术路径仍处于 Fog，才进行定向 `wayfinding`。
+Amendment 模式先把 delta 分类为 `added`、`changed`、`removed` 或 `no normative effect`，列出受影响的 R、AC、边界、Solution Constraints 与测试决策。已有 HLD 或 tickets 时，只读检查相关 D、ticket contract、Status 和 evidence，报告哪些设计与交付可能仍有效、需要追加、需要替换或需要撤销，但不修改下游 artifact。未受影响内容保持不动：保留既有 R/AC ID，新需求追加新 ID，删除项保留可追踪的变更说明，不重新编号。若 delta 引入未决产品选择，只将受影响分支交回 `grilling`；若需求已定但新增技术路径仍处于 Fog，才进行定向 `wayfinding`。
 
 ### 2. 调查代码库
 
 如果当前会话还没有完成足够的调查，写 SPEC 前先查清：
 
 - 适用的 `AGENTS.md`、领域 glossary、架构说明和相关 ADR；
-- 当前外部行为、相关模块与调用关系、既有接口和约束；
+- 当前外部行为、相关模块与调用关系、既有公开 contract 和约束；
 - 现有测试通过哪些 seam 验证相似行为，以及有哪些 prior art 可以沿用；
 - 用户已有工作区改动，避免覆盖或把无关变化纳入规格。
 
-SPEC 使用项目自身的领域语言。调查到足以确定范围、接口和验证边界即可，不进入实现阶段。
+SPEC 使用项目自身的领域语言。调查到足以确定范围、公开 contract 和验收边界即可，不进入概要设计或实现阶段。
 
-### 3. 设计并确认测试 seam
+### 3. 设计并确认验收 seam
 
-在写正式 SPEC 前，先草拟这次变更应通过哪些 seam 测试，并寻找可以形成 deep module 的边界：用小而稳定的接口封装较多功能，让测试约束外部行为，而不是内部结构。
+在写正式 SPEC 前，先草拟这次变更应通过哪些外部 seam 验收。这里只确定可观察行为、测试层级和 expected result 来源，不设计内部 Module、共享类型或依赖方向；这些由 HLD 的 Verification Seams 承担。
 
 Amendment 模式只重新评估受影响的 seam；既有测试决策仍覆盖变更后行为时，保留原决定并在 impact summary 中说明，无需再次确认。只有 seam、覆盖行为或 expected result 来源变化时才重新请求确认。
 
-- 优先使用既有 seam；确需新增时，选择能够覆盖目标行为的最高层 seam。
+- 优先使用既有外部 seam；确需新增公开 contract 时，先确认它是需求的一部分，而不是为了测试暴露内部结构。
 - seam 越少越好；如果一个稳定 seam 足以覆盖整项变更，优先只使用一个。
 - 说明每个 seam 覆盖哪些行为、expected result 的来源，以及仓库中是否有相似测试可供参考。
-- 不为了方便测试而预设不必要的生产接口，也不把文件路径、内部调用顺序或 mock 结构当成 contract。
+- 不为了方便测试而预设内部 Interface，也不把文件路径、内部调用顺序或 mock 结构当成 contract。
 
 向用户简洁说明建议的 seam、选择依据和必要取舍，并请用户确认。这一步只确认实现与测试边界，不重新进行全面的需求访谈。如果确认过程中出现新的产品、协议、架构、范围或验收选择，先回到 `grilling` 或 `wayfinding` 收敛，再继续生成 SPEC。
 
@@ -94,9 +95,9 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 
 - <输入来源、默认行为、失败/取消行为、权限或兼容性边界。>
 
-## Implementation Decisions
+## Solution Constraints
 
-- <已确认的模块、稳定接口、架构、schema、API contract 或交互决策。>
+- <由需求权威、用户或项目规则已经固定、概要设计不得改变的技术与公开 contract 约束；没有则写 None。>
 
 ## Testing Decisions
 
@@ -118,10 +119,11 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 写作规则：
 
 - User Stories 使用稳定 `R1`、`R2`…，列出一份详尽的行为清单，逐项编号并确保可以独立检查，覆盖功能的所有已确认情形。每条说明 actor、行为与价值。如果工作没有传统终端用户，就使用真实的领域角色或调用方，不虚构 persona。
-- Implementation Decisions 记录已经确定的模块、接口和技术选择，但不写容易过期的具体文件路径或代码片段。唯一例外是原型产出的状态机、reducer、schema 或类型形状比文字描述更准确时，可以内联最能体现决策的必要片段，并注明来源。
+- Solution Constraints 只记录上游已经确认、HLD 不得改变的技术或公开 contract 约束，不记录由 Agent 推导的模块划分、内部 Interface、共享类型或依赖方向。原型产出的公开状态机、schema 或类型形状比文字更准确时，可以内联必要片段并注明来源。
+- 旧 SPEC 中已有 `Implementation Decisions` 时，先区分上游固定约束与派生设计：前者迁入 Solution Constraints，后者由 `high-level-design` 在用户确认后迁入 HLD；迁移完成前不得在两处维护同一决定。
 - Testing Decisions 必须记录已确认的 seam、为什么选择它、从该 seam 观察哪些外部行为、expected result 的独立来源，以及可参考的现有测试。
 - Acceptance Criteria 使用稳定 `AC1`、`AC2`…，明确覆盖的 `R`；每个 in-scope `R` 至少被一个 AC 覆盖。AC 验证外部行为，不锁定类名、文件结构、内部调用顺序或某种实现方案，除非它们本身就是明确 contract。
-- 从 Map 压缩而来时，在 Implementation Decisions 或 Further Notes 中记录必要 decision 的相对链接或名称，使后续 session 能追溯“决定了什么、为什么”。
+- 从 Map 压缩而来时，影响需求或公开 contract 的决定记录在 Solution Constraints 或 Further Notes；纯技术决定交给 HLD，并保留必要的相对链接或名称供后续 session 追溯。
 
 ### 5. 一致性检查
 
@@ -130,7 +132,7 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 1. Problem、Solution 与 Destination 描述的是同一个问题和目标；
 2. `R` 与 `AC` ID 唯一且稳定，每个 in-scope `R` 至少被一个 AC 覆盖；
 3. 每个 AC 都可独立判定，并能追溯到已确认需求或权威 expected source；
-4. Implementation Decisions 与已调查的代码库、glossary 和 ADR 一致；
+4. Solution Constraints 都有上游依据，且没有混入应由 HLD 拥有的派生技术设计；
 5. Testing Decisions 完整记录用户确认的 seam，并尽可能从最高层 seam 验证外部行为；
 6. Boundaries、默认行为、Out of Scope 与验收没有冲突或悄然扩张；
 7. 文档中没有占位符、未处理冲突、虚构事实或被静默跳过的 blocker。
@@ -141,17 +143,20 @@ Create 模式在用户确认测试 seam 后使用以下结构写正式文档；A
 
 ### 6. 落盘与 handoff
 
-确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的测试 seam、关键实现/测试决策和未验证项；Amendment 模式先展示需求 delta、规范影响与可能受影响的 tickets，取得确认后原位更新，并报告保留/新增/移除的 R/AC。`to-spec` 不修改 ticket contract、Status 或 evidence；这些由 `to-tickets` 在 SPEC 确认后协调。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
+确认一致性后写入任务目录 `SPEC.md`。Create 模式报告路径、采用的验收 seam、Solution Constraints、design concerns、HLD/graph 路由和未验证项；Amendment 模式先展示需求 delta、规范影响与可能受影响的 HLD decisions / tickets，取得确认后原位更新，并报告保留/新增/移除的 R/AC。`to-spec` 不修改 HLD、ticket contract、Status 或 evidence；这些分别由 `high-level-design` 和 `to-tickets` 在 SPEC 确认后协调。不要在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他 execution graph。
 
-SPEC 获确认后：
+SPEC 获确认后分别判断两件事，不能用 ticket 数量替代设计判断：
 
-- 单一 scoped task、不需要 execution graph 时，直接交给 `quick-implement`；
-- 需要多个可独立领取的工作单元、dependency edge 或统一调度时，调用 `to-tickets`；由它提出拆分、取得确认并创建 `tickets/`，再交给 `loop` 推进完整 graph。
+1. **Design routing**：存在跨 Module、跨调用方或跨 execution unit 的共享类型、Interface、状态/错误语义、依赖方向、迁移或集成约束时，先调用 `high-level-design`；否则记录 `hld_not_required` 及依据。
+2. **Execution routing**：单一 scoped task、不需要 execution graph 时交给 `quick-implement`；需要多个 execution units、dependency edge 或统一调度时调用 `to-tickets`，再由 `loop` 推进 graph。
+
+如果需要 HLD，必须先完成 HLD，再进入任一执行路径。`to-spec` 只能预判是否需要多个 execution units，不决定 ticket 数量或拆分。
 
 本 Skill 不拆 tickets、不实现业务代码，也不自动获得外部发布、commit、push、建分支或改写历史的授权。
 
 ## 变更规则
 
-- **规范性变化**：进入 Amendment 模式。需求、范围、接口 contract、testing decision、acceptance criterion 或明确约束变化时，更新同一份 SPEC 并重新确认受影响决策；testing seam 未受影响时不强制重新确认。已有 graph 且受影响 ticket 正在执行时，请求 `loop` 停止新的相关 dispatch、终止或收回对应 worker 并保留 evidence；确认其不再写入后，再由 `to-tickets` 同步受影响 tickets。
-- **执行拆分变化**：SPEC 语义不变，但 ticket 粒度或依赖经新事实证明不合理时，仅由 `to-tickets` 调整 tickets，不能反向改写 SPEC。
-- **执行变化**：ticket 完成、验证失败、retry、frontier 或 execution evidence 变化只更新对应 ticket 或执行证据，不改 SPEC。
+- **规范性变化**：进入 Amendment 模式。需求、范围、公开 contract、testing decision、acceptance criterion 或 Solution Constraint 变化时，更新同一份 SPEC 并重新确认受影响决定；testing seam 未受影响时不强制重新确认。已有 HLD 时先由 `high-level-design` 同步受影响 D，再由 `to-tickets` 协调 graph。受影响 ticket 正在执行时，先请求 `loop` 停止相关 dispatch、回收 worker 并保留 evidence。
+- **概要设计变化**：需求语义不变，但 Module ownership、内部 Interface、共享类型、依赖方向或集成约束变化时，不改 SPEC；由 `high-level-design` 修订 HLD，再由 `to-tickets` 协调受影响 graph。
+- **执行拆分变化**：SPEC/HLD 语义不变，但 ticket 粒度或依赖经新事实证明不合理时，仅由 `to-tickets` 调整 tickets，不能反向改写上游 artifact。
+- **执行变化**：ticket 完成、验证失败、retry、frontier 或 execution evidence 变化只更新对应 ticket 或执行证据，不改 SPEC/HLD。

@@ -7,7 +7,7 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 
 在实现前把需求、方案或预期行为变更里没定下来的选择谈清楚。`grilling` 是唯一的会话控制者，负责调查事实、维护 Design Tree、计算 frontier、组织 round，并把真正的决策交给用户；已经确认的领域术语和必要 ADR 则按 `domain-modeling` 的纪律维护。
 
-不写业务代码，也不创建 `SPEC.md`、delivery tickets 或实现文档。glossary、CONTEXT 和 ADR 是允许的同步记录，由 `domain-modeling` 负责其规则和写入。
+不写业务代码，也不创建 `SPEC.md`、`HLD.md`、delivery tickets 或实现文档。glossary、CONTEXT 和 ADR 是允许的同步记录，由 `domain-modeling` 负责其规则和写入。
 
 ## Domain-modeling discipline
 

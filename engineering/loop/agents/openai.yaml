@@ -1,7 +1,7 @@
 interface:
   display_name: "Loop"
-  short_description: "维护 ticket frontier、聚合 evidence 并执行整图审查"
-  default_prompt: "使用 $loop 计算 ready frontier，按内部 ticket-worker 协议执行 tickets，聚合 landed evidence，并在完成前执行 whole-graph review。"
+  short_description: "依据 SPEC/HLD 维护 frontier、evidence 与整图审查"
+  default_prompt: "使用 $loop 依据 SPEC.md、可选 HLD.md 和 tickets 计算 ready frontier，执行工作单元、聚合 evidence，并完成整图审查。"
 
 policy:
   allow_implicit_invocation: true

@@ -18,7 +18,17 @@ def ticket(
     blocked_by: str = "- None (can start immediately)",
     evidence: str = "- AC1 — passed — targeted verification",
     execution_blocker: str = "- None",
+    high_level_design: str | None = "- None",
 ) -> str:
+    design_section = (
+        ""
+        if high_level_design is None
+        else f"""## High-Level Design
+
+{high_level_design}
+
+"""
+    )
     return f"""# 01 — Example
 
 ## Specification
@@ -29,7 +39,7 @@ def ticket(
 
 Implement one observable behavior.
 
-## Constraints
+{design_section}## Constraints
 
 - Preserve the existing contract.
 
@@ -56,11 +66,13 @@ Implement one observable behavior.
 
 
 class InspectGraphTests(unittest.TestCase):
-    def inspect(self, ticket_text: str) -> tuple[dict[str, object], int]:
+    def inspect(self, ticket_text: str, hld_text: str | None = None) -> tuple[dict[str, object], int]:
         with tempfile.TemporaryDirectory() as temp_dir:
             task_dir = Path(temp_dir)
             (task_dir / "tickets").mkdir()
             (task_dir / "SPEC.md").write_text("# Spec\n", encoding="utf-8")
+            if hld_text is not None:
+                (task_dir / "HLD.md").write_text(hld_text, encoding="utf-8")
             (task_dir / "tickets" / "01-example.md").write_text(ticket_text, encoding="utf-8")
             result = subprocess.run(
                 [sys.executable, str(SCRIPT), str(task_dir)],
@@ -249,6 +261,63 @@ class InspectGraphTests(unittest.TestCase):
 
         self.assertEqual(exit_code, 0)
         self.assertEqual(payload["dependency_releasable"], ["tickets/01-example.md"])
+
+    def test_hld_decision_reference_is_valid(self) -> None:
+        payload, exit_code = self.inspect(
+            ticket(status="done", high_level_design="- [HLD.md](../HLD.md): D1"),
+            hld_text="# HLD\n\n## Design Decisions\n\n- **D1** — Shared contract\n",
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertEqual(payload["hld_decisions"], ["D1"])
+
+    def test_hld_rejects_unknown_decision_reference(self) -> None:
+        payload, exit_code = self.inspect(
+            ticket(status="done", high_level_design="- [HLD.md](../HLD.md): D2"),
+            hld_text="# HLD\n\n## Design Decisions\n\n- **D1** — Shared contract\n",
+        )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            {problem["code"] for problem in payload["problems"]},
+            {"unknown_hld_decision"},
+        )
+
+    def test_hld_can_reference_an_existing_decision_without_declaring_it_twice(self) -> None:
+        payload, exit_code = self.inspect(
+            ticket(status="done", high_level_design="- [HLD.md](../HLD.md): D1"),
+            hld_text=(
+                "# HLD\n\n## Design Decisions\n\n"
+                "- **D1** — Shared contract\n"
+                "  - Consequences: later work must continue to follow D1.\n"
+            ),
+        )
+
+        self.assertEqual(exit_code, 0)
+        self.assertTrue(payload["valid"])
+
+    def test_hld_requires_ticket_design_section(self) -> None:
+        payload, exit_code = self.inspect(
+            ticket(status="done", high_level_design=None),
+            hld_text="# HLD\n\n## Design Decisions\n\n- **D1** — Shared contract\n",
+        )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            {problem["code"] for problem in payload["problems"]},
+            {"missing_high_level_design"},
+        )
+
+    def test_ticket_decision_reference_requires_hld(self) -> None:
+        payload, exit_code = self.inspect(
+            ticket(status="done", high_level_design="- [HLD.md](../HLD.md): D1")
+        )
+
+        self.assertEqual(exit_code, 1)
+        self.assertEqual(
+            {problem["code"] for problem in payload["problems"]},
+            {"missing_hld"},
+        )
 
 
 if __name__ == "__main__":

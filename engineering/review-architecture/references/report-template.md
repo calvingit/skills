@@ -10,7 +10,7 @@
 - Coverage: <已覆盖区域与 blind spots>
 - Result: <critical/high/medium/low findings / no finding / needs more evidence>
 - Top finding: <ID、主题、severity>
-- Next step: <codebase-design / grilling / to-spec / simplify / observe>
+- Next step: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
 
 ## Review Basis
 - Question: <本轮要回答的架构问题>
