@@ -157,54 +157,15 @@ Engineering workflow
 
 Runtime continuation state 不属于 execution graph，不能替代 ticket Status、acceptance evidence 或 ready frontier。
 
-```mermaid
-flowchart TD
-    A[当前工作] --> B{是否已有已确认的 SPEC？}
-    B -->|是| P{是否有未合并的需求变更？}
-    P -->|否| G[SPEC.md]
-    P -->|是| E[to-spec]
-    B -->|否| N{需求与关键路径是否收敛？}
-    N -->|需求或边界未定| C[grilling]
-    N -->|技术路径存在 Fog| D[wayfinding]
-    N -->|已经收敛| E[to-spec]
-    C --> E
-    D --> F[MAP.md + decisions]
-    F --> Q{Destination 需要构建契约？}
-    Q -->|是| E
-    Q -->|最终决定| M[decision handoff]
-    Q -->|Notes 允许直接变更| X[对应执行流程]
-    E --> G[SPEC.md]
-    G --> R{是否存在跨局部技术契约？}
-    R -->|是| S[high-level-design]
-    S --> T[HLD.md]
-    R -->|否| H{是否需要 execution graph？}
-    T --> H
-    H -->|否| I[quick-implement]
-    H -->|是| J[to-tickets]
-    J --> K[tickets/]
-    K --> O[loop + ticket-worker]
-    I --> L[verified delivery]
-    O --> L
-```
+点击图示可打开交互式 HTML 预览。
+
+[![Engineering Skills 工作流](./docs/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/engineering-workflow.html)
 
 ### 本地 ticket 生命周期
 
 `to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的 vertical slice，其中包含 `Specification`、可选 `High-Level Design`、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by`、`Execution evidence`、`Execution blocker` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC/HLD amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
 
-```mermaid
-stateDiagram-v2
-    [*] --> ready: 无未完成 blocker
-    [*] --> blocked: 存在 blocker
-    blocked --> ready: blocker 解除
-    ready --> in_progress: loop 派发
-    in_progress --> done: 验收与 evidence 完整
-    in_progress --> blocked: 出现真实阻塞
-    done --> ready: whole-graph review finding
-    ready --> superseded: SPEC/HLD amendment
-    blocked --> superseded: SPEC/HLD amendment
-    in_progress --> superseded: 停止并回收 worker
-    done --> superseded: 原 contract 不再适用
-```
+[![本地 Ticket 生命周期](./docs/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/ticket-lifecycle.html)
 
 执行时，`loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、验收勾选、Execution evidence 和 Execution blocker，并且只在 SPEC/HLD 均未变、whole-graph review 发现原 contract 内缺陷时执行 `done → ready`。ticket worker 只返回 landed changes 与 receipt，不写 graph。上游变化由 `to-tickets` 保留仍有效的 evidence，并创建 amendment/correction/migration/replacement ticket 或必要的 supersession；不能直接用 `done → ready` 表达。需求契约缺口回到 `to-spec`，概要设计缺口回到 `high-level-design`，graph 缺口回到 `to-tickets`。
 

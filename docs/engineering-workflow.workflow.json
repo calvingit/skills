@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "Engineering Skills 工作流",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "requirement-path",
+        "label": "需求收敛",
+        "focus": ["start", "spec_check", "scope_check", "grilling", "wayfinding", "to_spec", "spec"],
+        "note": "从当前工作判断需求是否收敛，并形成唯一规范性需求来源。"
+      },
+      {
+        "id": "design-path",
+        "label": "概要设计",
+        "focus": ["spec", "contract_check", "high_level_design", "execution_check"],
+        "note": "仅在存在跨局部技术契约时进入概要设计。"
+      },
+      {
+        "id": "delivery-path",
+        "label": "执行交付",
+        "focus": ["execution_check", "quick_implement", "to_tickets", "loop", "delivery"],
+        "note": "单一任务直接实现；需要 execution graph 时拆票并统一执行。"
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "intake", "label": "入口与判断" },
+    { "id": "discovery", "label": "需求与探索" },
+    { "id": "design", "label": "规范与设计" },
+    { "id": "execution", "label": "执行与交付" }
+  ],
+  "phases": [
+    { "id": "understand", "label": "理解问题", "fromCol": 0, "toCol": 1 },
+    { "id": "formalize", "label": "形成契约", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "deliver_phase", "label": "选择执行路径", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": ["start", "spec_check", "to_spec", "spec", "contract_check", "high_level_design"],
+  "nodes": [
+    { "id": "start", "lane": "intake", "col": 0, "type": "frontend", "label": "当前工作", "sublabel": "识别现有 artifact", "tag": "START" },
+    { "id": "spec_check", "lane": "intake", "col": 1, "type": "security", "label": "已有已确认 SPEC？", "sublabel": "检查未合并需求变更", "tag": "DECISION", "width": 124 },
+    { "id": "scope_check", "lane": "discovery", "col": 1, "type": "security", "label": "需求与关键路径收敛？", "sublabel": "区分需求缺口与技术迷雾", "tag": "DECISION", "width": 144 },
+    { "id": "grilling", "lane": "discovery", "col": 2, "type": "external", "label": "grilling", "sublabel": "收敛需求与边界" },
+    { "id": "wayfinding", "lane": "discovery", "col": 3, "type": "external", "label": "wayfinding", "sublabel": "MAP.md + decisions" },
+    { "id": "to_spec", "lane": "design", "col": 2, "type": "backend", "label": "to-spec", "sublabel": "创建或修订同一份规范", "tag": "OWNER" },
+    { "id": "spec", "lane": "design", "col": 3, "type": "database", "label": "SPEC.md", "sublabel": "规范性需求来源", "tag": "ARTIFACT" },
+    { "id": "contract_check", "lane": "design", "col": 4, "type": "security", "label": "跨局部技术契约？", "sublabel": "按契约范围判断", "tag": "DECISION", "width": 118 },
+    { "id": "high_level_design", "lane": "design", "col": 5, "type": "backend", "label": "high-level-design", "sublabel": "HLD.md（需要时）", "width": 124 },
+    { "id": "execution_check", "lane": "execution", "col": 3, "type": "security", "label": "需要 execution graph？", "sublabel": "单一任务或多执行单元", "tag": "DECISION", "width": 158 },
+    { "id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "单次实现与验证", "width": 112, "yOffset": -70 },
+    { "id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.md", "yOffset": 70 },
+    { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop + ticket-worker", "sublabel": "frontier · evidence · review", "width": 146, "yOffset": 70 },
+    { "id": "delivery", "lane": "execution", "col": 5, "type": "cloud", "label": "verified delivery", "sublabel": "实现、验证与审查完成", "tag": "DONE", "width": 124, "yOffset": -70 }
+  ],
+  "edges": [
+    { "id": "start_check", "from": "start", "to": "spec_check" },
+    { "id": "spec_missing", "from": "spec_check", "to": "scope_check", "label": "否", "role": "branch" },
+    { "id": "spec_changed", "from": "spec_check", "to": "to_spec", "label": "有需求变更", "variant": "emphasis", "role": "branch" },
+    { "id": "spec_current", "from": "spec_check", "to": "spec", "label": "已确认且无变更", "role": "main" },
+    { "id": "needs_grilling", "from": "scope_check", "to": "grilling", "label": "需求或边界未定", "role": "branch" },
+    { "id": "needs_wayfinding", "from": "scope_check", "to": "wayfinding", "label": "技术路径存在 Fog", "role": "branch" },
+    { "id": "already_converged", "from": "scope_check", "to": "to_spec", "label": "已收敛", "variant": "emphasis" },
+    { "id": "grilling_to_spec", "from": "grilling", "to": "to_spec" },
+    { "id": "wayfinding_to_spec", "from": "wayfinding", "to": "to_spec", "label": "需要构建契约", "role": "return" },
+    { "id": "spec_output", "from": "to_spec", "to": "spec", "variant": "emphasis" },
+    { "id": "check_contract", "from": "spec", "to": "contract_check" },
+    { "id": "design_required", "from": "contract_check", "to": "high_level_design", "label": "是", "variant": "emphasis" },
+    { "id": "design_to_execution", "from": "high_level_design", "to": "execution_check", "fromSide": "bottom", "toSide": "top", "via": [[845.2, 800], [553.2, 800]] },
+    { "id": "design_not_required", "from": "contract_check", "to": "execution_check", "label": "否", "role": "branch" },
+    { "id": "single_task", "from": "execution_check", "to": "quick_implement", "label": "否", "role": "branch" },
+    { "id": "graph_required", "from": "execution_check", "to": "to_tickets", "label": "是", "variant": "emphasis" },
+    { "id": "tickets_to_loop", "from": "to_tickets", "to": "loop" },
+    { "id": "quick_delivery", "from": "quick_implement", "to": "delivery", "variant": "emphasis" },
+    { "id": "loop_delivery", "from": "loop", "to": "delivery", "variant": "emphasis" }
+  ],
+  "cards": [
+    { "dot": "violet", "title": "Wayfinding 的其他出口", "items": ["最终决定可以形成 decision handoff", "Notes 明确允许直接变更时，转入对应执行流程"] },
+    { "dot": "cyan", "title": "路由依据", "items": ["ticket 数量不是 HLD 条件", "共享契约决定是否需要 HLD", "execution graph 决定 quick-implement 或 tickets + loop"] },
+    { "dot": "emerald", "title": "Artifact 所有权", "items": ["to-spec 维护 SPEC.md", "high-level-design 维护 HLD.md", "to-tickets 维护 graph，loop 写入执行状态与 evidence"] }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "本地 Ticket 生命周期",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [980, 760],
+    "views": [
+      {
+        "id": "normal-execution",
+        "label": "正常执行",
+        "focus": ["created", "ready", "in_progress", "done"],
+        "note": "无 blocker 的 ticket 进入 ready，由 loop 派发并在证据完整后完成。"
+      },
+      {
+        "id": "blocking-recovery",
+        "label": "阻塞与恢复",
+        "focus": ["created", "blocked", "ready", "in_progress"],
+        "note": "真实阻塞暂停执行；blocker 解除后重新进入 ready frontier。"
+      },
+      {
+        "id": "contract-change",
+        "label": "契约变化",
+        "focus": ["ready", "blocked", "in_progress", "done", "amendment", "superseded"],
+        "note": "上游 amendment 使原 ticket 退出当前 graph，但保留历史 evidence。"
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "main", "label": "执行主路径" },
+    { "id": "waiting", "label": "阻塞与恢复" },
+    { "id": "change", "label": "上游契约变化" },
+    { "id": "terminal", "label": "历史状态" }
+  ],
+  "states": [
+    { "id": "created", "type": "start", "label": "Ticket 创建", "sublabel": "按 blocker 选择入口", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY" },
+    { "id": "ready", "type": "active", "label": "ready", "sublabel": "进入 ready frontier", "lane": "main", "col": 1, "step": "02" },
+    { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "loop 已派发 worker", "lane": "main", "col": 2, "step": "03" },
+    { "id": "done", "type": "success", "label": "done", "sublabel": "验收与 evidence 完整", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE" },
+    { "id": "blocked", "type": "waiting", "label": "blocked", "sublabel": "存在真实 blocker", "lane": "waiting", "col": 0, "tag": "WAIT" },
+    { "id": "amendment", "type": "external", "label": "SPEC/HLD amendment", "sublabel": "同步 execution graph", "lane": "change", "col": 2, "tag": "EVENT" },
+    { "id": "superseded", "type": "neutral", "label": "superseded", "sublabel": "原 contract 不再适用", "lane": "terminal", "col": 2, "tag": "HISTORY" }
+  ],
+  "transitions": [
+    { "id": "created_ready", "from": "created", "to": "ready", "label": "无未完成 blocker", "labelAt": [171, 112] },
+    { "id": "created_blocked", "from": "created", "to": "blocked", "variant": "security", "fromSide": "bottom", "toSide": "top", "via": [[94, 224], [402, 224]] },
+    { "id": "blocked_ready", "from": "blocked", "to": "ready", "label": "blocker 解除", "variant": "emphasis", "fromSide": "left", "toSide": "bottom", "via": [[300, 307], [300, 228], [248, 228]], "labelAt": [330, 244] },
+    { "id": "ready_progress", "from": "ready", "to": "in_progress", "label": "loop 派发", "labelAt": [325, 112] },
+    { "id": "progress_done", "from": "in_progress", "to": "done", "label": "验收与 evidence 完整", "variant": "emphasis", "labelAt": [479, 112] },
+    { "id": "progress_blocked", "from": "in_progress", "to": "blocked", "label": "出现真实阻塞", "variant": "security", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelAt": [390, 215] },
+    { "id": "done_ready", "from": "done", "to": "ready", "label": "whole-graph review finding", "fromSide": "top", "toSide": "top", "route": "top-channel", "channelY": 62, "labelAt": [402, 74] },
+    { "id": "ready_amendment", "from": "ready", "to": "amendment", "fromSide": "top", "toSide": "top", "via": [[248, 38], [710, 38], [710, 380]], "variant": "dashed" },
+    { "id": "blocked_amendment", "from": "blocked", "to": "amendment", "fromSide": "bottom", "toSide": "bottom", "via": [[402, 380], [710, 380]], "variant": "dashed" },
+    { "id": "progress_amendment", "from": "in_progress", "to": "amendment", "label": "停止并回收 worker", "fromSide": "right", "toSide": "left", "via": [[480, 157], [480, 250], [620, 250], [620, 307]], "variant": "security", "labelAt": [550, 240] },
+    { "id": "done_amendment", "from": "done", "to": "amendment", "fromSide": "bottom", "toSide": "top", "via": [[556, 210], [710, 210]], "variant": "dashed" },
+    { "id": "amendment_superseded", "from": "amendment", "to": "superseded", "fromSide": "bottom", "toSide": "top", "route": "straight" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "正常路径", "items": ["ready → in_progress → done 由 loop 统一维护", "done 要求 acceptance 与 Execution evidence 完整"] },
+    { "dot": "amber", "title": "阻塞规则", "items": ["只有真实 blocker 才进入 blocked", "blocker 解除后返回 ready，而不是直接恢复执行"] },
+    { "dot": "violet", "title": "状态语义", "items": ["done → ready 仅表达原 contract 内 review finding", "上游 amendment 汇入 superseded，不复用 done → ready", "superseded 保留历史 evidence，但不提供当前验收覆盖"] }
+  ]
+}
