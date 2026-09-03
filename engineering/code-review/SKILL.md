@@ -63,7 +63,7 @@ Fowler smell baseline 仅作为 judgement call；完整定义与建议见 [refer
 
 ## HLD 轴
 
-仅当任务目录或调用方提供 `HLD.md` 时启用。检查变更是否遵守适用 D IDs、Module ownership、共享 contract、dependency direction、状态/错误语义与 integration constraints，并确认实现没有把 HLD 的 Local Design Freedom 错当成强制结构。没有 HLD 时标记 `not_applicable`，不能自行补写概要设计。
+仅当任务目录或调用方提供 `HLD.md` 时启用。检查变更是否遵守适用 D IDs、Module ownership、共享 contract、dependency direction、状态/错误语义与 integration constraints，并确认实现没有把 HLD 的 Local Design Freedom 错当成强制结构。对标记为 `Reuse` / `Extend` 的决定检查实现是否沿用所列 precedent；对 `New` / `Replace` 检查是否保持 HLD 声明的必要性、迁移边界和最小影响范围。没有 HLD 时标记 `not_applicable`，不能自行补写概要设计。
 
 如果代码事实证明 HLD 不可行，报告 design blocker 并交回 `high-level-design`；不能把偏离 HLD 自动判成正确实现，也不能为了符合过期 HLD 建议错误修改。
 

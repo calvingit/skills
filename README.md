@@ -92,7 +92,7 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | 已有 SPEC 与适用 HLD，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
 | 已有无需 execution graph 的单一 SPEC | `quick-implement` | 已实现、验证并审查的单次交付 |
 
-`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。`to-spec` 只建立需求规范并分别判断 design routing 与 execution routing：存在跨 Module、调用方或 execution unit 的共享契约时先进入 `high-level-design`；ticket 数量不是 HLD 条件。单一 scoped task 交给 `quick-implement`；需要多个 execution units、dependency edge 或统一调度时，由 `to-tickets` 创建 graph。只要 graph 已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
+`grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。`to-spec` 只建立需求规范并分别判断 design routing 与 execution routing：存在跨 Module、调用方或 execution unit 的共享契约时先进入 `high-level-design`；ticket 数量不是 HLD 条件。HLD 主动搜索当前代码库的相似实现、调用方和架构约束，优先 `Reuse` / `Extend`，只有现有结构无法满足 SPEC 时才采用 `New` / `Replace`。单一 scoped task 交给 `quick-implement`；需要多个 execution units、dependency edge 或统一调度时，由 `to-tickets` 创建 graph。只要 graph 已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
 
 #### 按需叠加 Engineering Discipline
 
@@ -147,7 +147,7 @@ Engineering workflow
 | --- | --- | --- | --- | --- |
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 需求规范 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | 派生概要设计、ticket 拆分或执行状态 |
-| 概要设计 | `HLD.md` | `high-level-design` | 多个局部实现必须共同遵守哪些模块职责、共享契约与集成约束？ | 改写需求、ticket 拆分或局部详细设计 |
+| 概要设计 | `HLD.md` | `high-level-design` | 如何基于现有代码库，以最小架构偏离统一模块职责、共享契约与集成约束？ | 改写需求、无关重构、ticket 拆分或局部详细设计 |
 | 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC/HLD |
 | 执行证据 | ticket 状态、验收勾选、worker receipt、whole-graph review receipt | `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或 Runtime continuation state |
 
@@ -249,7 +249,7 @@ stateDiagram-v2
 | [`grilling`](./engineering/grilling/SKILL.md) | 通过统一 Design Tree 收敛决策，并由 domain-modeling discipline 同步维护领域术语与必要 ADR。 |
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 对不确定技术领域进行跨会话探索，维护地图和决策记录。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 将已收敛需求落盘为规范性 `SPEC.md`，并判断 HLD 与执行路径。 |
-| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 为已确认 SPEC 创建或修订任务级 `HLD.md`，统一跨局部概要技术契约。 |
+| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 搜索代码库 precedent，在现有架构上为已确认 SPEC 创建或修订最小增量的任务级 `HLD.md`。 |
 | [`to-tickets`](./engineering/to-tickets/SKILL.md) | 从已确认的 SPEC 与可选 HLD 派生 tickets，并在上游修订后同步 graph。 |
 | [`quick-implement`](./engineering/quick-implement/SKILL.md) | 实现并验证一个已确认、无需 ticket graph 的单次 SPEC。 |
 
