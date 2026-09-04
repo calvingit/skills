@@ -4,8 +4,16 @@
 
 ## 目录
 
+- `backend/`：后端技术栈相关规范、生产实践与疑难问题处理。
 - `global/`：来自全局 `~/.agents/skills`，提供工具、文档、委托和通用工作流。
 - `engineering/`：通用工程 Coding 流程，不绑定具体框架、项目目录、业务组件或 Agent Runtime。
+
+## Backend Skills
+
+| Skill | 用途 |
+| --- | --- |
+| [`java-coding-guidelines`](./backend/java-coding-guidelines/SKILL.md) | 按项目约定和《Java 开发手册（黄山版）》编写、修改或审查 Java 代码。 |
+| [`mysql-best-practices`](./backend/mysql-best-practices/SKILL.md) | 诊断 MySQL 生产疑难问题，并审查慢 SQL、锁、DDL、数据变更与安全风险。 |
 
 ## Global Skills
 
