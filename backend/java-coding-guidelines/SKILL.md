@@ -1,11 +1,17 @@
 ---
 name: java-coding-guidelines
-description: "用于编写、修改或审查 Java 代码时，按项目约定和阿里巴巴 Java 开发手册检查常见编码规范。"
+description: "用于编写、修改或审查 Java 代码时，按项目约定和《Java 开发手册（黄山版）》检查编码规约。"
 ---
 
 # Java Coding Guidelines
 
-用于 Java 代码实现与审查。目标是让 Agent 在需要时加载具体规范，而不是把整本手册长期放进上下文。
+用于 Java 代码实现与审查。目标是让 Agent 按任务主题加载《Java 开发手册（黄山版）》中的相关章节，而不是把整本手册长期放进上下文。
+
+## Source of truth
+
+本 Skill 的参考来源是用户提供的 `Java开发手册(黄山版).pdf`。
+
+黄山版在 PDF 版本历史中标注为 `1.7.1`，发布日期为 `2022.02.03`，备注为：新增 11 条新规约、新增正反例和扩展说明、修改 22 处描述、修正嵩山版中部分代码格式错误和描述错误。
 
 ## Authority
 
@@ -13,31 +19,36 @@ description: "用于编写、修改或审查 Java 代码时，按项目约定和
 
 1. 当前任务的明确要求；
 2. 当前仓库已有规范、架构约定、静态检查和格式化配置；
-3. 本 Skill 的参考规范。
+3. 《Java 开发手册（黄山版）》中的规约。
 
-参考规范以阿里巴巴 Java 开发手册**黄山版**为基线。若参考规范与项目现状冲突，不擅自为了“符合手册”进行大范围重构；优先保持项目一致性，并在确有影响时指出差异。
+若 PDF 规约与项目现状冲突，不擅自为了“符合手册”进行大范围重构；优先保持项目一致性，并在确有影响时指出差异。
 
 ## Workflow
 
 1. 先读取目标代码及相邻模块，确认项目现有写法和约束。
 2. 根据任务涉及的主题，只加载对应 `references/` 文档；不要默认读取全部参考资料。
-3. 实现任务时，只应用与本次改动直接相关的规则。
-4. 审查任务时，优先报告会影响正确性、可维护性、并发安全、异常处理、数据库使用或线上稳定性的问题；纯风格差异只有在项目或规范明确要求时才报告。
+3. 实现任务时，只应用与本次改动直接相关的规约。
+4. 审查任务时，保留 PDF 的【强制】、【推荐】、【参考】等级，不把建议级规则升级成无条件要求。
 5. 修改后运行项目已有 formatter、lint、静态检查和相关测试；没有可用验证方式时明确说明。
 
 ## Load references on demand
 
-按代码和任务主题选择：
+按 PDF 原目录加载：
 
-- 命名、常量、代码格式、OOP、集合、并发、控制语句、注释等基础 Java 约定：`references/programming-conventions.md`
-- 异常、日志、单元测试、安全等工程约定：`references/engineering-practices.md`
-- MySQL 建表、索引、SQL、ORM 等数据库约定：`references/database-conventions.md`
+- 来源说明、目录、版本历史：`references/source-overview.md`
+- 一、编程规约：`references/programming-conventions.md`
+- 二、异常日志：`references/exception-and-logging.md`
+- 三、单元测试：`references/unit-testing.md`
+- 四、安全规约：`references/security.md`
+- 五、MySQL 数据库：`references/mysql.md`
+- 六、工程结构：`references/project-structure.md`
+- 七、设计规约：`references/design-guidelines.md`
 
 一次任务只读取实际需要的文件和章节。若项目自身已有更具体的规范，以项目规范为准。
 
 ## Boundaries
 
-- 不机械执行规范，不把建议级规则升级成无条件要求。
+- 不机械执行规范，不把【推荐】或【参考】当成【强制】。
 - 不因为规范检查扩大当前任务范围。
 - 不为了规避某条规则引入额外抽象、依赖或无业务价值的代码。
 - 不把本 Skill 当作 Java 语言、框架或 API 的事实来源；涉及 JDK、Spring、第三方库版本行为时，应查对应官方文档。
