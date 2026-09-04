@@ -1,0 +1,4 @@
+interface:
+  display_name: "Improve AGENTS.md"
+  short_description: "Audit and tighten repository instructions for coding agents."
+  default_prompt: "Use $improve-agents-md to audit and improve this repository's AGENTS.md."
