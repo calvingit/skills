@@ -1,13 +1,13 @@
 ---
 name: show-me
-description: Help the user understand the current topic visually with concise diagrams, code-shape sketches, diffs, and focused HTML artifacts. Use when the user asks to show, visualize, sketch, diagram, compare, or make an explanation easier to see.
+description: 使用精简的流程图、结构草图、差异对比或 HTML 帮助用户直观看懂当前话题；用户要求展示、可视化、画图、梳理流程、比较方案，或希望解释更直观时使用。
 ---
 
-# Show Me
+# 图示说明
 
-Help the user understand the current topic visually. Skip the preamble, keep prose brief, and choose the smallest view that makes the key point clear.
+用图示帮助用户理解当前话题。省去铺垫，文字保持简短，并选择足以说明关键问题的最小视图。
 
-- Show logic or an algorithm as pseudocode:
+- 用伪代码展示逻辑或算法：
 
 ```text
 on(save)
@@ -17,7 +17,7 @@ on(save)
   return fresh result
 ```
 
-- Show runtime control flow as a call tree:
+- 用调用树展示运行时控制流：
 
 ```text
 submitForm
@@ -27,7 +27,7 @@ submitForm
   navigateToSession
 ```
 
-- Show UI structure as a component tree, including only state and module boundaries that matter:
+- 用组件树展示界面结构，只保留相关的状态和模块边界：
 
 ```tsx
 <SessionPage> (apps/example/src/routes/session.tsx)
@@ -36,30 +36,30 @@ submitForm
     <RunSkillButton> (packages/ui)
 ```
 
-- Show file responsibility or a broad refactor as a shallow file tree:
+- 用浅层文件树展示文件职责或影响范围较大的重构：
 
 ```text
 src/
-├── commands/       # parses user actions
-├── sessions/       # owns session state
-└── transport/      # sends API requests
+├── commands/       # 解析用户操作
+├── sessions/       # 维护会话状态
+└── transport/      # 发送 API 请求
 ```
 
-- Show component interaction, control flow, or data flow with Mermaid:
+- 用 Mermaid 展示组件交互、控制流或数据流：
 
 ```mermaid
 sequenceDiagram
-    participant User
+    participant User as 用户
     participant UI
-    participant Daemon
-    User->>UI: choose command
-    UI->>Daemon: send expanded prompt
-    Daemon-->>UI: stream result
+    participant Daemon as 后台进程
+    User->>UI: 选择命令
+    UI->>Daemon: 发送展开后的提示词
+    Daemon-->>UI: 流式返回结果
 ```
 
-- Use `diff` when the point is what changes and the surrounding shape already exists. Match the diff shape to the topic.
+- 当重点是“改了什么”，且现有结构已经清楚时使用 `diff`。差异内容应与当前话题使用相同的结构。
 
-For a component change:
+组件变化：
 
 ```diff
  <SessionPage>
@@ -70,12 +70,12 @@ For a component change:
 +    <SkillResultCard />
 ```
 
-For a file-layout change:
+文件布局变化：
 
 ```diff
  src/
  ├── commands/
-+│   └── show-me.ts       # expands the slash command
++│   └── show-me.ts       # 展开斜杠命令
  ├── sessions/
 -└── transport.ts
 +└── transport/
@@ -83,7 +83,7 @@ For a file-layout change:
 +    └── stream.ts
 ```
 
-For a call-tree or call-stack change:
+调用树或调用栈变化：
 
 ```diff
  submitForm
@@ -96,7 +96,7 @@ For a call-tree or call-stack change:
 +    subscribeToEvents
 ```
 
-For a state or control-flow change:
+状态或控制流变化：
 
 ```diff
  on(save)
@@ -107,7 +107,7 @@ For a state or control-flow change:
 +  invalidate cache
 ```
 
-- Show the whole block when most of it is new, when omitted context would hide ownership or order, or when the user needs a copyable target shape:
+- 大部分内容都是新增、缺少上下文会让职责或顺序不清，或用户需要可直接复制的目标结构时，展示完整代码块：
 
 ```ts
 function expandSkill(command: string): string {
@@ -116,8 +116,8 @@ function expandSkill(command: string): string {
 }
 ```
 
-- For a visual UI, layout, state comparison, or concept too dense for Mermaid, create one focused HTML file: a diagram, infographic, or short slide deck, whichever best fits. Match the product's colors, typography, spacing, and components; use real labels and data; support desktop and mobile. Save it in the current workspace and present it through the runtime's supported preview or file-link mechanism.
+- 如果界面布局、状态对比或概念关系不适合用 Mermaid 表达，创建一个聚焦单一问题的 HTML 文件。根据内容选择图示、信息图或短幻灯片，并沿用产品的颜色、字体、间距和组件；使用真实标签与数据，同时适配桌面端和移动端。把文件保存在当前工作区，并通过运行环境支持的预览或文件链接交付。
 
-Place each visual next to the short text it supports. Keep only the calls, files, props, states, and boundaries needed to answer the current question or compare the current options.
+将图示放在对应的简短说明旁边。只保留回答当前问题或比较当前选项所需的调用、文件、属性、状态和边界。
 
-Use one format or combine a few when necessary. Do not use every format by default or overwhelm the user.
+按需选择一种或少数组合形式，不要默认把所有形式都用一遍，以免信息过载。

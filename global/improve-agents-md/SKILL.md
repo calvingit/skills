@@ -1,133 +1,133 @@
 ---
 name: improve-agents-md
-description: Create, audit, or improve repository AGENTS.md files so coding agents receive concise, accurate, portable, and verifiable project instructions. Use when asked to create or optimize AGENTS.md, reduce instruction bloat, fix stale or conflicting agent guidance, document recurring repository rules, or share one instruction source across Codex, Claude Code, GitHub Copilot, and other coding agents.
+description: 创建、审查或优化仓库的 AGENTS.md，为 Coding Agent 提供简洁、准确、可验证且不绑定单一工具的项目说明；适用于新建或精简 AGENTS.md、修复过时或冲突的规则、记录仓库特有的长期约定，以及让 Codex、Claude Code、GitHub Copilot 等工具共用一份说明。
 ---
 
-# Improve AGENTS.md
+# 优化 AGENTS.md
 
-Treat `AGENTS.md` as a compact execution guide for coding agents, not a repository encyclopedia. Preserve proven project rules while removing noise that weakens instruction adherence.
+把 `AGENTS.md` 写成供 Coding Agent 执行任务的简明指南，而不是仓库百科。保留经过验证的项目规则，删去会削弱指令效果的无关内容。
 
-## Operating Mode
+## 处理方式
 
-- If the user asks to review, audit, or propose changes, inspect and report without editing.
-- If the user asks to create, improve, fix, or update the file, apply the smallest justified edits and validate them.
-- If removing a rule could change intended behavior and repository evidence does not resolve the ambiguity, ask before removing it.
+- 用户要求审查、评估或提出建议时，只检查并报告，不直接修改。
+- 用户要求创建、优化、修复或更新文件时，执行有依据的最小修改并完成验证。
+- 删除某条规则可能改变预期行为，且仓库证据无法消除歧义时，先向用户确认。
 
-## Workflow
+## 工作流程
 
-1. Discover all applicable instruction files from the repository root to the working directory, including `AGENTS.md`, nested `AGENTS.md`, overrides, and tool-specific entrypoints.
-2. Inspect the repository evidence that can confirm or contradict the instructions:
-   - manifests, lockfiles, task runners, and CI workflows for commands
-   - `README`, `CONTRIBUTING`, architecture decisions, policies, and security docs for authoritative references
-   - representative source and tests for non-standard conventions
-   - generated-file markers, legacy areas, migrations, and recurring failure notes for hazards
-3. Classify each instruction as `keep`, `rewrite`, `move`, or `remove`.
-4. Detect contradictions, duplicate ownership, stale paths, invalid commands, and rules placed at the wrong scope.
-5. Draft or apply a minimal diff. Preserve useful wording unless a rewrite materially improves precision or scope.
-6. Validate paths, commands, precedence, and the final file's consistency with repository evidence.
-7. Report what changed, what was verified, and what could not be verified.
+1. 从仓库根目录到当前工作目录，查找所有适用的指令文件，包括根目录和子目录中的 `AGENTS.md`、覆盖文件以及特定工具的入口文件。
+2. 检查能够验证或否定现有指令的仓库证据：
+   - 从清单文件、锁文件、任务运行器和 CI 工作流核对命令；
+   - 从 `README`、`CONTRIBUTING`、架构决策、策略和安全文档确认权威说明；
+   - 从代表性源码和测试确认项目特有的约定；
+   - 从生成文件标记、遗留代码、迁移记录和反复出现的故障说明中识别风险。
+3. 将每条指令归为“保留”“改写”“迁移”或“删除”。
+4. 找出互相冲突的规则、重复维护的内容、过时路径、无效命令和放错适用范围的要求。
+5. 起草或应用最小差异。原有表达已经准确时予以保留，只有确实能提高准确性或明确适用范围时才改写。
+6. 验证路径、命令、优先级，以及最终文件与仓库事实是否一致。
+7. 说明修改内容、已验证项和无法验证的部分。
 
-## Content Standard
+## 内容标准
 
-Keep an instruction only when it is stable, actionable, relevant to its scope, and likely to prevent wasted work or a real mistake.
+一条指令只有同时满足长期稳定、可执行、适用于当前范围，并且能够避免重复劳动或实际错误时，才值得保留。
 
-Prefer:
+优先保留：
 
-- a one-line project identity when it changes how the repository should be approached
-- a small routing map for non-obvious workspace or package boundaries, not a copied directory tree
-- exact setup, build, test, lint, typecheck, generation, and release commands with necessary preconditions
-- the narrowest useful verification command before a full-repository command
-- non-standard architecture constraints and canonical example paths
-- generated or protected files that must not be edited directly
-- safety, data-loss, compatibility, migration, and deployment hazards
-- explicit completion requirements that are not already enforced automatically
-- links to authoritative repository documents instead of copied explanations
+- 一句话的项目定位，但前提是这项信息会影响 Agent 处理仓库的方式；
+- 非直观的工作区或包边界，可用简短导航说明，不复制完整目录树；
+- 准确的安装、构建、测试、lint、类型检查、代码生成和发布命令，以及必要前置条件；
+- 先执行范围较小的验证命令，再执行全仓库检查；
+- 项目特有的架构约束和可作为范例的规范路径；
+- 不应直接编辑的生成文件或受保护文件；
+- 涉及安全、数据丢失、兼容性、迁移和部署的风险；
+- 无法由工具自动保证的完成条件；
+- 指向仓库权威文档的链接，避免复制大段说明。
 
-Remove or relocate:
+删除或迁移：
 
-- generic advice such as "write clean code" or "follow best practices"
-- rules already guaranteed by repository tooling, or by every targeted Agent runtime after current behavior has been verified
-- formatter, linter, compiler, or hook rules that are already enforced and self-explanatory
-- exhaustive dependency lists, full directory trees, and codebase facts that a short search reveals reliably
-- long code examples that can be replaced with a stable repository path
-- duplicated content from `README`, `CONTRIBUTING`, specifications, policies, or architecture docs
-- task status, temporary plans, session notes, personal preferences, and other volatile state
-- speculative rules added for hypothetical failures that have not occurred
-- stale commands, files, names, and historical guidance that no longer applies
+- “编写整洁代码”“遵循最佳实践”等通用建议；
+- 已经由仓库工具保证，或经核实后确定所有目标 Agent 运行环境都会执行的规则；
+- 格式化器、linter、编译器或 hook 已自动执行且含义明确的规则；
+- 完整依赖列表、完整目录树，以及通过简短搜索即可可靠获知的代码库事实；
+- 可以用稳定仓库路径替代的长代码示例；
+- 与 `README`、`CONTRIBUTING`、规范、策略或架构文档重复的内容；
+- 任务状态、临时计划、会话记录、个人偏好和其他容易变化的信息；
+- 为尚未发生的假设性故障新增的规则；
+- 已经失效的命令、文件名、路径和历史说明。
 
-Keep absolute language such as `MUST`, `NEVER`, and `ALWAYS` only for safety, data loss, external contracts, or a rule with evidence of repeated violations. Otherwise state the required outcome and scope without inventing exceptions.
+`MUST`、`NEVER`、`ALWAYS` 等绝对措辞只用于安全、数据丢失、外部契约，或有证据表明问题反复发生的规则。其他情况应直接说明要求、结果和适用范围，不虚构例外情况。
 
-## Scope and Portability
+## 适用范围与跨工具兼容
 
-Use standard Markdown and plain, direct instructions. Do not add model-specific XML tags such as `<important if="...">` to the shared `AGENTS.md`; other runtimes may treat them as ordinary text.
+使用标准 Markdown 和直接、清楚的表达。不要在共享 `AGENTS.md` 中加入 `<important if="...">` 等特定模型的 XML 标签；其他运行环境可能只会把它们当作普通文本。
 
-- Put repository-wide rules in the root `AGENTS.md`.
-- Put subtree-specific rules in a nested `AGENTS.md` only after verifying how the repository's target Agent runtimes discover nested files.
-- Do not copy root rules into child files. State only the narrower addition or override.
-- Keep universally required safety and verification rules at the root; do not hide them in a subtree that some launch locations may not load.
-- Use `AGENTS.md` as the shared source of truth. Keep tool-specific wrappers minimal and do not maintain duplicated full copies.
-- If changing cross-Agent wiring or precedence, read [references/compatibility.md](references/compatibility.md) and verify current official documentation for every target runtime.
+- 仓库级规则放在根目录的 `AGENTS.md`。
+- 只有确认目标 Agent 如何发现子目录指令后，才把局部规则放入嵌套的 `AGENTS.md`。
+- 不要把根目录规则复制到子目录文件，只写适用范围更窄的补充或覆盖项。
+- 所有工作都需要遵守的安全和验证规则应放在根目录，不能藏在部分启动位置无法读取的子目录中。
+- 以 `AGENTS.md` 作为共享依据。特定工具的入口文件保持最小，不维护内容相同的完整副本。
+- 调整多种 Agent 工具的入口或指令优先级时，读取 [兼容性说明](references/compatibility.md)，并核对每种目标工具的最新官方文档。
 
-Do not claim universal support merely because a tool supports `AGENTS.md` in one surface. CLI, IDE, cloud Agent, and code-review behavior may differ.
+不能因为某个工具在一种使用方式中支持 `AGENTS.md`，就声称它在所有环境中都支持。CLI、IDE、云端 Agent 和代码审查功能的行为可能不同。
 
-## Classification Test
+## 逐条判断
 
-For every section or rule, answer:
+检查每个章节或规则：
 
-| Test | Decision |
+| 问题 | 处理方式 |
 | --- | --- |
-| Would removing it plausibly cause a costly or recurring mistake? | Keep or rewrite. |
-| Can the Agent reliably discover it from nearby files within a short search? | Usually remove; keep only if it saves recurring exploration or prevents choosing the wrong source. |
-| Is another file or tool the authoritative owner? | Link, move, or remove the duplicate. |
-| Does it apply only to one subtree or task type? | Narrow its scope after checking runtime discovery behavior. |
-| Is it correct for every task in its stated scope? | Narrow or rewrite; do not preserve harmful overreach. |
-| Can the stated path, command, or example be verified? | Verify it or mark it unverified; never guess. |
+| 删除后是否可能再次导致代价较高或反复发生的错误？ | 保留或改写。 |
+| Agent 能否通过简短搜索，从附近文件中可靠找到这项信息？ | 通常删除；只有能减少反复查找或避免选错依据时才保留。 |
+| 是否已有其他文件或工具负责维护这项信息？ | 改为链接、迁移或删除重复内容。 |
+| 是否只适用于某个子目录或某类任务？ | 核实运行环境的发现方式后缩小适用范围。 |
+| 是否适用于它声称覆盖的每一项任务？ | 缩小范围或改写，不能保留会过度约束其他任务的规则。 |
+| 路径、命令或示例能否验证？ | 完成验证，或明确标为未验证；禁止猜测。 |
 
-## Default Structure
+## 默认结构
 
-Use only sections that add value. Do not force empty sections.
+只保留有实际内容的章节，不强行补齐空章节。标题和正文语言应与仓库的主要文档保持一致。
 
 ```markdown
 # Agent Instructions
 
 ## Repository
-- [One-line identity or non-obvious workspace routing]
+- [会影响 Agent 工作方式的项目定位或目录导航]
 
 ## Commands
 | Task | Command |
 | --- | --- |
-| Focused test | `[verified command]` |
-| Lint or typecheck | `[verified command]` |
+| Focused test | `[已验证命令]` |
+| Lint or typecheck | `[已验证命令]` |
 
 ## Working Rules
-- [Stable, repository-specific instruction]
+- [稳定且为当前仓库特有的要求]
 
 ## Verification
-- [What must be checked before reporting completion]
+- [报告完成前必须检查的内容]
 
 ## References
-- Architecture: `[repo-relative path]`
+- Architecture: `[仓库相对路径]`
 ```
 
-## Validation
+## 验证
 
-- Confirm every referenced repository path exists.
-- Confirm commands are declared in the authoritative manifest, task runner, or CI configuration.
-- Run safe, relevant commands when the environment permits; otherwise report that only static verification was possible.
-- Compare root, nested, override, and tool-specific files for contradictions.
-- Ensure removed content still has an authoritative owner when it remains necessary.
-- Review the final diff for accidental loss of safety rules, commands, or hard-won repository knowledge.
-- Record before/after line counts as a signal, not a quality target. Do not optimize for an arbitrary maximum.
+- 确认引用的每个仓库路径都存在。
+- 确认命令已在权威清单文件、任务运行器或 CI 配置中声明。
+- 环境允许时运行安全且与改动相关的命令；无法运行时，说明只完成了静态检查。
+- 比较根目录、子目录、覆盖文件和特定工具的入口文件，检查是否存在冲突。
+- 删除内容后，确认仍有权威位置维护其中必要的信息。
+- 检查最终差异，避免误删安全规则、命令或从以往故障中沉淀的项目约定。
+- 记录修改前后的行数，只把它作为观察指标，不设定随意的行数上限。
 
-## Output
+## 输出
 
-For an audit, return findings ordered by impact, with evidence and proposed minimal changes.
+审查任务应按影响大小列出问题，并附上证据和最小修改建议。
 
-For an edit, report:
+修改任务应说明：
 
-- files changed
-- important rules kept, moved, rewritten, or removed
-- validation performed and its result
-- remaining uncertainty or runtime-specific compatibility risks
+- 改动的文件；
+- 关键规则的保留、迁移、改写或删除情况；
+- 验证方式与结果；
+- 仍未消除的不确定性或特定运行环境的兼容性风险。
 
-Do not present a shorter file as automatically better. The goal is less irrelevant context without losing instructions that prevent real failures.
+文件变短不等于质量更高。目标是在保留能够避免实际错误的规则前提下，减少无关上下文。

@@ -1,4 +1,4 @@
 interface:
-  display_name: "Improve AGENTS.md"
-  short_description: "Audit and tighten repository instructions for coding agents."
-  default_prompt: "Use $improve-agents-md to audit and improve this repository's AGENTS.md."
+  display_name: "优化 AGENTS.md"
+  short_description: "审查并精简 Coding Agent 的仓库指令，修复冲突和过时内容"
+  default_prompt: "使用 $improve-agents-md 审查并优化此仓库的 AGENTS.md。"

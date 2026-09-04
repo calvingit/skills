@@ -1,4 +1,4 @@
 interface:
   display_name: "MySQL 生产实践"
-  short_description: "诊断 MySQL 生产疑难问题，并审查高风险数据库变更"
-  default_prompt: "使用 $mysql-best-practices 分析这个 MySQL 生产问题或变更，基于证据识别风险并给出验证和回退方案。"
+  short_description: "诊断 MySQL 生产疑难问题，审查慢 SQL 与高风险数据库变更"
+  default_prompt: "使用 $mysql-best-practices 分析这个 MySQL 生产问题或变更，基于证据识别风险，并给出验证和回退方案。"
