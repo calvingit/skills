@@ -1,21 +1,30 @@
 ---
 name: explain-that
-description: Re-explain a word, sentence, or part of the agent's previous response that the user did not understand, using simpler language, necessary context, and a concrete example. Use when the user explicitly invokes this skill or asks what part of the previous response means.
+description: Explain a term, sentence, decision, or approach from the agent's previous response that the user identifies as unclear.
 ---
 
-# Explain That
+# explain-that
 
-Re-explain the part of the previous response identified by the user. If no part is specified, infer the most likely confusing part from the immediately preceding response.
+Explain a selected part of an Agent response that the user does not understand.
 
-- State the main point again in plain language.
-- Add any missing premise or background needed to understand it.
-- Give at least one concrete example related to the current task.
-- When helpful, map the original terms to their roles in the example.
-- Replace unnecessary jargon. Briefly define technical terms that cannot be avoided.
-- Preserve the original technical meaning and recommendation.
-- Do not continue the task, introduce a new solution, or assume the user now agrees.
-- Prefer realistic examples over abstract or childish analogies.
+## Usage
 
-Do not merely shorten or repeat the original wording. Explain it from another angle and include enough detail for the reasoning to make sense.
+Use when the user asks to explain a term, sentence, decision, or approach from a previous Agent response.
 
-If no specific passage is given, make a reasonable inference from the previous response. Ask which part the user means only when the ambiguity would materially change the explanation.
+## Instructions
+
+When explaining:
+
+- Start with a simple explanation.
+- Prefer context-aware explanations over generic definitions.
+- Explain what the selected part means in the current conversation.
+- Explain why it was mentioned or chosen.
+- Provide a small, relevant example when useful.
+- Preserve the original technical meaning.
+
+Do not:
+
+- Repeat the original answer.
+- Add unnecessary background.
+- Over-explain simple concepts.
+- Continue the original task or introduce a new solution.
