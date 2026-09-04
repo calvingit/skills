@@ -1,4 +1,7 @@
 interface:
   display_name: "图示说明"
-  short_description: "用精简图示、结构草图和差异对比直观解释当前话题"
+  short_description: "用精简图示、结构草图和差异对比，更直观地解释当前话题"
   default_prompt: "使用 $show-me，通过合适的图示解释当前话题。"
+
+policy:
+  allow_implicit_invocation: false

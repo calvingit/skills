@@ -1,6 +1,6 @@
 ---
 name: tech-research
-description: "围绕技术方案、框架、SDK、CLI 或基础设施开展基于证据的调研，并给出可执行的技术选择建议。"
+description: "开展基于证据的技术调研，并给出可执行建议。"
 ---
 
 # 技术调研

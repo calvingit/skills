@@ -1,6 +1,6 @@
 ---
 name: mysql-best-practices
-description: "面向生产环境的 MySQL 风险审查与疑难问题诊断。用于处理慢 SQL、执行计划或索引异常、锁等待与死锁、长事务、连接耗尽、复制延迟、在线 DDL、批量数据变更、权限与 SQL 注入风险，以及上线前的数据库变更审查；不用于基础 SQL 教程、安装指南或通用 CRUD 示例。"
+description: "诊断 MySQL 生产问题，并审查高风险数据库变更。"
 ---
 
 # MySQL 生产实践

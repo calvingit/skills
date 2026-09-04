@@ -1,0 +1,7 @@
+interface:
+  display_name: "文档同步"
+  short_description: "检查文档与当前实现和规范是否一致，只更新受影响内容"
+  default_prompt: "使用 $document-sync 检查并更新受当前变更影响的文档。"
+
+policy:
+  allow_implicit_invocation: false

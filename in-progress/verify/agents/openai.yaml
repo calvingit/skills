@@ -1,0 +1,7 @@
+interface:
+  display_name: "完成情况验证"
+  short_description: "用可复现的执行证据逐项验证任务是否真正达到完成条件"
+  default_prompt: "使用 $verify 对照完成条件验证当前任务，并提供可复现证据。"
+
+policy:
+  allow_implicit_invocation: false

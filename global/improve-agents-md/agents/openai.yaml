@@ -2,3 +2,6 @@ interface:
   display_name: "优化 AGENTS.md"
   short_description: "审查并精简 Coding Agent 的仓库指令，修复冲突和过时内容"
   default_prompt: "使用 $improve-agents-md 审查并优化此仓库的 AGENTS.md。"
+
+policy:
+  allow_implicit_invocation: false

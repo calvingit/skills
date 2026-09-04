@@ -1,6 +1,6 @@
 ---
 name: context-audit
-description: "检查 Agent 上下文中的规则、提示词、Skills、Memory、工具说明和引用资料是否重复、冲突、过时或放错位置。"
+description: "审查 Agent 上下文中的重复、冲突、过时内容和职责错位。"
 ---
 
 # 上下文审查

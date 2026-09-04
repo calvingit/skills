@@ -1,6 +1,6 @@
 ---
 name: improve-agents-md
-description: 创建、审查或优化仓库的 AGENTS.md，为 Coding Agent 提供简洁、准确、可验证且不绑定单一工具的项目说明；适用于新建或精简 AGENTS.md、修复过时或冲突的规则、记录仓库特有的长期约定，以及让 Codex、Claude Code、GitHub Copilot 等工具共用一份说明。
+description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。
 ---
 
 # 优化 AGENTS.md

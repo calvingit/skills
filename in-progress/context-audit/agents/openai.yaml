@@ -1,0 +1,7 @@
+interface:
+  display_name: "上下文审查"
+  short_description: "检查 Agent 上下文中的重复、冲突、过时内容和职责错位"
+  default_prompt: "使用 $context-audit 审查当前 Agent 上下文的组织和指令职责。"
+
+policy:
+  allow_implicit_invocation: false
