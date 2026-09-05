@@ -10,7 +10,6 @@ import sys
 import tempfile
 import threading
 import uuid
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
@@ -257,14 +256,13 @@ def _workspace_revision(workspace_root: Path) -> str | None:
 def _commit_ticket_changes(
     workspace_root: Path,
     ticket: dict[str, Any],
-    changed_paths: set[str],
-    before: dict[str, tuple[str, str | None]],
+    paths: set[str],
 ) -> None:
-    """Commit only clean-baseline paths changed by the accepted ticket."""
-    paths = sorted(path for path in changed_paths if path not in before or before[path][0] == "  ")
-    if not paths:
+    """Commit only paths already attributed to the accepted ticket."""
+    selected_paths = sorted(paths)
+    if not selected_paths:
         return
-    add = subprocess.run(["git", "-C", str(workspace_root), "add", "-A", "--", *paths], capture_output=True, text=True, check=False)
+    add = subprocess.run(["git", "-C", str(workspace_root), "add", "-A", "--", *selected_paths], capture_output=True, text=True, check=False)
     if add.returncode != 0:
         raise RuntimeError(add.stderr.strip() or "git add failed")
     staged = subprocess.run(["git", "-C", str(workspace_root), "diff", "--cached", "--quiet"], check=False)
@@ -274,7 +272,7 @@ def _commit_ticket_changes(
         raise RuntimeError("Unable to inspect staged ticket changes")
     title = str(ticket.get("title") or ticket["id"]).strip()
     commit = subprocess.run(
-        ["git", "-C", str(workspace_root), "commit", "--only", "-m", f"feat(ticket): {ticket['id']} {title}", "--", *paths],
+        ["git", "-C", str(workspace_root), "commit", "--only", "-m", f"feat(ticket): {ticket['id']} {title}", "--", *selected_paths],
         capture_output=True,
         text=True,
         check=False,
@@ -284,26 +282,18 @@ def _commit_ticket_changes(
 
 
 def _git_metadata_fingerprint(workspace_root: Path) -> str | None:
+    """Fingerprint persistent Git state without treating index refreshes as writes."""
     result = subprocess.run(
-        ["git", "-C", str(workspace_root), "rev-parse", "--git-dir"],
+        ["git", "-C", str(workspace_root), "diff", "--cached", "--binary"],
         capture_output=True,
-        text=True,
         check=False,
     )
     if result.returncode != 0:
         return None
-    git_dir = Path(result.stdout.strip())
-    if not git_dir.is_absolute():
-        git_dir = workspace_root / git_dir
     digest = hashlib.sha256()
-    try:
-        for path in sorted(item for item in git_dir.rglob("*") if item.is_file() and "/objects/" not in item.as_posix()):
-            digest.update(path.relative_to(git_dir).as_posix().encode("utf-8", "surrogateescape"))
-            digest.update(b"\0")
-            digest.update(path.read_bytes())
-            digest.update(b"\0")
-    except (OSError, UnicodeError):
-        return None
+    digest.update(result.stdout)
+    head = _workspace_revision(workspace_root) or "<unborn>"
+    digest.update(head.encode("utf-8"))
     return digest.hexdigest()
 
 
@@ -346,6 +336,25 @@ def _changed_paths(before: dict[str, str], after: dict[str, str]) -> list[str]:
 
 def _scope_contains(scope: list[str], path: str) -> bool:
     return any(path == item or path.startswith(item.rstrip("/") + "/") for item in scope)
+
+
+def _excluded_paths(existing_changes: dict[str, Any]) -> set[str]:
+    excluded = existing_changes.get("excluded", [])
+    return {path for path in excluded if isinstance(path, str)} if isinstance(excluded, list) else set()
+
+
+def _ticket_commit_paths(
+    workspace_snapshot: dict[str, tuple[str, str | None]],
+    scope: list[str],
+    existing_changes: dict[str, Any],
+) -> set[str]:
+    """Return all current ticket-owned paths, including earlier repair attempts."""
+    protected = _excluded_paths(existing_changes)
+    return {
+        path
+        for path, (state, _) in workspace_snapshot.items()
+        if state not in {"  ", "!!"} and path not in protected and _scope_contains(scope, path)
+    }
 
 
 def _graph_files(task_dir: Path) -> dict[str, bytes]:
@@ -396,6 +405,20 @@ def _repair_findings(payload: object) -> str:
     return "Capability verification failed."
 
 
+def _provider_blocker(payload: object) -> dict[str, str] | None:
+    if not isinstance(payload, dict):
+        return None
+    category = payload.get("failure_category")
+    if category not in {"environment", "permission", "external"}:
+        return None
+    reason = payload.get("reason")
+    return {
+        "category": category,
+        "reason": reason if isinstance(reason, str) and reason.strip() else "Capability provider failed.",
+        "release_condition": "The provider failure is resolved.",
+    }
+
+
 def reopen_ticket(
     task_dir: Path,
     ticket_id: str,
@@ -443,6 +466,8 @@ def _completion_gate_problem(task_dir: Path, ticket: dict[str, Any], receipt: di
         return _problem("completion_gate_failed", "Every local AC needs passed evidence before complete.")
     if not receipt["verification"] or any(item["exit_code"] != 0 for item in receipt["verification"]):
         return _problem("completion_gate_failed", "All receipt verification commands must exit 0.")
+    if receipt["blocker"] is not None or receipt["simplification"]["result"] not in {"completed", "no_change"}:
+        return _problem("completion_gate_failed", "A completed receipt cannot retain a blocker or blocked simplification.")
     has_hld = (task_dir / "HLD.md").is_file()
     if receipt["review"]["standards"] != "pass" or receipt["review"]["spec"] != "pass" or receipt["review"]["hld"] != ("pass" if has_hld else "not_applicable") or receipt["unverified"]:
         return _problem("completion_gate_failed", "Applicable reviews must pass and unverified must be empty.")
@@ -466,7 +491,14 @@ def _apply_receipt(task_dir: Path, started_ticket: dict[str, Any], started_graph
     return _result("failed", ticket_id, started_graph, attempt=attempt, receipt=receipt, problems=[_problem("worker_outcome_unhandled", "Only a completed receipt with a passing gate or a blocked receipt with a blocker can mutate the graph.")])
 
 
-def _worker_request(task_dir: Path, started_ticket: dict[str, Any], existing_changes: dict[str, list[str]], scope: list[str], agent_instance_id: str) -> dict[str, Any]:
+def _worker_request(
+    task_dir: Path,
+    started_ticket: dict[str, Any],
+    existing_changes: dict[str, list[str]],
+    scope: list[str],
+    agent_instance_id: str,
+    temporary_write_scope: list[str],
+) -> dict[str, Any]:
     dependency_evidence = []
     for dependency_id in started_ticket["dependencies"]:
         dependency = _graph("show", task_dir, dependency_id).get("result", {}).get("ticket", {})
@@ -481,6 +513,7 @@ def _worker_request(task_dir: Path, started_ticket: dict[str, Any], existing_cha
         "dependencies": dependency_evidence,
         "existing_changes": existing_changes,
         "allowed_write_scope": scope,
+        "temporary_write_scope": temporary_write_scope,
     }
 
 
@@ -495,7 +528,8 @@ def dispatch_ready(
     existing_changes: dict[str, list[str]] | None = None,
     allowed_write_scope: list[str] | None = None,
     allowed_write_scopes: dict[str, list[str]] | None = None,
-    commit_on_complete: bool = True,
+    verification_temporary_scope: list[str] | None = None,
+    commit_on_complete: bool = False,
 ) -> list[RuntimeResult]:
     """Dispatch the current frontier serially unless all isolation proofs pass."""
     task_dir = task_dir.resolve()
@@ -525,155 +559,26 @@ def dispatch_ready(
                 baseline=baseline,
                 existing_changes=existing_changes,
                 allowed_write_scope=(allowed_write_scopes or {}).get(active_tickets[0], allowed_write_scope),
+                verification_temporary_scope=verification_temporary_scope,
                 commit_on_complete=commit_on_complete,
             )
         ]
     if not candidates:
         return []
-    # ponytail: shared workspace cannot attribute simultaneous writes to a worker; keep ticket dispatch serial until isolated worktrees exist.
-    parallel = False
-    if not parallel:
-        return [
-            run_ticket(
-                task_dir,
-                worker,
-                ticket_id=item["id"],
-                workspace_root=workspace_root,
-                baseline=baseline,
-                existing_changes=existing_changes,
-                allowed_write_scope=(allowed_write_scopes or {}).get(item["id"], allowed_write_scope),
-                commit_on_complete=commit_on_complete,
-            )
-            for item in candidates
-        ]
-
-    workspace_root = (workspace_root or Path.cwd()).resolve()
-    current_baseline = baseline or _workspace_baseline(workspace_root)
-    current_existing = existing_changes or {"included": [], "excluded": sorted(current_baseline.get("untracked", []))}
-    started: list[tuple[dict[str, Any], int, str, list[str]]] = []
-    for item in candidates[:concurrency_limit]:
-        ticket_id = item["id"]
-        scope = candidate_scopes[ticket_id]
-        result = _graph("show", task_dir, ticket_id)
-        ticket = result.get("result", {}).get("ticket")
-        if not isinstance(ticket, dict):
-            continue
-        started_payload = _graph("start", task_dir, ticket_id, {"baseline": current_baseline, "existing_changes": current_existing, "allowed_write_scope": scope})
-        if started_payload.get("ok"):
-            started_ticket = started_payload["result"]["ticket"]
-            started.append((started_ticket, started_ticket["execution"]["current_attempt"]["number"], uuid.uuid4().hex, scope))
-    if len(started) < 2:
-        results: list[RuntimeResult] = []
-        started_ids = {ticket["id"] for ticket, _, _, _ in started}
-        for ticket, attempt, _, _ in started:
-            blocked = _graph(
-                "block",
-                task_dir,
-                ticket["id"],
-                {
-                    "blocker": {
-                        "category": "environment",
-                        "reason": "Parallel dispatch could not start every selected ticket.",
-                        "release_condition": "The ready frontier can be started again.",
-                    },
-                    "evidence": {},
-                },
-            )
-            results.append(_result("blocked" if blocked.get("ok") else "failed", ticket["id"], blocked.get("graph", {}), attempt=attempt, problems=blocked.get("problems", [])))
-        results.extend(
-            run_ticket(
-                task_dir,
-                worker,
-                ticket_id=item["id"],
-                workspace_root=workspace_root,
-                baseline=current_baseline,
-                existing_changes=current_existing,
-                allowed_write_scope=(allowed_write_scopes or {}).get(item["id"], allowed_write_scope),
-                commit_on_complete=commit_on_complete,
-            )
-            for item in candidates
-            if item["id"] not in started_ids
+    return [
+        run_ticket(
+            task_dir,
+            worker,
+            ticket_id=item["id"],
+            workspace_root=workspace_root,
+            baseline=baseline,
+            existing_changes=existing_changes,
+            allowed_write_scope=(allowed_write_scopes or {}).get(item["id"], allowed_write_scope),
+            verification_temporary_scope=verification_temporary_scope,
+            commit_on_complete=commit_on_complete,
         )
-        return results
-
-    graph_before_worker = _graph_files(task_dir)
-    workspace_before_worker = _workspace_snapshot(workspace_root)
-    revision_before_worker = _workspace_revision(workspace_root)
-    metadata_before_worker = _git_metadata_fingerprint(workspace_root)
-    if metadata_before_worker is None:
-        return [_result("failed", ticket["id"], {}, attempt=attempt, problems=[_problem("workspace_probe_unavailable", "Loop could not fingerprint Git metadata before the worker ran.")]) for ticket, attempt, _, _ in started]
-    requests = {
-        ticket["id"]: _worker_request(task_dir, ticket, current_existing, scope, agent_id)
-        for ticket, _, agent_id, scope in started
-    }
-    receipts: dict[str, dict[str, Any] | None] = {}
-    with ThreadPoolExecutor(max_workers=min(concurrency_limit, len(started))) as executor:
-        futures = {executor.submit(worker, request): ticket_id for ticket_id, request in requests.items()}
-        for future in as_completed(futures):
-            ticket_id = futures[future]
-            try:
-                value = future.result()
-                receipts[ticket_id] = value if isinstance(value, dict) else None
-            except Exception:
-                receipts[ticket_id] = None
-
-    if _graph_files(task_dir) != graph_before_worker or (
-        revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker
-    ) or metadata_before_worker is None or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-        return [_result("failed", ticket["id"], {}, attempt=attempt, problems=[_problem("worker_mutated_graph", "Parallel worker changed SPEC, HLD, or ticket JSON.")]) for ticket, attempt, _, _ in started]
-    if workspace_before_worker is not None:
-        after = _workspace_snapshot(workspace_root) or {}
-        changed = _snapshot_changed(workspace_before_worker, after)
-        if any(sum(_scope_contains(scope, path) for _, _, _, scope in started) != 1 for path in changed):
-            return [_result("failed", ticket["id"], {}, attempt=attempt, problems=[_problem("write_scope_violation", "Parallel worker changed a path without an isolation proof.")]) for ticket, attempt, _, _ in started]
-
-    results: list[RuntimeResult] = []
-    for ticket, attempt, agent_id, _ in started:
-        receipt = receipts.get(ticket["id"])
-        if receipt is None:
-            results.append(_result("failed", ticket["id"], {}, attempt=attempt, problems=[_problem("worker_failed", "Parallel worker did not return a receipt.")]))
-            continue
-        problems = _receipt_problems(receipt, ticket, attempt)
-        if problems:
-            results.append(_result("failed", ticket["id"], {}, attempt=attempt, receipt=receipt, problems=problems))
-            continue
-        try:
-            save_receipt(task_dir, receipt, ticket_id=ticket["id"], attempt=attempt, agent_instance_id=agent_id)
-        except (OSError, ValueError) as exc:
-            results.append(_result("failed", ticket["id"], {}, attempt=attempt, receipt=receipt, problems=[_problem("receipt_artifact_failed", str(exc))]))
-            continue
-        if receipt["outcome"] == "failed":
-            retry = _graph(
-                "retry",
-                task_dir,
-                ticket["id"],
-                {
-                    "expected_attempt": attempt,
-                    "baseline": _workspace_baseline(workspace_root),
-                    "existing_changes": current_existing,
-                    "allowed_write_scope": next(scope for started_ticket, _, _, scope in started if started_ticket["id"] == ticket["id"]),
-                    "findings": _repair_findings(receipt),
-                },
-            )
-            results.append(_result("retry" if retry.get("ok") else "failed", ticket["id"], retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", [])))
-        else:
-            results.append(_apply_receipt(task_dir, ticket, {}, receipt, attempt))
-    if len(started) < len(candidates):
-        results.extend(
-            dispatch_ready(
-                task_dir,
-                worker,
-                concurrency_limit=concurrency_limit,
-                isolation_proof=isolation_proof,
-                workspace_root=workspace_root,
-                baseline=current_baseline,
-                existing_changes=current_existing,
-                allowed_write_scope=allowed_write_scope,
-                allowed_write_scopes=allowed_write_scopes,
-                commit_on_complete=commit_on_complete,
-            )
-        )
-    return results
+        for item in candidates
+    ]
 
 
 def run_ticket(
@@ -695,7 +600,8 @@ def run_ticket(
     cli_heartbeat_file: Path | None = None,
     cli_heartbeat_timeout: float | None = None,
     cli_progress_timeout: float | None = None,
-    commit_on_complete: bool = True,
+    verification_temporary_scope: list[str] | None = None,
+    commit_on_complete: bool = False,
 ) -> RuntimeResult:
     """Run the first ready ticket (or ``ticket_id``) through one serial attempt."""
     task_dir = task_dir.resolve()
@@ -772,8 +678,16 @@ def run_ticket(
         if not isinstance(current_baseline, dict) or not isinstance(current_existing, dict):
             return _result("failed", selected_id, ready.get("graph", {}), problems=[_problem("invalid_persisted_attempt", "The in-progress ticket has no usable persisted baseline or existing-change classification.")])
     else:
-        current_baseline = baseline or _workspace_baseline(workspace_root)
-        current_existing = existing_changes or {"included": [], "excluded": sorted(current_baseline.get("untracked", []))}
+        workspace_baseline = _workspace_baseline(workspace_root)
+        current_baseline = baseline or workspace_baseline
+        current_existing = existing_changes or {
+            "included": [],
+            "excluded": sorted(
+                set(workspace_baseline.get("staged", []))
+                | set(workspace_baseline.get("unstaged", []))
+                | set(workspace_baseline.get("untracked", []))
+            ),
+        }
     if resuming:
         started = _graph("show", task_dir, selected_id)
         started_ticket = started.get("result", {}).get("ticket")
@@ -790,6 +704,7 @@ def run_ticket(
             return _result("blocked", selected_id, started.get("graph", {}), problems=started.get("problems", []))
         started_ticket = started["result"]["ticket"]
     attempt = started_ticket["execution"]["current_attempt"]["number"]
+    protected_existing = _excluded_paths(current_existing)
     graph_before_worker = _graph_files(task_dir)
     workspace_before_worker = _workspace_snapshot(workspace_root)
     if workspace_before_worker is None:
@@ -799,7 +714,8 @@ def run_ticket(
     if metadata_before_worker is None:
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("workspace_probe_unavailable", "Loop could not fingerprint Git metadata before the worker ran.")])
     agent_instance_id = uuid.uuid4().hex
-    worker_request = _worker_request(task_dir, started_ticket, current_existing, scope, agent_instance_id)
+    temporary_scope = verification_temporary_scope if verification_temporary_scope is not None else [".loop/tmp/"]
+    worker_request = _worker_request(task_dir, started_ticket, current_existing, scope, agent_instance_id, temporary_scope)
     runtime_artifact_paths: set[str] = set()
     try:
         if adapter is not None:
@@ -816,7 +732,13 @@ def run_ticket(
                         raise ValueError("Worker changed the Git HEAD; Loop workers must not commit or rewrite history.")
                     if checkpoint_status is not None and current_status is not None:
                         changed = [path for path in _snapshot_changed(checkpoint_status, current_status) if path not in runtime_artifact_paths]
-                        violations = scope_violations(capability_result.capability, scope if capability_result.capability == "implement" else [], changed)
+                        violations = scope_violations(
+                            capability_result.capability,
+                            scope if capability_result.capability == "implement" else [],
+                            changed,
+                            protected_paths=protected_existing,
+                            temporary_paths=temporary_scope,
+                        )
                         if violations:
                             raise ValueError(f"{capability_result.capability} changed paths outside its scope: {', '.join(violations)}")
                     artifact_path = save_capability_receipt(task_dir, ticket_id=selected_id, attempt=attempt, capability=capability_result.capability, payload=capability_result.payload, agent_instance_id=capability_result.agent_instance_id)
@@ -861,6 +783,10 @@ def run_ticket(
                 blocked_result = _graph("block", task_dir, selected_id, {"blocker": blocker, "evidence": {}})
                 return _result("blocked" if blocked_result.get("ok") else "failed", selected_id, blocked_result.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked_result.get("problems", []))
             if failed is not None:
+                provider_blocker = _provider_blocker(failed.get("payload"))
+                if provider_blocker is not None:
+                    blocked_result = _graph("block", task_dir, selected_id, {"blocker": provider_blocker, "evidence": {}})
+                    return _result("blocked" if blocked_result.get("ok") else "failed", selected_id, blocked_result.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked_result.get("problems", []))
                 findings = _repair_findings(failed.get("payload"))
                 retry = _graph("retry", task_dir, selected_id, {"expected_attempt": attempt, "baseline": _workspace_baseline(workspace_root), "existing_changes": current_existing, "allowed_write_scope": scope, "findings": findings})
                 if not retry.get("ok") and adapter_session is not None:
@@ -895,7 +821,15 @@ def run_ticket(
     changed = _snapshot_changed(workspace_before_worker, workspace_after_worker)
     if adapter is not None:
         changed -= runtime_artifact_paths
-    out_of_scope = sorted(path for path in changed if not _scope_contains(scope, path))
+    out_of_scope = sorted(
+        path
+        for path in changed
+        if path in protected_existing
+        or (
+            not _scope_contains(scope, path)
+            and not any(path == item.rstrip("/") or path.startswith(item.rstrip("/") + "/") for item in temporary_scope)
+        )
+    )
     if out_of_scope:
         if adapter_session is not None:
             adapter.close_session(adapter_session)
@@ -906,6 +840,10 @@ def run_ticket(
             adapter.close_session(adapter_session)
         return _result("interrupted", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt)
     if receipt["outcome"] == "failed":
+        provider_blocker = _provider_blocker(receipt.get("blocker"))
+        if provider_blocker is not None:
+            blocked = _graph("block", task_dir, selected_id, {"blocker": provider_blocker, "evidence": {}})
+            return _result("blocked" if blocked.get("ok") else "failed", selected_id, blocked.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked.get("problems", []))
         findings = _repair_findings(receipt)
         retry = _graph("retry", task_dir, selected_id, {"expected_attempt": attempt, "baseline": _workspace_baseline(workspace_root), "existing_changes": current_existing, "allowed_write_scope": scope, "findings": findings})
         return _result("retry" if retry.get("ok") else "failed", selected_id, retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", []))
@@ -919,7 +857,11 @@ def run_ticket(
 
     if commit_on_complete and receipt["outcome"] == "completed" and _completion_gate_problem(task_dir, started_ticket, receipt) is None:
         try:
-            _commit_ticket_changes(workspace_root, started_ticket, changed, workspace_before_worker)
+            _commit_ticket_changes(
+                workspace_root,
+                started_ticket,
+                _ticket_commit_paths(workspace_after_worker, scope, current_existing),
+            )
         except RuntimeError as exc:
             if adapter_session is not None:
                 adapter.close_session(adapter_session)

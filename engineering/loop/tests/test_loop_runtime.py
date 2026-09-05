@@ -445,6 +445,48 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "show", "--format=", "--name-only", "HEAD"], capture_output=True, text=True, check=True).stdout.strip(), "src/delivery.py")
         self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "diff", "--cached", "--name-only"], capture_output=True, text=True, check=True).stdout.strip(), "unrelated.txt")
 
+    def test_default_classification_protects_pre_existing_unstaged_files(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        (self.task_dir / "src").mkdir()
+        existing = self.task_dir / "src" / "existing.py"
+        existing.write_text("baseline\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+        existing.write_text("user edit\n", encoding="utf-8")
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            existing.write_text("worker overwrite\n", encoding="utf-8")
+            return receipt()
+
+        result = run_ticket(self.task_dir, worker, workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=True)
+
+        self.assertEqual(result.outcome, "failed")
+        self.assertIn("write_scope_violation", {item["code"] for item in result.problems})
+
+    def test_default_classification_never_commits_pre_existing_unstaged_files(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        (self.task_dir / "src").mkdir()
+        existing = self.task_dir / "src" / "existing.py"
+        existing.write_text("baseline\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+        existing.write_text("user edit\n", encoding="utf-8")
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            (self.task_dir / "src" / "delivery.py").write_text("value = 1\n", encoding="utf-8")
+            return receipt()
+
+        result = run_ticket(self.task_dir, worker, workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=True)
+
+        self.assertEqual(result.outcome, "completed")
+        committed = subprocess.run(["git", "-C", str(self.task_dir), "show", "--format=", "--name-only", "HEAD"], capture_output=True, text=True, check=True).stdout.split()
+        self.assertEqual(committed, ["src/delivery.py"])
+        self.assertEqual(existing.read_text(encoding="utf-8"), "user edit\n")
+
     def test_worker_commit_then_failure_is_rejected(self) -> None:
         subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
         subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
@@ -493,6 +535,152 @@ class LoopRuntimeTests(unittest.TestCase):
 
         self.assertEqual(result.outcome, "failed")
         self.assertIn("write_scope_violation", {item["code"] for item in result.problems})
+
+    def test_worker_cannot_overwrite_an_excluded_file_inside_its_scope(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        (self.task_dir / "src").mkdir()
+        protected = self.task_dir / "src" / "existing.py"
+        protected.write_text("baseline\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+        protected.write_text("user edit\n", encoding="utf-8")
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            protected.write_text("worker overwrite\n", encoding="utf-8")
+            return receipt()
+
+        result = run_ticket(
+            self.task_dir,
+            worker,
+            workspace_root=self.task_dir,
+            allowed_write_scope=["src/"],
+            existing_changes={"included": [], "excluded": ["src/existing.py"]},
+            commit_on_complete=False,
+        )
+
+        self.assertEqual(result.outcome, "failed")
+        self.assertIn("write_scope_violation", {item["code"] for item in result.problems})
+
+    def test_git_status_does_not_look_like_a_worker_history_change(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            (self.task_dir / "src").mkdir()
+            (self.task_dir / "src" / "delivery.py").write_text("value = 1\n", encoding="utf-8")
+            subprocess.run(["git", "-C", str(self.task_dir), "status", "--porcelain"], capture_output=True, check=True)
+            return receipt()
+
+        result = run_ticket(self.task_dir, worker, workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=False)
+
+        self.assertEqual(result.outcome, "completed")
+
+    def test_completion_rejects_a_blocked_simplification_or_blocker(self) -> None:
+        result = run_ticket(
+            self.task_dir,
+            lambda request: receipt(
+                simplification={"result": "blocked"},
+                blocker={
+                    "category": "environment",
+                    "reason": "Simplification cannot run.",
+                    "release_condition": "The required tool is available.",
+                },
+            ),
+            allowed_write_scope=["src/"],
+            baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []},
+        )
+
+        self.assertEqual(result.outcome, "failed")
+        self.assertIn("completion_gate_failed", {item["code"] for item in result.problems})
+
+    def test_retry_commit_includes_the_first_attempt_delivery(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        (self.task_dir / "src").mkdir()
+        source = self.task_dir / "src" / "delivery.py"
+        source.write_text("baseline\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+
+        def first_attempt(request: dict[str, object]) -> dict[str, object]:
+            source.write_text("first attempt\n", encoding="utf-8")
+            return receipt(outcome="failed")
+
+        first = run_ticket(self.task_dir, first_attempt, workspace_root=self.task_dir, allowed_write_scope=["src/"])
+
+        def repaired_attempt(request: dict[str, object]) -> dict[str, object]:
+            source.write_text("repaired\n", encoding="utf-8")
+            return receipt(current_attempt=2)
+
+        second = run_ticket(self.task_dir, repaired_attempt, ticket_id="T001", workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=True)
+
+        self.assertEqual(first.outcome, "retry")
+        self.assertEqual(second.outcome, "completed")
+        self.assertIn("feat(ticket): T001 Runtime ticket", subprocess.run(["git", "-C", str(self.task_dir), "log", "-1", "--format=%s"], capture_output=True, text=True, check=True).stdout)
+        self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "diff", "--", "src/delivery.py"], capture_output=True, text=True, check=True).stdout, "")
+
+    def test_verify_can_write_only_to_the_explicit_temporary_scope(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        task_dir = self.task_dir
+
+        class Backend:
+            def create(self, capability: str, bundle: dict[str, object]) -> str: return capability
+            def send(self, handle: str, bundle: dict[str, object]) -> None: return None
+            def wait(self, handle: str) -> dict[str, object]:
+                if handle == "implement": return {"outcome": "completed", "payload": {"simplification": {"result": "no_change"}}}
+                if handle == "verify":
+                    (task_dir / ".loop" / "tmp").mkdir(parents=True)
+                    (task_dir / ".loop" / "tmp" / "test-cache").write_text("cache\n", encoding="utf-8")
+                    return {"outcome": "completed", "payload": {"acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "passed"}], "verification": [{"command": "self-check", "exit_code": 0, "summary": "passed"}], "unverified": []}}
+                return {"outcome": "completed", "payload": {"review": {"standards": "pass", "spec": "pass", "hld": "pass"}}}
+            def interrupt(self, handle: str) -> None: return None
+            def close(self, handle: str) -> None: return None
+
+        result = run_ticket(self.task_dir, adapter=CapabilityAdapter(Backend()), workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=False)
+
+        self.assertEqual(result.outcome, "completed")
+
+    def test_plain_worker_may_write_the_default_temporary_scope(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            (self.task_dir / "src").mkdir()
+            (self.task_dir / "src" / "delivery.py").write_text("value = 1\n", encoding="utf-8")
+            cache = self.task_dir / ".loop" / "tmp" / "pytest-cache"
+            cache.mkdir(parents=True)
+            (cache / "state").write_text("cache\n", encoding="utf-8")
+            return receipt()
+
+        result = run_ticket(self.task_dir, worker, workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=True)
+
+        self.assertEqual(result.outcome, "completed")
+        self.assertTrue((self.task_dir / ".loop" / "tmp" / "pytest-cache" / "state").exists())
+        committed = subprocess.run(["git", "-C", str(self.task_dir), "show", "--format=", "--name-only", "HEAD"], capture_output=True, text=True, check=True).stdout.split()
+        self.assertEqual(committed, ["src/delivery.py"])
+
+    def test_provider_failure_blocks_instead_of_opening_a_repair_attempt(self) -> None:
+        class Backend:
+            def create(self, capability: str, bundle: dict[str, object]) -> str: return capability
+            def send(self, handle: str, bundle: dict[str, object]) -> None: return None
+            def wait(self, handle: str) -> dict[str, object]:
+                return {"outcome": "failed", "payload": {"failure_category": "environment", "reason": "Provider authentication failed."}}
+            def interrupt(self, handle: str) -> None: return None
+            def close(self, handle: str) -> None: return None
+
+        result = run_ticket(self.task_dir, adapter=CapabilityAdapter(Backend()), allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
+
+        self.assertEqual(result.outcome, "blocked")
+        self.assertEqual(json.loads((self.task_dir / "tickets" / "T001-runtime.json").read_text(encoding="utf-8"))["execution"]["blocker"]["category"], "environment")
 
     def test_worker_cannot_hide_an_ignored_out_of_scope_file(self) -> None:
         subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)

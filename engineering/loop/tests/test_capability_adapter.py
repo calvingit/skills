@@ -83,6 +83,16 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertEqual(backend.calls[3][2]["allowed_write_scope"], [])
         self.assertEqual(len(backend.closed), 3)
 
+    def test_serial_capabilities_receive_prior_capability_receipts(self) -> None:
+        backend = FakeBackend()
+
+        CapabilityAdapter(backend).run({"ticket": {"id": "T001"}, "attempt": 1})
+
+        verify_bundle = next(bundle for name, capability, bundle in backend.calls if name == "send" and capability == "verify")
+        review_bundle = next(bundle for name, capability, bundle in backend.calls if name == "send" and capability == "review")
+        self.assertEqual(verify_bundle["capability_receipts"]["implement"]["payload"], {"handle": "implement-handle"})
+        self.assertEqual(review_bundle["capability_receipts"]["verify"]["payload"], {"handle": "verify-handle"})
+
     def test_stops_after_a_failed_capability_and_closes_context(self) -> None:
         class FailingBackend(FakeBackend):
             def wait(self, handle: str) -> dict[str, object]:

@@ -72,6 +72,17 @@ class CliBackendTests(unittest.TestCase):
         self.assertEqual(result["outcome"], "failed")
         self.assertIn("normalized capability result", result["payload"]["reason"])
 
+    def test_cli_result_parser_rejects_a_success_payload_from_a_failed_process(self) -> None:
+        result = CliBackend._parse_output('{"outcome":"completed","payload":{"ok":true}}\n', "fatal", 1)
+
+        self.assertEqual(result["outcome"], "failed")
+        self.assertEqual(result["payload"]["failure_category"], "environment")
+
+    def test_cli_result_parser_accepts_one_complete_multiline_json_result(self) -> None:
+        result = CliBackend._parse_output('{\n  "outcome": "completed",\n  "payload": {"ok": true}\n}\n', "", 0)
+
+        self.assertEqual(result, {"outcome": "completed", "payload": {"ok": True}})
+
     def test_cli_raw_output_is_attached_to_task_local_artifact_payload(self) -> None:
         result = CliBackend._with_raw(
             {"outcome": "failed", "payload": {"reason": "provider failed"}},

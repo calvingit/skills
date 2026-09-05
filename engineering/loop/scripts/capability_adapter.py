@@ -107,10 +107,11 @@ class CapabilityAdapter:
         results: list[CapabilityResult] = [implement]
         if implement.outcome != "completed":
             return self._aggregate(results)
+        implementation_bundle = self._with_handoff(bundle, implement)
         parallel = concurrency_limit >= 2 and all((isolation_proof or {}).get(name) is True for name in ("dependencies", "write_scope", "shared_side_effects", "integration_order"))
         if parallel:
             with ThreadPoolExecutor(max_workers=2) as executor:
-                futures = [executor.submit(self._run_one, capability, bundle, ticket["id"], attempt, None, on_event) for capability in ("verify", "review")]
+                futures = [executor.submit(self._run_one, capability, implementation_bundle, ticket["id"], attempt, None, on_event) for capability in ("verify", "review")]
                 try:
                     results.extend(future.result()[0] for future in futures)
                 except Exception:
@@ -120,12 +121,22 @@ class CapabilityAdapter:
                 for result in results[1:]:
                     after_capability(result)
         else:
-            for capability in ("verify", "review"):
-                result, _ = self._run_one(capability, bundle, ticket["id"], attempt, after_capability, on_event)
-                results.append(result)
-                if result.outcome != "completed":
-                    break
+            verify, _ = self._run_one("verify", implementation_bundle, ticket["id"], attempt, after_capability, on_event)
+            results.append(verify)
+            if verify.outcome == "completed":
+                review_bundle = self._with_handoff(implementation_bundle, verify)
+                review, _ = self._run_one("review", review_bundle, ticket["id"], attempt, after_capability, on_event)
+                results.append(review)
         return self._aggregate(results)
+
+    @staticmethod
+    def _with_handoff(bundle: dict[str, Any], result: CapabilityResult) -> dict[str, Any]:
+        handoff = copy.deepcopy(bundle)
+        prior = handoff.setdefault("capability_receipts", {})
+        if not isinstance(prior, dict):
+            raise ValueError("bundle.capability_receipts must be an object")
+        prior[result.capability] = result.as_dict()
+        return handoff
 
     def _run_one(
         self,
@@ -142,8 +153,8 @@ class CapabilityAdapter:
         capability_bundle = copy.deepcopy(bundle)
         capability_bundle["capability"] = capability
         capability_bundle["allowed_write_scope"] = bundle.get("allowed_write_scope", []) if capability == "implement" else []
-        created = handle is None
-        if created:
+        capability_bundle["temporary_write_scope"] = bundle.get("temporary_write_scope", []) if capability != "implement" else []
+        if handle is None:
             handle = self._backend.create(capability, capability_bundle)
         with self._handles_lock:
             self._handles.add(handle)
@@ -198,7 +209,7 @@ class CapabilityAdapter:
             "landed_changes": implement.get("landed_changes", []),
             "acceptance_evidence": verify.get("acceptance_evidence", []),
             "verification": verify.get("verification", []),
-            "simplification": implement.get("simplification", {"result": "no_change"}),
+            "simplification": implement.get("simplification", {"result": "blocked"}),
             "review": review.get("review", {"standards": "failed", "spec": "failed", "hld": "not_applicable"}),
             "blocker": None,
             "unverified": verify.get("unverified", []),

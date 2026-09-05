@@ -209,7 +209,10 @@ class CliBackend:
             return self._with_raw(
                 {
                     "outcome": "failed",
-                    "payload": {"reason": f"{self.provider} did not expose an explicit session id."},
+                    "payload": {
+                        "failure_category": "environment",
+                        "reason": f"{self.provider} did not expose an explicit session id.",
+                    },
                 },
                 stdout,
                 stderr,
@@ -270,14 +273,31 @@ class CliBackend:
 
     @staticmethod
     def _parse_output(stdout: str, stderr: str, returncode: int | None) -> dict[str, Any]:
+        if returncode not in {0, None}:
+            return {
+                "outcome": "failed",
+                "payload": {
+                    "failure_category": "environment",
+                    "reason": f"CLI exited with status {returncode}.",
+                    "stdout": stdout[-2000:],
+                    "stderr": stderr[-2000:],
+                },
+            }
         events: list[dict[str, Any]] = []
-        for line in stdout.splitlines():
-            try:
-                value = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if isinstance(value, dict):
-                events.append(value)
+        try:
+            value = json.loads(stdout)
+        except json.JSONDecodeError:
+            value = None
+        if isinstance(value, dict):
+            events.append(value)
+        else:
+            for line in stdout.splitlines():
+                try:
+                    value = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(value, dict):
+                    events.append(value)
         for event in reversed(events):
             outcome = event.get("outcome")
             payload = event.get("payload")
@@ -299,20 +319,12 @@ class CliBackend:
             decoded = _find_normalized_value(event)
             if decoded is not None:
                 return {"outcome": decoded["outcome"], "payload": decoded.get("payload", decoded)}
-        if returncode == 0:
-            return {
-                "outcome": "failed",
-                "payload": {
-                    "reason": "CLI completed without a normalized capability result.",
-                    "stdout": stdout[-4000:],
-                },
-            }
         return {
             "outcome": "failed",
             "payload": {
-                "reason": f"CLI exited with status {returncode}.",
-                "stdout": stdout[-2000:],
-                "stderr": stderr[-2000:],
+                "failure_category": "environment",
+                "reason": "CLI completed without a normalized capability result.",
+                "stdout": stdout[-4000:],
             },
         }
 
