@@ -430,6 +430,8 @@ class LoopRuntimeTests(unittest.TestCase):
         subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
         subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
         subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+        (self.task_dir / "unrelated.txt").write_text("keep staged\n", encoding="utf-8")
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "unrelated.txt"], check=True)
 
         def worker(request: dict[str, object]) -> dict[str, object]:
             (self.task_dir / "src").mkdir()
@@ -441,6 +443,7 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(result.outcome, "completed")
         self.assertIn("feat(ticket): T001 Runtime ticket", subprocess.run(["git", "-C", str(self.task_dir), "log", "-1", "--format=%s"], capture_output=True, text=True, check=True).stdout)
         self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "show", "--format=", "--name-only", "HEAD"], capture_output=True, text=True, check=True).stdout.strip(), "src/delivery.py")
+        self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "diff", "--cached", "--name-only"], capture_output=True, text=True, check=True).stdout.strip(), "unrelated.txt")
 
     def test_worker_commit_then_failure_is_rejected(self) -> None:
         subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
