@@ -101,7 +101,7 @@ Workflow 决定当前阶段及其交付物。不要机械地从第一个 Skill �
 | 目标明确，但关键技术路径仍存在技术迷雾，且需要跨会话探索 | `wayfinding` | `MAP.md` 与 `decisions/` |
 | 需求或 Map 已收敛，或已有 SPEC 需要吸收需求变更 | `to-spec` | 创建或修订同一份 `SPEC.md` |
 | 已确认 SPEC 存在多处实现需要共同遵守的设计约定，需要概要设计或修订 | `high-level-design` | 创建或修订同一份 `HLD.md` |
-| 已有 SPEC 与适用 HLD，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.md` |
+| 已有 SPEC 与适用 HLD，但需要拆成多个可独立领取的执行单元 | `to-tickets` | `tickets/*.json` |
 | 已有无需执行图的单一 SPEC | `quick-implement` | 已实现、验证并审查的单次交付 |
 
 `grilling` 解决“需求或决策未定”，并在同一 Design Tree 中编排 `domain-modeling`，不另开第二套访谈。`wayfinding` 解决“目标大体明确，但技术路线仍需持续探索”。`to-spec` 只建立需求规范并分别判断概要设计路径与执行路径：多处实现需要共同遵守设计约束时先进入 `high-level-design`；ticket 数量不是 HLD 条件。HLD 主动搜索当前代码库的相似实现、调用方和架构约束，优先 `Reuse` / `Extend`，只有现有结构无法满足 SPEC 时才采用 `New` / `Replace`。单一范围任务交给 `quick-implement`；需要多个实现任务、依赖关系或统一调度时，由 `to-tickets` 创建执行图。只要执行图已经存在，无论一张还是多张 active ticket，都由 `loop` 执行。
@@ -129,6 +129,8 @@ Engineering Discipline 提供某个阶段需要的工程判断，可以与 Workf
 | `loop` | 已有 ticket 执行图，需要持续确定当前可执行任务、执行工作单元、聚合证据，并在完成前执行整体交付审查时使用 |
 
 `loop` 不是普通重试器，也不管理 conversation 或 session 生命周期。运行时上下文续接状态与 ticket 交付状态相互独立。
+
+`execution-graph` 是 `to-tickets` 与 `loop` 共同消费的内部 Module，不是独立 workflow Skill。它拥有 JSON ticket schema、CLI、graph invariants、transaction、recovery 和 migration；`to-tickets` 仍拥有拆票/确认/reconciliation intent，`loop` 仍拥有 workspace evidence、worker coordination 与交付审查判断。
 
 `quick-implement` 负责无需 graph 的单次 SPEC 实现。`loop` 是 ticket graph 在正常执行期间的唯一写入者，并按自包含的内部 `references/ticket-worker.md` 协议执行每张 ticket；worker 不作为独立 Skill 暴露，也不修改 graph。当前 workspace 由调用方或 Agent Runtime 提供，Engineering Skills 不创建、切换或管理执行环境。
 
@@ -160,14 +162,14 @@ Engineering workflow
 | 决策探索 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些事实和选择必须先解决？ | 直接描述实现步骤或交付代码 |
 | 需求规范 | `SPEC.md` | `to-spec` | 最终要构建什么、范围是什么、如何验收？ | 派生概要设计、ticket 拆分或执行状态 |
 | 概要设计 | `HLD.md` | `high-level-design` | 如何基于现有代码库，以最小架构偏离统一模块职责、共享设计约束与集成约束？ | 改写需求、无关重构、ticket 拆分或局部详细设计 |
-| 执行图 | `tickets/*.md` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC/HLD |
-| 执行证据 | ticket 状态、验收勾选、worker 执行回执、整体交付审查回执 | `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或运行时上下文续接状态 |
+| 执行图 | `tickets/*.json` | `to-tickets` | 工作如何拆成独立执行单元、哪些 ticket 真正互相阻塞？ | 改写 SPEC/HLD |
+| 执行证据 | ticket lifecycle/evidence/current attempt、JSON worker receipt、整体交付审查回执 | `loop` | 当前做到哪里、下一步能做什么、依据是什么？ | 改写决策、范围、需求契约或运行时上下文续接状态 |
 
 `SPEC.md` 是唯一的规范性需求来源，`HLD.md` 如存在是当前交付概要技术设计的最终依据，`tickets/` 是唯一的执行图。`wayfinding` 的决策任务与 `to-tickets` 的交付任务不是一类工作：影响需求、公开约定或验收的决定必须先进入 SPEC；SPEC 已确认后的纯技术决定可以进入 HLD，但若反过来改变需求仍须回到 `to-spec`。
 
 外部 PRD 是上游 requirement authority，不是 Engineering execution artifact。`project-setup` 只持久化其稳定模式和项目内访问说明；`to-spec` 负责把当前已确认快照编译为本地规范。`grilling`、`wayfinding` 用该配置识别必须由用户补充的 requirement gap；`high-level-design`、`to-tickets`、`quick-implement`、`loop` 和 `code-review` 不直接解释外部需求来源。
 
-运行时上下文续接状态不属于执行图，不能替代 ticket Status、acceptance evidence 或当前可执行任务。
+运行时上下文续接状态不属于执行图，不能替代 ticket lifecycle、current evidence 或当前可执行任务。
 
 点击图示可打开交互式 HTML 预览。
 
@@ -175,11 +177,11 @@ Engineering workflow
 
 ### 本地 ticket 生命周期
 
-`to-tickets` 在 `SPEC.md` 同级创建 `tickets/`。每张 ticket 都是一个可独立验收的端到端交付任务，其中包含 `Specification`、可选 `High-Level Design`、`What to build`、`Constraints`、`Acceptance criteria`、`Blocked by`、`Execution evidence`、`Execution blocker` 和 `Status`。没有 blocker 的 ticket 初始为 `ready`；存在未完成 blocker 的 ticket 初始为 `blocked`。`superseded` 表示 ticket 因已确认的 SPEC/HLD amendment 不再属于当前 graph；它保留历史 evidence，但不进入 frontier 或提供当前验收覆盖。
+`to-tickets` 在 `SPEC.md` 同级通过 `create-batch` 创建 `tickets/*.json`。每张 ticket 都是一个可独立验收的端到端交付任务，包含 immutable ID、上游 R/AC/D 引用、交付描述、constraints、ticket-local Acceptance Criteria、dependencies、lifecycle 和 execution facts。持久 lifecycle 只有 `open`、`in_progress`、`done`、`superseded`；`ready`/`blocked` 由 dependencies 和 execution blocker 动态计算。`superseded` 表示 ticket 因已确认的 SPEC/HLD amendment 不再属于当前 graph；它保留历史 evidence 和 replacement lineage，但不进入 frontier 或提供当前验收覆盖。
 
 [![本地 Ticket 生命周期](./docs/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/ticket-lifecycle.html)
 
-执行时，`loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、验收勾选、Execution evidence 和 Execution blocker，并且只在 SPEC/HLD 均未变、整体交付审查发现原 contract 内缺陷时执行 `done → ready`。ticket worker 只返回已实现改动与 receipt，不写 graph。上游变化由 `to-tickets` 保留仍有效的 evidence，并创建 amendment/correction/migration/replacement ticket 或必要的 supersession；不能直接用 `done → ready` 表达。需求契约缺口回到 `to-spec`，概要设计缺口回到 `high-level-design`，graph 缺口回到 `to-tickets`。
+执行时，`loop` 通过 `inspect`、`list`、`show` 查询 graph，并通过 `start`、`block`、`unblock`、`complete`、`reopen` 管理 execution facts。只有 `open` ticket 才有动态 readiness；`complete` 要求每个 ticket-local AC 都有 Loop 核验的 passed evidence、验证成功、适用 reviews 通过且无 unverified scope。ticket worker 只返回 JSON receipt，不写 graph。上游变化由 `to-tickets` 通过 `reconcile-batch` 保留有效 evidence、创建 replacement/correction/migration ticket、写入 supersession lineage 并重连 dependencies；不能用 `reopen` 表达。需求契约缺口回到 `to-spec`，概要设计缺口回到 `high-level-design`，graph 缺口回到 `to-tickets`。
 
 ### 执行约束
 

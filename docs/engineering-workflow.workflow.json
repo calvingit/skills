@@ -50,8 +50,8 @@
     { "id": "high_level_design", "lane": "design", "col": 5, "type": "backend", "label": "high-level-design", "sublabel": "HLD.md（需要时）", "width": 124 },
     { "id": "execution_check", "lane": "execution", "col": 3, "type": "security", "label": "需要 execution graph？", "sublabel": "单一任务或多执行单元", "tag": "DECISION", "width": 158 },
     { "id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "单次实现与验证", "width": 112, "yOffset": -70 },
-    { "id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.md", "yOffset": 70 },
-    { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop + ticket-worker", "sublabel": "frontier · evidence · review", "width": 146, "yOffset": 70 },
+    { "id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.json", "yOffset": 70 },
+    { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop + ticket-worker", "sublabel": "CLI graph · evidence · review", "width": 146, "yOffset": 70 },
     { "id": "delivery", "lane": "execution", "col": 5, "type": "cloud", "label": "verified delivery", "sublabel": "实现、验证与审查完成", "tag": "DONE", "width": 124, "yOffset": -70 }
   ],
   "edges": [

@@ -49,105 +49,44 @@ ticket 应描述结果，不写易过期的文件路径、代码片段或逐步�
 
 已有 tickets 且 SPEC 或 HLD 已确认修订时，先确认 `loop` 已停止受影响的新 dispatch，并已终止或收回仍在写入的对应 worker；`to-tickets` 不自行管理 subagent。然后比较旧/新上游契约及现有 graph：
 
-- 未受影响 ticket 保留 contract、Status 和 evidence。
+- 未受影响 ticket 保留 immutable ID、contract 和 current evidence。
 - HLD design-only amendment 不改变已经满足 SPEC 的历史验收。既有 `done` 行为仍有效但不符合新设计时，保留其需求 evidence，创建明确的 correction/migration ticket 覆盖受影响 D；只有原 delivery contract 整体被替换时才 supersede。
 - SPEC amendment 继续按需求契约变化处理；HLD 不得被用来暗中改变 R/AC。
-- `ready` / `blocked` ticket 尚未产生已实现改动且仍是同一交付边界时，可以原位更新 contract，再按新依赖计算 `ready` / `blocked`；边界已经改变时将旧 ticket 标为 `superseded`，创建 replacement ticket。
-- 受影响的 `in_progress` ticket 必须先由 `loop` 停止 worker 并回收 partial evidence。已经产生已实现改动时，保留原 ticket 与 evidence，将其标为 `superseded`，再创建 replacement/correction ticket；确认尚无已实现改动且交付边界未变时才允许原位更新并重算状态。
+- 尚未开始的 `open` ticket 在交付边界不变时可由 reconciliation 原位更新 contract；边界已经改变时将旧 ticket 标为 `superseded`，创建 replacement ticket。`ready` / `blocked` 是动态 projection，不是可直接写入的 lifecycle。
+- 受影响的 `in_progress` ticket 必须先由 `loop` 停止 worker 并回收 partial receipt。已经产生已实现改动时，保留原 ticket 与 evidence，将其标为 `superseded`，再创建 replacement/correction ticket；确认尚无已实现改动且交付边界未变时才允许原位更新。
 - `done` ticket 的既有 contract 与已实现行为对当前 SPEC 仍完全有效时保持 `done`。只需追加行为时保留原 ticket，另建 amendment ticket；原行为需要修改、替换或撤销时将旧 ticket 标为 `superseded`，并创建 replacement/correction ticket。
 - 新端到端交付任务创建新 ticket。移除的需求若已有已实现行为，创建明确的 removal/correction ticket；不得只删除旧 ticket 或 evidence。
 
-上游契约变更不得把既有 `done` ticket 直接恢复为 `ready`。`done → ready` 只表示 SPEC/HLD 均未变、整体交付审查发现原 ticket 没有正确满足原 contract。SPEC 或 HLD amendment 必须保留仍有效的 evidence，并用 amendment/correction/migration/replacement ticket 或必要的 `superseded` 表达变化。
+上游契约变更不得把既有 `done` ticket 直接 `reopen`。`done → open` 只表示 SPEC/HLD 均未变、整体交付审查发现原 ticket 没有正确满足原 contract。SPEC 或 HLD amendment 必须保留仍有效的 evidence，并用 amendment/correction/migration/replacement ticket 或必要的 `superseded` 表达变化。
 
-向用户展示 impact plan 并确认后再写入。随后重算所有阻塞依赖、Status 与当前可执行任务；任何指向 `superseded` ticket 的依赖都必须删除、替换或重连，确保没有悬空引用或 dependency cycle。active worker 仍在写入同一 ticket 时必须停止同步，交回 `loop` 处理其 lifecycle。
+向用户展示 impact plan 并确认后再调用 `reconcile-batch`。CLI 验证所有 dependencies、lineage、coverage 与 current lifecycle，并重新计算 readiness；任何指向 `superseded` ticket 的依赖都必须删除、替换或重连，确保没有悬空引用或 dependency cycle。active worker 仍在写入同一 ticket 时必须停止同步，交回 `loop` 处理其 lifecycle。
 
-`superseded` 是 terminal、non-active 状态：不进入 frontier，不作为当前 SPEC 的验收覆盖，也不等同于失败。保留原 ticket 的 acceptance 勾选、receipt 和 evidence，将既有 Status 值更新为 `superseded`，并追加 `Superseded by` 与 `Supersession reason`；没有 replacement 时将 `Superseded by` 写为 `None` 并说明原因。
+`superseded` 是 terminal、non-active lifecycle：不进入 frontier，不作为当前 SPEC 的验收覆盖，也不等同于失败。保留原 ticket 的 evidence，并写入 supersession reason 与 nullable replacement lineage。
 
 ## 写入本地 tickets
 
-使用本地 Markdown。`to-tickets` 在 `SPEC.md` 所在任务目录下创建 `tickets/`，按 dependency order 从 `01` 编号，一个 ticket 一个文件：
+`tickets/*.json` 是唯一 execution graph。`to-tickets` 不直接写 JSON 文件、不扫描最大 ID，也不维护 readiness、checkbox 或 evidence。它先向用户确认候选 tickets，再构造 `create-batch` JSON request：每项提供临时 key、title、covers、适用 D IDs、what to build、constraints、ticket-local Acceptance Criteria 和以临时 key 表达的真实 dependencies。
 
-```text
-SPEC.md
-tickets/
-  01-<ticket>.md
-  02-<ticket>.md
+确认后通过统一 CLI 写入：
+
+```bash
+python3 <execution-graph-dir>/scripts/ticket_graph.py create-batch <task-dir> --input <request.json>
 ```
 
-```markdown
-# 01 — <Ticket title>
+CLI 分配不可变 `T001` 式 ID、解析批次内 dependencies、写入初始 `open` lifecycle/空 execution facts，并返回 key/ID/path mapping 与完整 graph projection。Ticket document 的 schema、filename slug、证据、blocker、current attempt、supersession lineage 与动态 readiness 均由 graph tool 拥有；不得在 Skill 中维护第二份 JSON template。
 
-## Specification
+同一 ticket 内的 AC ID 必须唯一；其完整 evidence identity 是 ticket ID 加 local AC ID。ticket 通过 `covers.requirements`、`covers.spec_acceptance` 和 `design_decisions` 引用上游 contract，而不复制 SPEC/HLD 描述。普通 delivery ticket 必须覆盖至少一个当前 R 或 SPEC AC；design-only correction/migration 至少引用一个 D ID。
 
-- [SPEC.md](../SPEC.md)
+初次 graph 创建后，`to-tickets` 报告 CLI 计算的 frontier、blocked reasons、ID/path mapping、适用 D IDs 与未验证项。只要 execution graph 已存在，无论 active ticket 是一张还是多张，都调用 `loop`；没有 graph 的单一 SPEC/HLD 才使用 `quick-implement`。
 
-## What to build
+## 同步 amendment
 
-<从用户或调用方视角描述该 ticket 独立交付的端到端行为。>
+SPEC/HLD amendment 已确认且 Loop 已停止受影响 worker 后，`to-tickets` 先形成 impact plan，再通过 `reconcile-batch` 一次提交 contract update、new ticket、supersede 和 dependency replacement。CLI 先在内存构造并验证完整 prospective graph，再以 transaction 提交；不得逐文件修改、直接删除 formal ticket，或用 `reopen` 表达上游 contract 变化。
 
-## High-Level Design
-
-- None | [HLD.md](../HLD.md): D1, D2
-
-## Constraints
-
-- <从 SPEC 派生的、此 ticket 必须保持的边界。>
-
-## Acceptance criteria
-
-- [ ] AC1 — <可独立判定的结果>
-- [ ] AC2 — <可独立判定的结果>
-
-## Blocked by
-
-- None (can start immediately)
-
-## Execution evidence
-
-- Pending
-
-## Execution blocker
-
-- None
-
-## Status
-
-ready
-```
-
-同一 ticket 内的 AC ID 必须唯一。正常执行时，Loop 只把已经核验通过的条目写入 Execution evidence，并与 AC ID 一一对应：
-
-```markdown
-## Execution evidence
-
-- AC1 — passed — `<command>` exited 0 and <observable result>
-- AC2 — passed — <artifact or runtime observation>
-```
-
-`not_verified`、未知 AC ID、重复 evidence ID 或缺少对应 evidence 的 AC 都不能进入 `done`。
-
-ticket 因已确认的 SPEC/HLD amendment 退出当前 graph 时保留原内容和 evidence，将原有 Status 更新为 `superseded`，再追加 lineage：
-
-```markdown
-## Status
-
-superseded
-
-## Superseded by
-
-- [07-<replacement>.md](07-<replacement>.md)
-
-## Supersession reason
-
-<受影响的 R/AC 或 D、上游变化，以及已实现行为是保留、修改还是撤销。>
-```
-
-没有 blocker 的 ticket 初始状态为 `ready`；有未完成 blocker 的 ticket 初始状态为 `blocked`。`Execution evidence` 初始为 `Pending`，`Execution blocker` 初始为 `None`。初次拆分时，`to-tickets` 只写入初始状态；SPEC/HLD amendment 同步时，它按已确认 impact plan 修改受影响 contract、创建 correction/migration/replacement/amendment tickets，并负责必要的 `ready/blocked/in_progress/done → superseded`。正常执行期间由 `loop` 统一负责 `ready → in_progress → done|blocked`、`blocked → ready`、上游契约未变时的 `done → ready`、验收勾选、execution evidence 和 execution blocker。除已确认的 amendment 同步外，不得在执行中静默改写 ticket 契约。
+`superseded` 是 terminal、non-active lifecycle：保留有效 evidence，并包含 reason 与 nullable replacement lineage。未受影响 ticket 保留 ID、contract 和 evidence；done ticket 的有效需求 evidence 不因 design-only amendment 自动失效。没有可用 JSON schema migration 时，显式 `migrate --check` 只报告计划；读取与普通写入都不隐式迁移。
 
 ## Handoff
 
-写入后报告首批可执行任务、每个 ticket 的相对路径、适用的 D IDs，以及尚未解决的阻塞或未验证项。只要已经创建 execution graph，无论 active ticket 是一张还是多张，都调用 `loop` 维护 frontier、执行工作单元并核验 evidence；没有 graph 的单一 SPEC/HLD 才使用 `quick-implement`。
-
-Ticket Status、Acceptance checkboxes、Execution evidence、Execution blocker 和当前可执行任务是 execution graph 的交付状态：`to-tickets` 只在初次拆分或已确认的 SPEC/HLD amendment reconciliation 中写入 graph，正常执行由 `loop` 统一核验和更新。
+`to-tickets` 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。
 
 本 Skill 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。

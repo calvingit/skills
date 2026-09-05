@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/codex/execution-graph/worker-receipt.schema.json",
+  "title": "Loop ticket worker receipt",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "outcome",
+    "ticket_id",
+    "current_attempt",
+    "landed_changes",
+    "acceptance_evidence",
+    "verification",
+    "simplification",
+    "review",
+    "blocker",
+    "unverified"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "outcome": {"enum": ["completed", "blocked", "interrupted", "failed"]},
+    "ticket_id": {"type": "string", "pattern": "^T[0-9]{3,}$"},
+    "current_attempt": {"type": "integer", "minimum": 1},
+    "landed_changes": {"type": "array", "items": {"$ref": "#/$defs/summary"}},
+    "acceptance_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["acceptance_id", "result", "summary"],
+        "properties": {
+          "acceptance_id": {"type": "string", "pattern": "^AC[0-9]+$"},
+          "result": {"enum": ["passed", "not_verified"]},
+          "summary": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "verification": {"type": "array", "items": {"$ref": "#/$defs/verification"}},
+    "simplification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result"],
+      "properties": {"result": {"enum": ["completed", "no_change", "blocked"]}}
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["standards", "spec", "hld"],
+      "properties": {
+        "standards": {"enum": ["pass", "failed"]},
+        "spec": {"enum": ["pass", "failed"]},
+        "hld": {"enum": ["pass", "failed", "not_applicable"]}
+      }
+    },
+    "blocker": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["category", "reason", "release_condition"],
+      "properties": {
+        "category": {"enum": ["requirement", "design", "dependency", "environment", "permission", "external"]},
+        "reason": {"type": "string", "minLength": 1},
+        "release_condition": {"type": "string", "minLength": 1}
+      }
+    },
+    "unverified": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
+  },
+  "$defs": {
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "summary"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1},
+        "summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "exit_code", "summary"],
+      "properties": {
+        "command": {"type": "string", "minLength": 1},
+        "exit_code": {"type": "integer"},
+        "summary": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

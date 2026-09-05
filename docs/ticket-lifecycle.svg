@@ -4845,9 +4845,9 @@
         <path data-edge-from="created" data-edge-to="ready" data-edge-label="无未完成阻塞项" data-edge-key="0" data-edge-id="created_ready" data-composition-points="153,157;189,157" d="M 153 157 L 189 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="created" data-edge-to="blocked" data-edge-key="1" data-edge-id="created_blocked" data-composition-points="94,188;94,224;402,224;402,278" d="M 94 188 L 94 214 Q 94 224 104 224 L 392 224 Q 402 224 402 234 L 402 278" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="blocked" data-edge-to="ready" data-edge-label="阻塞解除" data-edge-key="2" data-edge-id="blocked_ready" data-composition-points="339,307;300,307;300,228;248,228;248,188" d="M 339 307 L 310 307 Q 300 307 300 297 L 300 238 Q 300 228 290 228 L 258 228 Q 248 228 248 218 L 248 188" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="ready" data-edge-to="in_progress" data-edge-label="loop 派发" data-edge-key="3" data-edge-id="ready_progress" data-composition-points="307,157;343,157" d="M 307 157 L 343 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="ready" data-edge-to="in_progress" data-edge-label="start" data-edge-key="3" data-edge-id="ready_progress" data-composition-points="307,157;343,157" d="M 307 157 L 343 157" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与验证证据完整" data-edge-key="4" data-edge-id="progress_done" data-composition-points="461,157;497,157" d="M 461 157 L 497 157" class="a-emphasis" stroke-width="2" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="出现真实阻塞" data-edge-key="5" data-edge-id="progress_blocked" data-composition-points="402,188;402,278" d="M 402 188 L 402 278" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="block → open" data-edge-key="5" data-edge-id="progress_blocked" data-composition-points="402,188;402,278" d="M 402 188 L 402 278" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="done" data-edge-to="ready" data-edge-label="整体交付审查发现问题" data-edge-key="6" data-edge-id="done_ready" data-composition-points="556,126;556,62;248,62;248,126" d="M 556 126 L 556 72 Q 556 62 546 62 L 258 62 Q 248 62 248 72 L 248 126" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="ready" data-edge-to="amendment" data-edge-key="7" data-edge-id="ready_amendment" data-composition-points="248,126;248,38;710,38;710,380;710,278" d="M 248 126 L 248 48 Q 248 38 258 38 L 700 38 Q 710 38 710 48 L 710 370 Q 710 380 710 370 L 710 278" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="blocked" data-edge-to="amendment" data-edge-key="8" data-edge-id="blocked_amendment" data-composition-points="402,336;402,380;710,380;710,336" d="M 402 336 L 402 370 Q 402 380 412 380 L 700 380 Q 710 380 710 370 L 710 336" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
@@ -4856,8 +4856,8 @@
         <path data-edge-from="amendment" data-edge-to="superseded" data-edge-key="11" data-edge-id="amendment_superseded" data-composition-points="710,336;710,450" d="M 710 336 L 710 450" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
 
         <!-- States -->
-        <g id="node-created" data-node-id="created" data-node-label="Ticket 创建" tabindex="0" role="button" aria-label="聚焦Ticket 创建，按阻塞情况选择入口, 执行主路径" aria-pressed="false" data-node-kind="start" data-node-sublabel="按阻塞情况选择入口" data-node-tag="ENTRY" data-node-context="执行主路径">
-          <title>Ticket 创建 · 按阻塞情况选择入口 · 执行主路径 · ENTRY</title>
+        <g id="node-created" data-node-id="created" data-node-label="open" tabindex="0" role="button" aria-label="聚焦open，create-batch 初始 lifecycle, 执行主路径" aria-pressed="false" data-node-kind="start" data-node-sublabel="create-batch 初始 lifecycle" data-node-tag="ENTRY" data-node-context="执行主路径">
+          <title>open · create-batch 初始 lifecycle · 执行主路径 · ENTRY</title>
           <rect x="35" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="35" y="126" width="118" height="62" rx="7" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="start" class="semantic-sigil s-frontend" transform="translate(136 132) scale(0.6875)">
@@ -4865,8 +4865,8 @@
             <path d="m7 5.4 3.6 2.6L7 10.6Z" class="sigil-fill"/>
           </g>
         <text data-detail="fine" x="45" y="140" class="t-frontend" font-size="7" font-weight="700">01</text>
-          <text data-node-label="" data-detail-anchor="" x="94" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">Ticket 创建</text>
-          <text data-detail="context" x="94" y="163" class="t-muted" font-size="7" text-anchor="middle">按阻塞情况选择入口</text>
+          <text data-node-label="" data-detail-anchor="" x="94" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">open</text>
+          <text data-detail="context" x="94" y="163" class="t-muted" font-size="7" text-anchor="middle">create-batch 初始 lifecycle</text>
         <text data-detail="fine" x="94" y="177" class="t-frontend" font-size="7" text-anchor="middle">ENTRY</text>
         </g>
 
@@ -4956,17 +4956,17 @@
           <rect x="294.6" y="233" width="70.80000000000001" height="16" rx="4" class="c-mask"/>
           <text x="330" y="244" class="t-backend" font-size="8" text-anchor="middle">阻塞解除</text>
         </g>
-        <g data-detail="context" data-edge-from="ready" data-edge-to="in_progress" data-edge-label="loop 派发" data-edge-key="3" data-edge-id="ready_progress">
+        <g data-detail="context" data-edge-from="ready" data-edge-to="in_progress" data-edge-label="start" data-edge-key="3" data-edge-id="ready_progress">
           <rect x="296.95" y="101" width="56.1" height="16" rx="4" class="c-mask"/>
-          <text x="325" y="112" class="t-muted" font-size="8" text-anchor="middle">loop 派发</text>
+          <text x="325" y="112" class="t-muted" font-size="8" text-anchor="middle">start</text>
         </g>
         <g data-detail="context" data-edge-from="in_progress" data-edge-to="done" data-edge-label="验收与验证证据完整" data-edge-key="4" data-edge-id="progress_done">
           <rect x="424" y="101" width="110" height="16" rx="4" class="c-mask"/>
           <text x="479" y="112" class="t-backend" font-size="8" text-anchor="middle">验收与验证证据完整</text>
         </g>
-        <g data-detail="context" data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="出现真实阻塞" data-edge-key="5" data-edge-id="progress_blocked">
+        <g data-detail="context" data-edge-from="in_progress" data-edge-to="blocked" data-edge-label="block → open" data-edge-key="5" data-edge-id="progress_blocked">
           <rect x="354.6" y="204" width="70.80000000000001" height="16" rx="4" class="c-mask"/>
-          <text x="390" y="215" class="t-security" font-size="8" text-anchor="middle">出现真实阻塞</text>
+          <text x="390" y="215" class="t-security" font-size="8" text-anchor="middle">block → open</text>
         </g>
         <g data-detail="context" data-edge-from="done" data-edge-to="ready" data-edge-label="整体交付审查发现问题" data-edge-key="6" data-edge-id="done_ready">
           <rect x="332.3" y="63" width="139.4" height="16" rx="4" class="c-mask"/>
