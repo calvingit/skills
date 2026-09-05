@@ -51,7 +51,7 @@ def main(argv: list[str] | None = None) -> int:
             elif name == "--readiness" and value in {"ready", "blocked"}: readiness = value
             else: return argument_failure(operation, f"Unsupported list filter: {name} {value}")
         payload, exit_code = list_tickets(Path(arguments[1]).expanduser().resolve(), phase=phase, readiness=readiness)
-    elif operation in {"start", "block", "unblock", "complete", "reopen"}:
+    elif operation in {"start", "retry", "block", "unblock", "complete", "reopen"}:
         if len(arguments) != 5 or arguments[3] != "--input": return argument_failure(operation, f"Usage: ticket_graph.py {operation} <task-dir> <ticket-id> --input <path|->")
         request, request_problems = read_request(arguments[4])
         if request_problems or request is None:
@@ -71,6 +71,6 @@ def main(argv: list[str] | None = None) -> int:
         if len(arguments) not in {2, 3} or (len(arguments) == 3 and arguments[2] != "--check"): return argument_failure(operation, "Usage: ticket_graph.py migrate <task-dir> [--check]")
         payload, exit_code = migrate_graph(Path(arguments[1]).expanduser().resolve(), check_only=len(arguments) == 3)
     else:
-        return argument_failure(operation, "Supported commands: inspect, list, show, start, block, unblock, complete, reopen, create-batch, reconcile-batch, recover, migrate")
+        return argument_failure(operation, "Supported commands: inspect, list, show, start, retry, block, unblock, complete, reopen, create-batch, reconcile-batch, recover, migrate")
     emit(payload)
     return exit_code

@@ -512,6 +512,22 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(blocked_payload["problems"][0]["code"], "ticket_not_ready")
         self.assertEqual(path.read_bytes(), before)
 
+    def test_start_rejects_an_empty_write_scope(self) -> None:
+        path = self.write_ticket(canonical_ticket())
+        request = self.write_request(
+            {
+                "baseline": {"reference": "snapshot", "staged": [], "unstaged": [], "untracked": []},
+                "existing_changes": {"included": [], "excluded": []},
+                "allowed_write_scope": [],
+            }
+        )
+
+        result, payload = self.run_cli("start", str(self.task_dir), "T001", "--input", str(request))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["lifecycle"]["phase"], "open")
+
     def test_block_and_unblock_preserve_the_execution_boundary(self) -> None:
         ticket = canonical_ticket(
             lifecycle={"phase": "in_progress"},
@@ -573,7 +589,113 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(unblock_result.returncode, 0)
         self.assertIsNone(json.loads(path.read_text(encoding="utf-8"))["execution"]["blocker"])
 
-    def test_block_rejects_dependency_as_an_execution_blocker(self) -> None:
+    def test_retry_increments_attempt_without_leaving_in_progress(self) -> None:
+        ticket = canonical_ticket(
+            lifecycle={"phase": "in_progress"},
+            execution={
+                "attempt_sequence": 1,
+                "evidence": {"AC1": {"result": "passed", "summary": "Old attempt evidence."}},
+                "blocker": None,
+                "current_attempt": {
+                    "number": 1,
+                    "baseline": {"reference": "snapshot-1", "staged": [], "unstaged": [], "untracked": []},
+                    "existing_changes": {"included": [], "excluded": []},
+                    "allowed_write_scope": ["delivery.py"],
+                },
+                "reopen_context": None,
+            },
+        )
+        path = self.write_ticket(ticket)
+        request = self.write_request(
+            {
+                "expected_attempt": 1,
+                "baseline": {"reference": "snapshot-2", "staged": [], "unstaged": [], "untracked": []},
+                "existing_changes": {"included": [], "excluded": []},
+                "allowed_write_scope": ["delivery.py"],
+                "findings": "AC1 failed verification; implement a correction.",
+            }
+        )
+
+        result, payload = self.run_cli("retry", str(self.task_dir), "T001", "--input", str(request))
+
+        self.assertEqual(result.returncode, 0)
+        self.assertTrue(payload["ok"])
+        stored = json.loads(path.read_text(encoding="utf-8"))
+        self.assertEqual(stored["lifecycle"]["phase"], "in_progress")
+        self.assertEqual(stored["execution"]["attempt_sequence"], 2)
+        self.assertEqual(stored["execution"]["evidence"], {})
+        self.assertEqual(stored["execution"]["current_attempt"]["number"], 2)
+        self.assertEqual(stored["execution"]["reopen_context"]["review_finding"], "AC1 failed verification; implement a correction.")
+        self.assertEqual(stored["execution"]["reopen_context"]["invalidated_acceptance"], ["AC1"])
+
+    def test_retry_rejects_a_stale_attempt(self) -> None:
+        ticket = canonical_ticket(
+            lifecycle={"phase": "in_progress"},
+            execution={
+                "attempt_sequence": 2,
+                "evidence": {},
+                "blocker": None,
+                "current_attempt": {
+                    "number": 2,
+                    "baseline": {"reference": "snapshot-2", "staged": [], "unstaged": [], "untracked": []},
+                    "existing_changes": {"included": [], "excluded": []},
+                    "allowed_write_scope": ["delivery.py"],
+                },
+                "reopen_context": None,
+            },
+        )
+        path = self.write_ticket(ticket)
+        request = self.write_request(
+            {
+                "expected_attempt": 1,
+                "baseline": {"reference": "snapshot-3", "staged": [], "unstaged": [], "untracked": []},
+                "existing_changes": {"included": [], "excluded": []},
+                "allowed_write_scope": ["delivery.py"],
+                "findings": "The previous attempt still needs repair.",
+            }
+        )
+
+        result, payload = self.run_cli("retry", str(self.task_dir), "T001", "--input", str(request))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertFalse(payload["ok"])
+        self.assertIn("stale_attempt", {item["code"] for item in payload["problems"]})
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["execution"]["attempt_sequence"], 2)
+
+    def test_retry_rejects_an_empty_write_scope(self) -> None:
+        ticket = canonical_ticket(
+            lifecycle={"phase": "in_progress"},
+            execution={
+                "attempt_sequence": 1,
+                "evidence": {},
+                "blocker": None,
+                "current_attempt": {
+                    "number": 1,
+                    "baseline": {"reference": "snapshot-1", "staged": [], "unstaged": [], "untracked": []},
+                    "existing_changes": {"included": [], "excluded": []},
+                    "allowed_write_scope": ["delivery.py"],
+                },
+                "reopen_context": None,
+            },
+        )
+        path = self.write_ticket(ticket)
+        request = self.write_request(
+            {
+                "expected_attempt": 1,
+                "baseline": {"reference": "snapshot-2", "staged": [], "unstaged": [], "untracked": []},
+                "existing_changes": {"included": [], "excluded": []},
+                "allowed_write_scope": [],
+                "findings": "The implementation needs repair.",
+            }
+        )
+
+        result, payload = self.run_cli("retry", str(self.task_dir), "T001", "--input", str(request))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
+        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["execution"]["attempt_sequence"], 1)
+
+    def test_block_accepts_dependency_as_an_execution_blocker(self) -> None:
         ticket = canonical_ticket(
             lifecycle={"phase": "in_progress"},
             execution={
@@ -600,15 +722,13 @@ class TicketGraphCliTests(unittest.TestCase):
                 "evidence": {},
             }
         )
-        before = path.read_bytes()
-
         result, payload = self.run_cli(
             "block", str(self.task_dir), "T001", "--input", str(request)
         )
 
-        self.assertEqual(result.returncode, 1)
-        self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
-        self.assertEqual(path.read_bytes(), before)
+        self.assertEqual(result.returncode, 0)
+        self.assertTrue(payload["ok"])
+        self.assertEqual(payload["result"]["ticket"]["execution"]["blocker"]["category"], "dependency")
 
     def test_complete_and_reopen_enforce_evidence_and_review_gates(self) -> None:
         ticket = canonical_ticket(

@@ -80,7 +80,7 @@
               "additionalProperties": false,
               "required": ["category", "reason", "release_condition"],
               "properties": {
-                "category": {"enum": ["requirement", "design", "environment", "permission", "external"]},
+                "category": {"enum": ["requirement", "design", "dependency", "environment", "permission", "external"]},
                 "reason": {"type": "string", "minLength": 1},
                 "release_condition": {"type": "string", "minLength": 1}
               }

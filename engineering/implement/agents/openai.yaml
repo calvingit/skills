@@ -1,0 +1,7 @@
+interface:
+  display_name: "Implement"
+  short_description: "在 Loop 分配的写入范围内实现当前 ticket"
+  default_prompt: "使用 $implement 在给定 ticket contract 和 allowed write scope 内完成实现，并返回结构化 capability receipt。"
+
+policy:
+  allow_implicit_invocation: false

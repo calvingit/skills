@@ -16,6 +16,8 @@ def apply_start(ticket, request, by_id):
         return transition_failure(ticket, "ticket_not_ready", "start requires an open ticket with computed ready readiness.")
     issues=validate_shape(request,{"baseline","existing_changes","allowed_write_scope"},path="<request>",ticket_id=ticket["id"],field="")
     if issues: return None,issues
+    if not validate_string_list(request["allowed_write_scope"], require_items=True):
+        return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "start requires a non-empty allowed_write_scope.")]
     candidate=copy.deepcopy(ticket); number=candidate["execution"]["attempt_sequence"]+1
     candidate["lifecycle"]["phase"]="in_progress"; candidate["execution"]["attempt_sequence"]=number
     candidate["execution"]["current_attempt"]={"number":number,"baseline":request["baseline"],"existing_changes":request["existing_changes"],"allowed_write_scope":request["allowed_write_scope"]}
@@ -38,6 +40,41 @@ def apply_unblock(ticket, request):
     if not non_empty_string(request["release_evidence"]): return None,[invalid_field("<request>",ticket["id"],"release_evidence","release_evidence must be a non-empty Loop-approved summary.")]
     candidate=copy.deepcopy(ticket); candidate["execution"]["blocker"]=None
     return candidate,[]
+
+def apply_retry(ticket, request):
+    if ticket["lifecycle"]["phase"] != "in_progress":
+        return transition_failure(ticket, "invalid_transition", "retry requires an in_progress ticket.")
+    issues = validate_shape(request, {"expected_attempt", "baseline", "existing_changes", "allowed_write_scope", "findings"}, path="<request>", ticket_id=ticket["id"], field="")
+    if issues:
+        return None, issues
+    if (
+        not isinstance(request["expected_attempt"], int)
+        or isinstance(request["expected_attempt"], bool)
+        or request["expected_attempt"] != ticket["execution"]["attempt_sequence"]
+    ):
+        return transition_failure(ticket, "stale_attempt", "retry expected_attempt does not match the current attempt.")
+    if not non_empty_string(request["findings"]):
+        return None, [invalid_field("<request>", ticket["id"], "findings", "findings must be non-empty.")]
+    if not validate_string_list(request["allowed_write_scope"], require_items=True):
+        return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "retry requires a non-empty allowed_write_scope.")]
+    candidate = copy.deepcopy(ticket)
+    number = candidate["execution"]["attempt_sequence"] + 1
+    invalidated_acceptance = [item["id"] for item in ticket["acceptance_criteria"]]
+    for acceptance_id in invalidated_acceptance:
+        candidate["execution"]["evidence"].pop(acceptance_id, None)
+    candidate["execution"]["attempt_sequence"] = number
+    candidate["execution"]["current_attempt"] = {
+        "number": number,
+        "baseline": request["baseline"],
+        "existing_changes": request["existing_changes"],
+        "allowed_write_scope": request["allowed_write_scope"],
+    }
+    candidate["execution"]["reopen_context"] = {
+        "review_finding": request["findings"],
+        "invalidated_acceptance": invalidated_acceptance,
+    }
+    issues = validate_ticket(public_ticket(candidate), candidate["_path"])
+    return (None, issues) if issues else (candidate, [])
 
 def apply_complete(ticket, request, *, has_hld):
     if ticket["lifecycle"]["phase"] != "in_progress": return transition_failure(ticket,"invalid_transition","complete requires an in_progress ticket.")
@@ -76,6 +113,7 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
         by_id={t["id"]:t for t in tickets}; ticket=by_id.get(ticket_id)
         if ticket is None:return envelope(operation,ok=False,graph=graph,problems=[problem("graph","unknown_ticket",f"Ticket does not exist: {ticket_id}",ticket_id=ticket_id)]),1
         if operation=="start":candidate,issues=apply_start(ticket,request,by_id)
+        elif operation=="retry":candidate,issues=apply_retry(ticket,request)
         elif operation=="block":candidate,issues=apply_block(ticket,request)
         elif operation=="unblock":candidate,issues=apply_unblock(ticket,request)
         elif operation=="complete":candidate,issues=apply_complete(ticket,request,has_hld=(task_dir/"HLD.md").is_file())

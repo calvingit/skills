@@ -5,15 +5,19 @@ description: "依据 SPEC、可选 HLD 与 JSON ticket 执行图持续执行和�
 
 # Loop
 
-以 `SPEC.md` 为需求规范、任务目录中存在的 `HLD.md` 为概要设计依据、`tickets/*.json` 为唯一 execution graph，在调用方或 Agent Runtime 已经提供的当前 workspace 中持续推进可执行 ticket，直到交付通过整体交付审查或被明确阻塞。Loop 不创建、切换或管理执行环境；协议不依赖特定 Agent、子代理或会话机制。
+以 `SPEC.md` 为需求规范、任务目录中存在的 `HLD.md` 为概要设计依据、`tickets/*.json` 为唯一 execution graph，在调用方或 Agent Runtime 已经提供的当前 workspace 中持续推进可执行 ticket，直到交付通过整体交付审查或被明确阻塞。Loop 不拥有 provider 状态或 graph 以外的持久调度状态，但支持 native `multi-agents`、CLI `multi-threads` 和当前会话 `serial` 三种执行模式。
 
 ## 权威与状态
 
 - 当前 SPEC、存在时的 HLD、active JSON tickets、已落地代码和验证结果共同构成事实来源；worker receipt 不是完成证据。
 - 首次开始时记录 execution graph 基线与既有改动；恢复时从 ticket 的 current attempt、当前 workspace 和可信 receipt 还原审查范围，无法还原时显式记录未覆盖范围。
 - Ticket 持久 lifecycle 只有 `open`、`in_progress`、`done`、`superseded`。`ready` 与 `blocked` 只对 `open` ticket 动态计算：所有 dependencies 为 done 且没有 execution blocker 时为 ready，否则为 blocked。
-- `to-tickets` 只通过 `create-batch` 和 `reconcile-batch` 创建/协调 contract graph。正常执行期间，Loop 只通过 `start`、`block`、`unblock`、`complete`、`reopen` 维护 execution facts 和 lifecycle。
+- `to-tickets` 只通过 `create-batch` 和 `reconcile-batch` 创建/协调 contract graph。正常执行期间，Loop 只通过 `start`、`retry`、`block`、`unblock`、`complete`、`reopen` 维护 execution facts 和 lifecycle。
 - Ticket worker 只修改当前交付代码并返回 versioned JSON receipt；不修改 SPEC、HLD、ticket document 或 sibling tickets。
+- 未指定模式时默认使用 `multi-agents`；用户可以明确声明 `multi-threads [claude|codex|kimi|pi]` 或 `serial`。
+- `multi-agents` 通过 Runtime 的 `spawn_agent`、`send_input`、`wait_agent`、`close_agent` 复用 implement Worker；`multi-threads` 通过 provider CLI 的显式 session/resume 复用 implement session；`serial` 在当前 Manager session 内逐能力执行。
+- `multi-threads` 默认 provider 为 Codex，所有 CLI driver 使用各自的 full-access 参数；full-access 只改变 CLI 权限，不授予 Worker graph ownership。
+- 长任务不使用固定 wall-clock timeout；CLI 等待可由调用方显式提供任务预算，并可结合 heartbeat freshness 与 progress freshness 监控。没有显式预算或失鲜阈值时，保持等待直到 provider 终态或用户取消。
 - 不在此处改写 SPEC/HLD、重新拆票或替上游 owner 作出 contract reconciliation 决定。
 
 ## 检查 execution graph
@@ -40,10 +44,11 @@ python3 <execution-graph-dir>/scripts/ticket_graph.py show <task-dir> <ticket-id
 1. 运行 `inspect`。任何悬空/歧义/superseded dependency、cycle、状态矛盾、缺失 HLD、无效 D 引用、coverage gap 或 unfinished transaction 都先报告并停止错误分支。
 2. 从 `list --readiness ready` 或 inspect frontier 选择 ticket，再用 `show` 读取单票 contract。Loop 不自行全文解析 ticket files。
 3. 先观察当前 workspace 的 staged、unstaged、untracked 文件和既有改动分类，构造包含 baseline、existing changes 与 allowed write scope 的 JSON request，调用 `start`。只有 CLI 确认后才把 ticket 视为 in progress。
-4. 向 worker 提供完整 SPEC、存在时的完整 HLD、show 返回的 ticket/current attempt、依赖 evidence 和允许写入范围。worker 按 [references/ticket-worker.md](references/ticket-worker.md) 返回 JSON receipt。
-5. 根据实际 workspace、相对 persisted baseline 的变化、验证输出和 receipt 独立判断结果，不接受口头完成宣称。所有 ticket-local AC 均有 Loop 核验的 `passed` evidence、验证成功、适用 reviews 通过且无 unverified scope 时，调用 `complete`；遇到非派生阻塞时调用 `block`；解除 blocker 前核验 release evidence 后调用 `unblock`。
-6. 仅当 SPEC/HLD 都未变、整体交付审查发现原 contract 内缺陷时，调用 `reopen` 并给出 review finding、失效 AC IDs 与 upstream unchanged confirmation。SPEC/HLD amendment 必须先停止受影响 worker，再交给 `to-tickets` 通过 `reconcile-batch` 协调 graph。
-7. 重新检查并继续，直到进入完成门或阻塞门。
+4. 按当前 execution mode 创建或复用 worker/session：implement 在 repair attempt 间复用同一 context；verify/review 每个 attempt 创建 fresh context。serial 模式不创建外部 context，只在当前 Manager session 内执行。
+5. 向 worker 提供完整 SPEC、存在时的完整 HLD、show 返回的 ticket/current attempt、依赖 evidence 和允许写入范围。worker 按 [references/ticket-worker.md](references/ticket-worker.md) 返回 JSON receipt。
+6. 根据实际 workspace、相对 persisted baseline 的变化、验证输出和 receipt 独立判断结果，不接受口头完成宣称。所有 ticket-local AC 均有 Loop 核验的 `passed` evidence、验证成功、适用 reviews 通过且无 unverified scope 时，调用 `complete`；verify/review 失败时调用 `retry`；遇到非派生阻塞时调用 `block`；解除 blocker 前核验 release evidence 后调用 `unblock`。
+7. 仅当 SPEC/HLD 都未变、整体交付审查发现原 contract 内缺陷时，调用 `reopen` 并给出 review finding、失效 AC IDs 与 upstream unchanged confirmation。SPEC/HLD amendment 必须先停止受影响 worker，再交给 `to-tickets` 通过 `reconcile-batch` 协调 graph。
+8. 重新检查并继续，直到进入完成门或阻塞门。native spawn 不可用时，默认 multi-agents 降级到 serial 并报告 effective mode；明确选择的 provider CLI 不可用时形成 provider blocker。
 
 默认串行，使后续 ticket 直接基于当前 workspace 中已落地的前序代码继续工作。只有 tickets 无依赖、写入范围和共享副作用均可证明隔离、集成顺序明确且并行确有收益时才并行；并行 worker 仍不得写 graph。
 

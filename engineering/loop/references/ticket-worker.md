@@ -6,7 +6,7 @@ Loop 使用本协议执行一张已经由 `start` 命令确认进入 `in_progres
 
 必需：完整 `SPEC.md`、当前 JSON ticket、persisted current attempt、既有改动分类、依赖 evidence 和允许写入范围。任务目录存在 `HLD.md`，或 ticket 引用 D ID 时，完整 HLD 也是必需输入。缺少必需输入时返回 `blocked` receipt，不修改代码。
 
-worker 使用 Loop 当前 workspace，不创建、切换或管理执行环境。
+worker 使用 Loop 当前 workspace。Loop 可以通过 native sub-agent、provider CLI session 或当前 Manager session 执行本协议；worker 不自行创建、切换或管理执行环境。
 
 ## 执行
 
@@ -19,6 +19,16 @@ worker 使用 Loop 当前 workspace，不创建、切换或管理执行环境。
 7. 分别按项目 Standards、当前 ticket / Parent SPEC，以及存在 HLD 时的适用 D IDs 审查 unit diff；修复审查发现后重跑受影响验证。任一适用轴仍有 blocker 时不得返回 `completed`。
 8. 不修改 SPEC、HLD 或 ticket JSON；Loop 是唯一调用 graph mutation command 的 owner。
 9. 不 commit、push、改写历史，也不把当前完整工作单元再次委托给另一个同类 worker。
+
+## Execution modes
+
+- `multi-agents`：implement worker 在 repair rounds 间复用同一个 `agent_id`；verify/review 每轮使用新 context。Manager 负责 `spawn_agent`、`send_input`、`wait_agent` 和 `close_agent`。
+- `multi-threads`：provider CLI session 在 repair rounds 间使用显式 session ID/path resume；verify/review 不复用 implement session。默认 provider 是 Codex，也可由调用方选择 Claude、Kimi 或 Pi。
+- `serial`：当前 Manager session 逐 capability 执行，不创建外部 Agent 或 CLI session；必须显式报告 context isolation 降级。
+
+`multi-threads` 的 provider CLI 默认使用该工具的最大权限参数。权限不改变 worker 的 allowed write scope，也不允许 worker 修改 graph。
+
+长任务的等待不以固定 wall-clock 时长判断失败。Manager 可提供任务预算、heartbeat freshness 和 progress freshness 阈值；无阈值时持续等待 provider 终态，heartbeat/progress 失鲜时先中断并保留原始输出。
 
 ## Receipt
 

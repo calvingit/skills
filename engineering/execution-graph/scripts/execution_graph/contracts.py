@@ -389,7 +389,7 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
                 if (
                     not isinstance(blocker["category"], str)
                     or blocker["category"]
-                    not in {"requirement", "design", "environment", "permission", "external"}
+                    not in {"requirement", "design", "dependency", "environment", "permission", "external"}
                 ):
                     problems.append(invalid_field(path, ticket_id, "execution.blocker.category", "Unsupported execution blocker category."))
                 if not non_empty_string(blocker["reason"]) or not non_empty_string(blocker["release_condition"]):
