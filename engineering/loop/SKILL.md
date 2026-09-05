@@ -13,7 +13,7 @@ description: "依据 SPEC、可选 HLD 与 JSON ticket 执行图持续执行和�
 - 首次开始时记录 execution graph 基线与既有改动；恢复时从 ticket 的 current attempt、当前 workspace 和可信 receipt 还原审查范围，无法还原时显式记录未覆盖范围。
 - Ticket 持久 lifecycle 只有 `open`、`in_progress`、`done`、`superseded`。`ready` 与 `blocked` 只对 `open` ticket 动态计算：所有 dependencies 为 done 且没有 execution blocker 时为 ready，否则为 blocked。
 - `to-tickets` 只通过 `create-batch` 和 `reconcile-batch` 创建/协调 contract graph。正常执行期间，Loop 只通过 `start`、`retry`、`block`、`unblock`、`complete`、`reopen` 维护 execution facts 和 lifecycle。
-- Ticket worker 只修改当前交付代码并返回 versioned JSON receipt；不修改 SPEC、HLD、ticket document 或 sibling tickets。
+- Ticket worker 只修改当前交付代码并返回 versioned JSON receipt；不修改 SPEC、HLD、ticket document 或 sibling tickets，也不提交版本控制变更。
 - 未指定模式时默认使用 `multi-agents`；用户可以明确声明 `multi-threads [claude|codex|kimi|pi]` 或 `serial`。
 - `multi-agents` 通过 Runtime 的 `spawn_agent`、`send_input`、`wait_agent`、`close_agent` 复用 implement Worker；`multi-threads` 通过 provider CLI 的显式 session/resume 复用 implement session；`serial` 在当前 Manager session 内逐能力执行。
 - `multi-threads` 默认 provider 为 Codex，所有 CLI driver 使用各自的 full-access 参数；full-access 只改变 CLI 权限，不授予 Worker graph ownership。
@@ -71,4 +71,5 @@ python3 <execution-graph-dir>/scripts/ticket_graph.py show <task-dir> <ticket-id
 - `no_progress`：当前证据下没有能改变状态的合理动作。
 - `budget_exhausted`：达到调用方明确给出的执行上限，且尚未进入其他结果。
 
-`ready` 与 `in_progress` 仅是 ticket projection/lifecycle，不是 Loop 的稳定结果。不要接管运行时会话、长期目标管理或特定工具的调度语法，也不要隐式提交、推送或合并版本控制变更。
+每张 ticket 通过完成门后，Loop 默认只提交该 ticket 从干净基线产生的允许范围内变更；没有代码变更时不创建空提交。可通过 runtime 的 `commit_on_complete=False` 关闭。Loop 不推送或合并版本控制变更。
+`ready` 与 `in_progress` 仅是 ticket projection/lifecycle，不是 Loop 的稳定结果。不要接管运行时会话、长期目标管理或特定工具的调度语法。

@@ -258,11 +258,10 @@ def _commit_ticket_changes(
     workspace_root: Path,
     ticket: dict[str, Any],
     changed_paths: set[str],
-    existing_changes: dict[str, list[str]],
+    before: dict[str, tuple[str, str | None]],
 ) -> None:
     """Commit only clean-baseline paths changed by the accepted ticket."""
-    existing = set(existing_changes.get("included", [])) | set(existing_changes.get("excluded", []))
-    paths = sorted(path for path in changed_paths if path not in existing)
+    paths = sorted(path for path in changed_paths if path not in before or before[path][0] == "  ")
     if not paths:
         return
     add = subprocess.run(["git", "-C", str(workspace_root), "add", "-A", "--", *paths], capture_output=True, text=True, check=False)
@@ -275,7 +274,7 @@ def _commit_ticket_changes(
         raise RuntimeError("Unable to inspect staged ticket changes")
     title = str(ticket.get("title") or ticket["id"]).strip()
     commit = subprocess.run(
-        ["git", "-C", str(workspace_root), "commit", "-m", f"feat(ticket): {ticket['id']} {title}"],
+        ["git", "-C", str(workspace_root), "commit", "--only", "-m", f"feat(ticket): {ticket['id']} {title}", "--", *paths],
         capture_output=True,
         text=True,
         check=False,
@@ -437,18 +436,26 @@ def _result(outcome: str, ticket_id: str, graph: dict[str, Any], *, attempt: int
     return RuntimeResult(outcome, ticket_id, attempt, graph, receipt, tuple(problems or []), session)
 
 
+def _completion_gate_problem(task_dir: Path, ticket: dict[str, Any], receipt: dict[str, Any]) -> dict[str, str] | None:
+    evidence = _normalized_evidence(receipt)
+    local_ids = {item["id"] for item in ticket["acceptance_criteria"]}
+    if set(evidence) != local_ids or any(item["result"] != "passed" for item in receipt["acceptance_evidence"]):
+        return _problem("completion_gate_failed", "Every local AC needs passed evidence before complete.")
+    if not receipt["verification"] or any(item["exit_code"] != 0 for item in receipt["verification"]):
+        return _problem("completion_gate_failed", "All receipt verification commands must exit 0.")
+    has_hld = (task_dir / "HLD.md").is_file()
+    if receipt["review"]["standards"] != "pass" or receipt["review"]["spec"] != "pass" or receipt["review"]["hld"] != ("pass" if has_hld else "not_applicable") or receipt["unverified"]:
+        return _problem("completion_gate_failed", "Applicable reviews must pass and unverified must be empty.")
+    return None
+
+
 def _apply_receipt(task_dir: Path, started_ticket: dict[str, Any], started_graph: dict[str, Any], receipt: dict[str, Any], attempt: int) -> RuntimeResult:
     ticket_id = started_ticket["id"]
     evidence = _normalized_evidence(receipt)
-    local_ids = {item["id"] for item in started_ticket["acceptance_criteria"]}
     if receipt["outcome"] == "completed":
-        if set(evidence) != local_ids or any(item["result"] != "passed" for item in receipt["acceptance_evidence"]):
-            return _result("failed", ticket_id, started_graph, attempt=attempt, receipt=receipt, problems=[_problem("completion_gate_failed", "Every local AC needs passed evidence before complete.")])
-        if not receipt["verification"] or any(item["exit_code"] != 0 for item in receipt["verification"]):
-            return _result("failed", ticket_id, started_graph, attempt=attempt, receipt=receipt, problems=[_problem("completion_gate_failed", "All receipt verification commands must exit 0.")])
-        has_hld = (task_dir / "HLD.md").is_file()
-        if receipt["review"]["standards"] != "pass" or receipt["review"]["spec"] != "pass" or receipt["review"]["hld"] != ("pass" if has_hld else "not_applicable") or receipt["unverified"]:
-            return _result("failed", ticket_id, started_graph, attempt=attempt, receipt=receipt, problems=[_problem("completion_gate_failed", "Applicable reviews must pass and unverified must be empty.")])
+        gate_problem = _completion_gate_problem(task_dir, started_ticket, receipt)
+        if gate_problem:
+            return _result("failed", ticket_id, started_graph, attempt=attempt, receipt=receipt, problems=[gate_problem])
         completed = _graph("complete", task_dir, ticket_id, {"evidence": evidence, "verification": receipt["verification"], "reviews": receipt["review"], "unverified": receipt["unverified"]})
         return _result("completed" if completed.get("ok") else "failed", ticket_id, completed.get("graph", {}), attempt=attempt, receipt=receipt, problems=completed.get("problems", []))
     if receipt["outcome"] == "blocked" and receipt["blocker"] is not None:
@@ -582,6 +589,7 @@ def dispatch_ready(
                 baseline=current_baseline,
                 existing_changes=current_existing,
                 allowed_write_scope=(allowed_write_scopes or {}).get(item["id"], allowed_write_scope),
+                commit_on_complete=commit_on_complete,
             )
             for item in candidates
             if item["id"] not in started_ids
@@ -909,9 +917,9 @@ def run_ticket(
             adapter.close_session(adapter_session)
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt, problems=[_problem("receipt_artifact_failed", str(exc))])
 
-    if commit_on_complete and receipt["outcome"] == "completed":
+    if commit_on_complete and receipt["outcome"] == "completed" and _completion_gate_problem(task_dir, started_ticket, receipt) is None:
         try:
-            _commit_ticket_changes(workspace_root, started_ticket, changed, current_existing)
+            _commit_ticket_changes(workspace_root, started_ticket, changed, workspace_before_worker)
         except RuntimeError as exc:
             if adapter_session is not None:
                 adapter.close_session(adapter_session)

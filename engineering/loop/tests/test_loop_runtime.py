@@ -424,6 +424,24 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(result.outcome, "failed")
         self.assertIn("worker_mutated_graph", {item["code"] for item in result.problems})
 
+    def test_loop_commits_accepted_ticket_changes(self) -> None:
+        subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "config", "user.name", "Loop Test"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.task_dir), "commit", "-qm", "baseline"], check=True)
+
+        def worker(request: dict[str, object]) -> dict[str, object]:
+            (self.task_dir / "src").mkdir()
+            (self.task_dir / "src" / "delivery.py").write_text("value = 1\n", encoding="utf-8")
+            return receipt()
+
+        result = run_ticket(self.task_dir, worker, workspace_root=self.task_dir, allowed_write_scope=["src/"], commit_on_complete=True)
+
+        self.assertEqual(result.outcome, "completed")
+        self.assertIn("feat(ticket): T001 Runtime ticket", subprocess.run(["git", "-C", str(self.task_dir), "log", "-1", "--format=%s"], capture_output=True, text=True, check=True).stdout)
+        self.assertEqual(subprocess.run(["git", "-C", str(self.task_dir), "show", "--format=", "--name-only", "HEAD"], capture_output=True, text=True, check=True).stdout.strip(), "src/delivery.py")
+
     def test_worker_commit_then_failure_is_rejected(self) -> None:
         subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)
         subprocess.run(["git", "-C", str(self.task_dir), "config", "user.email", "loop@test"], check=True)

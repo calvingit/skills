@@ -28,7 +28,7 @@ CapabilityAdapter ---- Backend
 | Backend/CLI driver | create/send/wait/interrupt/close、session、事件和 provider 参数 | graph、ticket JSON、最终 evidence 接受 |
 | Worker/capability | 当前 ticket 的实现、验证或 review | graph mutation、sibling 调度、commit/push |
 
-Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `ticket_graph.py` CLI。
+Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `ticket_graph.py` CLI。完成门通过后，Loop 默认提交当前 ticket 的干净基线变更；不会 push 或 merge。
 
 ## 2. Graph Contract
 
