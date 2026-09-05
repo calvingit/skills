@@ -28,7 +28,7 @@ CapabilityAdapter ---- Backend
 | Backend/CLI driver | create/send/wait/interrupt/close、session、事件和 provider 参数 | graph、ticket JSON、最终 evidence 接受 |
 | Worker/capability | 当前 ticket 的实现、验证或 review | graph mutation、sibling 调度、commit/push |
 
-Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `ticket_graph.py` CLI。完成门通过后，Loop 默认提交当前 ticket 的干净基线变更；不会 push 或 merge。
+Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `ticket_graph.py` CLI。完成门通过后，只有调用方以 `commit_on_complete=True` 明确启用时，Loop 才提交当前 ticket 的归属变更；不会 push 或 merge。
 
 ## 2. Graph Contract
 
@@ -55,7 +55,7 @@ start / retry / block / unblock / complete / reopen
 ### 关键 mutation
 
 - `start`：提交 `baseline`、`existing_changes`、`allowed_write_scope`，将 ready 的 open ticket 进入 `in_progress`。
-- `retry`：提交 `expected_attempt`、新的 baseline/change classification/scope 和 `findings`；在 graph lock 内 compare-and-set 并递增 attempt。implement scope 必须非空。
+- `retry`：提交 `expected_attempt`、新的 attempt checkpoint、初始既有改动分类、scope 和 `findings`；在 graph lock 内 compare-and-set 并递增 attempt。commit 判断仍以首次排除的既有改动和当前 ticket scope 为准，implement scope 必须非空。
 - `block`：保存 blocker 和 Loop 接受的 evidence，ticket 回到 open projection。
 - execution blocker 的 category 可以是 `requirement`、`design`、`dependency`、`environment`、`permission` 或 `external`；依赖阻塞仍是当前 ticket 的 execution fact，不等同于 graph dependency edge。
 - `complete`：只有所有本地 AC 通过、verification 命令成功、适用 standards/SPEC/HLD review 通过且 `unverified` 为空时才成功。
@@ -117,7 +117,7 @@ handle 只存在当前 runtime，包含 provider/session reference、capability 
 - 完整 ticket contract、SPEC、可选 HLD；
 - current attempt、baseline、existing changes、当前 diff；
 - dependency evidence、allowed write scope；
-- prior receipt 和 repair findings。
+- prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify/review 都只收到 implement receipt。
 
 ### Provider 参数
 
@@ -178,7 +178,7 @@ provider / permission / environment / dependency failure -> block
 interrupt / stale heartbeat -> cleanup, then caller decides retry or block
 ```
 
-所有 active handle/process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 provider handle，而是根据 current attempt 和 artifact 创建新 instance。
+所有 active handle/process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 provider handle，而是根据 current attempt 和 artifact 创建新 instance。verify/review 默认只能向 `.loop/tmp/` 写隔离缓存；其他临时路径必须由调用方显式分配。
 
 ## 7. Verification Status
 

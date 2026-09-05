@@ -71,5 +71,5 @@ python3 <execution-graph-dir>/scripts/ticket_graph.py show <task-dir> <ticket-id
 - `no_progress`：当前证据下没有能改变状态的合理动作。
 - `budget_exhausted`：达到调用方明确给出的执行上限，且尚未进入其他结果。
 
-每张 ticket 通过完成门后，Loop 默认只提交该 ticket 从干净基线产生的允许范围内变更；没有代码变更时不创建空提交。可通过 runtime 的 `commit_on_complete=False` 关闭。Loop 不推送或合并版本控制变更。
+每张 ticket 通过完成门后，只有调用方已获得用户或项目规则的提交授权，才以 `commit_on_complete=True` 提交该 ticket 从干净基线产生的允许范围内变更；没有代码变更时不创建空提交。默认不提交，且 Loop 不推送或合并版本控制变更。
 `ready` 与 `in_progress` 仅是 ticket projection/lifecycle，不是 Loop 的稳定结果。不要接管运行时会话、长期目标管理或特定工具的调度语法。

@@ -79,14 +79,6 @@ CLI 分配不可变 `T001` 式 ID、解析批次内 dependencies、写入初始 
 
 初次 graph 创建后，`to-tickets` 报告 CLI 计算的 frontier、blocked reasons、ID/path mapping、适用 D IDs 与未验证项。只要 execution graph 已存在，无论 active ticket 是一张还是多张，都调用 `loop`；没有 graph 的单一 SPEC/HLD 才使用 `quick-implement`。
 
-## 同步 amendment
-
-SPEC/HLD amendment 已确认且 Loop 已停止受影响 worker 后，`to-tickets` 先形成 impact plan，再通过 `reconcile-batch` 一次提交 contract update、new ticket、supersede 和 dependency replacement。CLI 先在内存构造并验证完整 prospective graph，再以 transaction 提交；不得逐文件修改、直接删除 formal ticket，或用 `reopen` 表达上游 contract 变化。
-
-`superseded` 是 terminal、non-active lifecycle：保留有效 evidence，并包含 reason 与 nullable replacement lineage。未受影响 ticket 保留 ID、contract 和 evidence；done ticket 的有效需求 evidence 不因 design-only amendment 自动失效。没有可用 JSON schema migration 时，显式 `migrate --check` 只报告计划；读取与普通写入都不隐式迁移。
-
 ## Handoff
 
 `to-tickets` 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。
-
-本 Skill 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。

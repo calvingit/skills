@@ -76,7 +76,7 @@ implement → verify + code-review → aggregate evidence → complete / retry /
 
 `implement` 可以写入 Loop 分配的范围；`verify` 和 `code-review` 独立只读。Worker/capability 不修改 ticket JSON、SPEC、HLD 或 sibling ticket。Loop 通过 execution-graph CLI 维护 `start`、`retry`、`block`、`unblock`、`complete` 和 `reopen` 等状态变更。
 
-Loop 默认使用 native `multi-agents`；也支持 provider CLI `multi-threads`（默认 Codex，可选 Claude、Kimi、Pi）和当前 Manager session 的 `serial` 兜底模式。CLI backend 使用显式 session/resume 和 provider-specific full-access 参数，但不获得 graph 写权限。
+Loop 默认使用 native `multi-agents`；也支持 provider CLI `multi-threads`（默认 Codex，可选 Claude、Kimi、Pi）和当前 Manager session 的 `serial` 兜底模式。CLI backend 使用显式 session/resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify/review；provider、权限和环境失败进入 blocker，而不是代码 repair。
 
 长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi/CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry/完成门前检查 scope、graph 文件和 Git HEAD。
 

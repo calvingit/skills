@@ -13,7 +13,7 @@ description: "为已确认的 SPEC 搜索现有代码库并创建或修订任务
 
 - `SPEC.md` 决定需求、外部行为、验收、业务边界和已确认的 Solution Constraints。
 - `HLD.md` 从 SPEC 与代码库事实推导模块职责、共享类型、内部 Interface、依赖方向、数据/控制流、状态与错误语义、迁移和集成约束。
-- `tickets/*.md` 只派生交付分解和阻塞依赖；实现代码负责 HLD 未约束的局部详细设计。
+- `tickets/*.json` 只派生交付分解和阻塞依赖；实现代码负责 HLD 未约束的局部详细设计。
 - HLD 不得改变 SPEC。两者冲突时停止，由 `to-spec` 先修正规范或由本 Skill 修正设计，不能自行选择一份继续实现。
 - 本 Skill 可以应用 `codebase-design` 判断具体 Module / Interface / Seam，但不复制其通用设计规则。
 
