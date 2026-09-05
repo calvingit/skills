@@ -53,6 +53,7 @@ Engineering workflow
 | 产物 | 维护者 | 回答的问题 |
 | --- | --- | --- |
 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
+| 会话文档（默认 `${TMPDIR:-/tmp}/grilling-*/`） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
 | `SPEC.md` | `to-spec` | 要构建什么、范围是什么、如何验收？ |
 | `HLD.md` | `high-level-design` | 多处实现共享哪些职责、接口和集成约束？ |
 | `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
