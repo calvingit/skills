@@ -74,7 +74,7 @@ _Avoid_: Customer, Buyer, User
 
 只有真正增加价值时再记录 status、considered options、consequences 等信息。价值在于“做了什么决定、为什么”，不在于固定模板。
 
-与 `grilling` 组合时，本 Skill 不拥有 Design Tree、frontier、round 或提问节奏。它只发现需要澄清或记录的领域问题，把问题交给 `grilling` 进入同一 frontier，并在用户确认后负责落盘。
+与 `grilling` 组合时，本 Skill 不拥有 Design Tree、frontier、round 或提问节奏。它只发现需要澄清或记录的领域问题，把问题交给 `grilling` 进入同一 frontier，并在用户确认后负责落盘：默认写入 `grilling` 的会话文档目录；用户要求写入项目时，按 `grilling` 的 Profile 规则确定位置。
 
 ## 验证
 

@@ -1,7 +1,7 @@
 interface:
   display_name: "Grilling"
-  short_description: "查证可访问事实并收敛需求或设计决策"
-  default_prompt: "使用 $grilling 按需求权威查证可访问事实并收敛当前未决选择，同时维护必要的领域术语与 ADR。"
+  short_description: "收敛需求或设计决策并在临时目录沉淀会话文档"
+  default_prompt: "使用 $grilling 按需求权威查证可访问事实并收敛当前未决选择，术语、ADR 与决策记录默认写入临时会话目录，用户要求时可按 Profile 配置落盘项目。"
 
 policy:
   allow_implicit_invocation: false
