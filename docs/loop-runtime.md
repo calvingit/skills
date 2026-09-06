@@ -8,27 +8,26 @@
 SPEC.md / HLD.md
         |
         v
-tickets/*.json <---- execution-graph CLI
+tickets/*.json <---- loopx graph CLI
         ^
         |
       Loop
         |
         v
 CapabilityAdapter ---- Backend
-                         |-- native multi-agents
-                         `-- CLI multi-threads
+                         `-- Provider CLI backend
                               `-- Claude / Codex / Kimi / Pi
 ```
 
 | 部件 | 拥有的职责 | 不拥有的职责 |
 | --- | --- | --- |
-| `execution-graph` | ticket schema、依赖、readiness、lifecycle、锁、transaction、recovery | worker dispatch、workspace 判断、provider session |
+| `loopx graph` | ticket schema、依赖、readiness、lifecycle、锁、transaction、recovery | worker dispatch、workspace 判断、provider session |
 | Loop | ticket 选择、baseline、scope、dispatch、receipt acceptance、完成门、graph mutation | provider 细节、需求改写、sibling ticket 拆分 |
 | `CapabilityAdapter` | capability 顺序、session 生命周期、结果聚合 | ticket lifecycle、完成门、业务解释 |
 | Backend/CLI driver | create/send/wait/interrupt/close、session、事件和 provider 参数 | graph、ticket JSON、最终 evidence 接受 |
 | Worker/capability | 当前 ticket 的实现、验证或 review | graph mutation、sibling 调度、commit/push |
 
-Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `ticket_graph.py` CLI。完成门通过后，只有调用方以 `commit_on_complete=True` 明确启用时，Loop 才提交当前 ticket 的归属变更；不会 push 或 merge。
+Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `loopx graph` CLI。完成门通过后，只有调用方以 `commit_on_complete=True` 明确启用时，Loop 才提交当前 ticket 的归属变更；不会 push 或 merge。
 
 ## 2. Graph Contract
 
@@ -65,38 +64,7 @@ Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 
 
 ## 3. Execution Modes
 
-用户可在调用 Loop 时明确声明模式；未声明时默认 `multi-agents`。
-
-### `multi-agents`
-
-Manager 使用 Runtime 原生 Agent API：
-
-```text
-worker_id = spawn_agent(...)
-send_input(worker_id, round_1)
-wait_agent(worker_id)
-send_input(worker_id, round_2)
-wait_agent(worker_id)
-close_agent(worker_id)
-```
-
-implement Worker 在 repair rounds 间复用同一个 `agent_id`；verify/review 每个 attempt 使用 fresh context。native spawn 不可用时降级为 `serial`，并报告 requested/effective mode。
-
-### `multi-threads`
-
-使用 provider CLI 的显式 session/resume：
-
-```text
-implement session: resume across repair attempts
-verify session: fresh per attempt
-review session: fresh per attempt
-```
-
-默认 provider 为 Codex，也可选择 Claude、Kimi 或 Pi。明确选择的 provider 不可用时返回 provider blocker，不隐式切换到其他 provider。
-
-### `serial`
-
-在当前 Manager session 内逐 ticket、逐 capability 执行，不创建外部 Agent 或 CLI session，也不伪造独立 context。它是兼容性兜底，必须报告 context isolation 降级。
+当前 `loopx loop run` 使用 provider CLI backend 执行 Loop pipeline；原生 multi-agents、multi-threads 和 serial 模式尚未作为 CLI 选项暴露。文档不把未实现的模式作为当前能力，provider 选择由 loopx runtime 路由。
 
 ## 4. Backend Contract
 
@@ -184,8 +152,7 @@ interrupt / stale heartbeat -> cleanup, then caller decides retry or block
 
 当前自动化覆盖：
 
-- Loop：52 个测试；
-- execution-graph：34 个测试；
+- 测试命令和覆盖范围以 `tools/loopx/tests/` 当前测试文件为准；交付前运行 README 中的完整测试命令。
 - CLI backend：四个 provider 的命令构造、session/resume、权限参数、raw output、heartbeat freshness 和失败归一化；
 - graph：retry stale attempt、空 scope、completion gate、transaction/recovery；
 - workspace：scope、graph mutation、Git HEAD commit 防护。

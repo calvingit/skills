@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/loopx/cli-envelope.schema.json",
+  "title": "loopx CLI envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "ok", "command", "result", "problems"],
+  "properties": {
+    "version": {"const": 1},
+    "ok": {"type": "boolean"},
+    "command": {"type": "string", "minLength": 1},
+    "result": {"type": "object"},
+    "graph": {"type": "object"},
+    "problems": {"type": "array", "items": {"type": "object"}}
+  }
+}

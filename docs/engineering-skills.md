@@ -17,7 +17,7 @@
 | Project Setup | `project-setup` | 配置需求权威、项目上下文和协作入口。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 收敛决策、规格化、概要设计、拆票和单次实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的工程判断和实践。 |
-| Capability | `implement`, `verify` | 在 Loop 分配的边界内实现和验证 ticket；review capability 复用 `code-review`。 |
+| Capability | `worker` | 通过统一 `loopx worker` prompt 接口执行实现、验证、审查或其他外部指定任务；底层 Agent 由 runtime 路由。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -59,7 +59,7 @@ Engineering workflow
 | `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
 | lifecycle/evidence/receipt | `loop` | 当前做到哪里，下一步能做什么？ |
 
-`execution-graph` 是 `to-tickets` 和 `loop` 共同消费的内部 Module，不是独立 workflow Skill。它拥有 ticket schema、依赖校验、lifecycle、transaction、recovery 和 migration；Loop 是正常执行期间唯一的 graph writer。
+`loopx` 是 `to-tickets`、`loop` 和 `worker` 共同消费的工程执行工具。它拥有 ticket graph、Loop runtime、provider adapters、workspace guard 和 receipt；Loop 是正常执行期间唯一的 graph writer。
 
 工作流图：
 
@@ -75,37 +75,33 @@ Loop 默认串行执行 ready ticket。只有依赖、写入范围、共享副�
 implement → verify + code-review → aggregate evidence → complete / retry / block
 ```
 
-`implement` 可以写入 Loop 分配的范围；`verify` 和 `code-review` 独立只读。Worker/capability 不修改 ticket JSON、SPEC、HLD 或 sibling ticket。Loop 通过 execution-graph CLI 维护 `start`、`retry`、`block`、`unblock`、`complete` 和 `reopen` 等状态变更。
+`loop` 管理 implement、verify 和 review 的顺序与权限；Worker 只执行 Loop 或外部调用方提供的 prompt。Loop 通过 `loopx graph` 维护 `start`、`retry`、`block`、`unblock`、`complete` 和 `reopen` 等状态变更。
 
-Loop 默认使用 native `multi-agents`；也支持 provider CLI `multi-threads`（默认 Codex，可选 Claude、Kimi、Pi）和当前 Manager session 的 `serial` 兜底模式。CLI backend 使用显式 session/resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify/review；provider、权限和环境失败进入 blocker，而不是代码 repair。
+`loopx loop run` 当前使用 provider CLI backend；CLI backend 使用显式 session/resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify/review；provider、权限和环境失败进入 blocker，而不是代码 repair。原生 multi-agents、multi-threads 和 serial 模式尚未作为公开 CLI 选项提供。
 
 长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi/CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry/完成门前检查 scope、graph 文件和 Git HEAD。
 
 完整的 graph mutation、backend contract、provider 参数、artifact layout、失败路由和验证边界见：[Loop Runtime 与 Backend Contract](./loop-runtime.md)。
 
+loopx 的公开契约、失败状态矩阵和统一验收入口见：[loopx 验收协议](./loopx-acceptance.md)。
+
 ### Backend 设计
 
-Loop 不直接调用 `claude-coder`、`codex-executor`、`kimi-worker` 或 `pi-agent` Skill；这些 Skill 是面向用户的委托规则。Loop 只依赖统一的 provider-neutral backend contract：
+Loop 通过统一 `worker` Skill 和 `loopx` provider-neutral prompt contract 调用底层 Agent，不直接暴露具体 Agent 工具：
 
 ```text
 Loop
   └── CapabilityAdapter
-        └── Backend
-              ├── native multi-agents
-              └── CLI multi-threads
-                    ├── Claude
-                    ├── Codex
-                    ├── Kimi
-                    └── Pi
+        └── Provider CLI backend
+              ├── Claude
+              ├── Codex
+              ├── Kimi
+              └── Pi
 ```
 
 Backend 生命周期固定为 `create` → `send` → `wait`，并支持 `interrupt` 和 `close`。session/thread handle、provider assignment 和 `agent_instance_id` 只属于当前 runtime，不写入 ticket JSON。
 
-执行模式边界：
-
-- `multi-agents` 是默认模式。Manager 通过 Runtime 原生 `spawn_agent`、`send_input`、`wait_agent`、`close_agent` 管理 Worker；implement Worker 在 repair rounds 间复用，verify/review 每轮创建新 context。
-- `multi-threads` 是 CLI session 模式，默认 Codex，也支持 Claude、Kimi、Pi；implement 使用显式 session/resume，verify/review 不复用 implement session。
-- `serial` 是兼容性兜底，在当前 Manager session 内逐 capability 执行，不伪造独立 Agent context。
+执行模式由当前 `loopx` runtime 内部决定，尚未作为公开 CLI 参数暴露；调用方只依赖 Loop pipeline 和 Worker prompt contract。
 
 CLI backend 使用各 provider 的 full-access 参数，但 full-access 不等于 graph 权限：Worker 仍不能修改 ticket、SPEC、HLD、sibling ticket、提交版本或调度其他 Worker。Loop 通过 workspace diff、graph 文件和 Git HEAD revision 做事后校验。
 

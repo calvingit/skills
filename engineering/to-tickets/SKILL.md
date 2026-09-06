@@ -70,7 +70,7 @@ ticket 应描述结果，不写易过期的文件路径、代码片段或逐步�
 确认后通过统一 CLI 写入：
 
 ```bash
-python3 <execution-graph-dir>/scripts/ticket_graph.py create-batch <task-dir> --input <request.json>
+loopx graph create-batch <task-dir> --input <request.json>
 ```
 
 CLI 分配不可变 `T001` 式 ID、解析批次内 dependencies、写入初始 `open` lifecycle/空 execution facts，并返回 key/ID/path mapping 与完整 graph projection。Ticket document 的 schema、filename slug、证据、blocker、current attempt、supersession lineage 与动态 readiness 均由 graph tool 拥有；不得在 Skill 中维护第二份 JSON template。
