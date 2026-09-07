@@ -83,9 +83,9 @@ def apply_complete(ticket, request, *, has_hld):
     if not isinstance(request["evidence"],dict): return None,[invalid_field("<request>",ticket["id"],"evidence","evidence must be an object.")]
     issues=validate_summary_items(request["verification"],{"command","exit_code","summary"},path="<request>",ticket_id=ticket["id"],field="verification")
     if issues: return None,issues
-    reviews=request["reviews"]; issues=validate_shape(reviews,{"standards","spec","hld"},path="<request>",ticket_id=ticket["id"],field="reviews")
+    reviews=request["reviews"]; issues=validate_shape(reviews,{"contract","change_surface","exploratory","protocol_health"},path="<request>",ticket_id=ticket["id"],field="reviews")
     if issues: return None,issues
-    ok=bool(request["verification"]) and all(x["exit_code"]==0 for x in request["verification"]) and reviews["standards"]=="pass" and reviews["spec"]=="pass" and reviews["hld"]==("pass" if has_hld else "not_applicable") and request["unverified"]==[]
+    ok=bool(request["verification"]) and all(x["exit_code"]==0 for x in request["verification"]) and reviews["contract"]=="pass" and reviews["change_surface"]=="pass" and reviews["exploratory"]=="pass" and reviews["protocol_health"] in {"not_triggered","pass"} and request["unverified"]==[]
     if not ok: return transition_failure(ticket,"completion_gate_failed","Completion requires successful verification, passed applicable reviews, and no unverified scope.")
     candidate=copy.deepcopy(ticket); candidate["execution"]["evidence"].update(request["evidence"]); candidate["execution"]["current_attempt"]=None; candidate["execution"]["blocker"]=None; candidate["execution"]["reopen_context"]=None; candidate["lifecycle"]["phase"]="done"
     issues=validate_ticket(public_ticket(candidate),candidate["_path"])

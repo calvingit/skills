@@ -465,9 +465,18 @@ def _completion_gate_problem(task_dir: Path, ticket: dict[str, Any], receipt: di
         return _problem("completion_gate_failed", "All receipt verification commands must exit 0.")
     if receipt["blocker"] is not None or receipt["simplification"]["result"] not in {"completed", "no_change"}:
         return _problem("completion_gate_failed", "A completed receipt cannot retain a blocker or blocked simplification.")
-    has_hld = (task_dir / "HLD.md").is_file()
-    if receipt["review"]["standards"] != "pass" or receipt["review"]["spec"] != "pass" or receipt["review"]["hld"] != ("pass" if has_hld else "not_applicable") or receipt["unverified"]:
-        return _problem("completion_gate_failed", "Applicable reviews must pass and unverified must be empty.")
+    review = receipt["review"]
+    if (
+        review["contract"] != "pass"
+        or review["change_surface"] != "pass"
+        or review["exploratory"] != "pass"
+        or receipt.get("blocking_findings")
+        or receipt.get("acceptance_protocol_gaps")
+        or receipt.get("unverified_scope")
+        or review.get("protocol_health", "not_triggered") == "gap"
+        or receipt["unverified"]
+    ):
+        return _problem("completion_gate_failed", "Reviews must pass with no blocking findings, protocol gaps, or unverified scope.")
     return None
 
 

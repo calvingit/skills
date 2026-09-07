@@ -26,7 +26,7 @@ loopx worker run <workspace> --provider <provider> --model <model> --prompt <pro
 | --- | --- | --- | --- |
 | 空 prompt | contract error | 1/2（CLI 约定） | 无 provider 启动 |
 | provider 未指定 | 当前 Runtime 或可用 provider | 0/失败 | routing reason |
-| provider 不可用 | blocked/failed，字段完整 | 非 0 | 不泄漏 raw |
+| provider 不可用 | blocked / failed，字段完整 | 非 0 | 不泄漏 raw |
 | 普通文本输出 | completed | 0 | text payload + artifact |
 | malformed JSON | prompt mode 可作为文本 | 0 | artifact |
 | provider 非零退出 | failed | 非 0 | raw 只进 artifact |

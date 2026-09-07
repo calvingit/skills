@@ -77,9 +77,9 @@ implement → verify + code-review → aggregate evidence → complete / retry /
 
 `loop` 管理 implement、verify 和 review 的顺序与权限；Worker 只执行 Loop 或外部调用方提供的 prompt。Loop 通过 `loopx graph` 维护 `start`、`retry`、`block`、`unblock`、`complete` 和 `reopen` 等状态变更。
 
-`loopx loop run` 当前使用 provider CLI backend；CLI backend 使用显式 session/resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify/review；provider、权限和环境失败进入 blocker，而不是代码 repair。原生 multi-agents、multi-threads 和 serial 模式尚未作为公开 CLI 选项提供。
+`loopx loop run` 当前使用 provider CLI backend；CLI backend 使用显式 session / resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify / review；provider、权限和环境失败进入 blocker，而不是代码 repair。原生 multi-agents、multi-threads 和 serial 模式尚未作为公开 CLI 选项提供。
 
-长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi/CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry/完成门前检查 scope、graph 文件和 Git HEAD。
+长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi / CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
 
 完整的 graph mutation、backend contract、provider 参数、artifact layout、失败路由和验证边界见：[Loop Runtime 与 Backend Contract](./loop-runtime.md)。
 
@@ -99,7 +99,7 @@ Loop
               └── Pi
 ```
 
-Backend 生命周期固定为 `create` → `send` → `wait`，并支持 `interrupt` 和 `close`。session/thread handle、provider assignment 和 `agent_instance_id` 只属于当前 runtime，不写入 ticket JSON。
+Backend 生命周期固定为 `create` → `send` → `wait`，并支持 `interrupt` 和 `close`。session / thread handle、provider assignment 和 `agent_instance_id` 只属于当前 runtime，不写入 ticket JSON。
 
 执行模式由当前 `loopx` runtime 内部决定，尚未作为公开 CLI 参数暴露；调用方只依赖 Loop pipeline 和 Worker prompt contract。
 
@@ -107,7 +107,7 @@ CLI backend 使用各 provider 的 full-access 参数，但 full-access 不等�
 
 每次 CLI capability 的完整 stdout/stderr/returncode/JSONL 事件保存到 task-local receipt artifact；只有 Loop 接受的 normalized evidence、verification、review 和 blocker facts 才进入 execution graph。长任务默认不设固定 wall-clock timeout，可由调用方提供任务预算，或通过 heartbeat/progress freshness 失鲜判定中断。
 
-只有所有 ticket-local AC 有 passed evidence、验证成功、适用审查通过且没有未验证范围时，ticket 才能进入 `done`。上游 SPEC/HLD 变化由 `to-spec` / `high-level-design` 和 `to-tickets` 协调，不用 `reopen` 伪装。
+只有所有 ticket-local AC 有 passed evidence、验证成功、适用审查通过且没有未验证范围时，ticket 才能进入 `done`。上游 SPEC / HLD 变化由 `to-spec` / `high-level-design` 和 `to-tickets` 协调，不用 `reopen` 伪装。
 
 Ticket 生命周期图：
 
@@ -115,7 +115,7 @@ Ticket 生命周期图：
 
 ## 使用规则
 
-- 先读取用户要求、目标仓库指令、SPEC/HLD、相关代码和测试。
+- 先读取用户要求、目标仓库指令、SPEC / HLD、相关代码和测试。
 - 下游 Skill 不静默改写上游产物。
 - 不自动 commit、push、建分支或改写历史。
 - 具体执行规则以各目录中的 `SKILL.md` 为准。

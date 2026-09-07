@@ -126,7 +126,11 @@ def canonical_receipt(**overrides: object) -> dict[str, object]:
         ],
         "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
         "simplification": {"result": "completed"},
-        "review": {"standards": "pass", "spec": "pass", "hld": "pass"},
+        "review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
+        "blocking_findings": [],
+        "non_blocking_findings": [],
+        "acceptance_protocol_gaps": [],
+        "unverified_scope": [],
         "blocker": None,
         "unverified": [],
     }
@@ -755,7 +759,7 @@ class TicketGraphCliTests(unittest.TestCase):
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "First verified."}},
                 "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-                "reviews": {"standards": "pass", "spec": "pass", "hld": "pass"},
+                "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
                 "unverified": [],
             }
         )
@@ -779,7 +783,7 @@ class TicketGraphCliTests(unittest.TestCase):
                     "AC2": {"result": "passed", "summary": "Second verified."},
                 },
                 "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-                "reviews": {"standards": "pass", "spec": "pass", "hld": "pass"},
+                "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
                 "unverified": [],
             }
         )
@@ -828,7 +832,7 @@ class TicketGraphCliTests(unittest.TestCase):
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "Verified."}},
                 "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-                "reviews": {"standards": "pass", "spec": "failed", "hld": "pass"},
+                "reviews": {"contract": "pass", "change_surface": "failed", "exploratory": "pass", "protocol_health": "not_triggered"},
                 "unverified": ["A required edge case."],
             }
         )

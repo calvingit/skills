@@ -14,6 +14,10 @@
     "verification",
     "simplification",
     "review",
+    "blocking_findings",
+    "non_blocking_findings",
+    "acceptance_protocol_gaps",
+    "unverified_scope",
     "blocker",
     "unverified"
   ],
@@ -46,13 +50,18 @@
     "review": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["standards", "spec", "hld"],
+      "required": ["contract", "change_surface", "exploratory", "protocol_health"],
       "properties": {
-        "standards": {"enum": ["pass", "failed"]},
-        "spec": {"enum": ["pass", "failed"]},
-        "hld": {"enum": ["pass", "failed", "not_applicable"]}
+        "contract": {"enum": ["pass", "failed"]},
+        "change_surface": {"enum": ["pass", "failed"]},
+        "exploratory": {"enum": ["pass", "failed"]},
+        "protocol_health": {"enum": ["not_triggered", "pass", "gap"]}
       }
     },
+    "blocking_findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "non_blocking_findings": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "acceptance_protocol_gaps": {"type": "array", "items": {"$ref": "#/$defs/finding"}},
+    "unverified_scope": {"type": "array", "items": {"$ref": "#/$defs/unverified"}},
     "blocker": {
       "type": ["object", "null"],
       "additionalProperties": false,
@@ -83,6 +92,26 @@
         "command": {"type": "string", "minLength": 1},
         "exit_code": {"type": "integer"},
         "summary": {"type": "string", "minLength": 1}
+      }
+    },
+    "finding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "severity", "evidence", "recommended_route"],
+      "properties": {
+        "category": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["P0", "P1", "P2", "P3"]},
+        "evidence": {"type": "string", "minLength": 1},
+        "recommended_route": {"type": "string", "minLength": 1}
+      }
+    },
+    "unverified": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "reason"],
+      "properties": {
+        "scope": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
       }
     }
   }

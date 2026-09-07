@@ -1,72 +1,129 @@
 ---
 name: code-review
-description: "只读审查已完成代码是否符合项目规范、需求 SPEC，以及存在时的概要设计 HLD，并分别报告三项审查的证据。"
+description: "只读审查已完成变更，按 Contract、Change-surface、Exploratory 三层检查验收契约、直接调用链和范围外风险，并输出可验证的完成门结果。"
 ---
 
 # Code Review
 
-对已完成的代码变更做只读审查，始终分开报告项目规范审查和需求实现审查；任务存在 `HLD.md` 时增加概要设计审查。三项审查分别计数和报告，不相互抵消，也不合并成单一严重程度。
+## 目标
+
+审查已完成的代码变更，判断它是否满足当前任务的公开契约，并保留足够的直接调用链上下文来发现只看 diff 行无法发现的回归。Review 只读，不修改代码、Git 状态、`SPEC.md`、`ACCEPTANCE.md`、HLD 或其他外部系统。
+
+Review 有三层，职责不能互换：
+
+```text
+Review
+├── Contract review       # 决定当前任务能否完成
+├── Change-surface review # 覆盖变更及其直接调用链
+└── Exploratory review    # 报告范围外高风险，不扩大完成门
+```
+
+Contract review 是唯一固定完成门。Exploratory review 发现的问题不能偷偷变成本轮实现要求；验收协议缺口也不能由 review agent 自行补写。
+
+## 输入与范围
+
+开始前必须锁定以下内容：
+
+- `review_mode`、`review_target`、对比基准和既有改动。
+- 当前 ticket 的 `R`/`AC`、`SPEC.md` 和存在时的 `ACCEPTANCE.md`。
+- 目标仓库的 `AGENTS.md`、项目规范、配置、相关测试和外部边界。
+- 变更文件、直接调用方、直接被调用模块、相关公开类型、测试和配置。
+- 存在时的任务级 `HLD.md`、适用 D IDs、实现回执、简化回执和验证证据。
+
+需求来源按以下顺序解析：用户明确提供的来源、当前 ticket 或执行图引用的 `SPEC.md`、已配置 issue tracker 的 issue、与分支或任务名匹配的本地 spec。没有需求来源时标记 `no_spec_available`，跳过契约实现判断，不猜测需求。
+
+任务级 HLD 只在用户或调用方提供、或与当前 SPEC 同目录时使用，不能把仓库级架构文档误当成任务级设计。没有 HLD 时标记 `not_applicable`。
 
 ## 审查模式
 
-- **branch / commit**：用户提供对比基准。先用 `git rev-parse` 验证，再固定 `git diff <fixed-point>...HEAD` 和 `git log <fixed-point>..HEAD --oneline`；ref 无效或 diff 为空时立即停止。
-- **working tree**：baseline 固定为 `HEAD`，分别审查 staged、unstaged，并记录未跟踪文件清单；不能把未读取的 untracked 文件算入覆盖范围。
-- **explicit path**：仅在用户明确指定路径时使用，报告没有 branch 对比基准、无法证明完整提交范围的限制。
-- **implementation**：由实现流程提供对比基准、既有改动、SPEC、存在时的 HLD、当前 ticket 或完整执行图、实际已实现范围、执行回执和验证证据；既可审查单个工作单元，也可审查整体交付集成结果。
+- **branch / commit**：先用 `git rev-parse` 验证基准，再固定 `git diff <fixed-point>...HEAD` 和 `git log <fixed-point>..HEAD --oneline`；基准无效或 diff 为空时停止。
+- **working tree**：baseline 固定为 `HEAD`，分别审查 staged、unstaged，并记录未跟踪文件；未读取的 untracked 文件不能计入覆盖范围。
+- **explicit path**：只审查用户明确指定的路径，并声明没有完整提交范围的限制。
+- **implementation**：使用实现流程提供的 baseline、实际范围、执行回执和验证证据，不重新猜测调用方声明的范围；无法证明覆盖完整范围时返回 `BLOCKER`。
 
-`implementation` 模式使用调用方提供的范围，不重新猜测；无法从对比基准、执行回执和当前工作区实际状态证明完整覆盖时返回 `BLOCKER` 并说明未覆盖范围。
+## 执行顺序
 
-## 需求来源
+1. 锁定模式、基准、范围、既有改动和需求来源。
+2. 读取目标仓库规则、`SPEC.md` / `ACCEPTANCE.md`、HLD、配置、测试和直接调用链。
+3. 按顺序完成 Contract、Change-surface、Exploratory 三层审查；环境不支持独立 reviewer 时由当前 Agent 分开执行。
+4. 每条 finding 引用具体文件、行、分支、`R`/`AC`、验收章节或调用关系，并说明影响、建议和验证方式。
+5. 按 [worker.md](references/worker.md)、[review-criteria.md](references/review-criteria.md) 和 [output-contract.md](references/output-contract.md) 聚合结果，不跨层合并或重新排序严重程度。
 
-按以下顺序寻找需求来源：
+## Contract review
 
-1. 用户明确提供的需求来源；
-2. 当前 ticket 或执行图引用的 `SPEC.md`；
-3. commit message 中可从已配置 issue tracker 获取的 issue；
-4. 与 branch 或任务名匹配的本地 spec。
+Contract review 只围绕当前 ticket 的完成门检查：
 
-仍然没有来源时，标记 `no_spec_available`，跳过需求实现审查，不补写需求。
+- 每条 in-scope `R`/`AC` 是否有可观察的通过证据。
+- `ACCEPTANCE.md` 的 Public Interface、Observable Behavior、Success Matrix、Failure Matrix 和 Evidence Rules 是否被实现遵守。
+- scope、权限、数据安全、错误/取消/超时语义和资源清理约束是否满足。
+- 变更是否引入未经授权的公开行为或超出当前 ticket 的必需行为。
 
-## HLD 来源
+协议缺失、矛盾、无法覆盖真实高风险路径或缺少可执行证据时，进入 `acceptance_protocol_gaps`，并回流 `grilling` / `to-spec`，不能补写隐含验收条件。
 
-`implementation` 模式使用调用方提供的 `HLD.md`；ticket 引用 D IDs 时必须读取同一任务目录中的完整 HLD。其他模式只使用用户明确提供或与当前 SPEC 同目录的 HLD，不把仓库级架构文档误当成任务级概要设计。没有 HLD 时标记 `not_applicable`。
+## Change-surface review
 
-## Process
+Change-surface review 固定覆盖：
 
-1. 固定审查模式、准确命令/路径、对比基准、既有改动和包含/排除范围。
-2. 动态发现目标仓库自己的 Agent 指令、coding standards、架构/领域文档、配置、直接调用方、相关测试和外部边界。
-3. 运行环境支持且当前授权允许时，按 `references/worker.md` 使用独立 reviewer 分别完成项目规范审查、需求实现审查，以及适用时的概要设计审查；否则由当前 Agent 前后分开执行各项审查。
-4. 每条审查发现引用具体文件、行、逻辑分支、标准或需求条目，并标明当前审查项内的严重程度、影响、建议和验证方式。
-5. 按 `references/output-and-rules.md` 聚合；不合并或跨审查项重新排序审查发现。
+- 变更文件。
+- 直接调用方和直接被调用模块。
+- 相关公开类型、序列化 / 反序列化和配置。
+- 相关测试、artifact 保存和资源生命周期路径。
 
-## 项目规范审查
+只报告本次变更引入或扩大的直接链路问题。直接调用链上的正确性、安全、权限、数据损坏、进程泄漏或明显回归问题进入 `blocking_findings`。
 
-首先检查目标仓库已文档化的约定；项目规则优先于通用工程启发式。没有项目规则时，不把个人风格偏好伪装成 violation。
+HLD 的模块职责、依赖方向、共享类型和错误语义在此作为适用依据，但 HLD 不会单独扩大本次 review scope。
 
-通用检查包括错误处理、输入边界、安全、资源生命周期、并发、可读性、性能和明显过度设计。项目规则覆盖通用 heuristic，工具已经强制的规则不重复报告。
+## Exploratory review
 
-Fowler smell baseline 仅作为 judgement call；完整定义与建议见 [references/smell-baseline.md](references/smell-baseline.md)。报告时必须点名 smell、引用具体 hunk，并说明为什么它在当前 diff 中造成实际摩擦。
+Exploratory review 可以查看相邻模块和范围外路径，用于发现高风险问题，但不改变当前 ticket 的 `R`/`AC`、`SPEC.md` 或 `ACCEPTANCE.md`。
 
-同时重点关注：
+范围外问题必须单独分类：
 
-- 新增 Interface 是否有真实生产调用者与清晰 ownership；
-- 测试是否通过生产公开 Seam，而不是测试专用入口；
-- 是否把实现细节泄漏给调用方；
-- 是否引入无调用者、纯转发或 speculative abstraction；
-- 测试是否出现 implementation-coupled、tautological 或 horizontal-slicing 等问题。
+```json
+{
+  "category": "out_of_scope_risk",
+  "severity": "P2",
+  "evidence": "具体代码或可达路径证据",
+  "recommended_route": "new-ticket"
+}
+```
 
-涉及 Module / Interface / Seam 判断时参考 `codebase-design`；涉及测试质量时参考 `tdd`。这些是通用设计纪律，不覆盖项目自己的明确标准。
+普通范围外风险进入 `non_blocking_findings`。如果证据证明问题可达且涉及安全、数据丢失、权限越界、资源泄漏或其他高风险，则同时进入 `blocking_findings`，阻塞当前完成。
 
-## 需求实现审查
+## 阻断规则
 
-检查需求是否完整实现、是否发生超出需求范围、状态/权限/错误/数据映射是否正确，以及每条验收标准是否有可观察证据。没有需求来源时标记 `no_spec_available`，不要猜测。
+| 问题 | 当前完成门 |
+| --- | --- |
+| 违反当前 SPEC、AC 或验收协议 | 阻塞 |
+| 安全、数据丢失、权限越界、进程/资源泄漏等高风险可达问题 | 阻塞 |
+| 变更直接调用链上的正确性问题 | 阻塞 |
+| 相邻但不影响本次行为的风险 | 报告并建议新 ticket |
+| 纯风格、重构建议、推测性风险 | 不阻塞 |
+| 验收协议缺失或矛盾 | 进入 `acceptance_protocol_gaps`，交回 `grilling` / `to-spec` |
 
-## 概要设计审查
+最终完成必须满足：三层 review 均通过、`blocking_findings` 为空、`acceptance_protocol_gaps` 为空、`unverified_scope` 为空，并且所有适用的验证命令成功。
 
-仅当任务目录或调用方提供 `HLD.md` 时启用。检查变更是否遵守适用 D IDs、模块职责、共享约定、依赖方向、状态/错误语义与集成约束，并确认实现没有把 HLD 的局部实现空间错当成强制结构。对标记为 `Reuse` / `Extend` 的决定检查实现是否沿用所列参考实现；对 `New` / `Replace` 检查是否保持 HLD 声明的必要性、迁移边界和最小影响范围。没有 HLD 时标记 `not_applicable`，不能自行补写概要设计。
+## 协议健康审查
 
-如果代码事实证明 HLD 不可行，报告设计阻塞并交回 `high-level-design`；不能把偏离 HLD 自动判成正确实现，也不能为了符合过期 HLD 建议错误修改。
+协议健康审查不是每个 ticket 的默认重审，只在以下情况触发：新增公共 CLI、修改错误或取消语义、修改权限或 artifact 规则、发生线上事故，或多个 ticket 反复出现同类遗漏。
 
-## 边界
+触发后独立输出 `protocol_health`，检查：
 
-这是只读审查，不修改文件、版本控制状态或外部系统。运行时异常、测试失败和构建失败交给 `debug`；全仓架构诊断交给 `review-architecture`。最终可以给出提交建议，但必须保留每项适用审查各自的结论，不能用一个总评抵消任一项的失败。
+1. 当前实现是否违反协议。
+2. 协议是否覆盖真实高风险路径。
+3. 命令、字段、状态和失败语义是否互相矛盾。
+
+协议健康问题只进入 `acceptance_protocol_gaps` 并回流 `grilling` / `to-spec`，review agent 不得直接修改协议。
+
+## 输出与边界
+
+最终输出固定包含：
+
+- `blocking_findings`
+- `non_blocking_findings`
+- `acceptance_protocol_gaps`
+- `unverified_scope`
+
+每条 finding 至少包含 `category`、`severity`、`evidence` 和 `recommended_route`，并保留位置、影响、建议和验证方式。没有发现时仍保留空章节或空数组。
+
+这是只读审查。根因定位转交 `debug`，全仓架构诊断转交 `review-architecture`，测试或构建失败交由 `verify` / `debug` 处理；review 可以提出提交建议，但不能 commit、push、修改分支、修改验收协议或扩大当前 ticket 的完成门。

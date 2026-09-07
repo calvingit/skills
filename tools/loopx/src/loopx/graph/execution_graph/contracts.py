@@ -19,12 +19,14 @@ DESIGN_ID_RE = re.compile(r"^D[0-9]+$")
 TICKET_FIELDS = {
     "schema_version", "id", "title", "covers", "design_decisions",
     "what_to_build", "constraints", "acceptance_criteria", "dependencies",
-    "lifecycle", "execution", "supersession",
+    "acceptance_scenarios", "lifecycle", "execution", "supersession",
 }
 RECEIPT_FIELDS = {
     "schema_version", "outcome", "ticket_id", "current_attempt",
     "landed_changes", "acceptance_evidence", "verification",
-    "simplification", "review", "blocker", "unverified",
+    "simplification", "review", "blocking_findings", "non_blocking_findings",
+    "acceptance_protocol_gaps", "unverified_scope",
+    "blocker", "unverified",
 }
 
 def problem(
@@ -235,18 +237,41 @@ def validate_worker_receipt(receipt: object) -> list[dict[str, str]]:
         problems.append(invalid_field(path, ticket_id, "simplification.result", "Unsupported simplification result."))
 
     review = receipt["review"]
-    review_problems = validate_shape(review, {"standards", "spec", "hld"}, path=path, ticket_id=ticket_id, field="review")
+    review_problems = validate_shape(review, {"contract", "change_surface", "exploratory", "protocol_health"}, path=path, ticket_id=ticket_id, field="review")
     problems.extend(review_problems)
     if not review_problems and isinstance(review, dict):
         if (
-            not isinstance(review["standards"], str)
-            or review["standards"] not in {"pass", "failed"}
-            or not isinstance(review["spec"], str)
-            or review["spec"] not in {"pass", "failed"}
-            or not isinstance(review["hld"], str)
-            or review["hld"] not in {"pass", "failed", "not_applicable"}
+            any(not isinstance(review[name], str) or review[name] not in {"pass", "failed"}
+                for name in ("contract", "change_surface", "exploratory"))
+            or review["protocol_health"] not in {"not_triggered", "pass", "gap"}
         ):
             problems.append(invalid_field(path, ticket_id, "review", "Receipt review contains an unsupported result."))
+
+    for field in ("blocking_findings", "non_blocking_findings", "acceptance_protocol_gaps"):
+        items = receipt[field]
+        if not isinstance(items, list):
+            problems.append(invalid_field(path, ticket_id, field, f"{field} must be an array."))
+            continue
+        for index, item in enumerate(items):
+            item_field = f"{field}[{index}]"
+            shape = validate_shape(item, {"category", "severity", "evidence", "recommended_route"}, path=path, ticket_id=ticket_id, field=item_field)
+            problems.extend(shape)
+            if not shape and isinstance(item, dict):
+                if item["severity"] not in {"P0", "P1", "P2", "P3"} or any(not non_empty_string(item[name]) for name in ("category", "evidence", "recommended_route")):
+                    problems.append(invalid_field(path, ticket_id, item_field, "Finding has invalid content."))
+                if item["category"] == "out_of_scope_risk" and item["recommended_route"] != "new-ticket":
+                    problems.append(invalid_field(path, ticket_id, f"{item_field}.recommended_route", "out_of_scope_risk must route to new-ticket."))
+
+    unverified_scope = receipt["unverified_scope"]
+    if not isinstance(unverified_scope, list):
+        problems.append(invalid_field(path, ticket_id, "unverified_scope", "unverified_scope must be an array."))
+    else:
+        for index, item in enumerate(unverified_scope):
+            item_field = f"unverified_scope[{index}]"
+            shape = validate_shape(item, {"scope", "reason"}, path=path, ticket_id=ticket_id, field=item_field)
+            problems.extend(shape)
+            if not shape and isinstance(item, dict) and (not non_empty_string(item["scope"]) or not non_empty_string(item["reason"])):
+                problems.append(invalid_field(path, ticket_id, item_field, "Unverified scope requires scope and reason."))
 
     blocker = receipt["blocker"]
     if blocker is not None:
@@ -268,6 +293,8 @@ def validate_worker_receipt(receipt: object) -> list[dict[str, str]]:
 
 def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
     ticket_id = ticket.get("id") if isinstance(ticket.get("id"), str) else None
+    # Backward-compatible v1 read: old tickets have no scenario index.
+    ticket = {**ticket, "acceptance_scenarios": ticket.get("acceptance_scenarios", [])}
     problems = validate_shape(ticket, TICKET_FIELDS, path=path, ticket_id=ticket_id, field="")
     if problems:
         return problems
@@ -313,6 +340,8 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
         problems.append(invalid_field(path, ticket_id, "constraints", "constraints must contain non-empty unique strings."))
     if not validate_string_list(ticket["dependencies"], pattern=TICKET_ID_RE):
         problems.append(invalid_field(path, ticket_id, "dependencies", "dependencies must contain unique ticket IDs."))
+    if not validate_string_list(ticket["acceptance_scenarios"]):
+        problems.append(invalid_field(path, ticket_id, "acceptance_scenarios", "acceptance_scenarios must contain unique scenario IDs."))
 
     acceptance = ticket["acceptance_criteria"]
     acceptance_ids: list[str] = []

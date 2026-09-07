@@ -5,20 +5,23 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 
 # Grilling
 
-在实现前把需求、方案或预期行为变更里没定下来的选择谈清楚。`grilling` 是唯一的会话控制者：调查事实、维护 Design Tree、计算 frontier、组织 round，把真正的决策交给用户，并按 `domain-modeling` 的纪律把确认的术语、ADR 和决策沉淀为会话文档。开始时读取 `domain-modeling` Skill（唯一规则来源，不把它的格式、ADR gate 或写入规则复制到本文件），按它的规则发现适用 `AGENTS.md`、Profile、已有领域文档和相关代码事实；用一两句话说清 **Destination**（任务完成后应达到的状态和边界），然后创建会话文档目录 `${TMPDIR:-/tmp}/grilling-<UTC 时间戳>/`。被 `wayfinding` 等 workflow 编排时，落盘位置遵循编排方的约定。
+在实现前收敛需求、方案或预期行为中的未决选择，`grilling` 负责调查事实、维护 Design Tree、计算 frontier 和组织 round，决策由用户确认。
+
+开始时读取 `domain-modeling`，按其规则发现适用的 `AGENTS.md`、Profile、领域文档和代码事实，说明 **Destination**（目标状态与边界），先将 `DOC_DIR` 设为 `${TMPDIR:-/tmp}/grilling-<UTC 时间戳>/` 并创建该目录。由 `wayfinding` 等 workflow 编排时则遵循编排方的落盘约定。
 
 ## 会话文档
 
-- `decisions.md`：Design Tree 快照——已确认决策、放弃的主要方案、默认假设、待解问题。每轮结束更新，由本 skill 维护，始终存放在会话目录。
-- `glossary.md` 与 `adr/NNNN-*.md`：会话中确认的术语和通过 ADR gate 的长期决策；判定规则和格式沿用 `domain-modeling` 的 CONTEXT-FORMAT 与 ADR-FORMAT，ADR 编号在该目录内递增。
-- 文件懒创建，有内容才写；用户确认一项立即写入一项，不等会话结束。术语冲突、一词多义、表述与代码或公开 contract 冲突、新概念需要记录时，纳入 Design Tree 随 frontier 提出，不另开访谈。
-- 写入位置：glossary 和 ADR 默认随 `decisions.md` 存放在会话目录，不写目标仓库。用户要求写入项目时，先检查 Profile 的 `domain_glossary` 与 `adr_root`：已配置则按配置位置写入；未配置或为 `auto` 时先调用 `project-setup` 确认文档目录，再继续执行；setup 取消或仍为 `auto` 时按 `domain-modeling` 的规则动态发现。
+- `decisions.md` 是 Design Tree 快照，用于记录已确认决策、主要放弃方案、默认假设和待解问题，并在每轮结束时更新。
+- `glossary.md` 与 `adr/NNNN-*.md` 用于记录确认后的术语和通过 ADR gate 的长期决策，格式与编号规则沿用 `domain-modeling`。
+- 文件按需创建并在用户确认后立即写入，术语冲突、歧义、与代码或公开 contract 冲突的新概念则作为 Design Tree 决策处理。
+- 未指定项目文档目录时，所有文档都写入已创建的 `DOC_DIR` 而不写入目标仓库。
+- 用户要求写入项目时按 Profile 的 `domain_glossary`、`adr_root` 配置执行，未配置或为 `auto` 时先经 `project-setup` 确认，再按 `domain-modeling` 动态发现。
 
-## 访谈机制
+## Interview 机制
 
-把会改变方案的决策连成 **Design Tree**，让每个决策都能解锁、排除或改变后面的决策。按 **round** 推进，**frontier** 是前置事实和上游决定都已解决、现在不用猜就能问的所有决策。每轮一次问完完整 frontier，等用户回答后重新计算；某题要看本轮另一道未决题的答案才能决定时留到下一轮，不按业务叙述顺序拆开本可同时回答的问题。
+把会改变方案的决策连成 **Design Tree** 并按 **round** 推进，其中 **frontier** 是依赖已解决、现在可以无猜测提问的决策集合，每轮一次问完当前 frontier 后等待用户回答并重算，相互依赖的问题留到下一轮，无依赖的问题合并提问。
 
-每道题说清会改到的契约或范围，列出主要互斥方案，给出推荐项和可验证依据。事实由你负责查：互不依赖的代码事实可以并行派出 sub-agent 调查，不让用户提供能从工作区、工具、文档、调用链或测试里查到的信息；某个事实没查清时只锁定依赖它的题目，其余照常提出。决策是用户的：提出并等待。
+每道题说明受影响的契约或范围、主要互斥方案、推荐项和依据，可从工作区、工具、文档、调用链或测试查到的事实由你调查，未查清的事实只阻塞依赖它的问题，其余照常提出，然后等待用户决定。
 
 每轮按以下格式提问，题号、推荐和分隔符必须保留：
 
@@ -28,13 +31,20 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 ➡️ <推荐答案及理由>
 
 ---
-**回答格式：** `1A 2B`<需要保留边界时直接写明，例如 `3B（保留：……）`。>
+**回答格式：** `1A 2B`。需要保留边界时直接写明，例如 `3B（保留：……）`。
 ```
 
-frontier 清空后，汇总已确认结论、会话文档位置和尚未写入项目的术语与 ADR，请用户最后确认并选择是否落盘，在此之前不执行方案。
+## Acceptance Frontier
+
+对每个影响外部行为的决策确认行为、输入/输出、成功与失败语义（含取消、超时、权限和环境）、兼容策略、可观察结果及证据来源，任一项未确认都留在 frontier。
+
+frontier 清空后：
+
+1. 在 `${DOC_DIR}/acceptance-draft.md` 写入仅含 `R`、`AC`、场景、expected result 和 evidence source 的草稿，不写实现建议、mock、文件路径或内部调用顺序。
+2. 汇总结论、会话文档位置，以及尚未写入项目的术语和 ADR，并请用户最终确认后建议交给 `to-spec` 落盘。
 
 ## 边界
 
-- 不写业务代码，不创建 `SPEC.md`、`HLD.md`、交付任务或实现文档，那是 `to-spec`、`high-level-design` 和 `to-tickets` 的职责。
-- 按适用 Profile 的 `requirement_authority` 查证需求事实：`external-manual` 模式下用户提供的快照视为待确认输入；用户引用但访问不到的需求来源不自行补全，把会改变行为、边界或验收的缺口交给用户。
-- 重要路径超出当前会话能看清的范围时，说明依据并建议 `wayfinding`；实际行为违反已有权威来源定义的 expected behavior 时，停止本流程并建议 `debug`。对话和解释沿用用户的语言。
+- 不写业务代码，不创建 `SPEC.md`、`HLD.md`、交付任务或实现文档，因为这些不是本 Skill 的职责。
+- 按适用 Profile 的 `requirement_authority` 查证需求事实，在 `external-manual` 模式下将用户提供的快照视为待确认输入，不自行补全用户引用但无法访问的需求来源，而是把会改变行为、边界或验收的缺口交给用户。
+- 重要路径超出当前会话能看清的范围时，说明依据并建议 `wayfinding`。实际行为违反已有权威来源定义的 expected behavior 时则停止本流程并建议 `debug`，对话和解释沿用用户的语言。

@@ -211,7 +211,11 @@ class CapabilityAdapter:
             "acceptance_evidence": verify.get("acceptance_evidence", []),
             "verification": verify.get("verification", []),
             "simplification": implement.get("simplification", {"result": "blocked"}),
-            "review": review.get("review", {"standards": "failed", "spec": "failed", "hld": "not_applicable"}),
+            "review": review.get("review", {"contract": "failed", "change_surface": "failed", "exploratory": "failed", "protocol_health": "not_triggered"}),
+            "blocking_findings": review.get("blocking_findings", []),
+            "non_blocking_findings": review.get("non_blocking_findings", []),
+            "acceptance_protocol_gaps": review.get("acceptance_protocol_gaps", []),
+            "unverified_scope": review.get("unverified_scope", []),
             "blocker": None,
             "unverified": verify.get("unverified", []),
         }

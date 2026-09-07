@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+import re
 from pathlib import Path
 
 from .contracts import (
@@ -30,6 +31,11 @@ def authority_index(
     try:
         requirements, duplicate_requirements = extract_ids(spec, SPEC_REQUIREMENT_RE)
         acceptance, duplicate_acceptance = extract_ids(spec, SPEC_ACCEPTANCE_RE)
+        acceptance_doc = task_dir / "ACCEPTANCE.md"
+        if acceptance_doc.is_file():
+            extra, extra_duplicates = extract_ids(acceptance_doc, re.compile(r"(?:^|[^A-Za-z])(AC\d+)(?:[^A-Za-z]|$)"))
+            acceptance |= extra
+            duplicate_acceptance = sorted(set(duplicate_acceptance) | set(extra_duplicates))
         index["requirements"] = requirements
         index["spec_acceptance"] = acceptance
         if not requirements:

@@ -8,7 +8,7 @@ import time
 import unittest
 from pathlib import Path
 
-from loopx.loop_runtime import _workspace_baseline, dispatch_ready, load_receipt, load_receipt_artifact, reopen_ticket, run_ticket
+from loopx.loop_runtime import _completion_gate_problem, _workspace_baseline, dispatch_ready, load_receipt, load_receipt_artifact, reopen_ticket, run_ticket
 from loopx.capability_adapter import CapabilityAdapter, CapabilitySession
 
 
@@ -39,7 +39,11 @@ def receipt(**overrides: object) -> dict[str, object]:
         "acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "Verified."}],
         "verification": [{"command": "self-check", "exit_code": 0, "summary": "Passed."}],
         "simplification": {"result": "no_change"},
-        "review": {"standards": "pass", "spec": "pass", "hld": "pass"},
+        "review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
+        "blocking_findings": [],
+        "non_blocking_findings": [],
+        "acceptance_protocol_gaps": [],
+        "unverified_scope": [],
         "blocker": None,
         "unverified": [],
     }
@@ -68,6 +72,26 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(load_receipt(self.task_dir, ticket_id="T001", attempt=1)["ticket_id"], "T001")
         self.assertTrue(load_receipt_artifact(self.task_dir, ticket_id="T001", attempt=1)["agent_instance_id"])
         self.assertTrue(load_receipt_artifact(self.task_dir, ticket_id="T001", attempt=1)["authority_fingerprint"])
+
+    def test_review_findings_apply_the_completion_gate(self) -> None:
+        non_blocking = receipt(
+            non_blocking_findings=[{
+                "category": "out_of_scope_risk",
+                "severity": "P2",
+                "evidence": "Adjacent path is not used by this ticket.",
+                "recommended_route": "new-ticket",
+            }]
+        )
+        result = run_ticket(self.task_dir, lambda request: non_blocking, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
+        self.assertEqual(result.outcome, "completed")
+
+        blocking = receipt(blocking_findings=[{
+            "category": "direct_chain_correctness",
+            "severity": "P1",
+            "evidence": "Direct caller receives an invalid result.",
+            "recommended_route": "retry",
+        }])
+        self.assertEqual(_completion_gate_problem(self.task_dir, ticket(), blocking)["code"], "completion_gate_failed")
 
     def test_missing_executor_does_not_start_ticket(self) -> None:
         result = run_ticket(self.task_dir, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
@@ -134,7 +158,7 @@ class LoopRuntimeTests(unittest.TestCase):
                     return {"outcome": "completed", "payload": {"simplification": {"result": "no_change"}}}
                 if handle == "verify":
                     return {"outcome": "completed", "payload": {"acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "passed"}], "verification": [{"command": "self-check", "exit_code": 0, "summary": "passed"}], "unverified": []}}
-                return {"outcome": "completed", "payload": {"review": {"standards": "pass", "spec": "pass", "hld": "pass"}}}
+                return {"outcome": "completed", "payload": {"review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"}}}
 
             def interrupt(self, handle: str) -> None:
                 return None
@@ -162,7 +186,7 @@ class LoopRuntimeTests(unittest.TestCase):
                     return {"outcome": "completed", "payload": {"simplification": {"result": "no_change"}}}
                 if handle == "verify":
                     return {"outcome": "completed", "payload": {"acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "passed"}], "verification": [{"command": "self-check", "exit_code": 0, "summary": "passed"}], "unverified": []}}
-                return {"outcome": "completed", "payload": {"review": {"standards": "pass", "spec": "pass", "hld": "pass"}}}
+                return {"outcome": "completed", "payload": {"review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"}}}
 
             def interrupt(self, handle: str) -> None:
                 return None
@@ -323,7 +347,7 @@ class LoopRuntimeTests(unittest.TestCase):
             def wait(self, handle: str) -> dict[str, object]:
                 if handle == "implement": return {"outcome": "completed", "payload": {"simplification": {"result": "no_change"}}}
                 if handle == "verify": return {"outcome": "completed", "payload": {"acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "ok"}], "verification": [{"command": "self-check", "exit_code": 0, "summary": "ok"}], "unverified": []}}
-                return {"outcome": "failed", "payload": {"findings": "The standards review found a regression.", "review": {"standards": "failed", "spec": "pass", "hld": "pass"}}}
+                return {"outcome": "failed", "payload": {"findings": "The standards review found a regression.", "review": {"contract": "failed", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"}}}
             def interrupt(self, handle: str) -> None: return None
             def close(self, handle: str) -> None: return None
 
@@ -375,7 +399,7 @@ class LoopRuntimeTests(unittest.TestCase):
                 outcome="blocked",
                 acceptance_evidence=[],
                 verification=[],
-                review={"standards": "pass", "spec": "pass", "hld": "pass"},
+                review={"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
                 blocker={
                     "category": "environment",
                     "reason": "Runtime unavailable.",
@@ -638,7 +662,7 @@ class LoopRuntimeTests(unittest.TestCase):
                     (task_dir / ".loop" / "tmp").mkdir(parents=True)
                     (task_dir / ".loop" / "tmp" / "test-cache").write_text("cache\n", encoding="utf-8")
                     return {"outcome": "completed", "payload": {"acceptance_evidence": [{"acceptance_id": "AC1", "result": "passed", "summary": "passed"}], "verification": [{"command": "self-check", "exit_code": 0, "summary": "passed"}], "unverified": []}}
-                return {"outcome": "completed", "payload": {"review": {"standards": "pass", "spec": "pass", "hld": "pass"}}}
+                return {"outcome": "completed", "payload": {"review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"}}}
             def interrupt(self, handle: str) -> None: return None
             def close(self, handle: str) -> None: return None
 

@@ -21,7 +21,7 @@ loopx worker run <workspace> --provider kimi --prompt "实现 XXX 需求"
 ## 规则
 
 - prompt 是唯一的业务输入；implement、verify、review 及其顺序由 Loop 管理，不属于 Worker 公开接口。
-- 始终不得修改 graph、SPEC.md、HLD.md 或 sibling ticket；这些边界由 Loop/runtime 强制管理。
+- 始终不得修改 graph、`SPEC.md`、`HLD.md` 或 sibling ticket；这些边界由 Loop / runtime 强制管理。
 - 不自动 commit、push、创建分支或调度其他 worker。
 - 返回统一 Worker result，包含 outcome、selected provider、model 和原始 provider payload。
 - Loop pipeline 的 receipt contract 由 Loop 内部管理；独立 prompt Worker 返回 prompt result，不要求 ticket schema。

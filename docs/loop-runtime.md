@@ -4,6 +4,8 @@
 
 ## 1. 职责边界
 
+启动时 Loop 必须读取任务目录的 `SPEC.md`、`ACCEPTANCE.md`、可选 `HLD.md` 和 tickets。缺少协议、版本不匹配或场景没有 expected result 时，任务进入阻断，而不是由 Loop 推导新条件。
+
 ```text
 SPEC.md / HLD.md
         |
@@ -57,8 +59,8 @@ start / retry / block / unblock / complete / reopen
 - `retry`：提交 `expected_attempt`、新的 attempt checkpoint、初始既有改动分类、scope 和 `findings`；在 graph lock 内 compare-and-set 并递增 attempt。commit 判断仍以首次排除的既有改动和当前 ticket scope 为准，implement scope 必须非空。
 - `block`：保存 blocker 和 Loop 接受的 evidence，ticket 回到 open projection。
 - execution blocker 的 category 可以是 `requirement`、`design`、`dependency`、`environment`、`permission` 或 `external`；依赖阻塞仍是当前 ticket 的 execution fact，不等同于 graph dependency edge。
-- `complete`：只有所有本地 AC 通过、verification 命令成功、适用 standards/SPEC/HLD review 通过且 `unverified` 为空时才成功。
-- `reopen`：仅适用于 upstream 未变的 done ticket，并要求 review finding 和失效 AC；SPEC/HLD amendment 不用它伪装。
+- `complete`：只有所有本地 AC 通过、verification 命令成功、Contract / Change-surface / Exploratory review 通过、没有阻断发现或验收协议缺口且 `unverified` 与 `unverified_scope` 为空时才成功。
+- `reopen`：仅适用于 upstream 未变的 done ticket，并要求 review finding 和失效 AC；SPEC / HLD amendment 不用它伪装。
 
 Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 问题时，Loop 停止受影响分支，不直接编辑 JSON 绕过 CLI。
 
@@ -78,14 +80,14 @@ interrupt(handle)
 close(handle)
 ```
 
-handle 只存在当前 runtime，包含 provider/session reference、capability 和 opaque `agent_instance_id`；不进入 ticket JSON。
+handle 只存在当前 runtime，包含 provider / session reference、capability 和 opaque `agent_instance_id`；不进入 ticket JSON。
 
 每个 capability bundle 都是独立深拷贝，包含：
 
 - 完整 ticket contract、SPEC、可选 HLD；
 - current attempt、baseline、existing changes、当前 diff；
 - dependency evidence、allowed write scope；
-- prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify/review 都只收到 implement receipt。
+- prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify / review 都只收到 implement receipt。
 
 ### Provider 参数
 
@@ -98,7 +100,7 @@ handle 只存在当前 runtime，包含 provider/session reference、capability 
 
 禁止使用 `--last`、`--continue` 或模糊 session picker 作为多 Worker 恢复依据。global CLI Skills 是委托规则，不是 Loop backend API。
 
-Full-access 只改变 CLI 的执行权限，不授予 Worker 修改 graph、SPEC/HLD、ticket、sibling 或版本历史的权限。Loop 通过 workspace diff、graph 文件和 Git HEAD revision 做事后校验。
+Full-access 只改变 CLI 的执行权限，不授予 Worker 修改 graph、SPEC / HLD、ticket、sibling 或版本历史的权限。Loop 通过 workspace diff、graph 文件和 Git HEAD revision 做事后校验。
 
 ## 5. Receipt and Artifact
 
@@ -115,7 +117,7 @@ outcome: completed | blocked | failed | interrupted
 payload
 ```
 
-Loop 将 implement/verify/review 结果聚合为现有 v1 worker receipt，再决定 `complete`、`retry` 或 `block`。失败或未验证结果不能降级为成功。
+Loop 将 implement / verify / review 结果聚合为现有 v1 worker receipt，再决定 `complete`、`retry` 或 `block`。失败或未验证结果不能降级为成功。
 
 ### Artifact layout
 
@@ -134,7 +136,7 @@ artifact 原子写入并校验 ticket、attempt、capability、instance identity
 长任务默认不设固定 wall-clock timeout：
 
 - 调用方可以提供任务预算；
-- Pi/CLI heartbeat 可以提供 heartbeat freshness；
+- Pi / CLI heartbeat 可以提供 heartbeat freshness；
 - progress freshness 可以识别 provider 长时间无业务进展；
 - 没有预算或 freshness 阈值时持续等待 provider 终态或用户取消。
 
@@ -146,15 +148,17 @@ provider / permission / environment / dependency failure -> block
 interrupt / stale heartbeat -> cleanup, then caller decides retry or block
 ```
 
-所有 active handle/process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 provider handle，而是根据 current attempt 和 artifact 创建新 instance。verify/review 默认只能向 `.loop/tmp/` 写隔离缓存；其他临时路径必须由调用方显式分配。
+所有 active handle / process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 provider handle，而是根据 current attempt 和 artifact 创建新 instance。verify / review 默认只能向 `.loop/tmp/` 写隔离缓存；其他临时路径必须由调用方显式分配。
 
 ## 7. Verification Status
+
+loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/loopx/scripts/check.py all`。它检查 loopx 的单元测试、CLI、wheel 和干净 venv 安装；协议文档的一致性由 `to-spec`、`to-tickets`、`loop` 和 review / verify 各自按本协议负责。真实 provider、生产副作用与吞吐仍须标记为未验证。
 
 当前自动化覆盖：
 
 - 测试命令和覆盖范围以 `tools/loopx/tests/` 当前测试文件为准；交付前运行 README 中的完整测试命令。
-- CLI backend：四个 provider 的命令构造、session/resume、权限参数、raw output、heartbeat freshness 和失败归一化；
-- graph：retry stale attempt、空 scope、completion gate、transaction/recovery；
+- CLI backend：四个 provider 的命令构造、session / resume、权限参数、raw output、heartbeat freshness 和失败归一化。
+- graph：retry stale attempt、空 scope、completion gate、transaction / recovery。
 - workspace：scope、graph mutation、Git HEAD commit 防护。
 
 尚未证明：真实 Claude/Codex/Kimi/Pi provider turn、生产级 API/数据库副作用、Codex App Server transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake/backend 测试当作 live provider acceptance。
