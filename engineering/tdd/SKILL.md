@@ -64,7 +64,7 @@ one behavior → one red test → minimal green implementation → next behavior
 
 ## Choose the Seam first
 
-写任何测试前先列出并确认：
+写任何测试前先列出：
 
 - 被观察的 public behavior 是什么；
 - 测试从哪个生产 Seam 进入；
@@ -73,7 +73,7 @@ one behavior → one red test → minimal green implementation → next behavior
 
 Seam 应位于真实 Module 的 Interface，必要时由 Adapter 满足。如果测试只能通过新增生产 Interface 才能建立，先用 `codebase-design` 判断 Module 或 Seam 是否真的应该改变，而不是直接为可测性扩大 Interface。
 
-`SPEC.md` 已记录且用户已确认的 Seam 可以直接复用，不重复提问。新增、替换、下移 Seam，或让测试越过原确认范围时，必须先向用户说明新 Seam、覆盖行为与取舍并取得确认；未经确认不写测试。
+在已确认的公开接口、验收覆盖、信任边界和测试契约内，选择现有公开入口可以直接决定并记录依据。`SPEC.md` 已记录且用户已确认的 Seam 可以直接复用，不重复提问。改变公开接口、验收覆盖、信任边界或已确认测试契约时，必须先向用户说明新 Seam、覆盖行为与取舍并取得确认。
 
 ## The loop
 

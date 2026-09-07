@@ -47,112 +47,15 @@ description: "为已确认的 SPEC 搜索现有代码库并创建或修订任务
 - 需要先扩展后收缩、数据迁移、兼容窗口或明确的集成顺序；
 - 用户或项目规则明确要求一项多处实现的技术约束。
 
-ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个相互独立的 tickets 也可能不需要。若以上条件均不成立，报告 `hld_not_required` 及依据，不创建 `HLD.md`。
+ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个相互独立的 tickets 也可能不需要。若以上条件均不成立，报告 `hld_not_required` 及依据，不创建 `HLD.md`，也不加载创建模板或修订流程。
 
 普通技术选择由本 Skill 根据仓库证据决定，不交给用户，也不因缺少完全相同的现成实现而转入探索流程。只有代码事实与 SPEC、公开行为、持久化格式或明确架构约束发生无法自行消解的冲突，且会改变需求语义、兼容策略、权限、范围或验收时，才停止并交回 `grilling` / `to-spec`。只有关键技术可行性确实未知、有限代码调查或小型验证无法解决，并且需要跨会话探索时，才交回 `wayfinding`。
 
 ## 模式
 
-- **Create**：需要 HLD，且任务目录中不存在 `HLD.md`。
-- **Amendment**：已有 HLD，且 SPEC、代码库事实或已确认设计发生变化；只修订同一文件，不创建并行版本。
+- **Create**：需要 HLD，且任务目录中不存在 `HLD.md`。读取 [references/hld-template.md](references/hld-template.md)，按其中流程与模板创建。
+- **Amendment**：已有 HLD，且 SPEC、代码库事实或已确认设计发生变化。读取 [references/amendment.md](references/amendment.md)，只修订同一文件，不创建并行版本。
 - **无需 HLD**：不存在多处实现需要共同遵守的设计约定；仅报告判断，不写产物。
-
-## Process
-
-1. 固定当前 SPEC、代码库对比基准、既有改动和适用项目约束。
-2. 先进行广度调查，再深入核对 1–3 个最相关的参考实现；记录路径、symbol 和选择依据。
-3. 描述当前调用链、职责归属、已有 Interface、共享数据形状、外部边界和必须保留的不变量；区分已观察事实 / 推断 / 未知。
-4. 找出下游实现若各自决定会产生不一致的设计点。只为这些点形成目标设计，局部实现继续保留自由。
-5. 对每个设计点优先 `Reuse`，其次 `Extend`；只有现有结构不能满足 SPEC 时才 `New` 或 `Replace`。后两者必须说明为什么 `Reuse` / `Extend` 不成立、迁移影响和控制范围。
-6. 对关键 Module / Interface / Seam 应用 `codebase-design`。只有证据不足以确定单一方案时才比较最多 2–3 个真实候选；普通工程取舍由本 Skill 推荐并决定。
-7. 为每项规范性概要决定分配稳定的 `D1`、`D2`… ID，标明变化性质、参考实现，以及它约束的 SPEC `R`/`AC`、调用方或模块。
-8. 检查 HLD 与 SPEC、项目 ADR、现有架构事实和自身各章节一致；执行多实现者一致性检查，没有未处理冲突或会改变方案的未知项才创建或修订 HLD。
-
-## HLD.md
-
-只保留适用章节，不为填满模板虚构内容：
-
-```markdown
-# <Change title> — High-Level Design
-
-## Authority
-
-- Specification: [SPEC.md](SPEC.md)
-- Baseline: <commit or equivalent fixed point>
-- Scope: <covered R/AC>
-- Unverified: <items or None>
-
-## Current Structure
-
-<与本次设计相关的现有调用链、职责归属、Interface 和约束；列出 1–3 个主要参考实现及路径 / symbol。>
-
-## Design Decisions
-
-- **D1** — <影响多处实现的设计决定>
-  - Change: <Reuse | Extend | New | Replace>
-  - 参考实现：<existing path / symbol or None>
-  - Covers: <R/AC、Module 或调用方>
-  - Rationale: <为什么>
-  - Consequences: <下游必须遵守什么>
-
-## Modules and Ownership
-
-- <Module>: <拥有的状态、规则、外部交互或稳定边界>
-
-## Shared Contracts
-
-- <共享类型、枚举、schema、event、callback、Interface、错误或生命周期语义>
-
-## Data and Control Flow
-
-<只描述跨模块的重要流程。>
-
-## Dependency Direction
-
-- <允许和禁止的依赖方向>
-
-## Integration and Migration
-
-- <共享设计约束在哪个端到端交付任务落地、迁移顺序、兼容窗口和删除条件>
-
-## Verification Seams
-
-- <如何验证概要设计和跨模块行为，不复制 SPEC 的 Acceptance Criteria>
-
-## 局部实现空间
-
-- <留给实现者决定的局部类、函数、文件组织和算法>
-
-## Open Questions
-
-- None
-```
-
-不要默认枚举所有 class、文件或方法。只有名称或签名本身会被多个调用方共享、承担真实接口约定，或是用户/项目明确约束时才写入。不要为尚无真实调用方的抽象预建 Interface。
-
-`New` / `Replace` 必须解释现有参考实现为什么不能满足 SPEC。不要为追求理论一致性引入新的架构流派、平行抽象体系、基础设施改造或与当前交付无关的 cleanup。
-
-## Done when
-
-- 每个影响多处实现的设计决定都有代码库证据、变化性质和稳定 D ID。
-- 方案优先复用或扩展现有结构，任何 `New` / `Replace` 都有必要性和迁移边界。
-- 两个不共享实现上下文的实现者仅凭 SPEC、HLD 和各自 ticket，也会对共享类型、Interface 语义、职责归属、依赖方向和集成顺序作出一致选择。
-- private helper、局部类、算法和文件组织仍保留在局部实现空间。
-- 已有架构问题未被无授权地扩展为当前任务重构。
-- 不存在必须由用户决定的未处理 SPEC 冲突。
-
-## Amendment
-
-先比较旧 / 新 SPEC、当前 HLD、代码库事实和现有 tickets，把设计变化分类为 `added`、`changed`、`removed` 或 `no design effect`：
-
-- 保留未受影响的 D ID；新增决定追加新 ID，不重新编号。
-- 需求或外部行为变化先由 `to-spec` 修订 SPEC，再修订 HLD。
-- 设计变化但需求不变时，只更新 HLD，不反向改写 SPEC。
-- 已有 graph 时只读检查哪些 ticket 引用了受影响 D、哪些已实现行为仍有效，以及需要 amendment、correction、migration 或 replacement。不修改 ticket。
-- 受影响 worker 仍在写入时，请求 `loop` 停止派发新任务、回收部分执行回执并确认不再写入。
-- 向用户展示 design delta 与 ticket impact，确认后更新同一份 HLD，再交给 `to-tickets` 协调 graph。
-
-实现中发现 HLD 无法成立时，worker 必须报告阻塞；不能自行改变共享设计约束后继续。修订 HLD 后再按实际影响恢复执行。
 
 ## 后续交接
 

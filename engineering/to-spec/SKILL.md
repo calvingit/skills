@@ -47,22 +47,22 @@ Amendment 先把 delta 分为 `added` / `changed` / `removed` / `no normative ef
 
 使用项目领域语言。调查到足以确定范围、公开 contract 和验收边界即停，不进入概要设计或实现。
 
-### 3. 确认验收 seam
+### 3. 决定验收 seam
 
 写正式文档前，草拟这次变更应通过哪些外部 seam 验收：只定可观察行为、测试层级和 expected result 来源。不设计内部 Module、共享类型或依赖方向，那是 HLD 的 Verification Seams。
 
-Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为时保留，并在 impact summary 说明，无需再确认；seam、覆盖行为或 expected result 来源变化时才请用户确认。
+Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为时保留，并在 impact summary 说明，无需再确认。在已确认的公开接口、验收覆盖、信任边界和测试契约内改选现有测试入口时，可以直接决定并记录依据。改变公开接口、验收覆盖、信任边界或已确认测试契约时才请用户确认。
 
 - 优先既有外部 seam；新增公开 contract 必须是需求的一部分，不是为测试暴露内部结构。
 - 一个稳定 seam 能覆盖整项变更时只用一个。
 - 说明每个 seam 覆盖的行为、expected result 来源，以及仓库中可参考的相似测试。
 - 不为测试预设内部 Interface，也不把文件路径、内部调用顺序或 mock 结构当成 contract。
 
-向用户说明建议的 seam、依据和取舍并请确认。出现新的产品、协议、架构、范围或验收选择时，先交回 `grilling` 或 `wayfinding`。
+向用户说明建议的 seam、依据和取舍。在已确认的公开接口、验收覆盖、信任边界和测试契约内选择现有测试入口时，可以直接决定并记录依据，不作为落盘前置确认。改变公开接口、验收覆盖、信任边界或已确认测试契约时，必须先请用户确认。出现新的产品、协议、架构、范围或验收选择时，先交回 `grilling` 或 `wayfinding`。
 
 ### 4. 写 SPEC.md 与 ACCEPTANCE.md
 
-用户确认 seam 后按模板落盘。写入前读取：
+验收 seam 已决定后按模板落盘。写入前读取：
 
 - [references/spec-template.md](references/spec-template.md)
 - [references/acceptance-template.md](references/acceptance-template.md)
@@ -75,7 +75,7 @@ Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为�
 2. `R` 与 `AC` ID 唯一且稳定；每个 in-scope `R` 至少被一个 `AC` 覆盖。
 3. 每个 `AC` 可独立判定，并能追溯到已确认需求或权威 expected source。
 4. Solution Constraints 都有上游依据，未混入应由 HLD 拥有的派生技术设计。
-5. Testing Decisions 完整记录用户确认的 seam，并尽可能从最高层 seam 验证外部行为。
+5. Testing Decisions 完整记录已决定的 seam 及依据，并尽可能从最高层 seam 验证外部行为。
 6. Boundaries、默认行为、Out of Scope 与验收无冲突、无悄然扩张。
 7. 无占位符、未处理冲突、虚构事实或被静默跳过的 blocker。
 8. Requirement Authority 如实记录来源、快照边界和未验证项。

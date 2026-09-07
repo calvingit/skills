@@ -15,7 +15,7 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 - `glossary.md` 与 `adr/NNNN-*.md` 用于记录确认后的术语和通过 ADR gate 的长期决策，格式与编号规则沿用 `domain-modeling`。
 - 文件按需创建并在用户确认后立即写入，术语冲突、歧义、与代码或公开 contract 冲突的新概念则作为 Design Tree 决策处理。
 - 未指定项目文档目录时，所有文档都写入已创建的 `DOC_DIR` 而不写入目标仓库。
-- 用户要求写入项目时按 Profile 的 `domain_glossary`、`adr_root` 配置执行，未配置或为 `auto` 时先经 `project-setup` 确认，再按 `domain-modeling` 动态发现。
+- 用户要求写入项目时，先沿用用户指定或已证实的项目位置。Profile 已配置 `domain_glossary`、`adr_root` 时使用该入口；未配置或为 `auto` 时按 `domain-modeling` 动态发现，不强制先跑 `project-setup`。只有无法确定写入位置时才询问。
 
 ## Interview 机制
 
