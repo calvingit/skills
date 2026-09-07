@@ -12,7 +12,7 @@ description: "为已确认的 SPEC 搜索现有代码库并创建或修订任务
 ## 权威与边界
 
 - `SPEC.md` 决定需求、外部行为、验收、业务边界和已确认的 Solution Constraints。
-- `HLD.md` 从 SPEC 与代码库事实推导模块职责、共享类型、内部 Interface、依赖方向、数据/控制流、状态与错误语义、迁移和集成约束。
+- `HLD.md` 从 SPEC 与代码库事实推导模块职责、共享类型、内部 Interface、依赖方向、数据 / 控制流、状态与错误语义、迁移和集成约束。
 - `tickets/*.json` 只派生交付分解和阻塞依赖；实现代码负责 HLD 未约束的局部详细设计。
 - HLD 不得改变 SPEC。两者冲突时停止，由 `to-spec` 先修正规范或由本 Skill 修正设计，不能自行选择一份继续实现。
 - 本 Skill 可以应用 `codebase-design` 判断具体 Module / Interface / Seam，但不复制其通用设计规则。
@@ -33,16 +33,16 @@ description: "为已确认的 SPEC 搜索现有代码库并创建或修订任务
 代码库调查采用有限的两阶段搜索：
 
 - **广度**：用精确搜索定位相关 symbol、类型、调用方、测试、配置、composition 入口和相似功能。
-- **深度**：选择 1–3 个最相关参考实现，追踪必要调用链、数据/控制流和验证方式。
+- **深度**：选择 1–3 个最相关参考实现，追踪必要调用链、数据 / 控制流和验证方式。
 
 已有证据足以确定多处实现共用的设计约定后停止调查。不要为了声称理解全仓而继续扩展范围。
 
 ## 是否需要 HLD
 
-先读取完整 SPEC、适用 Agent 指令、架构/领域文档、ADR、相关代码与调用链。出现以下任一情况时需要 HLD：
+先读取完整 SPEC、适用 Agent 指令、架构 / 领域文档、ADR、相关代码与调用链。出现以下任一情况时需要 HLD：
 
 - 多个 Module、调用方或实现任务必须共享类型、枚举、schema、事件、错误模型或回调约定；
-- 需要新增或改变公共/跨模块 Interface、职责归属、依赖方向或稳定 Seam；
+- 需要新增或改变公共 / 跨模块 Interface、职责归属、依赖方向或稳定 Seam；
 - 多处实现必须遵守同一状态机、生命周期、并发、取消或调用顺序；
 - 需要先扩展后收缩、数据迁移、兼容窗口或明确的集成顺序；
 - 用户或项目规则明确要求一项多处实现的技术约束。
@@ -65,7 +65,7 @@ ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个
 4. 找出下游实现若各自决定会产生不一致的设计点。只为这些点形成目标设计，局部实现继续保留自由。
 5. 对每个设计点优先 `Reuse`，其次 `Extend`；只有现有结构不能满足 SPEC 时才 `New` 或 `Replace`。后两者必须说明为什么 `Reuse` / `Extend` 不成立、迁移影响和控制范围。
 6. 对关键 Module / Interface / Seam 应用 `codebase-design`。只有证据不足以确定单一方案时才比较最多 2–3 个真实候选；普通工程取舍由本 Skill 推荐并决定。
-7. 为每项规范性概要决定分配稳定的 `D1`、`D2`… ID，标明变化性质、参考实现，以及它约束的 SPEC R/AC、调用方或模块。
+7. 为每项规范性概要决定分配稳定的 `D1`、`D2`… ID，标明变化性质、参考实现，以及它约束的 SPEC `R`/`AC`、调用方或模块。
 8. 检查 HLD 与 SPEC、项目 ADR、现有架构事实和自身各章节一致；执行多实现者一致性检查，没有未处理冲突或会改变方案的未知项才创建或修订 HLD。
 
 ## HLD.md
@@ -84,13 +84,13 @@ ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个
 
 ## Current Structure
 
-<与本次设计相关的现有调用链、职责归属、Interface 和约束；列出 1–3 个主要参考实现及路径/symbol。>
+<与本次设计相关的现有调用链、职责归属、Interface 和约束；列出 1–3 个主要参考实现及路径 / symbol。>
 
 ## Design Decisions
 
 - **D1** — <影响多处实现的设计决定>
   - Change: <Reuse | Extend | New | Replace>
-  - 参考实现：<existing path/symbol or None>
+  - 参考实现：<existing path / symbol or None>
   - Covers: <R/AC、Module 或调用方>
   - Rationale: <为什么>
   - Consequences: <下游必须遵守什么>
@@ -134,21 +134,21 @@ ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个
 
 ## Done when
 
-- 每个影响多处实现的设计决定都有代码库证据、变化性质和稳定 D ID；
-- 方案优先复用或扩展现有结构，任何 `New` / `Replace` 都有必要性和迁移边界；
-- 两个不共享实现上下文的实现者仅凭 SPEC、HLD 和各自 ticket，也会对共享类型、Interface 语义、职责归属、依赖方向和集成顺序作出一致选择；
-- private helper、局部类、算法和文件组织仍保留在局部实现空间；
-- 已有架构问题未被无授权地扩展为当前任务重构；
+- 每个影响多处实现的设计决定都有代码库证据、变化性质和稳定 D ID。
+- 方案优先复用或扩展现有结构，任何 `New` / `Replace` 都有必要性和迁移边界。
+- 两个不共享实现上下文的实现者仅凭 SPEC、HLD 和各自 ticket，也会对共享类型、Interface 语义、职责归属、依赖方向和集成顺序作出一致选择。
+- private helper、局部类、算法和文件组织仍保留在局部实现空间。
+- 已有架构问题未被无授权地扩展为当前任务重构。
 - 不存在必须由用户决定的未处理 SPEC 冲突。
 
 ## Amendment
 
-先比较旧/新 SPEC、当前 HLD、代码库事实和现有 tickets，把设计变化分类为 `added`、`changed`、`removed` 或 `no design effect`：
+先比较旧 / 新 SPEC、当前 HLD、代码库事实和现有 tickets，把设计变化分类为 `added`、`changed`、`removed` 或 `no design effect`：
 
 - 保留未受影响的 D ID；新增决定追加新 ID，不重新编号。
 - 需求或外部行为变化先由 `to-spec` 修订 SPEC，再修订 HLD。
 - 设计变化但需求不变时，只更新 HLD，不反向改写 SPEC。
-- 已有 graph 时只读检查哪些 ticket 引用了受影响 D、哪些已实现行为仍有效，以及需要 amendment、correction、migration 或 replacement；不修改 ticket。
+- 已有 graph 时只读检查哪些 ticket 引用了受影响 D、哪些已实现行为仍有效，以及需要 amendment、correction、migration 或 replacement。不修改 ticket。
 - 受影响 worker 仍在写入时，请求 `loop` 停止派发新任务、回收部分执行回执并确认不再写入。
 - 向用户展示 design delta 与 ticket impact，确认后更新同一份 HLD，再交给 `to-tickets` 协调 graph。
 

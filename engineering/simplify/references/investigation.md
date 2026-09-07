@@ -28,7 +28,7 @@
 
 Focused：围绕用户指定的 subsystem、symbol、state machine、dependency 或 suspected duplication 完整追踪其 ownership 和 contract，不主动扩张。
 
-Broad：先按责任域建立覆盖范围图，再排名候选。至少考虑与当前仓库相关的 entrypoints、runtime control、public APIs/config、state/lifecycle、persistence/compatibility、plugins/DI/reflection/codegen、background workers、packages/adapters/tests/docs。无法检查的区域记录为未覆盖范围。
+Broad：先按责任域建立覆盖范围图，再排名候选。至少考虑与当前仓库相关的 entrypoints、runtime control、public APIs / config、state / lifecycle、persistence / compatibility、plugins / DI / reflection / codegen、background workers、packages / adapters / tests / docs。无法检查的区域记录为未覆盖范围。
 
 不要因为找到第一个可删点就结束全库审查。
 

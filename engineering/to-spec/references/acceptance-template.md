@@ -58,7 +58,7 @@ verification_owner: loop
 
 - 头部固定为 `protocol_version`、`spec_snapshot`、`status`、`owner: to-spec`、`verification_owner: loop`。
 - 公开行为、错误或取消语义、CLI/JSON/schema/退出码、权限或 artifact 边界变化必须递增 `protocol_version`。内部重构和新增测试不升级。
-- 写入前执行 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口回到 `grilling`，不伪装成实现任务。
+- 写入前执行 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口交回 `grilling`，不伪装成实现任务。
 - 每个场景至少引用一个当前 `R` 和一个 `AC`，写明 expected result 和可执行证据。当前所有 `R` 与 `AC` 都必须被场景覆盖。
 - 成功、失败、取消、超时、权限和环境路径必须明确写出。
 - HLD 负责共享技术约束；ticket 负责执行，不在本文件发明验收语义。

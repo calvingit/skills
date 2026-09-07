@@ -27,9 +27,9 @@
 
 候选进入 Findings 至少需要：
 
-- 一个可定位的当前 evidence；
-- 一个明确的 architecture concern；
-- 一个实际 impact、风险或持续维护摩擦；
+- 一个可定位的当前 evidence。
+- 一个明确的 architecture concern。
+- 一个实际 impact、风险或持续维护摩擦。
 - 一个不包含文件级实现步骤的 recommendation direction。
 
 只有风格差异、目录偏好、静态 smell 或未经确认的“最佳实践”不能单独成为审查发现。

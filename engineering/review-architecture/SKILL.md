@@ -28,7 +28,7 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 ## Boundaries
 
 - 默认只读；不修改源码、测试、配置、规则、baseline 或架构文档。
-- 不负责形成具体目标架构；需要设计目标 Module / Interface / Seam 时转给 `codebase-design`。
+- 不负责形成具体目标架构；需要设计目标 Module / Interface / Seam 时交给 `codebase-design`。
 - 不把目录结构、命名风格或“看起来不优雅”自动升级为架构问题。
 - 不把普通 bug、局部代码质量或性能问题纳入，除非证据表明根因来自 ownership、boundary、dependency、state lifecycle 或 architecture policy。
 - 不强行套用 Clean Architecture、DDD、MVVM 等固定风格；只有项目选择了该约束，或技术栈官方规则与当前问题直接相关时才检查符合度。
@@ -52,8 +52,8 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 按实际存在情况读取：
 
 - README、CONTRIBUTING、Agent 指令、architecture docs、ADR / decision records；
-- 入口、composition/configuration、Module/package 边界、依赖声明和测试布局；
-- 与范围相关的 lint、dependency checks、architecture guards、build/test commands；
+- 入口、composition / configuration、Module / package 边界、依赖声明和测试布局；
+- 与范围相关的 lint、dependency checks、architecture guards、build / test commands；
 - 技术栈官方规则，仅在其会实质影响当前判断时查询。
 
 文档声明不是自动事实：检查当前代码是否仍与其一致。历史记录用于解释设计理由，不替代当前 evidence。
@@ -62,13 +62,13 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 按需读取 `references/classification-guide.md`。重点检查：
 
-- **Boundary / Ownership**：职责、状态、知识和副作用是否由正确 Module 拥有；
-- **Dependency direction**：依赖是否跨越不应跨越的层或形成循环、反向知识泄漏；
-- **Interface / Depth**：Interface 是否隐藏复杂度，调用方是否被迫理解 Implementation；
-- **State / Lifecycle**：状态 owner、并发、初始化、取消、释放和恢复是否与使用范围一致；
-- **Data / Control Flow**：数据转换、错误、事件和副作用是否被多处重复解释；
-- **Testability / Replaceability**：测试是否通过生产 Interface 验证行为，Seam 是否代表真实变化边界；
-- **Standards conformance**：是否违反项目已声明约束或与当前场景直接相关的官方技术栈规则；
+- **Boundary / Ownership**：职责、状态、知识和副作用是否由正确 Module 拥有。
+- **Dependency direction**：依赖是否跨越不应跨越的层或形成循环、反向知识泄漏。
+- **Interface / Depth**：Interface 是否隐藏复杂度，调用方是否被迫理解 Implementation。
+- **State / Lifecycle**：状态 owner、并发、初始化、取消、释放和恢复是否与使用范围一致。
+- **Data / Control Flow**：数据转换、错误、事件和副作用是否被多处重复解释。
+- **Testability / Replaceability**：测试是否通过生产 Interface 验证行为，Seam 是否代表真实变化边界。
+- **Standards conformance**：是否违反项目已声明约束或与当前场景直接相关的官方技术栈规则。
 - **Evolution cost**：一个正常需求是否需要跨越过多 owners、同步多个事实或修改不相关区域。
 
 这些是 investigation lenses，不是必须逐项打分的 checklist。
@@ -118,10 +118,10 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 ## Done when
 
-- 已说明评审范围、判断依据和未覆盖部分；
-- 当前架构事实来自代码、关系、测试或可运行检查，而非只复述文档；
-- 项目规则、外部官方 guidance 与通用设计判断被明确区分；
-- 每个审查发现都有 evidence、impact 和对应的 architecture concern；
-- 已寻找并记录重要反证，不把合理 trade-off 误判成问题；
-- 报告给出 `Critical/High/Medium/Low/Speculative` 或 `未发现问题` 的明确结论；
+- 已说明评审范围、判断依据和未覆盖部分。
+- 当前架构事实来自代码、关系、测试或可运行检查，而非只复述文档。
+- 项目规则、外部官方 guidance 与通用设计判断被明确区分。
+- 每个审查发现都有 evidence、impact 和对应的 architecture concern。
+- 已寻找并记录重要反证，不把合理 trade-off 误判成问题。
+- 报告给出 `Critical / High / Medium / Low / Speculative` 或 `未发现问题` 的明确结论。
 - 没有在架构评审阶段越权进入 redesign 或 implementation。

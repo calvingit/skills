@@ -7,7 +7,7 @@ description: "用于统一领域术语，并按需记录长期架构决策。"
 
 主动维护目标项目的领域模型：澄清模糊术语、统一命名、发现术语与代码事实的冲突，并在必要时记录长期架构决策。
 
-这不是“读取术语表”。其他 skill 只是消费已有领域文档时，不需要使用本 skill；只有当术语或决策本身需要被改变时才使用。
+这不是“读取术语表”。其他 Skill 只是消费已有领域文档时，不需要使用本 Skill；只有当术语或决策本身需要被改变时才使用。
 
 ## Discover authorities
 
@@ -15,7 +15,7 @@ description: "用于统一领域术语，并按需记录长期架构决策。"
 
 1. 用户明确指定的术语表、架构决策或项目文档。
 2. 仓库级 Agent 指令、README、CONTRIBUTING、架构文档等声明的位置。
-3. 已存在的 glossary、CONTEXT、domain model、ADR/decision record 结构。
+3. 已存在的 glossary、CONTEXT、domain model、ADR / decision record 结构。
 4. 当前代码、公开 contract、调用链和测试所证明的事实。
 
 适用 `AGENTS.md` 的 `Engineering Skills Profile` 指定 glossary 或 ADR 入口时优先使用；值为 `auto` 或没有 Profile 时继续按上述顺序发现，不自动运行 setup。
@@ -60,11 +60,11 @@ _Avoid_: Customer, Buyer, User
 - **没有上下文会意外**：后续维护者很可能会问“为什么这样做”。
 - **真实取舍**：存在可行替代方案，且当前选择牺牲了某些东西。
 
-不满足 gate 时，不创建 ADR。临时任务选择属于 task/spec；接口协议属于 API/contract 文档；编码规则属于项目 coding standards。
+不满足 gate 时，不创建 ADR。临时任务选择属于 task / spec；接口协议属于 API / contract 文档；编码规则属于项目 coding standards。
 
 ## ADR 内容
 
-沿用项目已有 ADR/decision record 格式。没有既有格式时保持最小化，至少记录：
+沿用项目已有 ADR / decision record 格式。没有既有格式时保持最小化，至少记录：
 
 ```markdown
 # <Decision>
@@ -78,4 +78,4 @@ _Avoid_: Customer, Buyer, User
 
 ## 验证
 
-完成后只运行与本次文档修改相关、且目标仓库已有的轻量验证，例如 Markdown/lint/link check 或 `git diff --check`。不存在对应工具时不创建新的技术栈特定检查。
+完成后只运行与本次文档修改相关、且目标仓库已有的轻量验证，例如 Markdown / lint / link check 或 `git diff --check`。不存在对应工具时不创建新的技术栈特定检查。

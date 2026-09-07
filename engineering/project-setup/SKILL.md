@@ -23,21 +23,21 @@ engineering Skills 按以下优先级解析项目约定：
 
 Profile 只记录跨任务稳定的入口和策略：
 
-- task contract 根目录与任务目录命名规则；
-- 长期项目上下文；
-- 领域术语来源；
-- 架构权威入口；
-- 需求权威的可访问模式与项目内说明入口；
-- ADR 目录或 `auto`；
-- 已完成任务契约的归档目录或 `auto`；
-- 可选 issue tracker 模式与项目内操作说明入口；
+- task contract 根目录与任务目录命名规则。
+- 长期项目上下文。
+- 领域术语来源。
+- 架构权威入口。
+- 需求权威的可访问模式与项目内说明入口。
+- ADR 目录或 `auto`。
+- 已完成任务契约的归档目录或 `auto`。
+- 可选 issue tracker 模式与项目内操作说明入口。
 - triage skill 可用或用户明确启用时采用的 label vocabulary。
 
 不要把以下内容变成可配置变量：
 
-- `SPEC.md`、`HLD.md` 与 `tickets/` 的名称及其契约职责；
-- 当前任务目录、当前 task、进度、retry、iteration 或 verification evidence；
-- 具体测试命令、Agent/模型选择或 commit/push 权限；
+- `SPEC.md`、`HLD.md` 与 `tickets/` 的名称及其契约职责。
+- 当前任务目录、当前 task、进度、retry、iteration 或 verification evidence。
+- 具体测试命令、Agent / 模型选择或 commit / push 权限。
 - 临时报告路径。
 
 不预建空 ADR、示例 SPEC、HLD 或 tickets/ 占位目录。真正需要产物时由对应 Skill 按项目约定创建。
@@ -46,11 +46,11 @@ Profile 只记录跨任务稳定的入口和策略：
 
 先只读检查：
 
-- 适用的 `AGENTS.md`、README、CONTRIBUTING 和更深层指令；
-- 已有 task/spec、project context、glossary、architecture、ADR 和 archive 结构；
-- PRD、需求文档或其他 requirement authority 是否位于仓库、已集成外部工具，或只能由用户提供快照；
-- Git remote、已有 issue tracker instructions、`.scratch/` 或其他协作约定；
-- `triage` skill 是否可用，以及仓库是否已有对应 labels；
+- 适用的 `AGENTS.md`、README、CONTRIBUTING 和更深层指令。
+- 已有 task / spec、project context、glossary、architecture、ADR 和 archive 结构。
+- PRD、需求文档或其他 requirement authority 是否位于仓库、已集成外部工具，或只能由用户提供快照。
+- Git remote、已有 issue tracker instructions、`.scratch/` 或其他协作约定。
+- `triage` skill 是否可用，以及仓库是否已有对应 labels。
 - Git 状态，避免覆盖用户现有改动。
 
 把候选值区分为 `confirmed`、`inferred`、`missing` 和 `conflict`。不能仅因某个常见目录存在就把它判定为权威；需要项目文档、实际使用或用户指定支持。
@@ -129,4 +129,4 @@ Profile 只保存稳定的模式和项目内说明入口，不保存当前 PRD �
 
 ## Report
 
-汇报采用的推荐/自定义项、保持 `auto` 的项、实际修改、创建的长期文档和未验证内容。不要把静态路径存在描述为所有 Runtime 已成功加载。
+汇报采用的推荐 / 自定义项、保持 `auto` 的项、实际修改、创建的长期文档和未验证内容。不要把静态路径存在描述为所有 Runtime 已成功加载。

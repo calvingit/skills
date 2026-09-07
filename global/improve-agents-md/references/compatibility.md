@@ -4,7 +4,7 @@
 
 ## 共享格式
 
-- [AGENTS.md 项目](https://github.com/agentsmd/agents.md)将 `AGENTS.md` 定义为开放的仓库指令 Markdown 格式。
+- [AGENTS.md 项目](https://github.com/agentsmd/agents.md) 将 `AGENTS.md` 定义为开放的仓库指令 Markdown 格式。
 - 不同运行环境和使用方式的支持程度并不相同。文件名相同，不代表发现方式、优先级、大小限制或覆盖规则也相同。
 
 ## Codex
@@ -31,10 +31,10 @@ GitHub Copilot 的多种 Agent 功能支持 `AGENTS.md`，但 GitHub.com、IDE�
 
 共享 `AGENTS.md` 应满足：
 
-- 使用标准 Markdown，不依赖特定模型的注意力标签；
-- 使用仓库相对路径；
-- 不依赖单一运行环境的斜杠命令、工具名或隐藏系统提示词；
-- 对必须使用其他文件名的工具，只保留很薄的入口文件；
+- 使用标准 Markdown，不依赖特定模型的注意力标签。
+- 使用仓库相对路径。
+- 不依赖单一运行环境的斜杠命令、工具名或隐藏系统提示词。
+- 对必须使用其他文件名的工具，只保留很薄的入口文件。
 - 验证项目实际使用的工具和启动目录。
 
 ## 方法参考

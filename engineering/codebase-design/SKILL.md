@@ -32,21 +32,21 @@ description: "用于设计或评估具体模块、接口、依赖方向和可测
 
 警惕：
 
-- 多个调用方重复相同 wiring、校验或协议步骤；
-- 调用方必须知道内部状态机顺序；
-- 一个简单行为需要跨多个文件拼装低层细节；
+- 多个调用方重复相同 wiring、校验或协议步骤。
+- 调用方必须知道内部状态机顺序。
+- 一个简单行为需要跨多个文件拼装低层细节。
 - 为了测试把内部开关、noop、delay、callback 或 mutable state 暴露成生产 API。
 
 ### 2. Design the Interface from observable behavior
 
-先描述调用方真正需要的 capability、输入、输出、失败语义、生命周期和取消/并发约束，再决定 Interface。不要从现有实现类、数据库结构或第三方 API 反推公共接口。
+先描述调用方真正需要的 capability、输入、输出、失败语义、生命周期和取消 / 并发约束，再决定 Interface。不要从现有实现类、数据库结构或第三方 API 反推公共接口。
 
 Interface 应尽量：
 
-- 小而完整；
-- 表达领域/任务意图；
-- 不泄漏无关实现细节；
-- 对真实错误和生命周期约束保持明确；
+- 小而完整。
+- 表达领域 / 任务意图。
+- 不泄漏无关实现细节。
+- 对真实错误和生命周期约束保持明确。
 - 能被真实生产调用方自然使用。
 
 ### 3. Put Seams at real variation points
@@ -71,7 +71,7 @@ Interface 应尽量：
 
 ### 5. Prefer locality over speculative reuse
 
-让会一起变化的规则尽量一起存在。抽象只有在已有多个真实调用者/变化证据，或一个明确边界需要隐藏复杂度时才建立。
+让会一起变化的规则尽量一起存在。抽象只有在已有多个真实调用者 / 变化证据，或一个明确边界需要隐藏复杂度时才建立。
 
 不要为了潜在复用提前增加 generic layer、factory、strategy、repository、manager、service 等名字；名称不证明抽象成立。
 
@@ -81,25 +81,25 @@ Interface 应尽量：
 
 > 如果删除这个 Module，并让调用方直接使用它的下游依赖，系统是否几乎不损失抽象、约束、稳定性或理解成本？
 
-如果答案是“几乎没有损失”，它可能是无价值 middle layer；如果它集中协议、状态、不变量、错误语义、缓存/事务边界或大量复杂度，则可能很 deep。
+如果答案是“几乎没有损失”，它可能是无价值 middle layer；如果它集中协议、状态、不变量、错误语义、缓存 / 事务边界或大量复杂度，则可能很 deep。
 
 Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Seam，也不证明 dependency direction 正确。
 
 ## Workflow
 
 1. 明确当前设计问题、目标调用方和需要形成的 Module / Interface / Seam；不要自动扩大成全仓架构评审。
-2. 读取目标 Module、代表性生产调用方、composition/configuration 入口、下游依赖和相关测试。
+2. 读取目标 Module、代表性生产调用方、composition / configuration 入口、下游依赖和相关测试。
 3. 写出当前 observable behavior、ownership、必须保留的不变量和真实外部边界。
 4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
-5. 给最多 2-3 个真实候选设计，说明各自收益、成本、迁移影响和 test seam；不制造伪选项。
+5. 给最多 2–3 个真实候选设计，说明各自收益、成本、迁移影响和 test seam；不制造伪选项。
 6. 推荐最简单、能把必要复杂度放到正确 owner 且不扩大公共表面的方案。
-7. 本 skill 默认停在具体设计判断；已确认 SPEC 需要把多个设计点汇总为任务级概要技术契约时交给 `high-level-design`，需求契约交给 `grilling` / `to-spec`，实现交给 `quick-implement` 或 `loop`。
+7. 本 Skill 默认停在具体设计判断；已确认 SPEC 需要把多个设计点汇总为任务级概要技术契约时交给 `high-level-design`，需求契约交给 `grilling` / `to-spec`，实现交给 `quick-implement` 或 `loop`。
 
 当依赖类型会影响 Module 的深化方式时，读取 [DEEPENING.md](DEEPENING.md)。只有用户明确要求比较候选 Interface，或单一方案不足以形成可靠判断时，才读取 [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md)，使用其中的多方案比较流程。
 
 ## Boundaries
 
-- 评审现有架构是否合理、是否符合项目/技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
+- 评审现有架构是否合理、是否符合项目 / 技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
 - 已确认某个 Module / Interface / Seam 需要调整，需要形成局部目标设计：使用 `codebase-design`。
 - 已确认 SPEC 需要跨 Module、调用方或实现任务的统一概要设计，并落盘 `HLD.md`：使用 `high-level-design`。
 - 需求或行为尚未决定：使用 `grilling`。

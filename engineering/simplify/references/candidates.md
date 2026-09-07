@@ -32,11 +32,11 @@
 
 长期 AI coding 特别容易沉积以下维护义务：
 
-- 为了 mock 而把大量 dependency、clock、parser、logger、retry policy、callback 注入业务函数；
-- interface → implementation → adapter → service → repository 等多层 relay，每层只有转发；
-- 为测试观察内部执行过程而暴露 `retryCount`、`isInitialized`、`pendingOperations`、生命周期 callback 等生产 API；
-- 在可信内部 handoff 上重复 validation、copy、fallback、rollback 和 defensive guards；
-- 为“以后可能扩展”增加 factory、registry、strategy、plugin seam，但当前产品路径只有一个真实实现；
+- 为了 mock 而把大量 dependency、clock、parser、logger、retry policy、callback 注入业务函数。
+- interface → implementation → adapter → service → repository 等多层 relay，每层只有转发。
+- 为测试观察内部执行过程而暴露 `retryCount`、`isInitialized`、`pendingOperations`、生命周期 callback 等生产 API。
+- 在可信内部 handoff 上重复 validation、copy、fallback、rollback 和 defensive guards。
+- 为“以后可能扩展”增加 factory、registry、strategy、plugin seam，但当前产品路径只有一个真实实现。
 - 已完成实验、迁移或验证后仍保留 probe、feature flag、temporary adapter、compatibility branch、fixtures 或仅供测试或文档使用的 package。
 
 判断重点不是“是不是 AI 写的”，而是这些能力是否存在当前生产职责。测试使用量大也不自动证明生产 contract 有价值。

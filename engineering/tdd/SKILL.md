@@ -12,10 +12,10 @@ TDD 在这里指 **red → green 的 vertical-slice 反馈循环**。目标不�
 开始前必须有：
 
 1. 可外部判定的 expected behavior；
-2. expected value 的独立来源，例如用户确认、spec/acceptance criteria、公开 contract、权威文档或 worked example；
+2. expected value 的独立来源，例如用户确认、spec / acceptance criteria、公开 contract、权威文档或 worked example；
 3. 可以稳定观察该行为的生产 Seam。
 
-任一项不存在时，不伪造测试：行为不清楚转 `grilling`；Seam / Interface 本身不合理时调用或参考 `codebase-design`。
+任一项不存在时，不伪造测试：行为不清楚交回 `grilling`；Seam / Interface 本身不合理时调用或参考 `codebase-design`。
 
 ## What a good test is
 
@@ -23,15 +23,15 @@ TDD 在这里指 **red → green 的 vertical-slice 反馈循环**。目标不�
 
 优先：
 
-- 用户或调用方真正可观察的结果；
-- 真实生产构造和公开入口；
-- 与生产路径一致的 Interface / Seam / Adapter；
+- 用户或调用方真正可观察的结果。
+- 真实生产构造和公开入口。
+- 与生产路径一致的 Interface / Seam / Adapter。
 - 独立于被测实现计算方式的 expected value。
 
 避免：
 
-- 测 private method、内部字段或调用顺序，而这些不是 contract；
-- 为测试新增 `forTest`、noop、mutable callback、delay 参数或公开内部状态；
+- 测 private method、内部字段或调用顺序，而这些不是 contract。
+- 为测试新增 `forTest`、noop、mutable callback、delay 参数或公开内部状态。
 - 用数据库旁路、内部日志或源码字符串存在性代替真实行为，除非这些本身就是公开 contract。
 
 具体正反例见 [tests.md](tests.md)，mocking 取舍见 [mocking.md](mocking.md)。
@@ -85,14 +85,14 @@ Seam 应位于真实 Module 的 Interface，必要时由 Adapter 满足。如果
 4. **Verify**：重跑该测试和受影响的最小现有测试集，确认没有把其他行为破坏。
 5. **Next slice**：根据刚得到的新事实选择下一个行为，而不是按预先写死的测试清单机械推进。
 
-Refactor / simplify 不应掺进每个 red-green cycle 造成反馈失焦。完成一组连贯 slice 后，再交给 `simplify` 或实现流程的 review/simplification gate 处理结构收缩，并重跑验证。
+Refactor / simplify 不应掺进每个 red-green cycle 造成反馈失焦。完成一组连贯 slice 后，再交给 `simplify` 或实现流程的 review / simplification gate 处理结构收缩，并重跑验证。
 
 ## Test doubles
 
 优先级：
 
-1. 真实、快速、确定性的依赖；
-2. 目标项目已经提供的官方 fake / emulator / in-memory Adapter；
+1. 真实、快速、确定性的依赖。
+2. 目标项目已经提供的官方 fake / emulator / in-memory Adapter。
 3. 在真实外部边界使用最小 test double。
 
 不要 mock 自己的内部 Module 只是为了让测试更“单元化”。mock 应隔离真实外部不确定性，而不是复制实现结构。
@@ -103,10 +103,10 @@ Refactor / simplify 不应掺进每个 red-green cycle 造成反馈失焦。完�
 
 ## Done when
 
-- 每个新增测试都能说明它验证的外部行为和独立 expected 来源；
-- 所有新增行为都经历过可确认的 red → green；
-- 测试通过生产公开 Seam，没有为测试泄漏不必要实现细节；
-- 没有明显 tautological、implementation-coupled 或 horizontal-slicing 测试；
+- 每个新增测试都能说明它验证的外部行为和独立 expected 来源。
+- 所有新增行为都经历过可确认的 red → green。
+- 测试通过生产公开 Seam，没有为测试泄漏不必要实现细节。
+- 没有明显 tautological、implementation-coupled 或 horizontal-slicing 测试。
 - 相关现有验证仍通过；未验证部分明确记录。
 
 ## Boundaries

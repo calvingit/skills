@@ -19,7 +19,7 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 - 只有反馈循环已经证明 red-capable、deterministic、fast、agent-runnable，且复现已经最小化时，才可说明理由后跳过已满足的诊断阶段并直接修复。
 - 跨层、间歇性、环境相关或性能问题：走完整诊断流程。
 
-探索代码时按项目现有约定发现领域文档、ADRs/decision records 和 coding standards；修改前检查工作区状态，不覆盖已有改动。不要假定这些资料存在于固定目录。
+探索代码时按项目现有约定发现领域文档、ADRs / decision records 和 coding standards；修改前检查工作区状态，不覆盖已有改动。不要假定这些资料存在于固定目录。
 
 ## 脱敏
 
@@ -71,7 +71,7 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 
 ## 阶段 6：强制简化
 
-修复和回归测试通过后，调用 `simplify` skill，范围是完整 debug diff 及直接回归测试。不要依赖某个 Agent Runtime 的固定 skills 安装路径。
+修复和回归测试通过后，调用 `simplify` Skill，范围是完整 debug diff 及直接回归测试。不要依赖某个 Agent Runtime 的固定 skills 安装路径。
 
 - `completed` 且有改动：重跑相关测试、适用的定向静态检查、格式检查和 diff whitespace 检查。
 - `no_change`：保留 receipt，复用仍有效的验证证据。
@@ -90,10 +90,10 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 - `simplify` 已返回 `completed` 或 `no_change`。
 - 报告包含根因、修改、验证、未验证项和剩余风险。
 
-若问题需要架构调整，在修复完成后再转 `review-architecture`，不要在本次 debug 中扩大范围。
+若问题需要架构调整，在修复完成后再交给 `review-architecture`，不要在本次 debug 中扩大范围。
 
 ## 跨会话
 
-只有任务无法在当前会话完成时，才创建最小诊断断点文档。路径优先遵循目标仓库已有 task/debug 约定；没有约定时先询问或在当前会话中保留状态，不擅自规定仓库根目录固定文件名。
+只有任务无法在当前会话完成时，才创建最小诊断断点文档。路径优先遵循目标仓库已有 task / debug 约定；没有约定时先询问或在当前会话中保留状态，不擅自规定仓库根目录固定文件名。
 
 断点只记录症状、预期来源、反馈命令、观察、已验证假设、根因状态和下一步。新会话恢复时读取该断点，从已验证状态继续；问题解决、确认不是 bug 或用户放弃排查后，说明其清理或保留状态，不留过期诊断事实。

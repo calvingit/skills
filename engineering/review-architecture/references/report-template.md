@@ -45,7 +45,7 @@
 - <被检查但 evidence 不支持的问题，以及反证>
 
 ## Next Step
-- <用户选择审查发现后交给对应 skill；review-architecture 本身不实现>
+- <用户选择审查发现后交给对应 Skill；review-architecture 本身不实现>
 ```
 
 若项目存在 lint、dependency check、architecture guard 或 baseline，可作为 Evidence 记录命令、退出状态和摘要；不要为了填充模板要求项目必须具备这些机制。
