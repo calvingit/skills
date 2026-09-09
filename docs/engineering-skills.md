@@ -73,7 +73,9 @@ Engineering workflow
 
 ## Ticket 执行
 
-Loop 默认串行执行 ready ticket。只有依赖、写入范围、共享副作用和集成顺序均有证明，并且运行提供并发上限时才允许并行。
+Loop 在共享工作区串行执行，每次运行处理一张 ticket 的一次 attempt，并优先恢复未完成的 attempt。当前 runtime 不提供 ticket 或 verify/review 并行参数。
+
+需求变更时先停止当前任务的执行，再协调上游文档与 tickets；历史 done 保留，但旧证据必须确认仍适用。全部 tickets 完成后，还需通过绑定当前需求、图与代码快照的整体验收，才能报告交付完成。
 
 单张 ticket 的 capability 流程为：
 

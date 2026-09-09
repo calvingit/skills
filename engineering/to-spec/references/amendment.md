@@ -14,6 +14,6 @@ An amendment re-evaluates only affected seams. Keep testing decisions that still
 
 ## Confirm and hand off
 
-Show the requirement delta, spec impact, and possibly affected HLD decisions / tickets first. Update in place after confirmation, then report kept, added, or removed R / AC IDs.
+Show the requirement delta, spec impact, and possibly affected HLD decisions / tickets first. Before writing when a graph exists, have `loop` stop task dispatch, interrupt workers, preserve receipts, and block every active attempt. Update in place after confirmation, then report kept, added, or removed R / AC IDs.
 
-When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. If affected tickets are running, ask `loop` to stop related dispatch, stop the affected workers, reclaim their partial receipts, and keep evidence. Do not edit downstream artifacts.
+When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. Graph reconciliation must also explicitly confirm unaffected ticket contracts/evidence against the new authority; a stable R / AC ID alone does not prove unchanged meaning. Do not edit downstream artifacts.

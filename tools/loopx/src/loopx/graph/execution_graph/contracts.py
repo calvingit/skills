@@ -388,10 +388,16 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
     execution = ticket["execution"]
     execution_fields = {"attempt_sequence", "evidence", "blocker", "current_attempt", "reopen_context"}
     execution_problems = validate_shape(
-        execution, execution_fields, path=path, ticket_id=ticket_id, field="execution"
+        execution, execution_fields | ({"authority"} if isinstance(execution, dict) and "authority" in execution else set()), path=path, ticket_id=ticket_id, field="execution"
     )
     problems.extend(execution_problems)
     if not execution_problems and isinstance(execution, dict):
+        if "authority" in execution:
+            authority = execution["authority"]
+            errors = validate_shape(authority, {"fingerprint", "reason"}, path=path, ticket_id=ticket_id, field="execution.authority")
+            problems.extend(errors)
+            if not errors and (not isinstance(authority["fingerprint"], str) or not re.fullmatch(r"[0-9a-f]{64}", authority["fingerprint"]) or not non_empty_string(authority["reason"])):
+                problems.append(invalid_field(path, ticket_id, "execution.authority", "Authority requires a SHA-256 fingerprint and a reconciliation reason."))
         sequence = execution["attempt_sequence"]
         if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
             problems.append(invalid_field(path, ticket_id, "execution.attempt_sequence", "attempt_sequence must be a non-negative integer."))

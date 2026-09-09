@@ -4,10 +4,12 @@ import argparse
 import contextlib
 import io
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
 from . import __version__
+from . import delivery
 from .graph.execution_graph.cli import main as graph_main
 from .cli_backend import BackendUnavailable, CliBackend
 from .loop_runtime import _git_metadata_fingerprint, _snapshot_changed, _workspace_snapshot, run_ticket
@@ -30,6 +32,8 @@ def _graph_command(arguments: list[str], *, command_name: str | None = None) -> 
     except json.JSONDecodeError:
         return _emit({"version": 1, "ok": False, "command": "graph", "result": {}, "problems": [{"category": "runtime", "code": "invalid_graph_output", "detail": output.getvalue()}]})
     operation = arguments[0] if arguments else "unknown"
+    if command_name == "loop.status":
+        payload.setdefault("result", {})["delivery_review"] = delivery.status(Path(arguments[1]))
     wrapped = {"version": 1, "ok": bool(payload.get("ok")), "command": command_name or f"graph.{operation}", "result": payload.get("result", {}), "graph": payload.get("graph", {}), "problems": payload.get("problems", [])}
     print(json.dumps(wrapped, ensure_ascii=False, indent=2))
     return code
@@ -68,11 +72,11 @@ def _worker(args: argparse.Namespace) -> int:
         selected, reason, available = select_provider(args.provider)
     except ValueError as exc:
         return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "failed", "agent_instance_id": None, "selected_provider": None, "model": args.model, "routing_reason": "invalid runtime provider configuration", "available_providers": [], "payload": {}, "artifact": None}, "problems": [{"category": "contract", "code": "invalid_runtime_provider", "detail": str(exc)}]})
-    if selected is None:
-        return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "blocked", "agent_instance_id": None, "selected_provider": None, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": {}, "artifact": None}, "problems": [{"category": "provider", "code": "unavailable", "detail": reason}]})
     workspace = Path(args.task_dir).resolve()
     if not workspace.is_dir():
         return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "failed", "agent_instance_id": None, "selected_provider": selected, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": {}, "artifact": None}, "problems": [{"category": "workspace", "code": "workspace_invalid", "detail": f"Workspace directory does not exist: {workspace}"}]})
+    if selected is None:
+        return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "blocked", "agent_instance_id": None, "selected_provider": None, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": {}, "artifact": None}, "problems": [{"category": "provider", "code": "unavailable", "detail": reason}]})
     try:
         before = _workspace_snapshot(workspace)
         metadata_before = _git_metadata_fingerprint(workspace)
@@ -136,8 +140,15 @@ def build_parser() -> argparse.ArgumentParser:
     loop_run.add_argument("task_dir")
     loop_run.add_argument("--provider", choices=PROVIDERS)
     loop_run.add_argument("--scope", action="append", required=True)
+    loop_run.add_argument("--ticket", help="Explicit ticket to run or resume.")
     loop_status = loop_commands.add_parser("status", help="Inspect graph and execution status.")
     loop_status.add_argument("task_dir")
+    review_prepare = loop_commands.add_parser("delivery-prepare", help="Pin the final workspace and current task contract for whole-delivery review.")
+    review_prepare.add_argument("task_dir")
+    review_prepare.add_argument("--workspace", default=".")
+    review_complete = loop_commands.add_parser("delivery-complete", help="Accept verify/review evidence for the prepared final snapshot.")
+    review_complete.add_argument("task_dir")
+    review_complete.add_argument("--input", required=True)
 
     worker = commands.add_parser("worker", help="Run an external prompt in a selected runtime.")
     worker_commands = worker.add_subparsers(dest="worker_command", required=True)
@@ -167,6 +178,15 @@ def main(argv: list[str] | None = None) -> int:
         return _graph_command(args.args)
     if args.command == "worker":
         return _worker(args)
+    if args.loop_command in {"delivery-prepare", "delivery-complete"}:
+        try:
+            if args.loop_command == "delivery-prepare":
+                result = delivery.prepare(Path(args.task_dir), Path(args.workspace))
+            else:
+                result = delivery.complete(Path(args.task_dir), json.loads(Path(args.input).read_text()))
+            return _emit({"version": 1, "ok": True, "command": args.loop_command, "result": result, "problems": []})
+        except (ValueError, OSError, KeyError, TypeError, subprocess.SubprocessError) as exc:
+            return _emit({"version": 1, "ok": False, "command": args.loop_command, "result": {}, "problems": [{"category": "delivery", "code": "delivery_not_accepted", "detail": str(exc)}]})
     if args.loop_command == "status":
         return _graph_command(["inspect", args.task_dir], command_name="loop.status")
     try:
@@ -175,5 +195,5 @@ def main(argv: list[str] | None = None) -> int:
         return _emit({"version": 1, "ok": False, "command": "loop.run", "result": {}, "problems": [{"category": "contract", "code": "invalid_runtime_provider", "detail": str(exc)}]})
     if selected is None:
         return _emit({"version": 1, "ok": False, "command": "loop.run", "result": {}, "problems": [{"category": "provider", "code": "unavailable", "detail": reason}]})
-    result = run_ticket(Path(args.task_dir), provider=selected, allowed_write_scope=args.scope)
+    result = run_ticket(Path(args.task_dir), provider=selected, allowed_write_scope=args.scope, ticket_id=args.ticket)
     return _emit({"version": 1, "ok": result.outcome == "completed", "command": "loop.run", "result": {**result.as_dict(), "selected_provider": selected, "model": None, "routing_reason": reason, "available_providers": available}, "problems": list(result.problems)})

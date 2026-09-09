@@ -55,8 +55,6 @@ class CapabilityAdapterTests(unittest.TestCase):
         backend = MutatingBackend()
         CapabilityAdapter(backend).run(
             {"ticket": {"id": "T001"}, "attempt": 1},
-            isolation_proof={"dependencies": True, "write_scope": True, "shared_side_effects": True, "integration_order": True},
-            concurrency_limit=2,
         )
 
         review_bundle = next(bundle for name, capability, bundle in backend.calls if name == "send" and capability == "review")
@@ -107,33 +105,16 @@ class CapabilityAdapterTests(unittest.TestCase):
         self.assertEqual([item[1] for item in backend.calls if item[0] == "create"], ["implement", "verify"])
         self.assertEqual(backend.closed, ["implement-handle", "verify-handle"])
 
-    def test_parallel_verify_and_review_requires_all_isolation_proofs(self) -> None:
-        class ParallelBackend(FakeBackend):
-            def __init__(self) -> None:
-                super().__init__()
-                self.active = 0
-                self.maximum = 0
-                self.lock = threading.Lock()
-
-            def wait(self, handle: str) -> dict[str, object]:
-                if handle != "implement-handle":
-                    with self.lock:
-                        self.active += 1
-                        self.maximum = max(self.maximum, self.active)
-                    time.sleep(0.03)
-                    with self.lock:
-                        self.active -= 1
+    def test_review_waits_for_verification_result(self) -> None:
+        class EvidenceBackend(FakeBackend):
+            def wait(self, handle):
+                if handle == "verify-handle":
+                    return {"outcome": "completed", "payload": {"verification": [{"command": "check", "exit_code": 1, "summary": "failure"}]}}
                 return super().wait(handle)
-
-        proof = {"dependencies": True, "write_scope": True, "shared_side_effects": True, "integration_order": True}
-        serial_backend = ParallelBackend()
-        CapabilityAdapter(serial_backend).run({"ticket": {"id": "T001"}, "attempt": 1}, concurrency_limit=2)
-        self.assertEqual(serial_backend.maximum, 1)
-
-        parallel_backend = ParallelBackend()
-        result = CapabilityAdapter(parallel_backend).run({"ticket": {"id": "T001"}, "attempt": 1}, isolation_proof=proof, concurrency_limit=2)
-        self.assertEqual(result["outcome"], "completed")
-        self.assertEqual(parallel_backend.maximum, 2)
+        backend = EvidenceBackend()
+        CapabilityAdapter(backend).run({"ticket": {"id": "T001"}, "attempt": 1})
+        bundle = next(item[2] for item in backend.calls if item[:2] == ("send", "review"))
+        self.assertEqual(bundle["capability_receipts"]["verify"]["payload"]["verification"][0]["exit_code"], 1)
 
     def test_interrupt_cancels_active_handles(self) -> None:
         backend = FakeBackend()

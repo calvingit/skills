@@ -53,3 +53,35 @@ def authority_index(
     except (OSError, UnicodeError) as exc:
         problems.append(problem("authority", "unreadable_authority", str(exc)))
     return index, problems
+
+
+# Fingerprints are change detectors, not semantic equivalence judgements.
+# Ignore only document-end blank lines and platform newline encoding.
+def authority_fingerprint(task_dir: Path) -> str:
+    import hashlib
+    import json
+    documents = {}
+    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
+        path = task_dir / name
+        documents[name] = path.read_text(encoding="utf-8").rstrip("\n") if path.is_file() else None
+    return hashlib.sha256(json.dumps(documents, sort_keys=True).encode()).hexdigest()
+
+
+def contract_fingerprint(task_dir: Path, ticket: dict) -> str:
+    import hashlib
+    import json
+    contract = {key: ticket[key] for key in (
+        "id", "title", "covers", "design_decisions", "what_to_build",
+        "constraints", "acceptance_criteria", "dependencies",
+    )}
+    return hashlib.sha256((authority_fingerprint(task_dir) + json.dumps(contract, sort_keys=True)).encode()).hexdigest()
+
+
+def bind_authority(task_dir: Path, ticket: dict, reason: str) -> None:
+    ticket["execution"]["authority"] = {
+        "fingerprint": contract_fingerprint(task_dir, ticket), "reason": reason,
+    }
+
+
+def authority_current(task_dir: Path, ticket: dict) -> bool:
+    return ticket["execution"].get("authority", {}).get("fingerprint") == contract_fingerprint(task_dir, ticket)

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass
-from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable, Protocol
 from uuid import uuid4
 import threading
@@ -80,8 +79,6 @@ class CapabilityAdapter:
         self,
         bundle: dict[str, Any],
         *,
-        isolation_proof: dict[str, bool] | None = None,
-        concurrency_limit: int = 1,
         after_capability: Callable[[CapabilityResult], None] | None = None,
         on_event: Callable[[dict[str, Any]], None] | None = None,
         session: CapabilitySession | None = None,
@@ -110,25 +107,12 @@ class CapabilityAdapter:
         if implement.outcome != "completed":
             return self._aggregate(results)
         implementation_bundle = self._with_handoff(bundle, implement)
-        parallel = concurrency_limit >= 2 and all((isolation_proof or {}).get(name) is True for name in ("dependencies", "write_scope", "shared_side_effects", "integration_order"))
-        if parallel:
-            with ThreadPoolExecutor(max_workers=2) as executor:
-                futures = [executor.submit(self._run_one, capability, implementation_bundle, ticket["id"], attempt, None, on_event, keep_open=False) for capability in ("verify", "review")]
-                try:
-                    results.extend(future.result()[0] for future in futures)
-                except Exception:
-                    self.interrupt()
-                    raise
-            if after_capability is not None:
-                for result in results[1:]:
-                    after_capability(result)
-        else:
-            verify, _ = self._run_one("verify", implementation_bundle, ticket["id"], attempt, after_capability, on_event, keep_open=False)
-            results.append(verify)
-            if verify.outcome == "completed":
-                review_bundle = self._with_handoff(implementation_bundle, verify)
-                review, _ = self._run_one("review", review_bundle, ticket["id"], attempt, after_capability, on_event, keep_open=False)
-                results.append(review)
+        verify, _ = self._run_one("verify", implementation_bundle, ticket["id"], attempt, after_capability, on_event, keep_open=False)
+        results.append(verify)
+        if verify.outcome == "completed":
+            review_bundle = self._with_handoff(implementation_bundle, verify)
+            review, _ = self._run_one("review", review_bundle, ticket["id"], attempt, after_capability, on_event, keep_open=False)
+            results.append(review)
         return self._aggregate(results)
 
     @staticmethod

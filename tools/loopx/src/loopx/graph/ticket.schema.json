@@ -59,6 +59,14 @@
       "additionalProperties": false,
       "required": ["attempt_sequence", "evidence", "blocker", "current_attempt", "reopen_context"],
       "properties": {
+        "authority": {
+          "type": "object", "additionalProperties": false,
+          "required": ["fingerprint", "reason"],
+          "properties": {
+            "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+            "reason": {"type": "string", "minLength": 1}
+          }
+        },
         "attempt_sequence": {"type": "integer", "minimum": 0},
         "evidence": {
           "type": "object",

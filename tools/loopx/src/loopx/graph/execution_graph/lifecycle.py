@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 from pathlib import Path
 from typing import Any
-from .authority import authority_index
+from .authority import authority_index, authority_current, bind_authority
 from .contracts import envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_summary_items, validate_ticket
 from .graph import public_ticket, ticket_readiness, validate_graph
 from .store import acquire_write_lock, atomic_write_ticket, release_lock, validated_snapshot
@@ -119,9 +119,16 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
     if issues:return envelope(operation,ok=False,problems=issues),1
     try:
         tickets,graph,issues=validated_snapshot(task_dir)
-        if issues:return envelope(operation,ok=False,graph=graph,problems=issues),1
+        if issues and (operation != "block" or not tickets):return envelope(operation,ok=False,graph=graph,problems=issues),1
         by_id={t["id"]:t for t in tickets}; ticket=by_id.get(ticket_id)
         if ticket is None:return envelope(operation,ok=False,graph=graph,problems=[problem("graph","unknown_ticket",f"Ticket does not exist: {ticket_id}",ticket_id=ticket_id)]),1
+        if operation in {"start", "retry", "complete", "reopen"}:
+            # An unexecuted, manually prepared ticket may bind on its first claim.
+            first_claim = operation == "start" and ticket["execution"]["attempt_sequence"] == 0 and "authority" not in ticket["execution"]
+            if not first_claim and not authority_current(task_dir, ticket):
+                return envelope(operation, ok=False, graph=graph, problems=[problem("authority", "upstream_changed", "Reconcile current requirements before execution or evidence reuse.", ticket_id=ticket_id)]), 1
+            if operation == "start" and any(not authority_current(task_dir, by_id[dep]) for dep in ticket["dependencies"]):
+                return envelope(operation, ok=False, graph=graph, problems=[problem("authority", "stale_dependency", "Dependency evidence needs reconciliation.", ticket_id=ticket_id)]), 1
         if operation=="start":candidate,issues=apply_start(ticket,request,by_id)
         elif operation=="retry":candidate,issues=apply_retry(ticket,request)
         elif operation=="block":candidate,issues=apply_block(ticket,request)
@@ -130,11 +137,15 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
         elif operation=="reopen":candidate,issues=apply_reopen(ticket,request)
         else:candidate,issues=None,[problem("contract","unsupported_operation",f"Unsupported mutation: {operation}")]
         if issues or candidate is None:return envelope(operation,ok=False,graph=graph,problems=issues),1
+        if operation == "start":
+            bind_authority(task_dir, candidate, "Execution contract confirmed at start.")
         prospective=[candidate if x["id"]==ticket_id else x for x in tickets]
         authority,authority_issues=authority_index(task_dir); graph_issues,_=validate_graph(prospective,authority,has_hld=(task_dir/"HLD.md").is_file()); issues=authority_issues+graph_issues
-        if issues:return envelope(operation,ok=False,graph=graph,problems=issues),1
+        if issues and operation != "block":return envelope(operation,ok=False,graph=graph,problems=issues),1
         issues=atomic_write_ticket(task_dir,candidate)
         if issues:return envelope(operation,ok=False,graph=graph,problems=issues),1
         _,graph,issues=validated_snapshot(task_dir)
+        if operation == "block":
+            return envelope(operation, ok=True, result={"ticket": public_ticket(candidate), "remaining_problems": issues}, graph=graph, problems=[]), 0
         return envelope(operation,ok=not issues,result={"ticket":public_ticket(candidate)},graph=graph,problems=issues),(0 if not issues else 1)
     finally: release_lock(descriptor)

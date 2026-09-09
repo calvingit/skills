@@ -1,38 +1,42 @@
 ---
 name: loop
-description: Consume a ticket graph with loopx, schedule execution units in serial or multi-agents mode, and run delivery review through the completion gate.
+description: Execute a ticket graph with loopx, reconcile changed requirements, and verify the final delivery against its current contract.
 ---
 
 # Loop
 
-This skill owns ticket selection, attempts, workspace baseline, scheduling mode, receipt acceptance, and the completion gate. Concrete execution comes from the installed `loopx` CLI.
+Own ticket selection, attempts, workspace scope, receipt acceptance, and final delivery. Use the installed `loopx` CLI; graph state is written only through `loopx graph`.
 
-## Entry
+## Execute
 
-On start or resume, inspect the graph first:
+Start or resume with `loopx loop status <task-dir>`. It includes the graph, stale authority, and final delivery-review status; no second `graph inspect` is needed.
 
-```bash
-loopx loop status <task-dir>
-loopx graph inspect <task-dir>
-```
+Read the task's SPEC, optional ACCEPTANCE and HLD, and the current tickets. Use only their confirmed acceptance conditions. Missing optional documents do not add prerequisites.
 
-Run the current ready ticket:
+`loopx loop run <task-dir> --scope <path>` executes one attempt: implement → verify → review. A current attempt is resumed before other ready tickets. Use `--ticket <id>` to select explicitly when several attempts need recovery. The shared-workspace runtime is serial; do not claim ticket parallelism or run verify and review concurrently.
 
-```bash
-loopx loop run <task-dir> --scope <path>
-```
+After each result:
 
-Two execution modes only:
+- `completed`: inspect the graph again and run the next ready ticket.
+- `retry`: continue the same ticket with its recorded findings and persisted scope.
+- `blocked`: report the blocker. Verify its release condition before `graph unblock`; do not busy-retry an environment, permission, or requirement failure.
+- `interrupted` or `failed`: preserve partial code and receipts; inspect and resolve the reported cause before resuming.
+- No ready tickets: report unresolved blockers, coverage gaps, or stale authority. Enter final delivery review only when `delivery_ready` is true.
 
-- `serial`: one session, implement → verify → code-review. Default.
-- `multi-agents`: several sub-agents for independent tickets or capabilities. Enable only when write scope, shared side effects, and integration order have isolation evidence.
+Workers implement, verify, or review the current scope. They do not modify upstream artifacts, schedule siblings, edit graph state, or commit. Verify runs the necessary commands; Loop accepts the recorded evidence and checks workspace, Git, graph, and completion bounds. Do not substitute self-report for results or invent new acceptance conditions.
 
-## Rules
+## Requirement changes
 
-- On start, load the task's existing `SPEC.md`, optional `ACCEPTANCE.md`, optional `HLD.md`, and `tickets/*.json` as fact sources and keep the contract unchanged. Loop does not invent conditions for a missing optional protocol, scenario map, or expected result. It blocks only when a ticket or receipt cannot be validated, required evidence is missing, or a bound is violated.
-- Only this skill may write `start`, `retry`, `block`, `unblock`, `complete`, and `reopen` through `loopx graph`. A worker runs the current ticket's capability. It does not schedule siblings, edit the graph, commit, or push.
-- Judge completion from the actual workspace, scope, verification output, review, and receipts. Do not accept a worker's verbal claim. Default to `serial`. `multi-agents` needs isolation evidence for dependencies, write scope, shared side effects, and integration order.
-- After the completion gate passes, do not commit version-control changes unless the caller explicitly authorised it. Accept only acceptance conditions from the ticket, SPEC, or a separate protocol the task explicitly enabled, plus command output, workspace diff, receipts, and review evidence. Do not add acceptance conditions, and do not let worker self-report replace independent evidence.
-- `verify` runs the commands the task needs and records actual results. Loop only accepts that evidence, checks scope / Git / graph bounds, and then `unblock`, retry, block, or complete. A separate `ACCEPTANCE.md` is used only when the task explicitly needs it. It is not a default prerequisite.
+Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch for this task, interrupt active workers, confirm they have stopped writing, preserve their partial receipts, and `graph block` each active attempt. Block can preserve a stopped attempt even when new requirement IDs temporarily leave graph coverage invalid.
 
-Command input, interrupts, blockers, and transaction recovery: [Runtime recovery contract](../../docs/loop-runtime.md).
+Route requirement changes to `to-spec`, shared design changes to `high-level-design`, then graph changes to `to-tickets`. Do not pass new chat requirements straight into an old ticket. A changed contract blocks resume, retry, completion, and reopening until reconciled.
+
+`stale_authority` means the current contract/evidence needs impact review, not that historical delivery failed. Keep historical done records. Confirm unaffected contracts and evidence through reconciliation; create correction/replacement tickets for changed behaviour. Use `reopen` only for defects against a currently confirmed unchanged contract.
+
+## Final delivery
+
+`all_active_done` describes ticket history. It does not prove the final code meets the latest SPEC. When `delivery_ready` is true, read [references/delivery-review.md](references/delivery-review.md), run whole-task verification and code-review, then accept the snapshot-bound receipt. Report delivery complete only when `loop status` shows `delivery_review.state: passed`.
+
+Commit only when explicitly authorised. A commit or later code/contract/graph change invalidates a prior final snapshot; review the resulting snapshot before reporting final completion.
+
+Interrupts, graph operations, receipts, and recovery: [Runtime contract](../../docs/loop-runtime.md).

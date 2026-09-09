@@ -16,6 +16,7 @@ from typing import Any, Callable
 
 GRAPH_CLI = Path(__file__).with_name("graph") / "ticket_graph.py"
 
+from .graph.execution_graph.authority import authority_fingerprint as _authority_fingerprint, authority_current
 from .graph.execution_graph.contracts import TICKET_ID_RE, validate_worker_receipt  # noqa: E402
 from .capability_adapter import CapabilityAdapter, CapabilitySession  # noqa: E402
 from .cli_backend import BackendUnavailable, CliBackend  # noqa: E402
@@ -309,16 +310,6 @@ def _workspace_baseline(workspace_root: Path) -> dict[str, Any]:
     }
 
 
-def _authority_fingerprint(task_dir: Path) -> str:
-    digest = hashlib.sha256()
-    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
-        digest.update(name.encode("utf-8")); digest.update(b"\0")
-        path = task_dir / name
-        if path.is_file(): digest.update(path.read_bytes())
-        digest.update(b"\0")
-    return digest.hexdigest()
-
-
 def _workspace_relative(workspace_root: Path, path: Path) -> str | None:
     try:
         return path.resolve().relative_to(workspace_root.resolve()).as_posix()
@@ -436,15 +427,11 @@ def reopen_ticket(
     ticket = shown.get("result", {}).get("ticket", {})
     attempt = ticket.get("execution", {}).get("attempt_sequence") if isinstance(ticket, dict) else None
     try:
-        artifact = load_receipt_artifact(task_dir.resolve(), ticket_id=ticket_id, attempt=attempt)
-    except (TypeError, ValueError) as exc:
-        return _result("failed", ticket_id, shown.get("graph", {}), problems=[_problem("missing_authority_snapshot", str(exc))])
-    try:
-        current_fingerprint = _authority_fingerprint(task_dir.resolve())
+        current = authority_current(task_dir.resolve(), ticket)
     except (OSError, UnicodeError) as exc:
         return _result("failed", ticket_id, shown.get("graph", {}), problems=[_problem("authority_unreadable", str(exc))])
-    if artifact.get("authority_fingerprint") != current_fingerprint:
-        return _result("failed", ticket_id, shown.get("graph", {}), problems=[_problem("upstream_changed", "SPEC.md or HLD.md changed since the completed attempt.")])
+    if not current:
+        return _result("failed", ticket_id, shown.get("graph", {}), problems=[_problem("upstream_changed", "Reconcile the current contract before reopening historical delivery.")])
     reopened = _graph(
         "reopen",
         task_dir.resolve(),
@@ -469,6 +456,8 @@ def _completion_gate_problem(task_dir: Path, ticket: dict[str, Any], receipt: di
         return _problem("completion_gate_failed", "Every local AC needs passed evidence before complete.")
     if receipt["blocker"] is not None or receipt["simplification"]["result"] not in {"completed", "no_change"}:
         return _problem("completion_gate_failed", "A completed receipt cannot retain a blocker or blocked simplification.")
+    if not receipt["verification"] or any(item["exit_code"] != 0 for item in receipt["verification"]):
+        return _problem("completion_gate_failed", "Verification commands must succeed before completion or commit.")
     review = receipt["review"]
     if (
         review["contract"] != "pass"
@@ -523,6 +512,8 @@ def _worker_request(
         "agent_instance_id": agent_instance_id,
         "dependencies": dependency_evidence,
         "existing_changes": existing_changes,
+        "baseline": started_ticket["execution"]["current_attempt"]["baseline"],
+        "repair_findings": started_ticket["execution"]["reopen_context"],
         "allowed_write_scope": scope,
         "temporary_write_scope": temporary_write_scope,
     }
@@ -532,8 +523,6 @@ def dispatch_ready(
     task_dir: Path,
     worker: Worker,
     *,
-    concurrency_limit: int = 1,
-    isolation_proof: dict[str, bool] | None = None,
     workspace_root: Path | None = None,
     baseline: dict[str, Any] | None = None,
     existing_changes: dict[str, list[str]] | None = None,
@@ -542,7 +531,7 @@ def dispatch_ready(
     verification_temporary_scope: list[str] | None = None,
     commit_on_complete: bool = False,
 ) -> list[RuntimeResult]:
-    """Dispatch the current frontier serially unless all isolation proofs pass."""
+    """Dispatch one frontier batch serially in a shared workspace."""
     task_dir = task_dir.resolve()
     ready_payload = _graph("list", task_dir)
     if not ready_payload.get("ok"):
@@ -576,20 +565,19 @@ def dispatch_ready(
         ]
     if not candidates:
         return []
-    return [
-        run_ticket(
-            task_dir,
-            worker,
-            ticket_id=item["id"],
-            workspace_root=workspace_root,
-            baseline=baseline,
-            existing_changes=existing_changes,
+    results = []
+    for item in candidates:
+        result = run_ticket(
+            task_dir, worker, ticket_id=item["id"], workspace_root=workspace_root,
+            baseline=baseline, existing_changes=existing_changes,
             allowed_write_scope=(allowed_write_scopes or {}).get(item["id"], allowed_write_scope),
             verification_temporary_scope=verification_temporary_scope,
             commit_on_complete=commit_on_complete,
         )
-        for item in candidates
-    ]
+        results.append(result)
+        if result.outcome != "completed":
+            break
+    return results
 
 
 def run_ticket(
@@ -602,8 +590,6 @@ def run_ticket(
     baseline: dict[str, Any] | None = None,
     existing_changes: dict[str, list[str]] | None = None,
     allowed_write_scope: list[str] | None = None,
-    isolation_proof: dict[str, bool] | None = None,
-    concurrency_limit: int = 1,
     adapter_session: CapabilitySession | None = None,
     provider: str | None = None,
     cli_session_dir: Path | None = None,
@@ -622,23 +608,19 @@ def run_ticket(
         return _result("blocked", ticket_id or "", inspected.get("graph", {}), problems=inspected.get("problems", []))
 
     ready = _graph("list", task_dir)
-    candidates = [item for item in ready.get("result", {}).get("tickets", []) if item.get("readiness") == "ready"]
-    if ticket_id is not None:
-        candidates = [item for item in candidates if item.get("id") == ticket_id]
+    if not ready.get("ok"):
+        return _result("blocked", ticket_id or "", ready.get("graph", {}), problems=ready.get("problems", []))
+    active = ready.get("graph", {}).get("in_progress", [])
     resuming = False
-    if not candidates and ticket_id is None:
-        active_tickets = ready.get("graph", {}).get("in_progress", [])
-        if isinstance(active_tickets, list) and len(active_tickets) == 1:
-            candidates = [{"id": active_tickets[0]}]
-            resuming = True
-        elif isinstance(active_tickets, list) and len(active_tickets) > 1:
-            return _result("blocked", "", ready.get("graph", {}), problems=[_problem("multiple_in_progress", "Multiple in-progress tickets require an explicit ticket_id to resume.")])
-    if not candidates and ticket_id is not None:
-        resumed = _graph("show", task_dir, ticket_id)
-        resumed_ticket = resumed.get("result", {}).get("ticket")
-        if isinstance(resumed_ticket, dict) and resumed_ticket.get("lifecycle", {}).get("phase") == "in_progress":
-            candidates = [{"id": ticket_id}]
-            resuming = True
+    if ticket_id is None and active:
+        if len(active) != 1:
+            return _result("blocked", "", ready.get("graph", {}), problems=[_problem("multiple_in_progress", "Select a ticket explicitly to resume multiple active attempts.")])
+        ticket_id = active[0]
+    resuming = ticket_id in active
+    candidates = [{"id": ticket_id}] if resuming else [
+        item for item in ready.get("result", {}).get("tickets", [])
+        if item.get("readiness") == "ready" and (ticket_id is None or item["id"] == ticket_id)
+    ]
     if not candidates:
         return _result("blocked", ticket_id or "", ready.get("graph", {}), problems=[_problem("ticket_not_ready", "No requested or frontier ticket is ready.")])
     selected_id = candidates[0]["id"]
@@ -646,6 +628,11 @@ def run_ticket(
     ticket = shown.get("result", {}).get("ticket")
     if not isinstance(ticket, dict):
         return _result("blocked", selected_id, shown.get("graph", {}), problems=shown.get("problems", []))
+
+    if resuming and not authority_current(task_dir, ticket):
+        return _result("blocked", selected_id, shown.get("graph", {}), problems=[_problem("upstream_changed", "Stop the old attempt and reconcile requirements before resuming.")])
+    if any(dep in shown.get("graph", {}).get("stale_authority", []) for dep in ticket["dependencies"]):
+        return _result("blocked", selected_id, shown.get("graph", {}), problems=[_problem("stale_dependency", "Reconcile dependency evidence before execution.")])
 
     requested_scope = allowed_write_scope
     if adapter is None and provider is not None:
@@ -715,12 +702,13 @@ def run_ticket(
             return _result("blocked", selected_id, started.get("graph", {}), problems=started.get("problems", []))
         started_ticket = started["result"]["ticket"]
     attempt = started_ticket["execution"]["current_attempt"]["number"]
+    if not authority_current(task_dir, started_ticket):
+        return _result("blocked", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("upstream_changed", "Authority changed before dispatch; reconcile before continuing.")])
     protected_existing = _excluded_paths(current_existing)
     graph_before_worker = _graph_files(task_dir)
     workspace_before_worker = _workspace_snapshot(workspace_root)
     if workspace_before_worker is None:
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("workspace_probe_unavailable", "Loop could not establish a complete workspace status after the graph transition.")])
-    revision_before_worker = _workspace_revision(workspace_root)
     metadata_before_worker = _git_metadata_fingerprint(workspace_root)
     if metadata_before_worker is None:
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("workspace_probe_unavailable", "Loop could not fingerprint Git metadata before the worker ran.")])
@@ -729,6 +717,8 @@ def run_ticket(
     worker_request = _worker_request(task_dir, started_ticket, current_existing, scope, agent_instance_id, temporary_scope)
     runtime_artifact_paths: set[str] = set()
     runtime_artifact_snapshots: dict[Path, bytes] = {}
+
+    repair_findings: str | None = None
 
     def check_protected_state() -> None:
         if _graph_files(task_dir) != graph_before_worker:
@@ -768,8 +758,6 @@ def run_ticket(
 
             aggregate = adapter.run(
                 worker_request,
-                isolation_proof=isolation_proof,
-                concurrency_limit=concurrency_limit,
                 after_capability=checkpoint,
                 session=adapter_session,
                 keep_session=adapter_session is not None,
@@ -778,39 +766,18 @@ def run_ticket(
             relative_aggregate = _workspace_relative(workspace_root, aggregate_path)
             if relative_aggregate is not None:
                 runtime_artifact_paths.add(relative_aggregate)
-            if _graph_files(task_dir) != graph_before_worker:
-                if adapter_session is not None:
-                    adapter.close_session(adapter_session)
-                return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
-            if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-                return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
+            check_protected_state()
             receipt = aggregate.get("receipt") if isinstance(aggregate, dict) else None
             capabilities = aggregate.get("capabilities", []) if isinstance(aggregate, dict) else []
+            # Normalize capability failures once; graph transitions below are shared
+            # by the adapter and direct-worker execution paths.
             failed = next((item for item in capabilities if item.get("outcome") == "failed"), None)
-            blocked = next((item for item in capabilities if item.get("outcome") == "blocked"), None)
-            interrupted = next((item for item in capabilities if item.get("outcome") == "interrupted"), None)
-            if interrupted is not None:
-                if adapter_session is not None:
-                    adapter.close_session(adapter_session)
-                return _result("interrupted", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt)
-            if blocked is not None:
-                if adapter_session is not None:
-                    adapter.close_session(adapter_session)
-                blocker = blocked.get("payload", {}).get("blocker")
-                if not isinstance(blocker, dict):
-                    blocker = {"category": "environment", "reason": "Capability execution was interrupted or blocked.", "release_condition": "The capability runtime becomes available."}
-                blocked_result = _graph("block", task_dir, selected_id, {"blocker": blocker, "evidence": {}})
-                return _result("blocked" if blocked_result.get("ok") else "failed", selected_id, blocked_result.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked_result.get("problems", []))
-            if failed is not None:
+            if failed is not None and isinstance(receipt, dict):
+                repair_findings = _repair_findings(failed.get("payload"))
                 provider_blocker = _provider_blocker(failed.get("payload"))
                 if provider_blocker is not None:
-                    blocked_result = _graph("block", task_dir, selected_id, {"blocker": provider_blocker, "evidence": {}})
-                    return _result("blocked" if blocked_result.get("ok") else "failed", selected_id, blocked_result.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked_result.get("problems", []))
-                findings = _repair_findings(failed.get("payload"))
-                retry = _graph("retry", task_dir, selected_id, {"expected_attempt": attempt, "baseline": _workspace_baseline(workspace_root), "existing_changes": current_existing, "allowed_write_scope": scope, "findings": findings})
-                if not retry.get("ok") and adapter_session is not None:
-                    adapter.close_session(adapter_session)
-                return _result("retry" if retry.get("ok") else "failed", selected_id, retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", []), session=adapter_session if retry.get("ok") else None)
+                    receipt["outcome"] = "blocked"
+                    receipt["blocker"] = provider_blocker
         else:
             receipt = worker(worker_request)  # type: ignore[misc]
             if isinstance(receipt, dict) and receipt.get("outcome") == "completed":
@@ -818,19 +785,17 @@ def run_ticket(
     except Exception as exc:  # worker boundary: preserve graph state for retry
         if adapter_session is not None:
             adapter.close_session(adapter_session)
-        if _graph_files(task_dir) != graph_before_worker:
-            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
-        if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
+        try:
+            check_protected_state()
+        except ValueError as guard_error:
+            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", str(guard_error))])
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_failed", str(exc))])
-    if _graph_files(task_dir) != graph_before_worker:
+    try:
+        check_protected_state()
+    except ValueError as exc:
         if adapter_session is not None:
             adapter.close_session(adapter_session)
-        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt if isinstance(receipt, dict) else None, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
-    if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt if isinstance(receipt, dict) else None, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
-    if any(not path.is_file() or path.read_bytes() != content for path, content in runtime_artifact_snapshots.items()):
-        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("runtime_artifact_modified", "Worker modified a runtime receipt artifact.")])
+        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", str(exc))])
     problems = _receipt_problems(receipt, started_ticket, attempt)
     if problems or not isinstance(receipt, dict):
         if adapter_session is not None:
@@ -861,7 +826,7 @@ def run_ticket(
         if adapter_session is not None:
             adapter.close_session(adapter_session)
         return _result("interrupted", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt)
-    if receipt["outcome"] == "completed":
+    if receipt["outcome"] in {"completed", "failed"}:
         if receipt["blocker"] is None and (receipt["acceptance_protocol_gaps"] or receipt["review"]["protocol_health"] == "gap"):
             receipt["blocker"] = {"category": "requirement", "reason": "Acceptance protocol needs clarification: " + _repair_findings(receipt), "release_condition": "The upstream owner confirms and reconciles the acceptance protocol."}
         if receipt["blocker"] is None and (receipt["unverified_scope"] or receipt["unverified"]):
@@ -875,9 +840,11 @@ def run_ticket(
         if provider_blocker is not None:
             blocked = _graph("block", task_dir, selected_id, {"blocker": provider_blocker, "evidence": {}})
             return _result("blocked" if blocked.get("ok") else "failed", selected_id, blocked.get("graph", {}), attempt=attempt, receipt=receipt, problems=blocked.get("problems", []))
-        findings = _repair_findings(receipt)
+        findings = repair_findings or _repair_findings(receipt)
         retry = _graph("retry", task_dir, selected_id, {"expected_attempt": attempt, "baseline": _workspace_baseline(workspace_root), "existing_changes": current_existing, "allowed_write_scope": scope, "findings": findings})
-        return _result("retry" if retry.get("ok") else "failed", selected_id, retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", []))
+        if not retry.get("ok") and adapter_session is not None:
+            adapter.close_session(adapter_session)
+        return _result("retry" if retry.get("ok") else "failed", selected_id, retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", []), session=adapter_session if retry.get("ok") else None)
 
     try:
         save_receipt(task_dir, receipt, ticket_id=selected_id, attempt=attempt, agent_instance_id=agent_instance_id)
