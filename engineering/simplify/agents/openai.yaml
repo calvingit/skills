@@ -1,5 +1,4 @@
 interface:
   display_name: "Simplify"
-  short_description: "发现或移除偶然复杂度，包括长期 AI coding 沉积的测试驱动抽象与验证脚手架"
-  default_prompt: "使用 simplify 审查或移除指定范围内没有当前生产职责支撑的复杂度。默认只读并聚焦当前 diff 或明确指定的职责；修改需明确授权。报告有证据的候选，或删除 / 合并后的验证结果；证据不足则保留。"
-
+  short_description: "Find or remove accidental complexity, including test-driven abstractions and verification scaffolding left by AI coding"
+  default_prompt: "Use simplify to review or remove complexity in the requested scope that has no current production responsibility. Default to read-only on the current diff or an explicit responsibility; modification requires explicit authorization. Report evidence-backed candidates, or what was removed or merged and validated; keep anything whose evidence is insufficient."

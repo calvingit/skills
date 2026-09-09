@@ -1,105 +1,118 @@
 ---
 name: wayfinding
-description: "为跨会话的技术或方案不确定性建立并推进决策地图；不把不可访问的需求来源误判为技术迷雾。"
+description: Plan a chunk of work too large for one agent session as a shared map of decision tickets, and resolve them one at a time until the way to the destination is clear. Do not treat an unreachable requirement source as technical fog.
 ---
 
 # Wayfinding
 
-当 Destination 可以命名、但重要路径仍处于 **技术迷雾**，而且决策工作无法在单个会话内完成时使用本 Skill。用户明确指定本流程且 Destination 清楚时直接进入。由本 Skill 主动建议从其他工作切换过来时，先说明判断依据并取得确认。Wayfinding 默认只解决决策，不执行最终任务；Destination 可以是一份 SPEC、一个最终决定，也可以是 Notes 明确允许的直接变更。
+A destination can be named, but the way from here to it is still in **fog**, and the decision work will not fit in one session. Wayfinding finds that way. It does not charge at the destination.
 
-## 首次进入、接续与 Destination 变更
+By default this skill produces decisions, not deliverables. The destination might be a SPEC, a locked decision, or — when Notes explicitly allow it — a change made in place.
 
-- **首次进入**：不存在当前 Destination 的 `MAP.md` 时，按「建立地图」创建 `MAP.md` 和当前可描述的决策任务。
-- **跨会话接续**：先读取 `MAP.md` 的 low-resolution view、当前 frontier ticket 和必要依赖；不重新进行无目标的广度调查，不重复请求进入确认，也不覆盖已有 ticket 结论。
-- **Destination 变更或用户请求冲突**：与用户重新划定 Destination。将不再适用的 tickets 标为 superseded 或移入 Out of scope，保留其依据但不得静默沿用旧结论。
+When the user names this flow and the destination is clear, enter directly. When *this* skill suggests switching from other work, state the reason and get confirmation first.
+
+## First entry, resume, destination change
+
+- **First entry**: no `MAP.md` for the current destination. Chart the map: create `MAP.md` and the decision tickets that can already be stated.
+- **Resume across sessions**: read the map's low-resolution view, the current frontier tickets, and necessary dependencies. Do not re-run aimless breadth search, re-ask for entry, or overwrite settled ticket answers.
+- **Destination change or conflicting user request**: redraw the destination with the user. Mark no-longer-applicable tickets superseded or move them to Out of scope. Keep the rationale. Do not silently reuse old answers.
 
 ## Storage and claim
 
-默认使用本地工作文档。如果适用的 `Engineering Skills Profile` 配置了 external issue tracker，就读取其中的 instructions，使用 tracker 原生的 child issue、blocking 和 assignment。没有这项配置也不阻塞流程，继续使用本地模式。
+Default to local working docs. If the applicable `Engineering Skills Profile` configures an external issue tracker, read its instructions and use the tracker's native child issues, blocking, and assignment. Missing that config does not block; stay in local mode.
 
-同时读取 Profile 的 `requirement_authority`，但只用它划分问题类型。外部需求不可访问、需求增量未提供或产品边界未确认属于 requirement gap，应交给用户或 `grilling`；只有目标已经成立而技术路径仍看不清时才属于技术迷雾。Wayfinding 不直接同步外部 PRD，也不把未验证需求写成 decision 结论。
+Read the Profile's `requirement_authority` only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user or `grilling`. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
 
-本地任务目录优先采用用户本次指定，其次采用项目既有任务文档约定；仍不明确且位置会影响项目结构时询问用户。Wayfinding 只在本流程下创建：
+Prefer the task directory the user named this turn, then the project's existing task-doc convention. If the location would change project structure and is still unclear, ask. This flow creates only:
 
-    MAP.md
-    decisions/
-      01-<decision>.md
-      02-<decision>.md
+```text
+MAP.md
+decisions/
+  01-<decision>.md
+  02-<decision>.md
+```
 
-`MAP.md` 是 low-resolution index，不重复保存每项决策的完整内容。每个决策任务只在对应 `decisions/` Markdown 文件中详细记录；决策任务是逻辑工作单元，Markdown 文件只是本地存储形式。
+`MAP.md` is a low-resolution **index**, not a store. Each decision lives in exactly one place — its `decisions/` file. Decision tickets are logical work units; the Markdown files are the local storage form.
 
-## MAP.md
+## The map
 
-固定使用以下 headings，章节内容沿用项目语言：
+Keep these headings. Section bodies follow the project's language.
 
-1. **Destination**：完成分析时应达到的状态，同时固定范围。
-2. **Notes**：后续会话都必须遵循的项目约束、适用 Skill 和长期偏好。
-3. **Decisions so far**：每个已解决决策任务的名称、相对链接和一句话结论。
-4. **Frontier**：所有阻塞依赖已解决、现在可以处理的决策任务。
-5. **Not yet specified**：仍属于 Destination，但目前还无法精确表述为决策任务的技术迷雾。
-6. **Out of scope**：明确不属于当前 Destination 的内容。
+1. **Destination** — what the end of this map looks like. This also fixes scope.
+2. **Notes** — project constraints, skills every session should consult, standing preferences for this effort.
+3. **Decisions so far** — each resolved ticket's name, relative link, and one-line gist of the answer.
+4. **Frontier** — decision tickets whose blockers are resolved and that can be worked now.
+5. **Not yet specified** — fog that is still toward the destination but not yet sharp enough to ticket.
+6. **Out of scope** — work consciously ruled beyond this destination.
 
-技术迷雾是尚未看清的问题空间，Not yet specified 是 `MAP.md` 中记录它的区域，两者不是同义词。问题已经能够精确表述时，即使仍有尚未解除的阻塞依赖，也应创建决策任务；只有问题本身还不能精确表述时才留在 Not yet specified。Out of scope 不会随着 frontier 推进而转化为决策任务，除非用户重画 Destination。
+Fog is the dim view of questions you can tell are coming. **Not yet specified** is where that view is written. They are not synonyms.
+
+**Fog or ticket?** The test is whether you can state the question precisely *now* — not whether you can answer it now.
+
+- Ticket when the question is already sharp, even if it is still blocked.
+- Not yet specified when you cannot yet phrase it that sharply. Don't pre-slice the fog into ticket-sized pieces.
+
+Out of scope never graduates as the frontier advances, unless the user redraws the destination.
+
+In everything the human reads, refer to a map or ticket by its **name**, never by a bare id. The id can ride inside the name.
 
 ## Decision tickets
 
-每个本地决策任务只处理一个决策，或收集做出该决策所需的事实。对应的 Markdown 文件包含：
+Each local ticket resolves one decision, or gathers the facts that decision needs. Its Markdown file contains:
 
-1. 问题。
-2. 类型。
-3. Blocked by。
-4. Status：`open | in-progress | resolved | superseded`。
-5. Claimed by：`unclaimed | <runtime-id>`；Runtime 没有稳定 ID 时使用 `local-session-<UTC timestamp>`。
-6. 事实依据。
-7. 结论。
+1. Question
+2. Type
+3. Blocked by
+4. Status: `open | in-progress | resolved | superseded`
+5. Claimed by: `unclaimed | <runtime-id>`; if the runtime has no stable id, `local-session-<UTC timestamp>`
+6. Evidence
+7. Answer
 
-本地 frontier 只包含 blockers 全部 resolved、Status 为 open 且 Claimed by 为 unclaimed 的 tickets。开始工作前先写入 claim，再重新读取 ticket 和工作区 diff；发现并发 claim、内容变化或冲突时停止，不覆盖另一会话。外部 tracker 则使用 assignment 作为 claim。
+The local frontier is open, unclaimed tickets whose blockers are all resolved. Claim before any work, then re-read the ticket and the workspace diff. Stop on a concurrent claim, content change, or conflict — do not overwrite another session. On an external tracker, assignment is the claim.
 
-类型按解决方式选择：
+Every ticket is either **HITL** — worked *with* a human who speaks for themselves — or **AFK**, driven by the agent alone. Never stand in for the human on a HITL ticket.
 
-**HITL** 表示必须由用户本人参与判断；**AFK** 表示 Agent 可以独立推进。不得由 Agent 代替用户完成 HITL 判断。
+- **Grilling (HITL)**: needs the user's judgement. Use `grilling`'s Design Tree / frontier / round. Domain terms and necessary ADRs stay in sync through the domain-modeling discipline `grilling` orchestrates.
+- **Research (AFK)**: can be answered from the project, docs, or read-only external investigation. Parallelise only when the runtime supports it and current authorisation allows; otherwise treat it as an ordinary frontier ticket.
+- **Prototype (HITL)**: discussion is not enough; a cheap, authorised analysis prototype is needed so the user can react.
+- **Task (HITL or AFK)**: nothing to decide, prototype, or research, but some external prep or human action must happen before a *decision* can be made. A task unblocks a decision. It does not deliver the destination.
 
-- **Grilling (HITL)**：需要用户判断。使用 `grilling` 的 Design Tree / frontier / round 机制，其中的领域术语与必要 ADR 由 `grilling` 编排的 domain-modeling discipline 同步维护。
-- **Research (AFK)**：可以通过项目、文档或只读外部调查查明。只有 Runtime 支持且当前授权允许时才并行委派，否则作为普通 frontier ticket 处理。
-- **Prototype (HITL)**：仅靠讨论无法判断，需要用户明确授权的低成本分析原型。
-- **Task (HITL or AFK)**：没有待决定或调查的内容，但必须先完成某项外部准备或人工动作才能继续决策。Task 只用于解除决策任务的阻塞，不交付 Destination。
+Do not disguise an implementation ticket as a decision. The answer answers the question. It does not include final implementation steps.
 
-不得把 implementation ticket 伪装成决策任务。结论只回答问题，不包含最终代码实施步骤。
+## Chart the map
 
-## 建立地图
+1. Name the destination and fix the scope.
+2. Investigate breadth-first: the decision tickets that can be stated now, their blocking edges, and the remaining fog.
+3. If the user named this flow and the destination is clear, chart immediately. If *this* skill suggested entering, explain why this session cannot converge and get confirmation.
+4. Create `MAP.md` and the tickets that can be stated now. Initial status `open`, claimed by `unclaimed`.
+5. Wire blocking edges and compute the frontier.
+6. Stop charting. Do not resolve several decision tickets in the same session.
 
-1. 命名 Destination 并明确范围。
-2. 广度优先调查，找出当前可准确描述的决策任务、阻塞依赖和技术迷雾。
-3. 用户明确指定本流程且 Destination 清楚时直接建图。主动建议进入时，向用户说明为何无法在当前会话内收敛并取得进入确认。
-4. 创建 `MAP.md` 和当前可描述的决策任务，初始 Status 为 open、Claimed by 为 unclaimed。
-5. 连接阻塞依赖，计算 frontier。
-6. 停止建图；同一会话不要继续解决多个决策任务。
+If there is no technical fog after investigation, do not create a map. Suggest `grilling` when decisions can converge directly. If the requirement is already clear, go to the work the user actually wants.
 
-如果调查后不存在技术迷雾，不创建 Map；决策可直接收敛时建议改用 `grilling` Skill，需求本就清晰时按用户目标直接进入后续工作。
+## Work through the map
 
-## 推进地图
+Never resolve more than one decision ticket per session.
 
-每个会话只解决一个决策任务：
+1. Load the map's low-resolution view, then the chosen frontier ticket and necessary dependencies. Do not load the full history. Zoom related or closed tickets on demand.
+2. Claim first, then re-read files and the workspace diff. Stop on concurrent claim, edits, or conflict; keep both sides and hand back to the user.
+3. Resolve by type. A Grilling ticket asks the current local frontier in one round.
+4. Inside one Grilling ticket, after the user answers a round, do not ask whether to continue. Record the round, recompute the local frontier, and if questions remain, recommend and ask the next round.
+5. Pause only to wait for answers already asked, when the ticket is done, when blocked, or for a closing handoff. "Should I continue?" is not a pause point.
+6. When the ticket is done, write evidence and the answer, set status `resolved`. If it sits past the destination, set `superseded`.
+7. Append a relative link and one-line gist to Decisions so far, and drop the ticket from Frontier.
+8. Create newly specifiable tickets and clear the matching patches from Not yet specified.
+9. Recompute the frontier. Move anything past the destination to Out of scope. If the frontier is not empty, recommend the next takeable ticket in the report — do not start it in this session.
 
-1. 先读取 `MAP.md` 的 low-resolution view，再读取选中的 frontier 决策任务及必要依赖，不加载全部历史；只在需要时展开读取完整内容。
-2. 开始前先 claim ticket，再重新读取文件和工作区 diff；发现并发 claim、修改或冲突时停止，保留双方结论并交回用户处理。
-3. 按类型解决问题；Grilling ticket 按 round 批量提出当前局部 frontier。
-4. 同一 Grilling ticket 内，用户确认当前 round 后不单独询问是否继续：立即记录本 round 结论并重算局部 frontier；若仍有可问问题，直接给出推荐并提出下一 round。
-5. 暂停点仅限于等待用户回答已提出的 round、当前 ticket 已完成、遇到阻塞，或需要收尾交接；不得把「是否继续」作为独立暂停点。
-6. 当前 ticket 完成后，将事实依据和最终结论写入 ticket，Status 改为 resolved；超出 Destination 时改为 superseded。
-7. 在 Decisions so far 中增加相对链接和一句话结论，并从 Frontier 移除该 ticket。
-8. 根据新结论创建已经可以精确表述的决策任务，并将对应内容从 Not yet specified 移出。
-9. 重算 frontier；发现超出 Destination 的内容时移入 Out of scope；若 frontier 非空，在汇报中推荐下一个可处理 ticket，但不得在同一会话继续解决另一个决策任务。
+`MAP.md` and `decisions/` may update incrementally before the map is done. Do not create or edit downstream `SPEC.md`, `HLD.md`, or delivery tickets.
 
-`MAP.md` 和 `decisions/` 可以在收敛前增量更新，但不得提前创建或修改下游 `to-spec` 生成的 SPEC、`high-level-design` 生成的 HLD 或 `to-tickets` 生成的交付任务。
+## Exit
 
-## 退出
+Leave when:
 
-满足以下条件时退出：
+- The current frontier is empty.
+- Every decision ticket is resolved or superseded, with no active claim.
+- Not yet specified holds no fog still pointing at the destination.
+- Every blocking decision has a traceable answer.
 
-- 当前 frontier 为空。
-- 所有决策任务已 resolved 或 superseded，不存在仍 active 的 claim。
-- Not yet specified 中不再有指向 Destination 的技术迷雾。
-- 所有阻塞性决策都有可追溯结论。
-
-退出后汇总结论并请求用户最终确认，再按 Destination 选择出口：需要构建契约时交给 `to-spec`；Destination 只是一个最终决定时输出 decision handoff；Notes 明确允许直接变更时交给对应执行流程。`MAP.md` 与 `decisions/` 保留为决策依据，不承担实现说明。
+Then summarise, get the user's final confirmation, and choose the exit from the destination: `to-spec` when a build contract is needed; a decision handoff when the destination *is* the decision; the matching execution flow when Notes explicitly allow an in-place change. Keep `MAP.md` and `decisions/` as the decision record. They are not implementation notes.

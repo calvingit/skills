@@ -1,6 +1,6 @@
-# ACCEPTANCE.md 模板
+# ACCEPTANCE.md template
 
-只有需要独立版本、跨 ticket 复用场景或复杂协议矩阵时才创建。Create 与 Amendment 保留当前任务需要的章节；不适用的写明原因，不用占位符。
+Create this only when a separately versioned protocol, cross-ticket reusable scenarios, or a complex protocol matrix is needed. Create and Amendment keep the sections this task needs. If a section does not apply, say why. No placeholders.
 
 ````markdown
 ---
@@ -13,37 +13,37 @@ owner: to-spec
 
 ## Public Interface
 
-- <CLI / HTTP / JSON / schema / 退出码 / 权限或 artifact 边界；没有则写 None 及原因>
+- <CLI / HTTP / JSON / schema / exit codes / permission or artifact bounds; else None and why>
 
 ## Observable Behavior
 
-- <不查看实现即可观察的外部行为>
+- <External behaviour observable without looking at the implementation>
 
 ## Acceptance Criteria / Scenarios
 
-- <验收条件或场景；仅在需要独立协议时填写>
+- <Acceptance criteria or scenarios; fill only when a separate protocol is needed>
 
 ## Failure and Environment Notes
 
-- <失败、取消、超时、权限和环境约束；没有则写 None>
+- <Failure, cancel, timeout, permission, and environment constraints; else None>
 
 ## Evidence Rules
 
-- <什么算通过、什么必须保留、什么不得用模型自报替代>
+- <What counts as pass, what must be kept, and what must not be replaced by model self-report>
 
 ## Unverified Coverage
 
-- <未验证路径及原因，或 None>
+- <Unverified paths and why, or None>
 
 ## Change History
 
-- v1: <本次创建或修订摘要>
+- v1: <this create or amendment summary>
 ````
 
-## 写作规则
+## Writing rules
 
-- `protocol_version` 是从 1 开始的任务验收修订号；公开行为、错误或取消语义、CLI/JSON/schema/退出码、权限或 artifact 边界变化时递增。内部重构和新增测试不升级。
-- 写入前执行 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口交回 `grilling`，不伪装成实现任务。
-- 每个场景至少引用一个当前 `R` 和 `AC`，写明 expected result 和证据类型；只有启用独立场景协议时才要求机器可读映射。
-- 成功、失败、取消、超时、权限和环境路径必须明确写出。
-- HLD 负责共享技术约束；ticket 负责执行，不在本文件发明验收语义。
+- `protocol_version` is this task's acceptance revision, starting at 1. Bump when public behaviour, error or cancel semantics, CLI / JSON / schema / exit codes, permissions, or artifact bounds change. Internal refactors and new tests do not bump.
+- Before writing, run the bidirectional check `R → AC → scenario → expected result → executable evidence`. Protocol gaps go back to `grilling`. Do not disguise them as implementation tasks.
+- Every scenario cites at least one current `R` and `AC`, and names expected result and evidence kind. Machine-readable mapping is required only when an independent scenario protocol is enabled.
+- Success, failure, cancel, timeout, permission, and environment paths must be written explicitly.
+- HLD owns shared technical constraints. Tickets own execution. This file does not invent acceptance meaning.

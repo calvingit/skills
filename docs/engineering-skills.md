@@ -17,7 +17,7 @@
 | Project Setup | `project-setup` | 配置需求权威、项目上下文和协作入口。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的工程判断和实践。 |
-| Loop 内部 capability | `implement`, `verify`, `worker` | 仅由 Loop 或 loopx 调用，不是普通任务入口。 |
+| Loop 内部 capability | `implement`, `verify` | 仅由 Loop 或 loopx 调用，不是普通任务入口。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -91,7 +91,7 @@ loopx 的公开契约、失败状态矩阵和统一验收入口见：[loopx 验�
 
 ### Agent 调用边界
 
-Loop 通过统一 `worker` Skill 和 `loopx` provider-neutral prompt contract 调用底层 Agent，不直接暴露具体 Agent 工具：
+Loop 通过 `loopx` 的 provider-neutral prompt contract 调用底层 Agent，不直接暴露具体 Agent 工具：
 
 ```text
 Loop

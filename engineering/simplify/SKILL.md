@@ -1,37 +1,36 @@
 ---
 name: simplify
-description: "审查或移除已有代码或当前 diff 中没有实际职责支撑的复杂度。"
+description: "Review or remove complexity in existing code or the current diff that has no current responsibility."
 ---
 
 # Simplify
 
-减少代码库需要长期保持一致的概念、状态、契约和维护义务。
-删除代码行只是结果，不是目标，没有安全可删项也是有效结果。
+Reduce the concepts, state, contracts, and implementation paths the codebase must keep consistent over time. Deleting lines is a result, not the goal; finding nothing safe to delete is a valid result.
 
-重点寻找没有当前生产职责支撑的复杂度，尤其是历史遗留、AI coding、测试便利、过期迁移和推测性扩展产生的维护义务。本 Skill 负责已经存在的复杂度，不替 `implement` 收拾本次变更本应删掉的旧路径。
+Look for complexity without a current production responsibility, especially maintenance created by legacy leftovers, AI coding, test convenience, expired migrations, and speculative extensibility. This skill investigates complexity that already exists. It does not clean up old paths that `implement` should have removed as part of the current change.
 
-## 模式
+## Modes
 
-- **审查**：只读调查并报告有证据的简化候选，不改代码。
-- **修改**：在授权范围内删除、合并或替换无必要复杂度，并验证结果。修改需明确授权。
+- **Review**: inspect and report evidence-backed simplification candidates without modifying code.
+- **Modify**: remove, merge, or replace unnecessary complexity within the authorized scope and validate the result. Modification requires explicit authorization.
 
-默认聚焦当前 diff 或明确指定的职责。只有被要求，或本地无法判定动态调用方时，才做更大范围调查。
+Default to the current diff or an explicitly requested responsibility. Use broader repository investigation only when requested or when dynamic consumers cannot be resolved locally.
 
-## 规则
+## Rules
 
-- 优先完整移除一个没有当前职责的维护义务，而不是把它实现得更小。
-- 没有当前职责或已确认契约支撑时，不要保留抽象、兼容路径、备用路径、扩展点或生产接口。
-- 测试、夹具、示例、文档或历史用法单独不能证明生产接口约定值得保留。
-- 主要为测试服务、且没有真实生产变化点或边界需要的生产架构，是强简化候选。
-- 静态搜索和代码异味只生成候选，不是删除依据。删除前检查真实调用方、外部边界、持久化数据和动态调用方。
-- 不要把复杂度挪到别处来换取局部变短。
-- 简化不得改写已确认需求或公开契约；若必须改，停止并报告所需的上游决策。
-- 修改后检查残留，并做能发现误删的最小验证。
+- Prefer removing an unnecessary responsibility completely over making its implementation smaller.
+- Do not preserve abstractions, compatibility paths, fallbacks, extension points, or production interfaces without a current responsibility or a confirmed contract.
+- Tests, fixtures, examples, documentation, or historical usage alone do not justify keeping a production contract.
+- Production architecture that exists primarily to support tests is a strong simplification candidate when no real production variability or boundary requires it.
+- Static search and code smells identify candidates, not proof. Check real callers, external boundaries, persisted data, and dynamic consumers before deletion.
+- Do not move complexity elsewhere merely to reduce local code.
+- Do not change confirmed requirements or public contracts as part of simplification; if that change is required, stop and report the upstream decision needed.
+- After modification, check for leftovers and run the smallest validation capable of detecting incorrect removal.
 
-生成候选时读取 `references/candidates.md`。只有调用方不明确或动态行为不清楚时，再读取 `references/investigation.md`。
+Read `references/candidates.md` when generating candidates. Read `references/investigation.md` only when consumer ownership or dynamic behavior is unclear.
 
-## 输出
+## Output
 
-审查：只报告有意义的候选，附证据和预期减少的维护义务。
+For review, report meaningful candidates with evidence and expected maintenance reduction.
 
-修改：报告删除或合并了什么、做了什么验证，以及因证据不足而有意保留的内容。
+For modification, report what was removed or merged, validation performed, and anything intentionally kept because evidence was insufficient.

@@ -1,51 +1,50 @@
 # Simplification Investigation
 
-用于审查模式、全库范围，或存在动态加载、外部调用方、持久化兼容等不确定性的修改模式。
+Use this for review mode, repository-wide scope, or modify mode when dynamic loading, external consumers, or persistence compatibility is unresolved.
 
 ## Evidence ladder
 
-不要把 smell 或静态搜索结果当成删除授权。按证据强度推进：
+Do not treat a smell or static search hit as deletion authority. Advance by evidence strength:
 
-1. **Smell**：看起来存在复杂度、重复或过度抽象。
-2. **Static lead**：搜索、lint、compiler 或 analyzer 显示少量或无使用。
-3. **Consumer map**：仓库内命中已分类，相关 caller/callee 已阅读。
-4. **Contract proof**：动态加载、外部使用、持久化、兼容性、ownership 和当前设计理由已确认或明确列为未知。
-5. **Behavior proof**：存在一个能暴露错误删除的 decisive check，并知道失败后的恢复路径。
+1. **Smell**: complexity, duplication, or over-abstraction appears to exist.
+2. **Static lead**: search, lint, compiler, or analyzer shows little or no use.
+3. **Consumer map**: in-repo hits are classified, and relevant callers/callees have been read.
+4. **Contract proof**: dynamic loading, external use, persistence, compatibility, ownership, and the current design reason are confirmed or explicitly unknown.
+5. **Behavior proof**: there is a decisive check that would catch an incorrect deletion, and a recovery path if it fails.
 
-高置信度修改模式通常至少需要 consumer map、contract proof 和 behavior proof。
+High-confidence modify mode usually needs a consumer map, contract proof, and behavior proof.
 
 ## Consumer classification
 
-对命中结果分类，不只统计引用数量：
+Classify hits; do not only count references:
 
-- **Runtime**：生产代码、真实 entrypoint、运行配置、migration、loader、deployment 或其他实际执行路径。
-- **仅供测试或文档使用**：tests、纯说明 docs、snapshots、已确认仅用于示例的 examples、generated expectations。
-- **不确定**：public exports、fixtures、plugin registrations、reflection、lazy imports、string dispatch、manifests、generated code、可能被外部 package 使用的接口。
+- **Runtime**: production code, real entrypoints, runtime config, migrations, loaders, deployment, or other actual execution paths.
+- **Support-only**: tests, purely explanatory docs, snapshots, examples confirmed as samples only, generated expectations.
+- **Uncertain**: public exports, fixtures, plugin registrations, reflection, lazy imports, string dispatch, manifests, generated code, or interfaces that may be used by an external package.
 
-存在未解决的 dynamic / external consumer 时，不得把候选升级为高置信度删除。
+Do not promote a candidate to high-confidence deletion while a dynamic or external consumer remains unresolved.
 
 ## Coverage
 
-Focused：围绕用户指定的 subsystem、symbol、state machine、dependency 或 suspected duplication 完整追踪其 ownership 和 contract，不主动扩张。
+Focused: fully trace ownership and contract for the requested subsystem, symbol, state machine, dependency, or suspected duplication. Do not expand on your own.
 
-Broad：先按责任域建立覆盖范围图，再排名候选。至少考虑与当前仓库相关的 entrypoints、runtime control、public APIs / config、state / lifecycle、persistence / compatibility、plugins / DI / reflection / codegen、background workers、packages / adapters / tests / docs。无法检查的区域记录为未覆盖范围。
+Broad: map coverage by responsibility first, then rank candidates. Consider the repository's relevant entrypoints, runtime control, public APIs / config, state / lifecycle, persistence / compatibility, plugins / DI / reflection / codegen, background workers, packages / adapters / tests / docs. Record unchecked areas as uncovered.
 
-不要因为找到第一个可删点就结束全库审查。
+Do not stop a repository-wide review at the first deletable point.
 
 ## History as evidence
 
-当存在历史设计、兼容逻辑或原因不明的抽象时，使用 git history、blame、PR、issue、ADR、RFC 或 comments 回答：
+When a design, compatibility path, or unexplained abstraction has history, use git history, blame, PRs, issues, ADRs, RFCs, or comments to answer:
 
-- 它最初为哪个 failure、requirement 或 future plan 引入？
-- 该条件现在是否仍成立？
-- 当前哪个 artifact 或 owner 仍在维护这个决策？
-- 删除后什么能力会变得昂贵或不可恢复？
+- Which failure, requirement, or future plan introduced it?
+- Does that condition still hold?
+- Which artifact or owner still maintains the decision?
+- What becomes expensive or unrecoverable after deletion?
 
-“很久没改”或“搜索不到调用”都只能作为发现线索。
+"Unchanged for a long time" or "no search hits" are discovery leads only.
 
-## 审查模式输出
+## Review output
 
-审查模式不修改代码。报告：coverage、已证明并排序的候选、重要的 rejected / unresolved 候选，以及每个不确定项还缺少的具体事实。
+Review mode does not modify code. Report coverage, proven and ranked candidates, important rejected or unresolved candidates, and the specific missing fact for each uncertain item.
 
-排名时分别考虑 confidence、benefit、blast radius、reversibility 和 validation strength；不要按删除行数或候选数量排名。
-
+Rank by confidence, benefit, blast radius, reversibility, and validation strength. Do not rank by lines deleted or candidate count.

@@ -1,21 +1,21 @@
-# HLD 创建
+# HLD create
 
-需要 HLD 且任务目录中不存在 `HLD.md` 时读取本文件。判断是否需要 HLD 时不要加载本文件。
+Read this file when an HLD is required and the task directory has no `HLD.md`. Do not load it when deciding *whether* an HLD is needed.
 
 ## Process
 
-1. 固定当前 SPEC、代码库对比基准、既有改动和适用项目约束。
-2. 先进行广度调查，再深入核对 1–3 个最相关的参考实现；记录路径、symbol 和选择依据。
-3. 描述当前调用链、职责归属、已有 Interface、共享数据形状、外部边界和必须保留的不变量；区分已观察事实 / 推断 / 未知。
-4. 找出下游实现若各自决定会产生不一致的设计点。只为这些点形成目标设计，局部实现继续保留自由。
-5. 对每个设计点优先 `Reuse`，其次 `Extend`；只有现有结构不能满足 SPEC 时才 `New` 或 `Replace`。后两者必须说明为什么 `Reuse` / `Extend` 不成立、迁移影响和控制范围。
-6. 对关键 Module / Interface / Seam 应用 `codebase-design`。只有证据不足以确定单一方案时才比较最多 2–3 个真实候选；普通工程取舍由本 Skill 推荐并决定。
-7. 为每项规范性概要决定分配稳定的 `D1`、`D2`… ID，标明变化性质、参考实现，以及它约束的 SPEC `R`/`AC`、调用方或模块。
-8. 检查 HLD 与 SPEC、项目 ADR、现有架构事实和自身各章节一致；执行多实现者一致性检查，没有未处理冲突或会改变方案的未知项才创建 HLD。
+1. Pin the current SPEC, codebase comparison baseline, pre-existing edits, and applicable project constraints.
+2. Breadth first, then deep-check 1–3 of the most relevant reference implementations. Record path, symbol, and why they were chosen.
+3. Describe the current call chain, ownership, existing Interfaces, shared data shapes, external bounds, and invariants that must hold. Mark Observed / Inferred / Unknown.
+4. Find design points that would diverge if downstream implementers decided them separately. Form the target design only for those points. Local implementation stays free.
+5. For each design point prefer `Reuse`, then `Extend`. `New` or `Replace` only when the existing structure cannot satisfy the SPEC. Those two must say why Reuse / Extend fails, the migration impact, and the control range.
+6. Apply `codebase-design` to load-bearing Module / Interface / Seam points. Compare at most 2–3 real candidates only when evidence cannot lock a single design. Ordinary engineering trade-offs are recommended and decided by this skill.
+7. Assign stable `D1`, `D2`… IDs to each normative high-level decision. Mark change kind, the reference implementation, and which SPEC `R` / `AC`, callers, or modules it constrains.
+8. Check the HLD against the SPEC, project ADRs, current architecture facts, and its own sections. Create the HLD only after a multi-implementer consistency check, with no untreated conflict or unknown that would change the plan.
 
 ## HLD.md
 
-只保留适用章节，不为填满模板虚构内容：
+Keep only sections that apply. Do not invent content to fill the template:
 
 ```markdown
 # <Change title> — High-Level Design
@@ -29,59 +29,59 @@
 
 ## Current Structure
 
-<与本次设计相关的现有调用链、职责归属、Interface 和约束；列出 1–3 个主要参考实现及路径 / symbol。>
+<Call chains, ownership, Interfaces, and constraints relevant to this design. List 1–3 primary reference implementations with path / symbol.>
 
 ## Design Decisions
 
-- **D1** — <影响多处实现的设计决定>
+- **D1** — <design decision several implementations must share>
   - Change: <Reuse | Extend | New | Replace>
-  - 参考实现：<existing path / symbol or None>
-  - Covers: <R/AC、Module 或调用方>
-  - Rationale: <为什么>
-  - Consequences: <下游必须遵守什么>
+  - Reference: <existing path / symbol or None>
+  - Covers: <R/AC, Module, or callers>
+  - Rationale: <why>
+  - Consequences: <what downstream must obey>
 
 ## Modules and Ownership
 
-- <Module>: <拥有的状态、规则、外部交互或稳定边界>
+- <Module>: <state, rules, external interaction, or stable bound it owns>
 
 ## Shared Contracts
 
-- <共享类型、枚举、schema、event、callback、Interface、错误或生命周期语义>
+- <shared types, enums, schemas, events, callbacks, Interfaces, error or lifecycle semantics>
 
 ## Data and Control Flow
 
-<只描述跨模块的重要流程。>
+<Only load-bearing cross-module flow.>
 
 ## Dependency Direction
 
-- <允许和禁止的依赖方向>
+- <allowed and forbidden dependency direction>
 
 ## Integration and Migration
 
-- <共享设计约束在哪个端到端交付任务落地、迁移顺序、兼容窗口和删除条件>
+- <which end-to-end delivery ticket lands the shared design, migration order, compatibility window, and deletion conditions>
 
 ## Verification Seams
 
-- <如何验证概要设计和跨模块行为，不复制 SPEC 的 Acceptance Criteria>
+- <how to verify the high-level design and cross-module behaviour, without copying SPEC Acceptance Criteria>
 
-## 局部实现空间
+## Local implementation space
 
-- <留给实现者决定的局部类、函数、文件组织和算法>
+- <local classes, functions, file layout, and algorithms left to implementers>
 
 ## Open Questions
 
 - None
 ```
 
-不要默认枚举所有 class、文件或方法。只有名称或签名本身会被多个调用方共享、承担真实接口约定，或是用户/项目明确约束时才写入。不要为尚无真实调用方的抽象预建 Interface。
+Do not enumerate every class, file, or method by default. Write a name or signature only when several callers will share it, it carries a real interface contract, or the user / project explicitly constrained it. Do not pre-build an Interface that has no real caller yet.
 
-`New` / `Replace` 必须解释现有参考实现为什么不能满足 SPEC。不要为追求理论一致性引入新的架构流派、平行抽象体系、基础设施改造或与当前交付无关的 cleanup。
+`New` / `Replace` must explain why the existing reference cannot satisfy the SPEC. Do not introduce a new architecture school, a parallel abstraction system, infrastructure rebuild, or cleanup unrelated to this delivery just for theoretical consistency.
 
 ## Done when
 
-- 每个影响多处实现的设计决定都有代码库证据、变化性质和稳定 D ID。
-- 方案优先复用或扩展现有结构，任何 `New` / `Replace` 都有必要性和迁移边界。
-- 两个不共享实现上下文的实现者仅凭 SPEC、HLD 和各自 ticket，也会对共享类型、Interface 语义、职责归属、依赖方向和集成顺序作出一致选择。
-- private helper、局部类、算法和文件组织仍保留在局部实现空间。
-- 已有架构问题未被无授权地扩展为当前任务重构。
-- 不存在必须由用户决定的未处理 SPEC 冲突。
+- Every design decision that several implementations share has codebase evidence, a change kind, and a stable D ID.
+- The plan prefers reuse or extension of what exists. Every `New` / `Replace` has necessity and a migration bound.
+- Two implementers who do not share an implementation context would still make the same choice on shared types, Interface semantics, ownership, dependency direction, and integration order from SPEC, HLD, and their own tickets alone.
+- Private helpers, local classes, algorithms, and file layout remain in local implementation space.
+- Existing architecture problems were not silently expanded into this task's refactor.
+- There is no untreated SPEC conflict the user must decide.

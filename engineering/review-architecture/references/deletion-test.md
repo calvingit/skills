@@ -1,20 +1,19 @@
 # Deletion Test
 
-Deletion Test 只回答 Module 是否通过 Interface 集中了复杂度，不判断它是否位于正确的 boundary、拥有正确的状态或遵守正确的依赖方向。
+The deletion test only answers whether a Module concentrates complexity behind its Interface. It does not judge whether the Module sits on the right boundary, owns the right state, or obeys the right dependency direction.
 
-假设删除目标 Module：
+Imagine deleting the target Module:
 
-- 复杂度基本消失，调用方只需直接调用底层能力：`pass-through`。
-- 调用方只需补回少量与原 Interface 相近的逻辑：`shallow`。
-- 被隐藏的规则、顺序、错误处理或副作用分散回多个调用方：`deep`。
+- Complexity mostly vanishes; callers just call the downstream capability: `pass-through`.
+- Callers only have to put back a little logic close to the original Interface: `shallow`.
+- Hidden rules, ordering, error handling, or side effects spread back across several callers: `deep`.
 
-检查调用方需要重新知道什么，而不是比较代码行数。记录依据，例如调用顺序、不变量、错误模式、重试、缓存或状态协调会落到哪些调用方。
+Ask what callers would have to know again — not how many lines disappear. Record the basis: call order, invariants, error modes, retry, cache, or state coordination landing on which callers.
 
 ## Interpretation
 
-- `pass-through` / `shallow`：说明当前 Module shape 可能缺少 leverage，值得作为 architecture review candidate。
-- `deep`：说明 Module 正在集中复杂度；不要仅因内部实现很大而拆散它。
-- `deep` 不是架构豁免。若 ownership、boundary、lifecycle 或 dependency direction 错误，仍按对应 evidence 保留审查发现。
+- `pass-through` / `shallow`: the current Module shape may lack leverage. Worth an architecture-review candidate.
+- `deep`: the Module is concentrating complexity. Do not split it just because the internals are large.
+- `deep` is not an architecture free pass. Wrong ownership, boundary, lifecycle, or dependency direction still stands on its own evidence.
 
-结合“Interface is the test surface”判断：如果生产调用方和测试都必须绕过 Interface 才能验证关键行为，问题可能是 Interface 或 boundary，而不是 Implementation 大小。
-
+Pair with "the interface is the test surface": if production callers and tests both have to go *past* the Interface to verify load-bearing behaviour, the problem is likely the Interface or the boundary, not Implementation size.

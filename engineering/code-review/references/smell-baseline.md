@@ -1,16 +1,18 @@
 # Fowler Smell Baseline
 
-这些 smell 是 judgement call，不是硬规则。项目明确标准优先，工具已强制的项目跳过。只报告本次 diff 引入或扩大的具体问题。
+These smells are judgement calls, never hard violations. A documented repo standard wins; skip anything tooling already enforces. Report only concrete problems this diff introduced or enlarged.
 
-- **Mysterious Name**：名称无法说明内容或职责；重命名，若找不到准确名称则重新检查设计。
-- **Duplicated Code**：多个 hunk 或文件出现相同逻辑形状；提取真正共享的行为。
-- **Feature Envy**：一个方法理解其他 Module 的数据多于自身；把行为移到拥有数据的 Module。
-- **Data Clumps**：一组字段或参数反复一起出现；把它们代表的领域概念归并为一个类型。
-- **Primitive Obsession**：primitive 或 string 代替了值得建模的领域概念；建立小而明确的类型。
-- **Repeated Switches**：多个位置按同一类型重复 switch/if cascade；集中分派逻辑。
-- **Shotgun Surgery**：一个逻辑变化迫使大量分散编辑；把一起变化的知识收回同一 Module。
-- **Divergent Change**：同一文件因多个不相关原因反复变化；按变化原因分离 ownership。
-- **Speculative Generality**：spec 没有要求的 abstraction、hook 或 parameter；删除多余部分，只保留当前真实需要。
-- **Message Chains**：调用方依赖长串内部导航；由起点 Module 提供一个能隐藏导航的 Interface。
-- **Middle Man**：Module 主要只转发；删除或让它承担真实复杂度。
-- **Refused Bequest**：继承者忽略或覆盖大部分继承行为；放弃继承，改用组合。
+Each smell reads *what it is* → *how to fix*; match it against the diff:
+
+- **Mysterious Name** — a function, variable, or type whose name doesn't reveal what it does or holds. → rename it; if no honest name comes, the design's murky.
+- **Duplicated Code** — the same logic shape appears in more than one hunk or file in the change. → extract the shared shape, call it from both.
+- **Feature Envy** — a method that reaches into another object's data more than its own. → move the method onto the data it envies.
+- **Data Clumps** — the same few fields or params keep travelling together (a type wanting to be born). → bundle them into one type, pass that.
+- **Primitive Obsession** — a primitive or string standing in for a domain concept that deserves its own type. → give the concept its own small type.
+- **Repeated Switches** — the same `switch`/`if`-cascade on the same type recurs across the change. → replace with polymorphism, or one map both sites share.
+- **Shotgun Surgery** — one logical change forces scattered edits across many files in the diff. → gather what changes together into one module.
+- **Divergent Change** — one file or module is edited for several unrelated reasons. → split so each module changes for one reason.
+- **Speculative Generality** — abstraction, parameters, or hooks added for needs the spec doesn't have. → delete it; inline back until a real need shows.
+- **Message Chains** — long `a.b().c().d()` navigation the caller shouldn't depend on. → hide the walk behind one method on the first object.
+- **Middle Man** — a class or function that mostly just delegates onward. → cut it, call the real target direct.
+- **Refused Bequest** — a subclass or implementer that ignores or overrides most of what it inherits. → drop the inheritance, use composition.

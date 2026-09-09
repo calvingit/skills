@@ -1,109 +1,79 @@
 ---
 name: codebase-design
-description: "用于设计或评估具体模块、接口、依赖方向和可测试边界。"
+description: Shared vocabulary for designing deep modules. Use when designing or judging a module's interface, seam, dependency direction, or test surface.
 ---
 
 # Codebase Design
 
-用于在具体设计点上判断代码应该如何分层、暴露什么 Interface、复杂度应该由谁拥有，以及生产代码与测试应该在哪个 Seam 相遇。它是一套可复用设计纪律，不绑定架构流派、语言、框架或目录结构。
+Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever a *specific* Module / Interface / Seam is being designed or restructured.
 
-重点回答：**一个已经明确需要处理的 Module / Interface / Seam 应该 HOW 设计。** 它不负责判断整个现有架构是否 sound，也不负责主动扫描代码库寻找架构问题；这类任务使用 `review-architecture`。
+This skill answers **HOW** a known design point should be shaped. It does not judge whether the whole architecture is sound, and it does not scan the repo for architecture problems — that is `review-architecture`.
 
-## Canonical terms
+The aim is leverage for callers, locality for maintainers, and testability for everyone.
 
-讨论这些概念时，统一使用以下术语，不用 component、service、API 或 boundary 替代。目标项目不必采用同名文件或类型，但各 Skill 必须共享同一套语义。
+## Glossary
 
-- **Module**：任何同时拥有 Interface 与 Implementation 的单元，可以是函数、类、package 或跨层端到端交付任务。
-- **Interface**：调用方正确使用 Module 必须知道的全部表面，不只有类型签名，还包括不变量、顺序约束、错误模式、所需配置和性能特征。
-- **Implementation**：Module 内部为了兑现 Interface 而存在的代码和行为。它不同于 Adapter；Implementation 描述内部，Adapter 描述在 Seam 上承担的角色。
-- **Depth**：衡量 Interface 带来的杠杆。调用方需要理解的内容越少、获得的能力越多，Module 越 deep；Interface 与 Implementation 几乎一样复杂的 Module 较 shallow。
-- **Seam**：无需在该位置编辑代码，就能改变行为的位置；也就是 Module 的 Interface 所在之处。Seam 是“放在哪里”的设计决定，不等同于一般意义的 boundary。
-- **Adapter**：在某个 Seam 上满足 Interface 的具体实现角色，不限于外部系统转换器。
-- **Leverage**：Depth 为调用方带来的收益，体现一个 Interface 能以多小的理解成本，为生产调用方和测试提供多少能力。
-- **Locality**：Depth 为维护者带来的收益；变化、知识、不变量、bug 和验证是否集中在一个 Module 内，而不是扩散到调用方。
+Use these terms exactly — don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point. The target project need not use the same file or type names; every skill must share this meaning.
 
-这些概念的关系是：Module 对调用方提供一个 Interface；Depth 相对于该 Interface 判断；Seam 是 Interface 所在的位置；Adapter 位于 Seam 并满足 Interface；生产调用方和测试通过同一个 Interface 使用 Module。
+**Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service.
 
-## Core principles
+**Interface** — everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow — they refer only to the type-level surface).
 
-### 1. Hide complexity behind the right owner
+**Implementation** — what's inside a module, its body of code. Distinct from **Adapter**: a thing can be a small adapter with a large implementation (a Postgres repo) or a large adapter with a small implementation (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.
 
-复杂度如果是完成行为所必需的，应由最了解它的 Module 吸收，而不是向所有调用方扩散。优先让调用方表达“要什么”，避免让调用方重复知道“内部怎么做”。
+**Depth** — leverage at the interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behaviour sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
 
-警惕：
+**Seam** _(Michael Feathers)_ — a place where you can alter behaviour without editing in that place; the *location* at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
 
-- 多个调用方重复相同 wiring、校验或协议步骤。
-- 调用方必须知道内部状态机顺序。
-- 一个简单行为需要跨多个文件拼装低层细节。
-- 为了测试把内部开关、noop、delay、callback 或 mutable state 暴露成生产 API。
+**Adapter** — a concrete thing that satisfies an interface at a seam. Describes *role* (what slot it fills), not substance (what's inside).
 
-### 2. Design the Interface from observable behavior
+**Leverage** — what callers get from depth: more capability per unit of interface they learn. One implementation pays back across N call sites and M tests.
 
-先描述调用方真正需要的 capability、输入、输出、失败语义、生命周期和取消 / 并发约束，再决定 Interface。不要从现有实现类、数据库结构或第三方 API 反推公共接口。
+**Locality** — what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.
 
-Interface 应尽量：
+## Relationships
 
-- 小而完整。
-- 表达领域 / 任务意图。
-- 不泄漏无关实现细节。
-- 对真实错误和生命周期约束保持明确。
-- 能被真实生产调用方自然使用。
+- A **Module** has exactly one **Interface** (the surface it presents to callers and tests).
+- **Depth** is a property of a **Module**, measured against its **Interface**.
+- A **Seam** is where a **Module**'s **Interface** lives.
+- An **Adapter** sits at a **Seam** and satisfies the **Interface**.
+- Callers and tests cross the same **Interface**.
+- **Depth** produces **Leverage** for callers and **Locality** for maintainers.
 
-### 3. Put Seams at real variation points
+## Principles
 
-好的 Seam 通常已经存在于真实变化点：公共 Interface、I/O Adapter、process boundary、clock/random source、external system、storage 或 UI/user interaction 等位置。
+- **Hide complexity behind the right owner.** Necessary complexity belongs in the module that understands it, not spread across callers. Callers should say what they want, not re-learn how the inside works. Watch for repeated wiring, validation, or protocol steps; callers that must know an internal state-machine order; simple behaviour assembled from low-level details across files; and production APIs that exist to expose test switches, noops, delays, callbacks, or mutable state.
+- **Design the Interface from observable behaviour.** Name the capability, inputs, outputs, failure semantics, lifecycle, and cancel / concurrency constraints first. Do not reverse-engineer a public interface from existing classes, tables, or a vendor SDK. Keep the interface small and complete, in the language of the domain or task, without leaking unrelated internals, and usable by real production callers.
+- **Put Seams at real variation points.** Good seams already exist: a public Interface, I/O Adapter, process boundary, clock or random source, external system, storage, or UI. Do not add a seam because tests are awkward. Ask whether production also benefits from that boundary, whether it is a real ownership or variation reason, and whether existing public Interfaces already let tests observe the behaviour. If only tests need it, do not widen the production Interface. One adapter means a hypothetical seam. Two adapters with a real reason means a real one — commonly a production adapter and a test adapter. Don't introduce a forwarding port for a single implementation.
+- **Keep adapters at the edge.** Vendor SDKs, HTTP, databases, filesystems, and platform APIs stay on the adapter side. Core modules should not spread vendor-specific types, errors, or config without cause. Don't wrap every dependency. An adapter earns its keep by occupying a stable seam, isolating change, or offering a better internal contract.
+- **Prefer locality over speculative reuse.** Rules that change together should live together. Abstract only when several real callers or variation points already exist, or when a real boundary must hide complexity. Names like factory, strategy, repository, manager, or service do not make an abstraction real.
+- **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
+- **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
 
-不要仅因为“测试不好写”就新增 Seam。先问：
+## The deletion test
 
-1. 生产代码本身是否也从这个边界获益？
-2. 这个边界是否代表真实 ownership 或变化原因？
-3. 测试能否通过现有公开 Interface 验证行为？
+Imagine deleting the module and letting callers use its downstream dependency directly. If almost no abstraction, constraint, stability, or understanding cost is lost, it was a pass-through. If complexity reappears across N callers — protocol, state, invariants, error semantics, cache / transaction boundaries — it was earning its keep.
 
-若只有测试需要而生产调用方不需要，默认不扩大生产 Interface。
-
-一个 Adapter 只说明存在假想 Seam，两个有真实理由存在的 Adapter 才说明 Seam 成立，常见组合是 production Adapter 与 test Adapter。不要为单一实现增加只有转发作用的 port。
-
-### 4. Keep adapters at the edge
-
-第三方 SDK、HTTP、数据库、文件系统、平台 API 等外部形状应尽量停留在 Adapter 一侧。核心 Module 不应无必要地传播 vendor-specific 类型、错误或配置。
-
-但不要机械地给每个依赖加 wrapper；只有当 Adapter 能占据真实稳定的 Seam、隔离变化或提供更合适的内部 contract 时才值得存在。
-
-### 5. Prefer locality over speculative reuse
-
-让会一起变化的规则尽量一起存在。抽象只有在已有多个真实调用者 / 变化证据，或一个明确边界需要隐藏复杂度时才建立。
-
-不要为了潜在复用提前增加 generic layer、factory、strategy、repository、manager、service 等名字；名称不证明抽象成立。
-
-## Deletion test
-
-判断一个 Module 是否只是薄包装时，做概念上的 deletion test：
-
-> 如果删除这个 Module，并让调用方直接使用它的下游依赖，系统是否几乎不损失抽象、约束、稳定性或理解成本？
-
-如果答案是“几乎没有损失”，它可能是无价值 middle layer；如果它集中协议、状态、不变量、错误语义、缓存 / 事务边界或大量复杂度，则可能很 deep。
-
-Deletion test 只判断 Module 的价值和深度，不证明它位于正确 Seam，也不证明 dependency direction 正确。
+The deletion test judges value and depth. It does not prove the seam or the dependency direction is right.
 
 ## Workflow
 
-1. 明确当前设计问题、目标调用方和需要形成的 Module / Interface / Seam；不要自动扩大成全仓架构评审。
-2. 读取目标 Module、代表性生产调用方、composition / configuration 入口、下游依赖和相关测试。
-3. 写出当前 observable behavior、ownership、必须保留的不变量和真实外部边界。
-4. 判断当前 Interface、Depth、Seam、Adapter、dependency direction 和 Locality；区分 Observed / Inferred / Unknown。
-5. 给最多 2–3 个真实候选设计，说明各自收益、成本、迁移影响和 test seam；不制造伪选项。
-6. 推荐最简单、能把必要复杂度放到正确 owner 且不扩大公共表面的方案。
-7. 本 Skill 默认停在具体设计判断；已确认 SPEC 需要把多个设计点汇总为任务级概要技术契约时交给 `high-level-design`，需求契约交给 `grilling` / `to-spec`，实现交给 `quick-implement` 或 `loop`。
+1. Name the design question, the intended callers, and the Module / Interface / Seam under decision. Do not expand into a repo-wide architecture review.
+2. Read the target module, representative production callers, composition / configuration entry points, downstream dependencies, and related tests.
+3. Write down current observable behaviour, ownership, invariants that must hold, and real external boundaries.
+4. Judge the current Interface, Depth, Seam, Adapter, dependency direction, and Locality. Mark each claim Observed / Inferred / Unknown.
+5. Offer at most two or three real candidate designs, with benefit, cost, migration impact, and test seam. Do not pad with fake options.
+6. Recommend the simplest design that puts necessary complexity with the right owner without widening the public surface.
+7. Stop at the local design judgement. Confirmed SPEC that needs several design points gathered into a task-level technical contract goes to `high-level-design`. Requirement contracts go to `grilling` / `to-spec`. Implementation goes to `quick-implement` or `loop`.
 
-当依赖类型会影响 Module 的深化方式时，读取 [DEEPENING.md](DEEPENING.md)。只有用户明确要求比较候选 Interface，或单一方案不足以形成可靠判断时，才读取 [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md)，使用其中的多方案比较流程。
+When dependency category changes how a cluster should deepen, read [DEEPENING.md](DEEPENING.md). Read [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) only when the user asks to compare interfaces, or one design is not enough to judge.
 
 ## Boundaries
 
-- 评审现有架构是否合理、是否符合项目 / 技术栈约束，或发现架构债和治理候选：使用 `review-architecture`。
-- 已确认某个 Module / Interface / Seam 需要调整，需要形成局部目标设计：使用 `codebase-design`。
-- 已确认 SPEC 需要跨 Module、调用方或实现任务的统一概要设计，并落盘 `HLD.md`：使用 `high-level-design`。
-- 需求或行为尚未决定：使用 `grilling`。
-- bug 根因调查：使用 `debug`。
-- 行为不变的 diff 收缩：使用 `simplify`。
-- 不强制 Clean Architecture、DDD、Hexagonal、MVC、MVVM 等任何固定架构流派；只根据当前证据判断 ownership、Interface 和 Seam。
-
+- Whether the current architecture is sound, matches project constraints, or has architecture debt: `review-architecture`.
+- A known Module / Interface / Seam that needs a local target design: `codebase-design`.
+- Confirmed SPEC that needs shared design across modules, callers, or implementation tasks, written to `HLD.md`: `high-level-design`.
+- Requirements or behaviour still open: `grilling`.
+- Bug root cause: `debug`.
+- Shrinking a behaviour-preserving diff: `simplify`.
+- Do not mandate Clean Architecture, DDD, Hexagonal, MVC, or MVVM. Judge ownership, Interface, and Seam from current evidence.

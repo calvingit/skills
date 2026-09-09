@@ -1,40 +1,40 @@
-# Feedback Loop 升级阶梯
+# Feedback-loop escalation
 
-`debug` Skill 阶段 1 的下沉参考：构造反馈循环的完整方式、按诊断收益改善反馈，以及非确定性 bug 策略。优先级从上到下：先用低成本方式拿到 red 信号，不够用再逐级升级。
+Phase 1 of `debug`, in more detail: how to construct a feedback loop, how to tighten it for diagnostic value, and what to do with non-deterministic bugs. Top to bottom: get a red signal cheaply, then escalate.
 
-## 构造方式（按优先级）
+## Construction order
 
-1. 真实调用路径的 seam 上的失败测试。
-2. curl / HTTP 脚本直连运行中的服务。
-3. CLI + fixture 输入，stdout 与已知正确快照 diff。
-4. Playwright / Puppeteer 无头脚本，断言 DOM / console / network。
-5. 回放捕获的 trace（网络请求、payload、事件日志）。
-6. 最小临时 harness（单服务 + mock 依赖，一次调用触发 bug 路径）。
-7. property / fuzz loop：随机输入跑 1000 次找失败模式。
-8. bisection harness：两个已知状态间自动「boot、检查、重复」，供 `git bisect run`。
-9. differential loop：同一输入跑新旧版本或两份配置，diff 输出。
-10. HITL bash 脚本（[`scripts/hitl-loop.template.sh`](../scripts/hitl-loop.template.sh)）：必须人工点击时，用脚本提示人工操作并收集结果。
+1. Failing test at the seam on the real call path.
+2. Curl / HTTP script against a running service.
+3. CLI plus fixture input, stdout diffed against a known-good snapshot.
+4. Headless Playwright / Puppeteer script asserting on DOM / console / network.
+5. Replay a captured trace (network request, payload, event log).
+6. Throwaway harness (one service + mocked deps, one call that hits the bug path).
+7. Property / fuzz loop: 1000 random inputs looking for the failure mode.
+8. Bisection harness: automate "boot at state X, check, repeat" between two known states, for `git bisect run`.
+9. Differential loop: same input through old vs new (or two configs), diff the outputs.
+10. HITL bash script ([`scripts/hitl-loop.template.sh`](../scripts/hitl-loop.template.sh)): last resort when a human must click. The script still structures the loop and captures output.
 
 ## Tighten the loop
 
-拿到循环后按诊断收益改善它，不必把它打磨成通用产品：
+Once you have *a* loop, improve it for diagnosis. Don't polish it into a general product:
 
-- 更精准：断言用户描述的具体症状，不是「不报错」。
-- 可重复：记录能否稳定复现、复现条件和已知失败率。能固定时间、随机种子、文件系统或网络时再固定，不要为达不到的确定性停在工具改造上。
-- 足够快：缓存 setup、跳过无关初始化、收窄测试范围，让迭代成本配得上当前假设。次数和耗时由故障决定。慢速集成、设备路径和低概率竞态可以慢，只要还能区分假设。
+- Sharper: assert the user's exact symptom, not "didn't crash".
+- Repeatable: record whether it reproduces, under what conditions, and the known failure rate. Pin time, RNG, filesystem, or network when you can. Don't stall on tooling to chase unattainable determinism.
+- Fast enough: cache setup, skip unrelated init, narrow the test. Iteration cost should match the current hypothesis. Count and duration are set by the failure. Slow integration, device paths, and rare races may stay slow if they still distinguish hypotheses.
 
-秒级、确定、无人值守更好，但不是进入调查的门槛。
+Seconds, deterministic, and unattended is better. It is not the bar for starting investigation.
 
-## 非确定性 bug
+## Non-deterministic bugs
 
-目标是把复现率提到足以区分假设。循环次数、并行加压、时序窗口和 sleep 注入由故障决定，达到能支持或推翻当前假设的证据就继续，不必固定跑 100 次，也不用 50% / 1% 当硬门槛。记录观察到的复现率。
+The goal is a reproduction rate high enough to distinguish hypotheses. Loop count, parallel stress, timing windows, and injected sleeps are set by the failure. Continue once the evidence can support or kill the current hypothesis. Don't mandate 100 runs, or 50% / 1% as hard thresholds. Record the rate you observed.
 
-## 进入修复的证据
+## Evidence before a fix
 
-能说明一条已经运行过的命令或一组观察，并且它们合在一起足以区分当前假设：
+Name one command you have already run, or a set of observations that together distinguish the current hypothesis:
 
-- 驱动真实 bug 代码路径并断言用户的具体症状，修复后预期会变绿。
-- 已记录可重复性，而不是单次偶发印象。
-- 性能问题先有基线，再用测量而不是泛化日志定位。
+- It drives the real bug path and asserts the user's exact symptom, and should go green after the fix.
+- Reproducibility is recorded, not a one-off impression.
+- Performance problems have a baseline first, then measurement rather than generalised logs.
 
-在此之前可以读代码、查日志、形成并检验假设。证据不足以支撑修复结论时，不改代码。
+Until a red-capable loop exists, do not proceed to hypothesise. You may inspect the environment only as needed to *build* the loop. Do not change code when the evidence cannot support a fix conclusion.

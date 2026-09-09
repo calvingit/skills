@@ -1,28 +1,28 @@
-# SPEC.md 模板
+# SPEC.md template
 
-Create 与 Amendment 使用同一结构。章节必须具体；不适用的写明原因，不用占位符。
+Create and Amendment use the same structure. Sections must be concrete. If a section does not apply, say why. No placeholders.
 
 ```markdown
 # <Spec title>
 
 ## Problem Statement
 
-<从用户或调用方视角说明什么缺失或有问题，以及为什么值得解决。>
+<From the user or caller view: what is missing or wrong, and why it is worth solving.>
 
 ## Requirement Authority
 
 - Mode: <repository | integrated | external-manual | auto>
-- Source: <项目内入口、已配置集成或用户确认的快照，不得编造链接>
-- Snapshot boundary: <本 SPEC 覆盖的需求版本、日期或本次输入边界>
-- Unverified: <未从原始来源验证的内容，或 None>
+- Source: <in-repo entry, configured integration, or a user-confirmed snapshot. Do not invent links.>
+- Snapshot boundary: <requirement version, date, or this-turn input bound this SPEC covers>
+- Unverified: <not verified from the original source, or None>
 
 ## Solution
 
-<从用户或调用方视角描述解决方案的整体方向，不写逐步实现配方。>
+<Overall direction of the solution from the user or caller view. Not a step-by-step implementation recipe.>
 
 ## Destination
 
-<全部 in-scope 行为完成后可观察的目标状态与边界。>
+<Observable target state and bounds once every in-scope behaviour is done.>
 
 ## User Stories
 
@@ -31,34 +31,34 @@ Create 与 Amendment 使用同一结构。章节必须具体；不适用的写�
 
 ## Boundaries and Defaults
 
-- <输入来源、默认行为、失败/取消行为、权限或兼容性边界。>
+- <Input sources, defaults, failure/cancel behaviour, permissions, or compatibility bounds.>
 
 ## Solution Constraints
 
-- <由需求权威、用户或项目规则已经固定、概要设计不得改变的技术与公开 contract 约束，没有则写 None。>
+- <Technical and public-contract constraints already fixed by requirement authority, the user, or project rules, which high-level design must not change. None if empty.>
 
 ## Testing Decisions
 
-- <已确认的测试 seam、覆盖行为、测试层级、expected result 来源和相关 prior art。>
+- <Confirmed test seams, covered behaviour, test level, expected-result source, and related prior art.>
 
 ## Acceptance Criteria
 
-- **AC1** — Covers: R1. <可在不查看实现细节的情况下独立判定的结果。> Expected source: <用户确认、decision、公开 contract、协议、worked example 或其他权威依据>.
+- **AC1** — Covers: R1. <A result that can be judged without looking at implementation details.> Expected source: <user confirmation, decision, public contract, protocol, worked example, or other authority>.
 
 ## Out of Scope
 
-- <明确不属于本次交付的内容。>
+- <Explicitly not part of this delivery.>
 
 ## Further Notes
 
-- <必要的决策依据、相对链接或无法放入以上章节但下游必须保留的信息。>
+- <Decision basis, relative links, or facts that do not fit above but downstream must keep.>
 ```
 
-## 写作规则
+## Writing rules
 
-- User Stories 使用稳定 `R1`、`R2`…，列出一份可独立检查的详尽行为清单，覆盖功能的所有已确认情形。每条说明 actor、行为与价值。没有传统终端用户时，使用真实的领域角色或调用方，不虚构 persona。
-- Solution Constraints 只记录上游已经确认、HLD 不得改变的技术或公开 contract 约束，不记录由 Agent 推导的模块划分、内部 Interface、共享类型或依赖方向。原型产出的公开状态机、schema 或类型形状比文字更准确时，可以内联必要片段并注明来源。
-- 旧 SPEC 中已有 `Implementation Decisions` 时，先区分上游固定约束与派生设计：前者迁入 Solution Constraints，后者由 `high-level-design` 在用户确认后迁入 HLD。迁移完成前不得在两处维护同一决定。
-- Testing Decisions 必须记录已确认的 seam、选择依据、从该 seam 观察哪些外部行为、expected result 的独立来源，以及可参考的现有测试。
-- Acceptance Criteria 使用稳定 `AC1`、`AC2`…并明确覆盖的 `R`。每个 in-scope `R` 至少被一个 `AC` 覆盖。`AC` 验证外部行为，不锁定类名、文件结构、内部调用顺序或某种实现方案，除非它们本身就是明确 contract。
-- 从 Map 压缩而来时，影响需求或公开 contract 的决定记录在 Solution Constraints 或 Further Notes，纯技术决定交给 HLD，并保留必要的相对链接或名称供后续 session 追溯。
+- User Stories use stable `R1`, `R2`…. This is an exhaustive, independently checkable behaviour list covering every confirmed case of the feature. Each line names actor, behaviour, and value. With no traditional end user, use a real domain role or caller. Do not invent a persona.
+- Solution Constraints record only upstream-confirmed technical or public-contract constraints that HLD must not change. They do not record Agent-derived module splits, internal Interfaces, shared types, or dependency direction. A prototype's public state machine, schema, or type shape may be inlined when it is more precise than prose, with the source noted.
+- When an old SPEC already has `Implementation Decisions`, split upstream-fixed constraints from derived design first: the former move into Solution Constraints; the latter move into the HLD via `high-level-design` after user confirmation. Until that migration finishes, do not maintain the same decision in both places.
+- Testing Decisions must record the confirmed seam, why it was chosen, which external behaviour is observed from it, the independent expected-result source, and existing tests to look at.
+- Acceptance Criteria use stable `AC1`, `AC2`… and name the covered `R`. Every in-scope `R` is covered by at least one `AC`. An `AC` verifies external behaviour. It does not lock class names, file layout, internal call order, or an implementation approach unless those *are* the explicit contract.
+- When compressing from a Map, decisions that affect requirements or public contracts land in Solution Constraints or Further Notes. Purely technical decisions go to the HLD. Keep relative links or names later sessions can follow.

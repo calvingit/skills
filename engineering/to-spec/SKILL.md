@@ -1,107 +1,114 @@
 ---
 name: to-spec
-description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md；按需维护独立 ACCEPTANCE.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或执行图。"
+description: Turn confirmed requirements, the settled conversation, and codebase facts into a normative SPEC.md. Maintain ACCEPTANCE.md only when the task needs a separate acceptance protocol. Distinguish requirement constraints from high-level technical design, and decide whether downstream work needs an HLD or an execution graph.
 ---
 
 # To Spec
 
-把已收敛共识、需求权威和代码库事实写入任务目录的 `SPEC.md`。只有任务明确需要独立验收协议，或任务目录已有 `ACCEPTANCE.md` 时，才按需创建或更新该文件。没有 SPEC 时用 Create；已有 SPEC 且需求新增、修改、删除或澄清时用 Amendment 修订同一文件。不重新做全面需求访谈，不拆 ticket，不实现代码。
+Write the settled consensus, requirement authority, and codebase facts into the task directory's `SPEC.md`. Create or update `ACCEPTANCE.md` only when the task explicitly needs a separate acceptance protocol, or that file already exists.
 
-`SPEC.md` 是工作流唯一的本地需求规范快照，说明问题、方案、行为、Solution Constraints、测试决策、边界与验收。它不包含派生概要设计、执行图或实现配方。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认 SPEC 直接驱动 HLD、tickets 或实现。除非用户明确要求，不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
+Create when there is no SPEC. Amend the same file when an existing SPEC's requirements are added, changed, removed, or clarified. Do not re-interview the whole requirement, split tickets, or implement code.
 
-`HLD.md` 如存在，是从 SPEC 与代码库事实派生的概要技术设计权威，不能改变需求语义。跨 Module、调用方或实现任务的共享设计由 `high-level-design` 维护；单一范围明确的单项任务交给 `quick-implement`；多个执行单元由 `to-tickets` 派生 graph，再由 `loop` 执行。
+`SPEC.md` is the workflow's only local requirement snapshot: problem, solution, behaviour, Solution Constraints, testing decisions, bounds, and acceptance. It does not contain derived high-level design, an execution graph, or an implementation recipe. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
-## 入口边界
+`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `high-level-design`. A single, clearly bounded task goes to `quick-implement`. Several execution units are derived by `to-tickets` and run by `loop`.
 
-- 需求来源按「用户本次指定 → 适用 Profile 的 `requirement_authority` → 仓库事实 → Skill 默认」解析。`external-manual` 只能使用用户提供的当前快照，并标明未验证的原始外部内容，不得假装已访问飞书、企业微信或其他系统。
-- 需求、外部行为、业务边界、权限、公开 contract 或验收仍有会改变方案的未决选择时，停止并交回 `grilling`。
-- Destination 可以命名，但关键路径仍有技术迷雾且需要跨会话调查时，停止并交回 `wayfinding`。
-- 用户提供已完成 `MAP.md` 时：确认 `Frontier` 为空，`Not yet specified` 中没有仍指向 Destination 的 Fog，阻塞性 decision 均已最终确认；读取 Map 的 low-resolution view，以及会影响需求、公开 contract、边界、测试或验收的 decision 文件。纯技术概要决定留给 `high-level-design`。
-- 模块职责、内部 Interface、共享类型、依赖方向或集成策略尚未确定时不阻塞规格，记为 design concern，SPEC 确认后路由到 `high-level-design`。
-- 不编造缺失字段、错误、公开 contract、测试 seam、Solution Constraint 或 expected result。能从代码库验证的继续调查；必须由用户决定的停止并说明。
+## Entry
 
-## 模式选择
+Resolve requirement sources in this order: what the user named this turn → the applicable Profile's `requirement_authority` → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
 
-- **Create**：任务目录没有 `SPEC.md`，从已收敛输入生成 `SPEC.md`；只有独立验收有明确用途时才同时创建 `ACCEPTANCE.md`。
-- **Amendment**：已有 `SPEC.md`，读取完整现有 `SPEC.md` 与本次 delta 后原位更新。仅当 `ACCEPTANCE.md` 已存在或本次明确启用独立验收时才读取或更新它。保留未受影响的 `R`/`AC`；公开行为、错误或取消语义、CLI/JSON/schema/退出码、权限或 artifact 边界变化时递增已有协议版本；内部重构和新增测试不升级。
-- SPEC 语义未变、只有 ticket 粒度、依赖或执行事实变化时，交给 `to-tickets` 或对应执行 owner，不触碰 SPEC。
+Stop and hand back to `grilling` when requirements, external behaviour, business bounds, permissions, public contracts, or acceptance still have open choices that would change the plan.
+
+Stop and hand back to `wayfinding` when the destination can be named but a load-bearing path is still in technical fog and needs investigation across sessions.
+
+When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
+
+Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and route to `high-level-design` after the SPEC is confirmed.
+
+Do not invent missing fields, errors, public contracts, test seams, Solution Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
+
+## Modes
+
+- **Create**: no `SPEC.md` in the task directory. Write `SPEC.md` from settled inputs. Create `ACCEPTANCE.md` only when a separate acceptance protocol has a clear use.
+- **Amendment**: `SPEC.md` already exists. Read the full current SPEC and this delta, then update in place. Read or update `ACCEPTANCE.md` only if it already exists or this turn explicitly enables separate acceptance. Keep unaffected `R` / `AC` IDs. Bump an existing protocol version when public behaviour, error or cancel semantics, CLI / JSON / schema / exit codes, permissions, or artifact bounds change. Internal refactors and new tests do not bump.
+- Ticket granularity, dependencies, or execution facts with unchanged SPEC meaning go to `to-tickets` or the execution owner. Do not touch the SPEC.
 
 ## Process
 
-### 1. 汇集已确认上下文
+### 1. Gather confirmed context
 
-整理对话、用户文档、已完成 decision 和 requirement authority。只保留已明确的事实、约束、术语、取舍和 Out of scope，不为填满模板扩张范围。
+Collect the conversation, user docs, finished decisions, and requirement authority. Keep only explicit facts, constraints, terms, trade-offs, and Out of scope. Do not grow scope to fill a template.
 
-任务目录：用户本次指定 → 适用 `AGENTS.md` 的 `Engineering Skills Profile` → 仓库已有任务文档约定。没有 Profile 不阻塞；只有落盘位置或需求语义仍无法确定时才询问。
+Task directory: what the user named this turn → the applicable `AGENTS.md` `Engineering Skills Profile` → the repo's existing task-doc convention. Missing Profile does not block. Ask only when write location or requirement meaning is still undetermined.
 
-Amendment 先把 delta 分为 `added` / `changed` / `removed` / `no normative effect`，列出受影响的 `R`、`AC`、边界、Solution Constraints 与测试决策。已有 HLD 或 tickets 时只读检查相关 D、ticket contract、Status 和 evidence，报告哪些设计与交付可能仍有效、需要追加、替换或撤销，不修改下游 artifact。保留既有 `R`/`AC` ID；新需求追加新 ID；删除项保留可追踪说明且不重新编号。未决产品选择只把受影响分支交回 `grilling`；需求已定但新增技术路径仍处于 Fog 时，才做定向 `wayfinding`。
+For an amendment, split the delta into `added` / `changed` / `removed` / `no normative effect`. List affected `R`, `AC`, bounds, Solution Constraints, and testing decisions. When an HLD or tickets already exist, read related Ds, ticket contracts, status, and evidence — report which design and delivery may still hold, need appending, replacement, or reversal. Do not edit downstream artifacts. Keep existing `R` / `AC` IDs; append new IDs for new requirements; keep a traceable note for removals and do not renumber. Unsettled product choices go back to `grilling` on the affected branches only. Directed `wayfinding` only when the requirement is settled but a new technical path is still in fog.
 
-### 2. 调查代码库
+### 2. Investigate the codebase
 
-当前会话调查不足时，写 SPEC 前查清：
+If this session has not already looked enough, before writing the SPEC find:
 
-- 适用 `AGENTS.md`、领域 glossary、架构说明和相关 ADR；
-- 当前外部行为、相关模块与调用关系、既有公开 contract；
-- 现有测试用哪些 seam 验证相似行为，以及可沿用的 prior art；
-- 用户已有工作区改动，避免覆盖或把无关变化纳入规格。
+- Applicable `AGENTS.md`, domain glossary, architecture notes, and related ADRs.
+- Current external behaviour, related modules and callers, existing public contracts.
+- Which seams existing tests use for similar behaviour, and prior art worth reusing.
+- The user's existing workspace changes, so they are not overwritten or silently absorbed into the spec.
 
-使用项目领域语言。调查到足以确定范围、公开 contract 和验收边界即停，不进入概要设计或实现。
+Use the project's domain language. Stop once scope, public contracts, and acceptance bounds are determined. Do not enter high-level design or implementation.
 
-### 3. 决定验收 seam
+### 3. Decide the acceptance seams
 
-写正式文档前，草拟这次变更应通过哪些外部 seam 验收：只定可观察行为、测试层级和 expected result 来源。不设计内部 Module、共享类型或依赖方向，那是 HLD 的 Verification Seams。
+Before the formal docs, sketch which *external* seams this change should be accepted through: observable behaviour, test level, and expected-result source. Do not design internal Modules, shared types, or dependency direction — those are the HLD's Verification Seams.
 
-Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为时保留，并在 impact summary 说明，无需再确认。在已确认的公开接口、验收覆盖、信任边界和测试契约内改选现有测试入口时，可以直接决定并记录依据。改变公开接口、验收覆盖、信任边界或已确认测试契约时才请用户确认。
+An amendment re-evaluates only affected seams. Keep testing decisions that still cover the changed behaviour, and say so in the impact summary. Inside a confirmed public interface, acceptance coverage, trust boundary, and test contract, choosing an existing test entry can be decided and recorded. Changing those requires user confirmation.
 
-- 优先既有外部 seam；新增公开 contract 必须是需求的一部分，不是为测试暴露内部结构。
-- 一个稳定 seam 能覆盖整项变更时只用一个。
-- 说明每个 seam 覆盖的行为、expected result 来源，以及仓库中可参考的相似测试。
-- 不为测试预设内部 Interface，也不把文件路径、内部调用顺序或 mock 结构当成 contract。
+- Prefer existing external seams. A new public contract must be part of the requirement, not an internal structure exposed for tests.
+- Use one stable seam when it covers the whole change.
+- For each seam, say which behaviour it covers, where the expected result comes from, and similar tests already in the repo.
+- Do not presuppose internal Interfaces for tests, and do not treat file paths, internal call order, or mock structure as the contract.
 
-向用户说明建议的 seam、依据和取舍。在已确认的公开接口、验收覆盖、信任边界和测试契约内选择现有测试入口时，可以直接决定并记录依据，不作为落盘前置确认。改变公开接口、验收覆盖、信任边界或已确认测试契约时，必须先请用户确认。出现新的产品、协议、架构、范围或验收选择时，先交回 `grilling` 或 `wayfinding`。
+Tell the user the proposed seams, why, and the trade-off. New product, protocol, architecture, scope, or acceptance choices go back to `grilling` or `wayfinding` first.
 
-### 4. 写 SPEC.md，并按需写 ACCEPTANCE.md
+### 4. Write SPEC.md, and ACCEPTANCE.md when needed
 
-验收 seam 已决定后按模板落盘。写入前读取：
+Once acceptance seams are decided, write from the templates. Read:
 
 - [references/spec-template.md](references/spec-template.md)
-- 只有启用独立验收时才读取 [references/acceptance-template.md](references/acceptance-template.md)。
+- [references/acceptance-template.md](references/acceptance-template.md) only when separate acceptance is enabled.
 
-没有启用独立验收协议时，写入前只检查 `R → AC` 和可判定结果；创建或修订 `ACCEPTANCE.md` 时，才执行 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口交回 `grilling`，不伪装成实现任务。
+Without a separate acceptance protocol, check `R → AC` and decidable results before writing. When creating or amending `ACCEPTANCE.md`, run the bidirectional check `R → AC → scenario → expected result → executable evidence`. Protocol gaps go back to `grilling`. Do not disguise them as implementation tasks.
 
-### 5. 一致性检查
+### 5. Consistency
 
-1. Problem、Solution 与 Destination 描述同一问题和目标。
-2. `R` 与 `AC` ID 唯一且稳定；每个 in-scope `R` 至少被一个 `AC` 覆盖。
-3. 每个 `AC` 可独立判定，并能追溯到已确认需求或权威 expected source。
-4. Solution Constraints 都有上游依据，未混入应由 HLD 拥有的派生技术设计。
-5. Testing Decisions 完整记录已决定的 seam 及依据，并尽可能从最高层 seam 验证外部行为。
-6. Boundaries、默认行为、Out of Scope 与验收无冲突、无悄然扩张。
-7. 无占位符、未处理冲突、虚构事实或被静默跳过的 blocker。
-8. Requirement Authority 如实记录来源、快照边界和未验证项。
-9. 每个当前 `R`/`AC` 都被 SPEC 的 Acceptance Criteria 覆盖；启用独立验收时再检查 ACCEPTANCE 场景。
-10. Amendment 保留未受影响的 `R`/`AC` ID，并对适用的 SPEC 和 ACCEPTANCE 复查，不只检查 delta。
+1. Problem, Solution, and Destination describe the same problem and goal.
+2. `R` and `AC` IDs are unique and stable; every in-scope `R` is covered by at least one `AC`.
+3. Each `AC` can be judged on its own and traces to a confirmed requirement or an authoritative expected source.
+4. Every Solution Constraint has an upstream basis and does not smuggle in derived technical design that HLD owns.
+5. Testing Decisions record the decided seams and why, and verify external behaviour from the highest seam that can.
+6. Bounds, defaults, Out of Scope, and acceptance do not conflict or silently expand.
+7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
+8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
+9. Every current `R` / `AC` is covered by the SPEC's Acceptance Criteria; check ACCEPTANCE scenarios only when separate acceptance is enabled.
+10. An amendment keeps unaffected `R` / `AC` IDs and rechecks the applicable SPEC and ACCEPTANCE, not only the delta.
 
-能根据已确认上下文或代码库修正的直接修正；需要新决策时停止并交回 `grilling` 或 `wayfinding`。
+Fix what confirmed context or the codebase can fix. Stop and hand back to `grilling` or `wayfinding` when a new decision is required.
 
-### 6. 落盘与 handoff
+### 6. Write and hand off
 
-确认一致性后写入任务目录。Create 报告路径、验收 seam、Solution Constraints、design concerns、HLD/graph 路由和未验证项。Amendment 先展示需求 delta、规范影响与可能受影响的 HLD decisions / tickets，确认后再原位更新，并报告保留、新增或移除的 `R`/`AC`。
+After consistency holds, write into the task directory. Create reports path, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items. Amendment shows the requirement delta, spec impact, and possibly affected HLD decisions / tickets first, updates in place after confirmation, and reports kept, added, or removed `R` / `AC`.
 
-不修改 HLD、ticket contract、Status 或 evidence；不在 SPEC 中维护 task、frontier、status、retry、Agent 分配或其他执行图。
+Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
-SPEC 确认后分别判断两条路径，不能用 ticket 数量替代设计判断：
+After the SPEC is confirmed, judge two paths separately. Ticket count is not a substitute for the design judgement:
 
-1. **概要设计**：存在跨 Module、跨调用方或跨实现任务的共享类型、Interface、状态或错误语义、依赖方向、迁移或集成约束时先调用 `high-level-design`，否则记录 `hld_not_required` 及依据。
-2. **执行**：单一范围明确且不需要执行图时交给 `quick-implement`；需要多个实现任务、依赖关系或统一调度时调用 `to-tickets`，再由 `loop` 推进。
+1. **High-level design**: call `high-level-design` first when shared types, Interfaces, state or error semantics, dependency direction, migration, or integration constraints span modules, callers, or implementation tasks. Otherwise record `hld_not_required` and why.
+2. **Execution**: `quick-implement` when the scope is single and needs no execution graph; `to-tickets` then `loop` when several implementation tasks, dependencies, or unified scheduling are needed.
 
-需要 HLD 时必须先完成 HLD 才能进入任一执行路径。本 Skill 只预判是否需要多个实现任务，不决定 ticket 数量或拆分。
+When an HLD is required, it must exist before either execution path. This skill only forecasts whether several implementation tasks are likely. It does not choose ticket count or the split.
 
-不自动获得外部发布、commit、push、建分支或改写历史的授权。
+No automatic authorisation to publish externally, commit, push, create a branch, or rewrite history.
 
-## 变更规则
+## Change rules
 
-- **规范性变化** → Amendment。更新 `SPEC.md`；只有独立验收已启用时才同步 `ACCEPTANCE.md`。testing seam 未受影响时不强制再确认。已有 HLD 时先由 `high-level-design` 同步受影响 D，再由 `to-tickets` 协调 graph。受影响 ticket 正在执行时，先请求 `loop` 停止相关 dispatch、回收 worker 并保留 evidence。
-- **概要设计变化** → 不改 SPEC。由 `high-level-design` 修订 HLD，再由 `to-tickets` 协调受影响 graph。
-- **执行拆分变化** → 只由 `to-tickets` 调整 tickets，不能反向改写上游。
-- **执行变化** → 只更新对应 ticket 或执行证据，不改 SPEC / HLD。
+- **Normative change** → Amendment. Update `SPEC.md`; sync `ACCEPTANCE.md` only when separate acceptance is already enabled. Do not force re-confirmation when testing seams are unaffected. When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. If affected tickets are running, ask `loop` to stop related dispatch, reclaim workers, and keep evidence.
+- **High-level design change** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
+- **Execution split change** → `to-tickets` only. Do not rewrite upstream.
+- **Execution change** → update the ticket or execution evidence only. Do not edit SPEC / HLD.

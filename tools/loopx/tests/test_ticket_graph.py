@@ -1074,7 +1074,7 @@ class TicketGraphCliTests(unittest.TestCase):
     def test_workflow_contract_docs_are_json_only_and_command_aligned(self) -> None:
         paths = [
             REPOSITORY / "README.md",
-            REPOSITORY / "engineering" / "worker" / "SKILL.md",
+            REPOSITORY / "engineering" / "loop" / "SKILL.md",
             REPOSITORY / "engineering" / "to-tickets" / "SKILL.md",
             REPOSITORY / "tools" / "loopx" / "pyproject.toml",
             REPOSITORY / "docs" / "ticket-lifecycle.lifecycle.json",

@@ -1,7 +1,7 @@
 interface:
   display_name: "Verify"
-  short_description: "在独立只读上下文中验证 ticket Acceptance Criteria"
-  default_prompt: "使用 $verify 在给定 implementation snapshot 上逐条验证 Acceptance Criteria，并返回可复核证据。"
+  short_description: "Verify ticket Acceptance Criteria in an independent read-only context"
+  default_prompt: "Use $verify to check each Acceptance Criterion against the given implementation snapshot and return evidence that can be rechecked."
 
 policy:
   allow_implicit_invocation: false

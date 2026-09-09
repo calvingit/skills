@@ -1,45 +1,45 @@
 # Review Criteria
 
-## 共同要求
+## Shared
 
-审查只读 diff、提交记录、目标仓库规则、需求来源、直接调用方和被调用方、配置和测试。不要把全仓库问题当成本次变更问题，也不要输出泛泛的最佳实践清单。阻断发现只包含本次变更引入或扩大的问题；范围外既有高风险问题单列 non_blocking_findings，已有 guard 或约束已经覆盖的风险不重复报告。
+Review is read-only: the diff, commits, target-repo rules, requirement source, direct callers and callees, config, and tests. Do not treat a whole-repo issue as this change's problem, and do not emit a generic best-practice list. Blocking findings are only issues this change introduced or enlarged. Pre-existing out-of-scope high risk is listed separately as `non_blocking_findings`. Do not re-report risk already covered by an existing guard or constraint.
 
 ## Contract
 
-审查当前 ticket 的 `R`/`AC`、`SPEC.md`、存在时的 `ACCEPTANCE.md` 和适用失败状态约束，确认每条任务声明都有可观察证据，并覆盖与风险相关的公开接口、成功、失败、取消、超时、权限、scope、数据安全和资源清理。契约违反、缺少必需证据或已有协议矛盾进入 `blocking_findings`；已启用协议无法覆盖真实高风险路径时进入 `acceptance_protocol_gaps`。
+Review this ticket's `R` / `AC`, `SPEC.md`, `ACCEPTANCE.md` when it exists, and applicable failure-state constraints. Confirm every task statement has observable evidence, covering risk-related public interfaces, success, failure, cancel, timeout, permissions, scope, data safety, and resource cleanup. Contract violations, missing required evidence, or a contradictory existing protocol go in `blocking_findings`. An enabled protocol that cannot cover a real high-risk path goes in `acceptance_protocol_gaps`.
 
 ## Change-surface
 
-沿变更文件展开到直接调用方、直接被调用模块、公开类型、序列化 / 反序列化、配置、测试、artifact 保存和资源生命周期。直接链路上的正确性、安全、权限、数据损坏、进程泄漏或明显回归进入 `blocking_findings`。
+Expand from changed files to direct callers, directly called modules, public types, serialization / deserialization, config, tests, artifact persistence, and resource lifecycle. Correctness, safety, permissions, data corruption, process leaks, or clear regressions on that direct chain go in `blocking_findings`.
 
-存在任务级 HLD 时，检查适用 D IDs、模块职责、依赖方向、共享类型和错误语义，但不把 HLD 单独当作扩大 scope 的理由。
+When a task-level HLD exists, check applicable D IDs, module duties, dependency direction, shared types, and error semantics. Do not treat the HLD alone as a reason to widen scope.
 
 ## Exploratory
 
-允许检查相邻模块和范围外路径，但不改变当前 ticket 的 `R`/`AC`、`SPEC.md` 或 `ACCEPTANCE.md`。普通范围外问题进入 `non_blocking_findings`，分类为 `out_of_scope_risk` 时必须路由到新 ticket：
+May inspect neighbouring modules and out-of-scope paths. Must not change this ticket's `R` / `AC`, `SPEC.md`, or `ACCEPTANCE.md`. Ordinary out-of-scope issues go in `non_blocking_findings`. When classified `out_of_scope_risk`, they must route to a new ticket:
 
 ```json
 {
   "category": "out_of_scope_risk",
   "severity": "P2",
-  "evidence": "具体代码或可达路径证据",
+  "evidence": "concrete code or reachable-path evidence",
   "recommended_route": "new-ticket"
 }
 ```
 
-如果范围外问题被证实由本次变更引入或扩大、可达且涉及安全、数据丢失、权限越界、资源泄漏或其他高风险，则进入 `blocking_findings`，但不因此修改当前验收协议。
+If an out-of-scope issue is proven to be introduced or enlarged by this change, reachable, and involves safety, data loss, permission bypass, resource leaks, or other high risk, it also goes in `blocking_findings`. That still does not rewrite the current acceptance protocol.
 
 ## Protocol health
 
-仅在新增公共 CLI、修改错误或取消语义、修改权限或 artifact 规则、线上事故，或多个 ticket 反复出现同类遗漏时触发。检查实现是否违反协议、协议是否覆盖真实高风险路径、命令字段和状态是否矛盾。结果独立记录为 `protocol_health`，缺口进入 `acceptance_protocol_gaps`，回流 `grilling` / `to-spec`，不得由 review agent 修改协议。
+Trigger only for a new public CLI, changed error or cancel semantics, changed permission or artifact rules, a production incident, or the same omission repeating across tickets. Check whether the implementation violates the protocol, whether the protocol covers real high-risk paths, and whether command fields and states contradict. Record independently as `protocol_health`. Gaps go in `acceptance_protocol_gaps` and back to `grilling` / `to-spec`. Review must not edit the protocol.
 
 ## Smell baseline
 
-Fowler smell 只作为 judgement call，项目明确标准优先，工具已强制的项目跳过。只在当前 diff 造成实际摩擦时报告，并引用具体 hunk。完整清单见 [smell-baseline.md](smell-baseline.md)。
+Fowler smells are judgement calls. A documented repo standard wins. Skip anything tooling already enforces. Report only when this diff causes real friction, and quote the hunk. Full list: [smell-baseline.md](smell-baseline.md).
 
 ## Severity
 
-- `P0`：需要立即止损、影响广泛且无需特殊输入即可触发的严重故障或数据、安全问题。
-- `P1`：风险明确且会阻塞当前交付。
-- `P2`：风险明确但影响可控，或应路由为新 ticket。
-- `P3`：有明确收益但不影响当前行为的低优先级建议；证据不足的猜测不作为 finding。
+- `P0`: needs immediate stop-the-bleeding; widespread; no special input required; severe failure, data, or safety.
+- `P1`: risk is clear and blocks current delivery.
+- `P2`: risk is clear but contained, or should route as a new ticket.
+- `P3`: clear benefit that does not affect current behaviour. Guesswork without evidence is not a finding.

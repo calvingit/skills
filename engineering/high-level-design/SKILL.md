@@ -1,68 +1,70 @@
 ---
 name: high-level-design
-description: "为已确认的 SPEC 搜索现有代码库并创建或修订任务级 HLD.md，优先复用或扩展当前架构，确定多处实现需要共同遵守的模块职责、共享类型、接口和集成约束；不处理 UI/UX、ticket 拆分或局部详细设计。"
+description: Search the current codebase against a confirmed SPEC and create or amend a task-level HLD.md. Prefer reusing or extending the architecture already there. Lock module duties, shared types, interfaces, and integration constraints that several implementations must share. Not for UI/UX, ticket splitting, or local detailed design.
 ---
 
 # High-Level Design
 
-以已确认的 `SPEC.md` 和当前代码库事实为输入，为一次交付形成概要技术设计。默认在现有架构、调用方式和命名体系上做最小增量设计，不把任务当作全新架构设计。只有某项设计会同时影响多个模块、调用方或实现任务，不能由单个实现者自行决定时，才创建任务目录中的 `HLD.md`；不要为了流程完整生成空文档。
+Take a confirmed `SPEC.md` and current codebase facts, and form the high-level technical design for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
 
-`HLD.md` 是当前交付概要技术设计的最终依据，约束多个 Module、调用方或实现任务需要共同遵守的设计。它不是 UI/UX、视觉或交互稿，也不规定 private method、局部 helper、单一调用方的内部 callback 等详细设计。
+Create `HLD.md` in the task directory only when a design will affect several modules, callers, or implementation tasks at once, so a single implementer cannot decide it alone. Do not write an empty document to complete a process.
 
-## 权威与边界
+`HLD.md` is the final authority for that delivery's shared technical design. It is not a UI/UX, visual, or interaction draft. It does not prescribe private methods, local helpers, or a single caller's internal callbacks.
 
-- `SPEC.md` 决定需求、外部行为、验收、业务边界和已确认的 Solution Constraints。
-- `HLD.md` 从 SPEC 与代码库事实推导模块职责、共享类型、内部 Interface、依赖方向、数据 / 控制流、状态与错误语义、迁移和集成约束。
-- `tickets/*.json` 只派生交付分解和阻塞依赖；实现代码负责 HLD 未约束的局部详细设计。
-- HLD 不得改变 SPEC。两者冲突时停止，由 `to-spec` 先修正规范或由本 Skill 修正设计，不能自行选择一份继续实现。
-- 本 Skill 可以应用 `codebase-design` 判断具体 Module / Interface / Seam，但不复制其通用设计规则。
+## Authority and bounds
 
-## 基于现有代码库设计
+- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and confirmed Solution Constraints.
+- `HLD.md` derives module duties, shared types, internal Interfaces, dependency direction, data / control flow, state and error semantics, migration, and integration constraints from the SPEC and codebase facts.
+- `tickets/*.json` only derive delivery split and blocking edges. Implementation owns local detailed design the HLD did not constrain.
+- The HLD must not change the SPEC. On conflict, stop. `to-spec` fixes the spec, or this skill fixes the design. Do not pick one and keep implementing.
+- This skill may apply `codebase-design` to a specific Module / Interface / Seam. It does not copy that skill's general rules.
 
-按以下顺序选择设计依据：
+## Design from the codebase that exists
 
-1. 用户要求与已确认 SPEC；
-2. 适用 `AGENTS.md`、架构文档、ADR 和项目规范；
-3. 同一业务域或同一 Module 的稳定实现；
-4. 当前生产主路径、真实调用方与 composition 入口；
-5. 较新的相似实现；
-6. 通用工程原则。
+Choose design basis in this order:
 
-现有代码是强证据，不是绝对权威。仓库中存在多种模式时，不按数量机械投票；选择与当前职责归属、运行路径和变更范围最接近的参考实现，并记录依据。明显问题若不阻碍 SPEC，标为已发现但本次不处理的问题，不借当前任务重构。
+1. The user's request and the confirmed SPEC.
+2. Applicable `AGENTS.md`, architecture docs, ADRs, and project standards.
+3. Stable implementations in the same domain or module.
+4. Current production main path, real callers, and composition entry points.
+5. Newer similar implementations.
+6. General engineering principles.
 
-代码库调查采用有限的两阶段搜索：
+Existing code is strong evidence, not absolute authority. When several patterns exist, do not vote by count. Pick the reference closest to current ownership, runtime path, and change scope, and record why. Obvious problems that do not block the SPEC are noted as found-and-not-this-task. Do not hijack the task into a refactor.
 
-- **广度**：用精确搜索定位相关 symbol、类型、调用方、测试、配置、composition 入口和相似功能。
-- **深度**：选择 1–3 个最相关参考实现，追踪必要调用链、数据 / 控制流和验证方式。
+Investigate in two bounded stages:
 
-已有证据足以确定多处实现共用的设计约定后停止调查。不要为了声称理解全仓而继续扩展范围。
+- **Breadth**: precise search for related symbols, types, callers, tests, config, composition entry points, and similar behaviour.
+- **Depth**: pick 1–3 of the most relevant references and follow the necessary call chains, data / control flow, and how they are verified.
 
-## 是否需要 HLD
+Stop once the evidence is enough to lock design several implementations must share. Do not keep expanding to claim a whole-repo understanding.
 
-先读取完整 SPEC、适用 Agent 指令、架构 / 领域文档、ADR、相关代码与调用链。出现以下任一情况时需要 HLD：
+## When an HLD is required
 
-- 多个 Module、调用方或实现任务必须共享类型、枚举、schema、事件、错误模型或回调约定；
-- 需要新增或改变公共 / 跨模块 Interface、职责归属、依赖方向或稳定 Seam；
-- 多处实现必须遵守同一状态机、生命周期、并发、取消或调用顺序；
-- 需要先扩展后收缩、数据迁移、兼容窗口或明确的集成顺序；
-- 用户或项目规则明确要求一项多处实现的技术约束。
+Read the full SPEC, applicable agent instructions, architecture / domain docs, ADRs, related code, and call chains first. An HLD is required if any of these hold:
 
-ticket 数量不是判断条件：单一执行单元也可能需要 HLD，多个相互独立的 tickets 也可能不需要。若以上条件均不成立，报告 `hld_not_required` 及依据，不创建 `HLD.md`，也不加载创建模板或修订流程。
+- Several modules, callers, or implementation tasks must share types, enums, schemas, events, error models, or callback conventions.
+- A public or cross-module Interface, ownership, dependency direction, or stable Seam must be added or changed.
+- Several implementations must obey the same state machine, lifecycle, concurrency, cancel, or call order.
+- Expand-then-contract, data migration, a compatibility window, or an explicit integration order is required.
+- The user or project rules explicitly require a technical constraint several implementations share.
 
-普通技术选择由本 Skill 根据仓库证据决定，不交给用户，也不因缺少完全相同的现成实现而转入探索流程。只有代码事实与 SPEC、公开行为、持久化格式或明确架构约束发生无法自行消解的冲突，且会改变需求语义、兼容策略、权限、范围或验收时，才停止并交回 `grilling` / `to-spec`。只有关键技术可行性确实未知、有限代码调查或小型验证无法解决，并且需要跨会话探索时，才交回 `wayfinding`。
+Ticket count is not the test. A single execution unit may still need an HLD; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
 
-## 模式
+Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. Stop and hand back to `grilling` / `to-spec` only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance. Hand back to `wayfinding` only when a load-bearing technical feasibility is genuinely unknown, limited code investigation or a small check cannot settle it, and the exploration needs to cross sessions.
 
-- **Create**：需要 HLD，且任务目录中不存在 `HLD.md`。读取 [references/hld-template.md](references/hld-template.md)，按其中流程与模板创建。
-- **Amendment**：已有 HLD，且 SPEC、代码库事实或已确认设计发生变化。读取 [references/amendment.md](references/amendment.md)，只修订同一文件，不创建并行版本。
-- **无需 HLD**：不存在多处实现需要共同遵守的设计约定；仅报告判断，不写产物。
+## Modes
 
-## 后续交接
+- **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
+- **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
+- **No HLD**: no shared design several implementations must obey. Report the judgement. Write no artifact.
 
-完成后报告 HLD 路径、D IDs、局部实现空间、未验证项和下游影响：
+## Handoff
 
-- 无需任务执行图：交给 `quick-implement`；
-- 需要多个实现任务、阻塞依赖或统一调度：交给 `to-tickets`；
-- 已有任务执行图且发生 HLD 修订：交给 `to-tickets` 同步受影响 tickets。
+Report the HLD path, D IDs, local implementation space, unverified items, and downstream impact:
 
-本 Skill 不拆 ticket、不实现代码、不制作 UI/UX 稿，也不自动获得 commit、push、建分支或改写历史的授权。
+- No execution graph needed → `quick-implement`.
+- Several implementation tasks, blocking edges, or unified scheduling → `to-tickets`.
+- An execution graph already exists and the HLD was amended → `to-tickets` syncs affected tickets.
+
+This skill does not split tickets, implement code, or produce UI/UX drafts. It does not automatically gain authorisation to commit, push, create a branch, or rewrite history.

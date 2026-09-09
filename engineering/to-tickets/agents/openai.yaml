@@ -1,7 +1,7 @@
 interface:
   display_name: "To Tickets"
-  short_description: "从 SPEC 与可选 HLD 派生或同步 execution graph"
-  default_prompt: "使用 $to-tickets 从已确认的 SPEC.md 与可选 HLD.md 派生 tickets，或在上游修订后同步受影响的 execution graph。"
+  short_description: "Derive or sync an execution graph from SPEC and optional HLD"
+  default_prompt: "Use $to-tickets to derive tickets from the confirmed SPEC.md and optional HLD.md, or to sync the affected execution graph after an upstream amendment."
 
 policy:
   allow_implicit_invocation: false

@@ -1,7 +1,7 @@
 interface:
   display_name: "To Spec"
-  short_description: "创建或修订需求 SPEC，并判断 HLD 与执行路径"
-  default_prompt: "使用 $to-spec 依据需求权威创建或修订 SPEC.md，区分需求约束与概要设计，并判断下游是否需要 HLD 或 execution graph。"
+  short_description: "Create or amend a requirement SPEC, and judge whether HLD or an execution graph is next"
+  default_prompt: "Use $to-spec to create or amend SPEC.md from requirement authority, keep requirement constraints distinct from high-level design, and judge whether downstream work needs an HLD or an execution graph."
 
 policy:
   allow_implicit_invocation: false

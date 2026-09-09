@@ -1,132 +1,132 @@
 ---
 name: code-review
-description: "只读审查已完成变更，按 Contract、Change-surface、Exploratory 三层检查验收契约、直接调用链和范围外风险，并输出可验证的完成门结果。"
+description: Read-only review of completed changes along three layers — Contract, Change-surface, and Exploratory — covering acceptance, direct call chains, and out-of-scope risk, then emit a verifiable completion-gate result.
 ---
 
 # Code Review
 
-## 目标
+Review completed code changes. Decide whether they satisfy the current task's public contract, and keep enough direct call-chain context to catch regressions a line-level diff will miss.
 
-审查已完成的代码变更，判断它是否满足当前任务的公开契约，并保留足够的直接调用链上下文来发现只看 diff 行无法发现的回归。Review 只读，不修改代码、Git 状态、`SPEC.md`、`ACCEPTANCE.md`、HLD 或其他外部系统。
+Review is read-only. It does not modify code, Git state, `SPEC.md`, `ACCEPTANCE.md`, HLD, or any other external system.
 
-Review 有三层，职责不能互换：
+The three layers are not interchangeable:
 
 ```text
 Review
-├── Contract review       # 决定当前任务能否完成
-├── Change-surface review # 覆盖变更及其直接调用链
-└── Exploratory review    # 报告范围外高风险，不扩大完成门
+├── Contract review       # decides whether the current task can complete
+├── Change-surface review # covers the change and its direct call chain
+└── Exploratory review    # reports out-of-scope high risk; does not widen the completion gate
 ```
 
-Contract review 固定需求与验收依据，Change-surface 和 Exploratory 同时检查本次变更引入或扩大的可达回归。只有违反当前契约或由本次变更引入、扩大的可达正确性与高风险问题才阻塞；范围外既有风险单列报告并建议新 ticket，不改变本轮实现要求。验收协议缺口不能由 review agent 自行补写。
+Contract review pins requirements and acceptance. Change-surface and Exploratory both look for reachable regressions this change introduced or enlarged. Only a violation of the current contract, or a reachable correctness / high-risk issue this change introduced or enlarged, can block. Pre-existing out-of-scope risk is reported separately with a new-ticket recommendation. It does not change this round's implementation bar. Review must not invent missing acceptance protocol.
 
-## 输入与范围
+## Inputs and scope
 
-开始前必须锁定以下内容：
+Lock these before starting:
 
-- `review_mode`、`review_target`、对比基准和既有改动。
-- 当前任务可用的 `R`/`AC`、`SPEC.md` 和（存在时）`ACCEPTANCE.md`；没有独立协议时，以用户要求、ticket 或 SPEC 中的验收条件为依据，不将协议缺失本身视为阻断。
-- 目标仓库的 `AGENTS.md`、项目规范、配置、相关测试和外部边界。
-- 变更文件、直接调用方、直接被调用模块、相关公开类型、测试和配置。
-- 存在时的任务级 `HLD.md`、适用 D IDs、实现回执、简化回执和验证证据。
+- `review_mode`, `review_target`, comparison baseline, and pre-existing edits.
+- Current-task `R` / `AC`, `SPEC.md`, and `ACCEPTANCE.md` when it exists. With no separate protocol, use acceptance stated in the user request, ticket, or SPEC. Missing protocol is not itself a blocker.
+- Target-repo `AGENTS.md`, project standards, config, related tests, and external bounds.
+- Changed files, direct callers, directly called modules, related public types, tests, and config.
+- Task-level `HLD.md` when present, applicable D IDs, implementation receipt, simplification receipt, and verification evidence.
 
-需求来源按以下顺序解析：用户明确提供的来源、当前 ticket 或执行图引用的 `SPEC.md`、已配置 issue tracker 的 issue、与分支或任务名匹配的本地 spec。没有需求来源时标记 `no_spec_available`，跳过契约实现判断，不猜测需求。
+Resolve requirement sources in this order: a source the user named, `SPEC.md` cited by the current ticket or execution graph, an issue on the configured tracker, a local spec matching the branch or task name. With no requirement source, mark `no_spec_available`, skip contract-implementation judgement, and do not guess requirements.
 
-任务级 HLD 只在用户或调用方提供、或与当前 SPEC 同目录时使用，不能把仓库级架构文档误当成任务级设计。没有 HLD 时标记 `not_applicable`。
+Use a task-level HLD only when the user or caller supplied it, or it sits next to the current SPEC. Do not treat repo-level architecture docs as task-level design. With no HLD, mark `not_applicable`.
 
-## 审查模式
+## Review modes
 
-- **branch / commit**：先用 `git rev-parse` 验证基准，再固定 `git diff <fixed-point>...HEAD` 和 `git log <fixed-point>..HEAD --oneline`；基准无效或 diff 为空时停止。
-- **working tree**：baseline 固定为 `HEAD`，分别审查 staged、unstaged，并记录未跟踪文件；未读取的 untracked 文件不能计入覆盖范围。
-- **explicit path**：只审查用户明确指定的路径，并声明没有完整提交范围的限制。
-- **implementation**：使用实现流程提供的 baseline、实际范围、执行回执和验证证据，不重新猜测调用方声明的范围；无法证明覆盖完整范围时返回 `BLOCKER`。
+- **branch / commit**: `git rev-parse` the fixed point, then pin `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`. Stop on a bad ref or empty diff.
+- **working tree**: baseline is `HEAD`. Review staged and unstaged separately, and record untracked files. Unread untracked files are not coverage.
+- **explicit path**: only the paths the user named, and state the limit of not having a full commit range.
+- **implementation**: use the implementation flow's baseline, actual scope, execution receipt, and verification evidence. Do not re-guess the caller's declared scope. Return `BLOCKER` when full-scope coverage cannot be proven.
 
-## 执行顺序
+## Order
 
-1. 锁定模式、基准、范围、既有改动和需求来源。
-2. 读取目标仓库规则、`SPEC.md` / `ACCEPTANCE.md`、HLD、配置、测试和直接调用链。
-3. 按顺序完成 Contract、Change-surface、Exploratory 三层审查；环境不支持独立 reviewer 时由当前 Agent 分开执行。
-4. 每条 finding 引用具体文件、行、分支、`R`/`AC`、验收章节或调用关系，并说明影响、建议和验证方式。
-5. 按 [worker.md](references/worker.md)、[review-criteria.md](references/review-criteria.md) 和 [output-contract.md](references/output-contract.md) 聚合结果，不跨层合并或重新排序严重程度。
+1. Lock mode, baseline, scope, pre-existing edits, and requirement source.
+2. Read target-repo rules, `SPEC.md` / `ACCEPTANCE.md`, HLD, config, tests, and the direct call chain.
+3. Run Contract, Change-surface, and Exploratory in that order. If the environment cannot spawn independent reviewers, the current agent still runs them separately.
+4. Every finding cites a file, line, branch, `R` / `AC`, acceptance section, or call relation, plus impact, suggestion, and how to verify.
+5. Aggregate per [worker.md](references/worker.md), [review-criteria.md](references/review-criteria.md), and [output-contract.md](references/output-contract.md). Do not merge layers or re-rank severity across them.
 
 ## Contract review
 
-Contract review 只围绕当前 ticket 的完成门检查：
+Contract review only checks this ticket's completion gate:
 
-- 每条 in-scope `R`/`AC` 是否有可观察的通过证据。
-- 存在时检查 `ACCEPTANCE.md` 的 Public Interface、Observable Behavior、Acceptance Criteria / Scenarios、Failure and Environment Notes 和 Evidence Rules；否则直接依据任务声明的验收条件。
-- scope、权限、数据安全、错误/取消/超时语义和资源清理约束是否满足。
-- 变更是否引入未经授权的公开行为或超出当前 ticket 的必需行为。
+- Every in-scope `R` / `AC` has observable passing evidence.
+- When `ACCEPTANCE.md` exists, check Public Interface, Observable Behavior, Acceptance Criteria / Scenarios, Failure and Environment Notes, and Evidence Rules; otherwise use the task's stated acceptance.
+- Scope, permissions, data safety, error / cancel / timeout semantics, and resource-cleanup constraints hold.
+- The change does not introduce unauthorised public behaviour or behaviour the current ticket does not require.
 
-已有协议矛盾、无法覆盖真实高风险路径或缺少任务声明的必要证据时，进入 `acceptance_protocol_gaps`，并回流 `grilling` / `to-spec`，不能补写隐含验收条件。没有独立协议时，只报告当前任务契约无法判定的范围。
+Contradictory existing protocol, inability to cover a real high-risk path, or missing evidence the task declared goes into `acceptance_protocol_gaps` and back to `grilling` / `to-spec`. Do not write implied acceptance. With no separate protocol, report only the current-task contract that cannot be judged.
 
 ## Change-surface review
 
-Change-surface review 固定覆盖：
+Change-surface always covers:
 
-- 变更文件。
-- 直接调用方和直接被调用模块。
-- 相关公开类型、序列化 / 反序列化和配置。
-- 相关测试、artifact 保存和资源生命周期路径。
+- Changed files.
+- Direct callers and directly called modules.
+- Related public types, serialization / deserialization, and config.
+- Related tests, artifact persistence, and resource-lifecycle paths.
 
-只报告本次变更引入或扩大的直接链路问题。直接调用链上的正确性、安全、权限、数据损坏、进程泄漏或明显回归问题进入 `blocking_findings`。
+Report only direct-chain issues this change introduced or enlarged. Correctness, safety, permissions, data corruption, process leaks, or clear regressions on that chain go in `blocking_findings`.
 
-HLD 的模块职责、依赖方向、共享类型和错误语义在此作为适用依据，但 HLD 不会单独扩大本次 review scope。
+HLD module duties, dependency direction, shared types, and error semantics are applicable basis here. The HLD does not by itself widen this review's scope.
 
 ## Exploratory review
 
-Exploratory review 可以查看相邻模块和范围外路径，用于发现高风险问题，但不改变当前 ticket 的 `R`/`AC`、`SPEC.md` 或 `ACCEPTANCE.md`。
+Exploratory review may look at neighbouring modules and out-of-scope paths to find high-risk issues. It does not change this ticket's `R` / `AC`, `SPEC.md`, or `ACCEPTANCE.md`.
 
-范围外问题必须单独分类：
+Out-of-scope issues must be classified separately:
 
 ```json
 {
   "category": "out_of_scope_risk",
   "severity": "P2",
-  "evidence": "具体代码或可达路径证据",
+  "evidence": "concrete code or reachable-path evidence",
   "recommended_route": "new-ticket"
 }
 ```
 
-普通范围外风险进入 `non_blocking_findings`。如果证据证明问题由本次变更引入或扩大、可达且涉及安全、数据丢失、权限越界、资源泄漏或其他高风险，则同时进入 `blocking_findings`，阻塞当前完成。
+Ordinary out-of-scope risk goes in `non_blocking_findings`. If evidence shows this change introduced or enlarged a reachable issue involving safety, data loss, permission bypass, resource leaks, or other high risk, it also goes in `blocking_findings` and blocks current completion.
 
-## 阻断规则
+## Blocking rules
 
-| 问题 | 当前完成门 |
+| Issue | Current completion gate |
 | --- | --- |
-| 违反当前 SPEC、AC 或验收协议 | 阻塞 |
-| 本次变更引入或扩大的安全、数据丢失、权限越界、进程/资源泄漏等高风险可达问题 | 阻塞 |
-| 范围外既有高风险问题 | 单列报告并建议新 ticket |
-| 变更直接调用链上的正确性问题 | 阻塞 |
-| 相邻但不影响本次行为的风险 | 报告并建议新 ticket |
-| 纯风格、重构建议、推测性风险 | 不阻塞 |
-| 已启用的验收协议矛盾或无法覆盖高风险路径 | 进入 `acceptance_protocol_gaps`，交回 `grilling` / `to-spec` |
+| Violates current SPEC, AC, or acceptance protocol | Blocks |
+| This change introduced or enlarged a reachable high-risk issue (safety, data loss, permission bypass, process / resource leak) | Blocks |
+| Pre-existing out-of-scope high risk | Report separately; recommend a new ticket |
+| Correctness issue on the change's direct call chain | Blocks |
+| Neighbouring risk that does not affect this behaviour | Report; recommend a new ticket |
+| Pure style, refactor suggestions, speculative risk | Does not block |
+| Enabled acceptance protocol contradicts itself or cannot cover a high-risk path | `acceptance_protocol_gaps`; hand back to `grilling` / `to-spec` |
 
-最终完成必须满足：三层 review 均通过、`blocking_findings` 为空、`acceptance_protocol_gaps` 为空、`unverified_scope` 为空，并且所有适用的验证命令成功。
+Final completion requires all three layers passing, empty `blocking_findings`, empty `acceptance_protocol_gaps`, empty `unverified_scope`, and every applicable verification command succeeding.
 
-## 协议健康审查
+## Protocol health
 
-协议健康审查不是每个 ticket 的默认重审，只在以下情况触发：新增公共 CLI、修改错误或取消语义、修改权限或 artifact 规则、发生线上事故，或多个 ticket 反复出现同类遗漏。
+Protocol health is not a default re-review of every ticket. Trigger it only for a new public CLI, changed error or cancel semantics, changed permission or artifact rules, a production incident, or the same omission repeating across tickets.
 
-触发后独立输出 `protocol_health`，检查：
+When triggered, emit `protocol_health` separately and check:
 
-1. 当前实现是否违反协议。
-2. 协议是否覆盖真实高风险路径。
-3. 命令、字段、状态和失败语义是否互相矛盾。
+1. Whether the current implementation violates the protocol.
+2. Whether the protocol covers real high-risk paths.
+3. Whether commands, fields, states, and failure semantics contradict each other.
 
-协议健康问题只进入 `acceptance_protocol_gaps` 并回流 `grilling` / `to-spec`，review agent 不得直接修改协议。
+Protocol-health issues go only into `acceptance_protocol_gaps` and back to `grilling` / `to-spec`. Review must not edit the protocol.
 
-## 输出与边界
+## Output and bounds
 
-最终输出固定包含：
+Final output always includes:
 
 - `blocking_findings`
 - `non_blocking_findings`
 - `acceptance_protocol_gaps`
 - `unverified_scope`
 
-每条 finding 至少包含 `category`、`severity`、`evidence` 和 `recommended_route`，并保留位置、影响、建议和验证方式。没有发现时仍保留空章节或空数组。
+Each finding has at least `category`, `severity`, `evidence`, and `recommended_route`, plus location, impact, suggestion, and how to verify. Empty sections or empty arrays stay when there is nothing to report.
 
-这是只读审查。根因定位转交 `debug`，全仓架构诊断转交 `review-architecture`，测试或构建失败交由 `verify` / `debug` 处理；review 可以提出提交建议，但不能 commit、push、修改分支、修改验收协议或扩大当前 ticket 的完成门。
+This is a read-only review. Root-cause work goes to `debug`. Whole-repo architecture diagnosis goes to `review-architecture`. Test or build failures go to `verify` / `debug`. Review may suggest a commit. It must not commit, push, edit branches, edit the acceptance protocol, or widen this ticket's completion gate.
 
-由 Loop 调用时，使用 [Runtime capability 输出契约](../../docs/loop-runtime.md#capability-result) 返回 JSON；独立审查沿用 Markdown 回执。
+When Loop calls this skill, return JSON per the [Runtime capability output contract](../../docs/loop-runtime.md#capability-result). Standalone review keeps a Markdown receipt.

@@ -2,78 +2,78 @@
 
 ## Finding
 
-每条 finding 至少包含以下字段，并补充位置、影响、建议和验证方式：
+Every finding has at least these fields, plus location, impact, suggestion, and how to verify:
 
 ```json
 {
   "category": "contract_violation",
   "severity": "P1",
-  "evidence": "文件、行、分支或调用关系证据",
+  "evidence": "file, line, branch, or call-relation evidence",
   "recommended_route": "retry"
 }
 ```
 
-`out_of_scope_risk` 必须使用 `recommended_route: new-ticket`。没有发现时保留空数组或空章节。
+`out_of_scope_risk` must use `recommended_route: new-ticket`. Keep empty arrays or empty sections when there is nothing to report.
 
 ## Worker prompts
 
 ### Contract
 
 ```text
-你是 Contract 审查 agent。审查指定 diff 是否满足当前任务已声明的 R/AC、用户要求、ticket 或 SPEC.md；存在 ACCEPTANCE.md 和失败状态矩阵时一并遵守。
-这是只读审查，不得修改工作区、版本控制状态或外部系统。
-逐条报告契约缺失、未授权行为、语义错误和证据缺口，并引用具体位置和验收章节。
+You are the Contract review agent. Review the given diff against this task's declared R/AC, the user request, ticket, or SPEC.md. Obey ACCEPTANCE.md and the failure-state matrix when they exist.
+This is a read-only review. Do not modify the workspace, version control, or any external system.
+Report contract gaps, unauthorised behaviour, semantic errors, and evidence gaps one by one, citing location and acceptance section.
 ```
 
 ### Change-surface
 
 ```text
-你是 Change-surface 审查 agent。审查变更文件、直接调用方、直接被调用模块、公开类型、测试和配置。
-这是只读审查，不得修改工作区、版本控制状态或外部系统。
-只报告本次变更引入或扩大的直接调用链问题；高风险可达问题进入 blocking_findings。
+You are the Change-surface review agent. Review changed files, direct callers, directly called modules, public types, tests, and config.
+This is a read-only review. Do not modify the workspace, version control, or any external system.
+Report only direct call-chain issues this change introduced or enlarged. Reachable high-risk issues go in blocking_findings.
 ```
 
 ### Exploratory
 
 ```text
-你是 Exploratory 审查 agent。可以检查相邻模块和范围外风险，但不得改变当前完成门或验收协议。
-范围外问题使用 category: out_of_scope_risk、severity、evidence 和 recommended_route: new-ticket。
+You are the Exploratory review agent. You may inspect neighbouring modules and out-of-scope risk. You must not change the current completion gate or acceptance protocol.
+Out-of-scope issues use category: out_of_scope_risk, severity, evidence, and recommended_route: new-ticket.
 ```
 
 ## Markdown report
 
 ```markdown
-- 审查建议：可以提交 / 修复后提交 / 不建议提交
-- Review mode：standalone / implementation
-- 范围：
-- Baseline / pre-existing：
-- Spec source：
-- Acceptance source：
-- HLD source：
+- Review advice: may commit / commit after fixes / do not commit
+- Review mode: standalone / implementation
+- Scope:
+- Baseline / pre-existing:
+- Spec source:
+- Acceptance source:
+- HLD source:
 
 ## Contract
-No 审查发现
+No findings
 
 ## Change-surface
-No 审查发现
+No findings
 
 ## Exploratory
-No 审查发现
+No findings
 
 ## Findings
-- blocking_findings：
-- non_blocking_findings：
-- acceptance_protocol_gaps：
-- unverified_scope：
-- protocol_health：not_triggered / pass / gap
+- blocking_findings:
+- non_blocking_findings:
+- acceptance_protocol_gaps:
+- unverified_scope:
+- protocol_health: not_triggered / pass / gap
 
 ## Verification evidence
-- 已有证据：
-- 未验证项：
+- Existing evidence:
+- Unverified:
 
-## 提交建议
-- 是否建议提交：
-- 提交前必须完成：
+## Commit advice
+- Recommend commit:
+- Must finish before commit:
 ```
 
-各层独立计数，不跨层合并或重新排序。最终完成要求三层通过、没有 blocking findings、没有协议缺口、没有未验证范围，且所有适用验证命令成功。
+Count each layer on its own. Do not merge layers or re-rank across them. Final completion requires all three layers passing, no blocking findings, no protocol gaps, no unverified scope, and every applicable verification command succeeding.

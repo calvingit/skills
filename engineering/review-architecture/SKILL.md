@@ -1,129 +1,127 @@
 ---
 name: review-architecture
-description: "用于只读评审既有架构是否符合项目约束和技术标准。"
+description: Read-only review of whether existing architecture matches project constraints and technical standards.
 ---
 
 # Review Architecture
 
-## Goal
+Read-only architecture review of an existing codebase or a named subsystem. Judge whether the current design is sound, whether it matches architecture constraints the project has already declared, and — when the stack has clear official guidance that still applies — whether a deviation actually matters.
 
-对现有代码库或指定子系统执行只读架构评审，判断当前设计是否合理、是否符合项目已声明的架构约束，以及在相关技术栈存在明确官方指导时是否存在有实际影响的偏离。
+This skill answers **WHETHER the current architecture is sound, where it isn't, why, and what that costs.** It does not design the target architecture, and it does not implement a refactor.
 
-重点回答：**当前 architecture 是否 sound，问题在哪里，为什么是问题，影响是什么。** 不负责设计最终目标架构，也不在本 Skill 内实施重构。
+`codebase-design` answers **HOW** a confirmed Module / Interface / Seam should be shaped once a finding needs a change.
 
-与 `codebase-design` 的职责区别：本 Skill 负责判断 **WHETHER 当前设计合理**；当某个审查发现已确认需要调整后，由 `codebase-design` 判断 **HOW 目标 Module / Interface / Seam 应该设计**。
+## Basis
 
-## 评审依据
+Judge in this order. Do not dress personal taste as a standard:
 
-按以下优先级判断，不把个人偏好包装成规范：
+1. The user's explicit request and the current task's constraints.
+2. Repo-level agent instructions, architecture docs, ADRs, coding standards, and test / build rules.
+3. Facts proven by current code, call chains, runtime paths, tests, and runnable checks.
+4. Official architecture or best-practice guidance for this stack that is still current and directly relevant. Use `find-docs` when fresh external basis is needed, and distinguish project rules from external advice.
+5. General design principles as an analysis lens only. They cannot prove non-compliance by themselves.
 
-1. 用户明确要求和当前任务约束；
-2. 仓库级 Agent 指令、架构文档、ADR、coding standards 和测试/构建规则；
-3. 当前代码、调用链、运行路径、测试和可执行检查证明的事实；
-4. 与当前问题直接相关、可确认仍有效的技术栈官方架构或最佳实践；需要外部最新依据时使用 `find-docs`，并区分项目规则与外部建议；
-5. 通用设计原则只作为分析 lens，不能单独证明“不合规”。
-
-需要讨论 Module、Interface、Depth、Seam、Adapter、Leverage、Locality 等概念时，可参考 `codebase-design` 的共享设计纪律；但本 Skill 的职责是 **review current design**，不是提前完成 redesign。
+When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Locality, use `codebase-design`'s shared vocabulary. This skill still *reviews the current design*. It does not finish a redesign in advance.
 
 ## Boundaries
 
-- 默认只读；不修改源码、测试、配置、规则、baseline 或架构文档。
-- 不负责形成具体目标架构；需要设计目标 Module / Interface / Seam 时交给 `codebase-design`。
-- 不把目录结构、命名风格或“看起来不优雅”自动升级为架构问题。
-- 不把普通 bug、局部代码质量或性能问题纳入，除非证据表明根因来自 ownership、boundary、dependency、state lifecycle 或 architecture policy。
-- 不强行套用 Clean Architecture、DDD、MVVM 等固定风格；只有项目选择了该约束，或技术栈官方规则与当前问题直接相关时才检查符合度。
-- 审查发现必须包含当前 evidence、实际影响和期望的架构结果；候选阶段不写文件级实现配方。
-- 范围未覆盖的部分明确列为未覆盖范围，不假装完成全仓库审计。
+- Read-only by default. Do not edit source, tests, config, rules, baselines, or architecture docs.
+- Do not form a concrete target architecture. Hand a needed Module / Interface / Seam design to `codebase-design`.
+- Directory layout, naming taste, or "it looks inelegant" is not automatically an architecture problem.
+- Ordinary bugs, local code quality, or performance stay out unless evidence shows the root is ownership, a boundary, dependency, state lifecycle, or architecture policy.
+- Do not force Clean Architecture, DDD, or MVVM. Check conformance only when the project chose that constraint, or official stack rules are directly relevant to this question.
+- Every finding needs current evidence, actual impact, and the architecture outcome expected. Candidate stage does not write file-level implementation recipes.
+- Uncovered scope is listed as uncovered. Do not pretend a whole-repo audit finished.
 
 ## Workflow
 
-默认只做当前架构是否 sound 的审查。用户明确要求寻找重构候选时，才加载 `../improve-codebase-architecture/SKILL.md` 的主动候选模式；该模式不增加新的交付阶段。
+Default: is the current architecture sound? Load `../improve-codebase-architecture/SKILL.md` only when the user explicitly wants refactor candidates. That mode does not add a new delivery stage.
 
 ### 1. Define scope and review question
 
-先明确本轮评审对象和判断标准。
+Name what this round reviews and what "sound" means here.
 
-- 用户指定 Module、子系统、feature 或痛点时，以该范围及其直接调用方、依赖和 composition 边界为主。
-- 用户要求全局架构评审时，先建立顶层 runtime / module map，再按 responsibility 分区；不要按文件数量机械抽样。
-- 范围过大时说明本轮 coverage 和未覆盖部分，并优先评审高耦合、高变更或关键 runtime path。
+- A named module, subsystem, feature, or pain point: that range plus its direct callers, dependencies, and composition boundary.
+- A global architecture review: build a top-level runtime / module map first, then partition by responsibility. Do not sample by file count.
+- When scope is too large, state this round's coverage and what is uncovered, and prefer high coupling, high churn, or a critical runtime path.
 
 ### 2. Discover current architecture and rules
 
-适用 `AGENTS.md` 的 `Engineering Skills Profile` 指定 architecture authorities 时，将其作为项目声明入口并继续用当前代码验证；没有 Profile 时沿用动态发现，不自动运行 setup。
+If the applicable `AGENTS.md` `Engineering Skills Profile` names architecture authorities, treat them as the project's declared entry and keep verifying against current code. With no Profile, keep discovering dynamically. Do not run setup automatically.
 
-按实际存在情况读取：
+Read what actually exists:
 
-- README、CONTRIBUTING、Agent 指令、architecture docs、ADR / decision records；
-- 入口、composition / configuration、Module / package 边界、依赖声明和测试布局；
-- 与范围相关的 lint、dependency checks、architecture guards、build / test commands；
-- 技术栈官方规则，仅在其会实质影响当前判断时查询。
+- README, CONTRIBUTING, agent instructions, architecture docs, ADRs / decision records.
+- Entry points, composition / configuration, module / package bounds, dependency declarations, and test layout.
+- Related lint, dependency checks, architecture guards, build / test commands.
+- Official stack rules, only when they would actually change this judgement.
 
-文档声明不是自动事实：检查当前代码是否仍与其一致。历史记录用于解释设计理由，不替代当前 evidence。
+A document is not automatically fact. Check whether current code still matches it. History explains why a design exists. It does not replace current evidence.
 
 ### 3. Review through architecture lenses
 
-按需读取 `references/classification-guide.md`。重点检查：
+Read `references/classification-guide.md` as needed. Look at:
 
-- **Boundary / Ownership**：职责、状态、知识和副作用是否由正确 Module 拥有。
-- **Dependency direction**：依赖是否跨越不应跨越的层或形成循环、反向知识泄漏。
-- **Interface / Depth**：Interface 是否隐藏复杂度，调用方是否被迫理解 Implementation。
-- **State / Lifecycle**：状态 owner、并发、初始化、取消、释放和恢复是否与使用范围一致。
-- **Data / Control Flow**：数据转换、错误、事件和副作用是否被多处重复解释。
-- **Testability / Replaceability**：测试是否通过生产 Interface 验证行为，Seam 是否代表真实变化边界。
-- **Standards conformance**：是否违反项目已声明约束或与当前场景直接相关的官方技术栈规则。
-- **Evolution cost**：一个正常需求是否需要跨越过多 owners、同步多个事实或修改不相关区域。
+- **Boundary / Ownership** — whether the right module owns duty, state, knowledge, and side effects.
+- **Dependency direction** — whether dependencies cross a layer they shouldn't, cycle, or leak knowledge backwards.
+- **Interface / Depth** — whether the interface hides complexity, or callers are forced to learn the implementation.
+- **State / Lifecycle** — whether state owner, concurrency, init, cancel, dispose, and recovery match the use.
+- **Data / Control Flow** — whether transforms, errors, events, and side effects are re-interpreted in several places.
+- **Testability / Replaceability** — whether tests verify behaviour through the production interface, and whether seams are real variation points.
+- **Standards conformance** — declared project constraints, or official stack rules that apply to this scene.
+- **Evolution cost** — whether an ordinary requirement must cross too many owners, keep several facts in sync, or edit unrelated areas.
 
-这些是 investigation lenses，不是必须逐项打分的 checklist。
+These are investigation lenses, not a scorecard that must be filled.
 
 ### 4. Deep-read and seek counter-evidence
 
-只对最强候选追踪完整关系：目标 Module、代表性调用方、下游依赖、composition 入口、相关测试，以及必要的数据流或控制流。
+Trace only the strongest candidates fully: the target module, representative callers, downstream dependencies, composition entry, related tests, and necessary data or control flow.
 
-每个结论明确区分：
+Label every conclusion:
 
-- **Observed**：当前代码、symbol、调用关系、测试、规则或命令直接证明；
-- **Inferred**：由多项 Observed evidence 推导，明确说明推理；
-- **External guidance**：来自技术栈官方资料，标明它是项目硬约束还是建议；
-- **Unknown**：信息不足，不能假设成立。
+- **Observed** — proven directly by current code, symbols, calls, tests, rules, or commands.
+- **Inferred** — derived from several Observed facts; state the reasoning.
+- **External guidance** — from official stack material; mark hard project constraint vs advice.
+- **Unknown** — not enough information; do not assume.
 
-主动寻找反证。现有设计如果确实隔离 failure domain、保护兼容性、集中复杂度或满足真实替换边界，应降级或否定 candidate。
+Actively look for counter-evidence. If the current design really isolates a failure domain, protects compatibility, concentrates complexity, or satisfies a real replacement boundary, downgrade or reject the candidate.
 
-### 5. 按影响划分评审发现
+### 5. Rank findings by impact
 
-审查发现不按“违反了多少原则”排序，而按 evidence 与实际影响排序：
+Do not rank by "how many principles it violates". Rank by evidence and actual cost:
 
-- `Critical`：可能导致数据、安全、权限、持久化兼容或系统级生命周期错误；
-- `High`：持续造成明显变更扩散、错误 ownership、依赖失控或难以可靠验证；
-- `Medium`：存在稳定的架构摩擦和维护成本，但影响局部且可控；
-- `Low`：轻微偏离或改进机会，不足以单独推动架构变更；
-- `Speculative`：信号存在但关键事实未知，不作为确定审查发现。
+- `Critical` — can cause data, safety, permission, persistence-compat, or system-level lifecycle failure.
+- `High` — ongoing change fan-out, wrong ownership, runaway dependencies, or behaviour that cannot be verified reliably.
+- `Medium` — stable architecture friction and maintenance cost, local and contained.
+- `Low` — slight drift or an improvement that cannot drive an architecture change on its own.
+- `Speculative` — a signal exists but a load-bearing fact is unknown. Not a confirmed finding.
 
-没有成立问题时明确输出 `未发现问题`；不要为了报告完整度制造架构债。
+When nothing holds, say **no findings**. Do not invent architecture debt to complete a report.
 
 ### 6. Report and stop
 
-使用 `references/report-template.md` 输出 Markdown 架构评审。报告应明确：
+Write a Markdown architecture review from `references/report-template.md`. The report must make clear:
 
-- scope / coverage / 未覆盖范围；
-- 当前 architecture 与适用 authorities；
-- 审查发现及 evidence、impact、rule/guidance basis；
-- 不构成问题的反证；
-- recommendation direction 和需要进一步确认的问题。
+- scope / coverage / uncovered range
+- current architecture and applicable authorities
+- findings with evidence, impact, and rule / guidance basis
+- counter-evidence that is *not* a problem
+- recommendation direction and questions that still need confirmation
 
-本 Skill 到评审结论为止。若用户选择处理某项审查发现：
+This skill stops at the review conclusion. If the user chooses to act on a finding:
 
-- 需要收敛目标 Module / Interface / Seam → `codebase-design`；
-- 需求或权衡未确定 → `grilling`；
-- 需要正式任务契约 → `to-spec`；
-- 已有明确方案 → `to-spec`，存在多处实现需要共同遵守的设计约定时经 `high-level-design`，再按范围进入 `quick-implement` 或 `loop`；
-- 目标只是删除已证明不必要的复杂度 → `simplify`。
+- Need a target Module / Interface / Seam → `codebase-design`
+- Requirements or trade-offs still open → `grilling`
+- Need a formal task contract → `to-spec`
+- Plan already clear → `to-spec`, then `high-level-design` when several implementations must share design, then `quick-implement` or `loop` by scope
+- Goal is only to delete proven-unnecessary complexity → `simplify`
 
 ## Done when
 
-- 已说明评审范围、判断依据和未覆盖部分。
-- 当前架构事实来自代码、关系、测试或可运行检查，而非只复述文档。
-- 项目规则、外部官方 guidance 与通用设计判断被明确区分。
-- 每个审查发现都有 evidence、impact 和对应的 architecture concern。
-- 已寻找并记录重要反证，不把合理 trade-off 误判成问题。
-- 报告给出 `Critical / High / Medium / Low / Speculative` 或 `未发现问题` 的明确结论。
-- 没有在架构评审阶段越权进入 redesign 或 implementation。
+- Review scope, judgement basis, and uncovered parts are stated.
+- Current architecture facts come from code, relations, tests, or runnable checks — not from restating docs.
+- Project rules, official external guidance, and general design judgement are distinguished.
+- Every finding has evidence, impact, and an architecture concern.
+- Important counter-evidence was sought and recorded. A reasonable trade-off is not mislabelled as a problem.
+- The report concludes `Critical / High / Medium / Low / Speculative` or **no findings**.
+- The review did not drift into redesign or implementation.

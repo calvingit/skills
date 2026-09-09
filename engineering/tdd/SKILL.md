@@ -1,117 +1,110 @@
 ---
 name: tdd
-description: "用于以 test-first / red-green 实现功能或修复 bug，并验证行为。"
+description: Test-driven development with a red-green loop. Use when building a feature or fixing a bug test-first, or when the work should move in vertical slices.
 ---
 
 # Test-Driven Development
 
-TDD 在这里指 **red → green 的 vertical-slice 反馈循环**。目标不是最大化测试数量，而是用独立、可观察的反馈约束实现，让每一步都能证明行为是否向目标移动。
+TDD is the red → green loop. The point is not more tests. It is independent, observable feedback that proves each slice moved the behaviour.
+
+Every section applies on every cycle — consult them before and during the loop, not after.
 
 ## Preconditions
 
-开始前必须有：
+Do not start until all three exist:
 
-1. 可外部判定的 expected behavior；
-2. expected value 的独立来源，例如用户确认、spec / acceptance criteria、公开 contract、权威文档或 worked example；
-3. 可以稳定观察该行为的生产 Seam。
+1. Expected behaviour that can be judged from outside.
+2. An independent source for the expected value — a confirmed literal, spec / acceptance criteria, public contract, authoritative docs, or a worked example.
+3. A production Seam that can observe that behaviour stably.
 
-任一项不存在时，不伪造测试：行为不清楚交回 `grilling`；Seam / Interface 本身不合理时调用或参考 `codebase-design`。
+If any is missing, do not invent a test. Unclear behaviour goes back to `grilling`. If the Seam or Interface itself is the wrong shape, consult `codebase-design`.
 
 ## What a good test is
 
-好的测试验证 **behavior through public interfaces**，而不是实现结构。实现可以被重写，只要外部行为不变，测试就应尽量保持有效。
+Tests verify behaviour through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "user can checkout with valid cart" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
 
-优先：
+Prefer:
 
-- 用户或调用方真正可观察的结果。
-- 真实生产构造和公开入口。
-- 与生产路径一致的 Interface / Seam / Adapter。
-- 独立于被测实现计算方式的 expected value。
+- Results a user or caller can actually observe.
+- Real production construction and public entry points.
+- The same Interface / Seam / Adapter the production path uses.
+- An expected value computed independently of the code under test.
 
-避免：
+Avoid:
 
-- 测 private method、内部字段或调用顺序，而这些不是 contract。
-- 为测试新增 `forTest`、noop、mutable callback、delay 参数或公开内部状态。
-- 用数据库旁路、内部日志或源码字符串存在性代替真实行为，除非这些本身就是公开 contract。
+- Private methods, internal fields, or call order that are not the contract.
+- Production APIs added for tests: `forTest`, noops, mutable callbacks, delay parameters, or leaked internals.
+- Bypassing the interface via a database, internal logs, or "the source contains this string", unless that *is* the public contract.
 
-具体正反例见 [tests.md](tests.md)，mocking 取舍见 [mocking.md](mocking.md)。
+See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking.
 
 ## Anti-patterns
 
-### Implementation-coupled
-
-测试绑定内部 collaborator、private API 或当前文件结构。重构不改变行为却导致大量测试失败，是最常见信号。
-
-### Tautological
-
-测试的 expected value 与实现来自同一逻辑或同一假设，因此“按构造必然通过”。例如：
-
-- 实现用公式 X 计算，测试再用同一个公式 X 计算 expected；
-- 刚向源码写入字符串 X，测试只检查源码包含 X，而真实需求是运行时行为；
-- mock 按实现当前调用方式返回值，再断言实现按同一调用方式工作。
-
-expected value 必须尽量来自独立 source of truth：已确认 literal、spec 示例、协议文档、golden fixture、外部系统可验证结果等。
-
-### Horizontal slicing
-
-先批量写所有测试，再批量实现。这样测试通常锁定想象中的结构，而不是根据每个反馈循环学到的事实演化。
-
-使用端到端交付任务：
+- **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behaviour hasn't changed.
+- **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
+- **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify *imagined* behaviour: you test the *shape* of things rather than user-facing behaviour, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead — one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
 
 ```text
-one behavior → one red test → minimal green implementation → next behavior
+one behaviour → one red test → minimal green implementation → next behaviour
 ```
 
-## Choose the Seam first
+## Seams — where tests go
 
-写任何测试前先列出：
+A **seam** is the public boundary you test at: the interface where you observe behaviour without reaching inside. Tests live at seams, never against internals.
 
-- 被观察的 public behavior 是什么；
-- 测试从哪个生产 Seam 进入；
-- 哪些外部边界可以使用真实依赖，哪些需要稳定替身；
-- 本轮不测试什么。
+**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam.
 
-Seam 应位于真实 Module 的 Interface，必要时由 Adapter 满足。如果测试只能通过新增生产 Interface 才能建立，先用 `codebase-design` 判断 Module 或 Seam 是否真的应该改变，而不是直接为可测性扩大 Interface。
+Write down:
 
-在已确认的公开接口、验收覆盖、信任边界和测试契约内，选择现有公开入口可以直接决定并记录依据。`SPEC.md` 已记录且用户已确认的 Seam 可以直接复用，不重复提问。改变公开接口、验收覆盖、信任边界或已确认测试契约时，必须先向用户说明新 Seam、覆盖行为与取舍并取得确认。
+- The public behaviour under observation.
+- Which production Seam the test enters.
+- Which external boundaries can stay real, and which need a stable stand-in.
+- What this cycle will *not* test.
 
-## The loop
+The Seam belongs on a real Module's Interface, satisfied by an Adapter when needed. If the only way to test is to add a production Interface, consult `codebase-design` before widening the Interface for testability.
 
-每个 slice 严格按以下顺序：
+A Seam already recorded in `SPEC.md` and confirmed with the user can be reused without asking again. Changing the public interface, acceptance coverage, trust boundary, or confirmed test contract requires stating the new Seam, coverage, and trade-off, then getting confirmation.
 
-1. **Pick one behavior**：选择一个最小但有用户价值、可独立观察的行为。
-2. **Red**：写一个失败测试，确认失败原因正是缺失/错误的目标行为，而不是 fixture、环境或语法问题。
-3. **Green**：只写足够让这个测试通过的最小生产代码；不要提前实现后续 slice。
-4. **Verify**：重跑该测试和受影响的最小现有测试集，确认没有把其他行为破坏。
-5. **Next slice**：根据刚得到的新事实选择下一个行为，而不是按预先写死的测试清单机械推进。
+When the shape of that interface is itself in question — how deep the module is, where the seam belongs, what the interface should expose — consult `codebase-design`. It is a reference, not a session to run.
 
-Refactor / simplify 不应掺进每个 red-green cycle 造成反馈失焦。完成一组连贯 slice 后，再交给 `simplify` 或实现流程的 review / simplification gate 处理结构收缩，并重跑验证。
+## Rules of the loop
+
+Each slice, in this order:
+
+1. **Pick one behaviour** — the smallest independently observable slice that still has user value.
+2. **Red** — write the failing test. Confirm it fails because the target behaviour is missing or wrong, not because of fixtures, environment, or syntax.
+3. **Green** — only enough production code to pass this test. Don't anticipate later slices.
+4. **Verify** — re-run this test and the smallest existing set it can affect.
+5. **Next slice** — choose from what this cycle taught you, not from a pre-written test inventory.
+
+**Red before green.** Don't add speculative features.
+**One slice at a time.** One seam, one test, one minimal implementation per cycle.
+**Refactoring is not part of the loop.** After a coherent set of slices, hand structural contraction to `simplify` or the implementation flow's review / simplification gate, then re-run verification. Don't fold refactor into every red → green cycle.
 
 ## Test doubles
 
-优先级：
+In this order:
 
-1. 真实、快速、确定性的依赖。
-2. 目标项目已经提供的官方 fake / emulator / in-memory Adapter。
-3. 在真实外部边界使用最小 test double。
+1. Real, fast, deterministic dependencies.
+2. Official fakes / emulators / in-memory Adapters the project already owns.
+3. The smallest test double at a real external boundary.
 
-不要 mock 自己的内部 Module 只是为了让测试更“单元化”。mock 应隔离真实外部不确定性，而不是复制实现结构。
+Don't mock your own internal Modules to make a test more "unit". Mocks isolate real external uncertainty; they do not copy the implementation's call graph.
 
 ## Bug fixes
 
-`debug` 已负责建立 bug feedback loop、最小复现和根因确认。进入 TDD 时，把已确认的最小复现转成回归测试：先 red，再做最小 root-cause fix，最后重跑原始复现。不要让 `tdd` 重新执行一套独立 bug diagnosis。
+`debug` already owns the bug feedback loop, the minimised repro, and root-cause confirmation. In TDD, turn that minimised repro into a regression test: red first, then the smallest root-cause fix, then re-run the original repro. Do not re-run a separate diagnosis inside `tdd`.
 
 ## Done when
 
-- 每个新增测试都能说明它验证的外部行为和独立 expected 来源。
-- 所有新增行为都经历过可确认的 red → green。
-- 测试通过生产公开 Seam，没有为测试泄漏不必要实现细节。
-- 没有明显 tautological、implementation-coupled 或 horizontal-slicing 测试。
-- 相关现有验证仍通过；未验证部分明确记录。
+- Every new test names the external behaviour it checks and the independent expected source.
+- Every new behaviour went through a confirmed red → green.
+- Tests enter through a production public Seam and do not leak internals for testability.
+- No obvious tautological, implementation-coupled, or horizontal-slicing tests.
+- Related existing verification still passes; anything unverified is recorded.
 
 ## Boundaries
 
-- 不强制具体 test framework、目录、coverage 百分比或 mocking library。
-- 不要求所有任务都 TDD；无法建立有价值的快速反馈循环时，应选择目标仓库已有的更合适验证方式。
-- 不把“测试通过”当作需求完整实现的唯一证据；最终仍由 `code-review` 的需求实现审查和任务验收判断完整性。
-
+- No mandated test framework, directory, coverage percentage, or mocking library.
+- Not every task is TDD. If a valuable tight loop cannot be built, use the target repo's existing verification instead.
+- Passing tests are not the only evidence the requirement is done. Completeness still goes through `code-review` and the task's acceptance.

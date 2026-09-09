@@ -1,99 +1,123 @@
 ---
 name: debug
-description: "用于定位已有 bug、非确定性故障或性能回归；修复须明确授权。"
+description: Diagnosis loop for hard bugs, non-deterministic failures, and performance regressions. Fixing requires explicit authorisation.
 ---
 
 # Debug
 
-定位并修复已确认的运行时问题。不要把 bug 工作转交给 SPEC 或 ticket 拆分流程。
+A discipline for confirmed runtime problems. Do not divert bug work into SPEC or ticket splitting.
 
-## 授权与路线
+When exploring the codebase, discover domain docs, ADRs / decision records, and coding standards the way the project already lays them out. Check the working tree before editing. Do not assume these files live at a fixed path.
 
-先写清：预期行为、实际行为、预期来源。预期未确认时，不修改代码；说明证据缺口，并建议使用 `grilling` 收敛预期。
+## Authorisation
 
-用户要求修复时，确认 bug 后继续最小修复；用户只要求诊断、排查或分析时，停在诊断阶段。
+Write down expected behaviour, actual behaviour, and where the expectation comes from. If the expectation is unconfirmed, do not change code. Name the evidence gap and suggest `grilling`.
 
-- 已确认 bug：修复根因，不只遮盖症状。
-- 证据不足或不是 bug：不改代码，说明缺口。
-- 不自动 commit、push、建分支或改写历史。
-- 只有复现已经隔离根因、证据足以支撑最小修复时，才可说明理由后跳过已满足的诊断阶段并直接修复。
-- 跨层、间歇性、环境相关或性能问题：走完整诊断流程。
+When the user asked for a fix, continue to the smallest fix after the bug is confirmed. When they asked only to diagnose, analyse, or investigate, stop at diagnosis.
 
-探索代码时按项目现有约定发现领域文档、ADRs / decision records 和 coding standards；修改前检查工作区状态，不覆盖已有改动。不要假定这些资料存在于固定目录。
+- Confirmed bug: fix the root cause, not the symptom.
+- Insufficient evidence, or not a bug: do not change code. Name the gap.
+- Do not commit, push, create a branch, or rewrite history on your own.
+- Skip a diagnosis phase only when the repro already isolates the root cause and the evidence can support a minimal fix — and say why.
+- Cross-layer, intermittent, environment, or performance problems run the full loop.
 
-## 脱敏
+## Redact
 
-命令、日志和临时产物中的密钥、Token、Cookie、证书和鉴权头全部替换为 `<REDACTED>`。凭证放在环境变量中，不写入命令或输出。
+This skill has you show commands, outputs, and captured artifacts. **Redact every secret first** — write `<REDACTED>` in its place. Keep credentials in env vars, not in the command or the output. Quote only the lines that carry the signal.
 
-## 阶段 1：建立反馈循环
+## Phase 1 — Build a feedback loop
 
-优先建立一个能针对该 bug 变红、可重复的反馈命令：
+**This is the skill.** Everything else is mechanical. If you have a **tight** pass/fail signal for the bug — one that goes red on *this* bug — you will find the cause. If you don't, later phases just guess.
 
-1. 在真实调用路径的 seam 上写失败测试。
-2. 使用 curl、CLI、浏览器自动化或回放捕获的 trace。
-3. 最后才使用最小临时 harness 或脚本。
+Prefer one command that can go red on *this* bug and that you can re-run:
 
-低成本方式拿不到 red 信号时的升级阶梯、按诊断收益改善反馈、非确定性 bug 的复现策略见 `references/feedback-loop-escalation.md`。
+1. A failing test at the seam on the real call path.
+2. curl, CLI, browser automation, or a captured-trace replay.
+3. A throwaway harness or script last.
 
-反馈循环必须断言用户描述的具体症状，而不是只断言“不报错”。优先建立复现，同时允许日志、代码和假设驱动的只读调查。证据不足时不给出修复结论、不改代码；不限制调查。
+If cheap options cannot produce a red signal, escalate using `references/feedback-loop-escalation.md` — construction order, tightening for diagnostic value, and non-deterministic strategy.
 
-## 阶段 2：复现与最小化
+The loop must assert the user's exact symptom, not "didn't crash".
 
-运行循环，确认复现的是用户描述的症状，并记录可重复性。逐项删除输入、调用方、配置和步骤，直到每个剩余元素都是必要条件。记录错误、错误输出或错误时序。
+Phase 1 is done when you can name **one command** you have **already run at least once** (show the invocation and its redacted output) that is:
 
-无法建立循环时继续只读调查，说明已尝试内容，并请求可脱敏的日志、HAR、录屏或允许添加临时诊断埋点。没有足以区分假设的证据时，不进入修复。
+- **Red-capable** — it drives the actual bug path and asserts the user's exact symptom, so it can go red on this bug and green once fixed.
+- **Repeatable** — same verdict every run, or, for flaky bugs, a pinned high enough reproduction rate to debug against.
+- **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
 
-## 阶段 3：假设
+If you catch yourself reading code to build a theory before this command exists, **stop**. No red-capable command, no Phase 2.
 
-按当前证据列出可证伪假设并按证据强度排序。证据只支持一个强假设时不要为凑数量制造陪衬解释。每个假设必须写出预测：
+When you genuinely cannot build a loop: stop and say so. List what you tried. Ask for access to the reproducing environment, a redacted captured artifact (HAR, log dump, recording), or permission to add temporary instrumentation. Do **not** proceed to hypothesise without a loop.
 
-> 如果 X 是原因，改变 Y 后，症状应消失或加重。
+## Phase 2 — Reproduce + minimise
 
-把假设告知用户，但不因等待回复而停工。每次只改变一个变量。
+Run the loop. Confirm it produces the failure the **user** described — not a nearby different failure. Record how reproducible it is.
 
-## 阶段 4：验证
+Cut inputs, callers, config, and steps one at a time until every remaining element is load-bearing. Capture the exact symptom: error, wrong output, or wrong timing.
 
-优先使用断点或 REPL，其次使用边界日志。临时日志统一加 `[DEBUG-...]` 前缀，完成后全部删除。性能问题先测基线，再定位和修改，不用泛化日志代替测量。
+Do not proceed until you have reproduced **and** minimised.
 
-## 阶段 5：修复与回归
+## Phase 3 — Hypothesise
 
-仅诊断模式到此停止，输出根因、排除的假设、影响边界和修复必须保持的行为。
+List falsifiable hypotheses ranked by current evidence. If the evidence supports one strong hypothesis, do not invent extras to pad the list.
 
-默认修复模式按以下顺序执行：
+Each hypothesis must state a prediction:
 
-1. 把最小复现转成回归测试；测试必须走真实生产构造、公开入口和同一调用路径。
-2. 先运行测试确认变红。
-3. 修改最小根因。
-4. 运行测试确认变绿。
-5. 重跑原始的、未最小化的反馈循环。
+> If <X> is the cause, then <changing Y> will make the bug disappear / <changing Z> will make it worse.
 
-没有合适 test seam 时，不暴露 `forTest`、可变回调、延迟参数、noop 或内部状态。需要判断 seam / Interface 是否应该调整时，调用或参考 `codebase-design`；不能证明需要生产接口变化时，不为了测试扩大 API。
+Show the ranked list to the user. Don't block on a reply. Change one variable at a time.
 
-## 阶段 6：按需简化
+## Phase 4 — Instrument
 
-修复和回归测试通过后，只有当前 diff 存在明确复杂度问题或用户要求时才调用 `simplify`；不要把简化变成所有 Debug 的必经阶段。
+Each probe maps to a Phase 3 prediction.
 
-- `completed` 且有改动：重跑相关测试、适用的定向静态检查、格式检查和 diff whitespace 检查。
-- `no_change`：保留 receipt，复用仍有效的验证证据。
-- `blocked` 或 `failed`：停止并报告，不得假装完成。
+1. Debugger / REPL if the env supports it.
+2. Targeted logs at the boundaries that distinguish hypotheses.
+3. Never "log everything and grep".
 
-简化不得改变错误处理、生命周期、并发、取消、协议或用户可观察行为。
+Tag every debug log with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup becomes one grep.
 
-## 阶段 7：收尾
+For performance regressions: measure a baseline first, then locate and change. Do not substitute generalised logs for measurement.
 
-完成前确认：
+## Phase 5 — Fix + regression test
 
-- 原始复现已不再出现。
-- 回归测试通过；没有 test seam 时已明确记录。
-- `[DEBUG-...]` 日志和临时脚本已删除。
-- 跨会话诊断文档已按项目约定清理或说明保留原因。
-- `simplify` 已返回 `completed` 或 `no_change`。
-- 报告包含根因、修改、验证、未验证项和剩余风险。
+Diagnosis-only mode stops here. Report root cause, ruled-out hypotheses, impact bounds, and behaviour the fix must preserve.
 
-若问题需要架构调整，在修复完成后再交给 `review-architecture`，不要在本次 debug 中扩大范围。
+Default fix mode:
 
-## 跨会话
+1. Turn the minimised repro into a regression test on the real production construction, public entry, and same call path.
+2. Watch it fail.
+3. Apply the smallest root-cause fix.
+4. Watch it pass.
+5. Re-run the original, un-minimised Phase 1 loop.
 
-只有任务无法在当前会话完成时，才创建最小诊断断点文档。路径优先遵循目标仓库已有 task / debug 约定；没有约定时先询问或在当前会话中保留状态，不擅自规定仓库根目录固定文件名。
+If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, noops, or internals. Consult `codebase-design` when the Seam / Interface itself may need to move. Do not widen a production API for tests unless that production change is justified.
 
-断点只记录症状、预期来源、反馈命令、观察、已验证假设、根因状态和下一步。新会话恢复时读取该断点，从已验证状态继续；问题解决、确认不是 bug 或用户放弃排查后，说明其清理或保留状态，不留过期诊断事实。
+## Phase 6 — Simplify only when needed
+
+After the fix and regression pass, call `simplify` only when the current diff has a clear complexity problem or the user asks. Do not make simplify a required Debug stage.
+
+- `completed` with edits: re-run related tests and the applicable targeted static, format, and diff-whitespace checks.
+- `no_change`: keep the receipt; reuse verification that is still valid.
+- `blocked` or `failed`: stop and report. Do not pretend done.
+
+Simplification must not change error handling, lifecycle, concurrency, cancel, protocol, or user-observable behaviour.
+
+## Phase 7 — Cleanup
+
+Before declaring done:
+
+- Original repro no longer reproduces (re-run the Phase 1 loop).
+- Regression test passes, or the missing seam is recorded.
+- All `[DEBUG-...]` instrumentation and throwaway scripts are gone.
+- Cross-session diagnosis docs are cleaned up per project convention, or their keep-reason is stated.
+- `simplify`, if run, returned `completed` or `no_change`.
+- The report names root cause, change, validation, unverified items, and remaining risk.
+
+If the problem needs an architecture change, hand to `review-architecture` *after* the fix. Do not widen this debug.
+
+## Across sessions
+
+Create a minimal diagnosis checkpoint only when the work cannot finish in this session. Prefer the target repo's existing task / debug convention. With no convention, ask or keep state in the current session — do not invent a fixed filename at repo root.
+
+The checkpoint records symptom, expectation source, feedback command, observations, tested hypotheses, root-cause status, and next step. A new session reads it and continues from verified state. After the problem is solved, confirmed not a bug, or abandoned, state whether that checkpoint was cleaned or kept. Do not leave stale diagnosis as fact.

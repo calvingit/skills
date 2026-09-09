@@ -1,51 +1,53 @@
 ---
 name: quick-implement
-description: "在已确认目标及存在时的 SPEC/HLD 约束下完成无需 execution graph 的单次实现、验证和审查。"
+description: Implement, verify, and review a single confirmed scope in one fresh context, under SPEC/HLD constraints when those files exist. No execution graph.
 ---
 
 # Quick Implement
 
-在一个 fresh context 内完成已确认目标的单一范围，并在同目录存在时遵守 `SPEC.md` 与 `HLD.md`，交付可复核 evidence。目标契约可以只存在于当前会话；Quick 表示不需要 execution graph，不表示跳过概要设计检查、调查、验证、简化或审查。任务文档定义契约，不是代码配方；实现前必须重新调查当前仓库。
+Finish one confirmed, single-scope goal inside one fresh context. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
-## 入口
+Quick means no execution graph. It does not mean skipping high-level design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
 
-开始前确认目标、范围和可判定结果；有 `SPEC.md`、独立 `ACCEPTANCE.md` 或 `HLD.md` 时读取并遵守，没有这些文件不阻塞。确认整个范围能够在当前 context 内可靠完成。
+## Entry
 
-- 目标、范围或结果仍未明确时，交回 `grilling` / `wayfinding`；只有需要持久化、共享或版本化需求时才调用 `to-spec` 创建 `SPEC.md`。
-- 没有 HLD，但存在跨 Module、跨调用方或跨实现任务的共享类型、Interface、状态 / 错误语义、依赖方向或集成选择时，交回 `high-level-design`。
-- HLD 存在冲突、缺口或已被代码事实证明不可行时停止，由 `high-level-design` 修订，不能在实现中静默改变共享 contract。
-- 范围需要多个执行单元、依赖关系或跨多个 fresh context 时，交给 `to-tickets` 创建 graph，再由 `loop` 执行。
-- 已经存在 ticket graph 时，不使用本 Skill，直接使用 `loop`。
+Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context.
 
-## 调查与方案
+- Unclear goal, scope, or result → `grilling` / `wayfinding`. Call `to-spec` only when the requirement needs to be persisted, shared, or versioned.
+- No HLD, but shared types, Interfaces, state / error semantics, dependency direction, or integration choices span modules, callers, or implementation tasks → `high-level-design`.
+- HLD conflicts, has gaps, or is disproven by code facts → stop. `high-level-design` amends it. Do not silently change a shared contract while implementing.
+- Scope needs several execution units, dependencies, or more than one fresh context → `to-tickets`, then `loop`.
+- A ticket graph already exists → do not use this skill; use `loop`.
 
-1. 记录 `HEAD`、staged / unstaged / untracked 状态和 baseline，保护既有改动；
-2. 动态发现仓库指导文件、coding standards、领域词汇、长期决策、相关代码、调用链、错误路径、测试和配置；适用 `AGENTS.md` 存在 `Engineering Skills Profile` 时把它作为项目入口索引，没有时继续发现现有结构；
-3. 形成当前交付的最小实现方案；HLD 已约束的共享 contract 必须遵守，只对局部实现空间内的 Module 内部结构、private helper、文件组织和算法应用 `codebase-design` 或作局部详细设计；
-4. 发现会改变行为、公开约定、权限、验收或范围的新事实时停止并交回 `grilling` / `wayfinding` / `to-spec`；只改变多处实现共用的技术设计时交回 `high-level-design`。
+## Investigate and plan
 
-## 实现循环
+1. Record `HEAD`, staged / unstaged / untracked state, and a baseline. Protect existing edits.
+2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. If applicable `AGENTS.md` has an `Engineering Skills Profile`, treat it as the project entry index; otherwise keep discovering what is already there.
+3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Apply `codebase-design` or local detailed design only to module internals, private helpers, file layout, and algorithms inside the local implementation space.
+4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and hand back to `grilling` / `wayfinding` / `to-spec`. Technical design several implementations share → `high-level-design`.
 
-- 每个 delivery slice 先确定外部可观察行为和真实生产 Seam，再写最小实现。
-- 当任务适合 test-first、需求已有可独立判定的 expected behavior 且存在稳定 Seam 时，应用 `tdd` 的 red → green vertical-slice 循环。
-- TDD 不适用时，使用目标仓库已有的最小充分反馈循环，不为测试制造生产接口。
-- 实现过程中持续运行当前 slice 的定向测试和相关 typecheck，不把反馈全部留到收尾。
+## Implementation loop
 
-## 收尾
+- For each delivery slice, lock externally observable behaviour and a real production Seam, then write the smallest implementation.
+- When the work fits test-first, expected behaviour is independently decidable, and a stable Seam exists, use `tdd`'s red → green vertical-slice loop.
+- When TDD does not fit, use the smallest sufficient feedback loop the target repo already has. Do not invent production interfaces for tests.
+- Run this slice's targeted tests and related typechecks as you go. Do not leave all feedback until the end.
 
-1. 当前 diff 存在明确复杂度问题或用户要求时执行 `simplify`；否则跳过并说明；
-2. 按 [references/verification-and-review.md](references/verification-and-review.md) 运行定向验证和项目定义的适用交付 gate；
-3. 按同一 reference 使用 `code-review` 的 implementation mode 完成 Contract、Change-surface、Exploratory 三层审查，将项目规范、SPEC 和适用 HLD 作为依据；修复审查发现后重新运行受影响验证与审查；
-4. 只有全部适用 Acceptance Criteria 有可观察 evidence，必要验证和审查通过且没有未解决高风险问题时才宣告完成；
-5. 只有用户明确授权时才 commit；不自动 push，提交范围只含本任务改动。
+## Close-out
 
-## 边界
+1. Run `simplify` when the current diff has a clear complexity problem or the user asks; otherwise skip and say so.
+2. Run targeted verification and the project's applicable delivery gates per [references/verification-and-review.md](references/verification-and-review.md).
+3. Using the same reference, run `code-review` in implementation mode through Contract, Change-surface, and Exploratory, with project standards, SPEC, and applicable HLD as the basis. After review findings are fixed, re-run affected verification and review.
+4. Declare done only when every applicable Acceptance Criterion has observable evidence, required verification and review passed, and no unresolved high-risk issue remains.
+5. Commit only with explicit user authorisation. Do not push on your own. The commit contains only this task's changes.
 
-- 不修改 SPEC / HLD 以迎合实现；需求或验收变化交回 `to-spec`，概要技术设计变化交回 `high-level-design`。
-- 不创建 ticket、维护 execution graph 或调度其他工作单元。
-- 不把当前完整工作再次委托给另一个实现者；reviewer 或其他专门角色仍按其 Skill 职责使用。
-- 不覆盖既有改动，不静默吞错。
-- 不把模型自报、单次测试通过或实现细节检查当作完整验收证据。
-- 不把项目规则塞回通用 Skill。
+## Boundaries
 
-输出实现回执，列明适用的 SPEC / ACCEPTANCE / HLD、baseline、既有改动、实际改动、验收 evidence、验证、按需 simplification、审查结果和未验证项。
+- Do not edit SPEC / HLD to fit the implementation. Requirement or acceptance changes go to `to-spec`; high-level technical design changes go to `high-level-design`.
+- Do not create tickets, maintain an execution graph, or schedule other work units.
+- Do not re-delegate this whole job to another implementer. Reviewers and other specialised roles still run under their own skills.
+- Do not overwrite existing edits. Do not swallow errors.
+- Model self-report, a single passing test, or an implementation-detail check is not complete acceptance evidence.
+- Do not stuff project rules back into a generic skill.
+
+Output an implementation receipt listing applicable SPEC / ACCEPTANCE / HLD, baseline, pre-existing edits, actual changes, acceptance evidence, verification, simplification when it ran, review result, and unverified items.

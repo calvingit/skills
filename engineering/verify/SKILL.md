@@ -1,34 +1,34 @@
 ---
 name: verify
-description: "在独立只读上下文中验证 ticket 的 Acceptance Criteria。"
+description: Verify a ticket's Acceptance Criteria in an independent read-only context.
 ---
 
 # Verify
 
-针对 Loop 提供的 implementation snapshot 验证 ticket-local Acceptance Criteria，重点回答“是否按要求工作、证据是什么”，不评价代码或设计质量。
+Against the implementation snapshot Loop supplies, verify ticket-local Acceptance Criteria. The question is whether it works as required, and what the evidence is. Do not judge code or design quality.
 
-## 与 `code-review` 的边界
+## Boundary with `code-review`
 
-只验证可观察结果和完成条件，不检查代码规范、设计质量、代码异味、抽象合理性或实现风格，这些属于 `code-review`。
+Verify observable results and completion conditions only. Coding standards, design quality, smells, whether an abstraction earns its keep, and implementation style belong to `code-review`.
 
-## 流程
+## Process
 
-1. 从用户要求、SPEC、ticket 和 handoff bundle 提取可验证的完成条件，没有明确条件时只验证能够客观确认的部分，不自行扩展需求。
-2. 根据变更范围和风险选择最小必要验证，可使用针对性测试、lint、类型检查、构建、运行时检查、接口调用、静态搜索、差异检查或项目已有验证入口，并优先复用仓库现有脚本、Make target、CI 命令和测试入口，不为验证新增生产代码或测试专用接口。
-3. 记录实际执行的命令、关键输出和失败项，无法执行的检查明确标为未验证，不能用代码阅读代替运行证据，并对照完成条件逐项返回 `passed` 或 `not_verified` 及可复核证据，明确失败时将 capability outcome 设为 `failed` 并列出 findings，不能把失败伪装成通过的 AC evidence。
+1. Extract verifiable completion conditions from the user request, SPEC, ticket, and handoff bundle. With no explicit conditions, verify only what can be confirmed objectively. Do not expand the requirement.
+2. Choose the smallest verification that matches change scope and risk: targeted tests, lint, typecheck, build, runtime checks, interface calls, static search, diff checks, or verification entries the project already has. Prefer existing scripts, Make targets, CI commands, and test entries. Do not add production code or test-only interfaces just to verify.
+3. Record the commands actually run, key output, and failures. Mark checks that could not run as unverified. Reading code is not a substitute for run evidence. Return `passed` or `not_verified` per completion condition with evidence that can be rechecked. On a clear failure, set the capability outcome to `failed` and list findings. Do not disguise a failure as passing AC evidence.
 
-每条 evidence 使用以下字段并原样记录：
+Record each evidence item with these fields, as-is:
 
 ```json
 {"acceptance_id":"AC1","result":"passed","summary":"..."}
 ```
 
-verify 记录实际执行的 `command`、`exit_code` 和摘要；不得伪造命令退出码。只有任务明确启用结构化验收时，才按该任务协议补充场景映射。
+`verify` records the actual `command`, `exit_code`, and a summary. Do not fabricate command exit codes. Add scenario mapping only when the task explicitly enabled structured acceptance.
 
-CLI capability 的 JSON envelope、字段和示例见 [Runtime 输出契约](../../docs/loop-runtime.md#capability-result)。
+CLI capability JSON envelope, fields, and examples: [Runtime output contract](../../docs/loop-runtime.md#capability-result).
 
-## 边界
+## Boundaries
 
-默认只读，不修改代码、SPEC、HLD、ticket / graph 或外部业务状态。Loop 默认只允许在 `.loop/tmp/` 写隔离的临时测试产物和缓存，需要其他路径时由 Loop 显式分配。发现失败时返回 evidence；需要定位原因交给 `debug`，需要评价实现质量交给 `code-review`。
+Read-only by default. Do not edit code, SPEC, HLD, tickets / graph, or external business state. Loop by default allows isolated temp test artifacts and caches only under `.loop/tmp/`. Other paths require an explicit Loop allocation. On failure, return evidence. Cause-finding goes to `debug`. Implementation-quality judgement goes to `code-review`.
 
-完成后返回至少包含 ticket / attempt identity、AC evidence、verification、unverified scope 和 outcome 的 capability receipt，不得调度 sibling ticket、修改 graph 或提交版本控制变更。
+When done, return a capability receipt with at least ticket / attempt identity, AC evidence, verification, unverified scope, and outcome. Do not schedule sibling tickets, edit the graph, or commit version-control changes.

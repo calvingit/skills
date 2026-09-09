@@ -1,81 +1,81 @@
 ---
 name: domain-modeling
-description: "用于统一领域术语，并按需记录长期架构决策。"
+description: Build and sharpen a project's domain model. Use when terminology needs to change, or when recording a long-lived architecture decision.
 ---
 
 # Domain Modeling
 
-主动维护目标项目的领域模型：澄清模糊术语、统一命名、发现术语与代码事实的冲突，并在必要时记录长期架构决策。
-
-这不是“读取术语表”。其他 Skill 只是消费已有领域文档时，不需要使用本 Skill；只有当术语或决策本身需要被改变时才使用。
+Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. Merely *reading* existing domain docs for vocabulary is not this skill. This skill is for when you're changing the model, not just consuming it.
 
 ## Discover authorities
 
-不要假定固定目录或文件名。按以下顺序发现项目权威来源：
+Do not assume a fixed path or filename. Discover in this order:
 
-1. 用户明确指定的术语表、架构决策或项目文档。
-2. 仓库级 Agent 指令、README、CONTRIBUTING、架构文档等声明的位置。
-3. 已存在的 glossary、CONTEXT、domain model、ADR / decision record 结构。
-4. 当前代码、公开 contract、调用链和测试所证明的事实。
+1. Glossary, architecture decisions, or project docs the user named.
+2. Locations declared by repo-level agent instructions, README, CONTRIBUTING, or architecture docs.
+3. An existing glossary, CONTEXT, domain model, or ADR / decision-record layout.
+4. Facts proven by current code, public contracts, call chains, and tests.
 
-适用 `AGENTS.md` 的 `Engineering Skills Profile` 指定 glossary 或 ADR 入口时优先使用；值为 `auto` 或没有 Profile 时继续按上述顺序发现，不自动运行 setup。
+If the applicable `AGENTS.md` `Engineering Skills Profile` names a glossary or ADR entry, use it first. `auto` or no Profile means keep discovering in the order above. Do not run setup automatically.
 
-若项目没有术语表或 ADR 约定，不擅自引入固定 `docs/**` 目录。确实需要新增长期文档时，优先沿用仓库已有结构；仍无约定且位置会影响后续使用时，只询问一次写入位置。可采用的默认格式见 [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) 与 [ADR-FORMAT.md](ADR-FORMAT.md)，但项目已有格式始终优先。
+If the project has no glossary or ADR convention, do not invent a fixed `docs/**` layout. Prefer the repo's existing structure when a long-lived document is actually needed. If there is still no convention and the location will matter later, ask once where to write. Default shapes live in [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) and [ADR-FORMAT.md](ADR-FORMAT.md); a project format always wins.
 
-## 何时更新术语表
+## When to update the glossary
 
-命中以下情况时，先查代码和现有文档，再更新项目已有的领域词汇来源：
+Check code and existing docs first, then update the project's domain vocabulary source when:
 
-- 用户或 spec 使用的词与现有术语冲突。
-- 一个词在会话、代码或文档里承载多个含义。
-- 新概念会进入代码命名、接口命名、任务文档或长期 specs。
-- `grilling`、`to-spec`、`review-architecture` 或 `code-review` 需要稳定的领域词来描述 Module、Seam 或需求。
+- The user or spec uses a word that conflicts with existing terms.
+- One word carries several meanings across the session, code, or docs.
+- A new concept will enter code names, interface names, task docs, or long-lived specs.
+- `grilling`, `to-spec`, `review-architecture`, or `code-review` need a stable domain word for a Module, Seam, or requirement.
 
-不要把实现细节写进领域术语表。文件路径、类名、API path、字段映射、缓存策略和发布步骤应进入 task spec、API 文档、规则文档或 ADR，而不是领域词汇。
+Keep implementation out of the glossary. File paths, class names, API paths, field mappings, cache policy, and release steps belong in a task spec, API docs, rules, or an ADR.
 
-通用编程概念（timeout、retry、错误类型、工厂模式等）通常不属于领域词汇。添加前先问：这是当前业务上下文独有的概念，还是通用工程概念？只有前者进入领域模型。
+Generic programming ideas — timeout, retry, error types, factory — are usually not domain language. Ask: is this unique to this business context, or a generic engineering idea? Only the former enters the model.
 
-## 词条格式
+## Term format
 
-每个词条写领域含义（“它是什么”），不写实现动作。保持一两句；同概念有多个词时挑一个作主词，其余作为应避免或兼容别名记录。沿用项目已有格式；没有既有格式时可使用：
+Each entry says what the thing *is*, not what the code does. Keep it to one or two sentences. When several words name the same concept, pick one canonical term and record the rest as avoided or compatible aliases. Prefer the project's existing format; otherwise:
 
 ```markdown
-**Visitor** - 会话另一端的服务对象。
+**Visitor** - the other party in a session that the service is helping.
 _Avoid_: Customer, Buyer, User
 ```
 
-## 工作流
+## During the session
 
-1. 发现并读取当前项目的领域文档、相关代码、任务文档和历史决策。
-2. 若用户用词和现有术语冲突，立即指出冲突，并给出基于当前事实的候选解释。
-3. 用具体场景检验术语边界：角色、状态、生命周期、权限、异常路径和跨模块交互。
-4. 术语在当前 round 中收敛后立即更新项目已采用的领域词汇来源，不等整个会话结束；没有明确写入位置时不要猜路径。
-5. 若代码事实、文档和用户表述冲突，明确列出冲突和证据，不静默选择一边。
+1. Discover and read current domain docs, related code, task docs, and historical decisions.
+2. If the user's language conflicts with existing terms, call it out immediately and offer candidate readings grounded in current facts.
+3. Stress-test boundaries with concrete scenarios: roles, states, lifecycle, permissions, failure paths, and cross-module interaction.
+4. Update the adopted vocabulary source as soon as a term settles in this round. Don't wait for the session to end. Don't guess a path when the write location is unclear.
+5. If code, docs, and the user disagree, list the conflict and the evidence. Do not silently pick a side.
 
 ## ADR gate
 
-只有同时满足以下三项时，才建议记录长期架构决策：
+Offer an ADR only when all three are true:
 
-- **难回滚**：未来改变会有明显迁移成本。
-- **没有上下文会意外**：后续维护者很可能会问“为什么这样做”。
-- **真实取舍**：存在可行替代方案，且当前选择牺牲了某些东西。
+1. **Hard to reverse** — the cost of changing your mind later is meaningful.
+2. **Surprising without context** — a future reader will wonder "why did they do it this way?"
+3. **The result of a real trade-off** — there were genuine alternatives and you picked one for specific reasons.
 
-不满足 gate 时，不创建 ADR。临时任务选择属于 task / spec；接口协议属于 API / contract 文档；编码规则属于项目 coding standards。
+If any of the three is missing, skip the ADR. Use the format in [ADR-FORMAT.md](ADR-FORMAT.md).
 
-## ADR 内容
+Task-local choices belong in the task / spec. Interface protocols belong in API / contract docs. Coding rules belong in project coding standards.
 
-沿用项目已有 ADR / decision record 格式。没有既有格式时保持最小化，至少记录：
+## ADR content
+
+Follow the project's ADR / decision-record format. With no existing format, keep it small:
 
 ```markdown
 # <Decision>
 
-<背景、决定和理由；通常 1-3 段即可>
+<Background, decision, and reason. Usually 1–3 paragraphs.>
 ```
 
-只有真正增加价值时再记录 status、considered options、consequences 等信息。价值在于“做了什么决定、为什么”，不在于固定模板。
+Add status, considered options, or consequences only when they add lasting value. The value is the decision and why, not the template.
 
-与 `grilling` 组合时，本 Skill 不拥有 Design Tree、frontier、round 或提问节奏。它只发现需要澄清或记录的领域问题，把问题交给 `grilling` 进入同一 frontier，并在用户确认后负责落盘：默认写入 `grilling` 的会话文档目录；用户要求写入项目时，按 `grilling` 的 Profile 规则确定位置。
+When composed with `grilling`, this skill does not own the Design Tree, frontier, rounds, or question cadence. It finds domain issues that need clarifying or recording, hands them to `grilling` on the same frontier, and writes after the user confirms. Default write location is `grilling`'s session doc directory. When the user asks to write into the project, follow `grilling`'s Profile rules for location.
 
-## 验证
+## Verify
 
-完成后只运行与本次文档修改相关、且目标仓库已有的轻量验证，例如 Markdown / lint / link check 或 `git diff --check`。不存在对应工具时不创建新的技术栈特定检查。
+Run only lightweight checks the target repo already has for this doc change — Markdown / lint / link check, or `git diff --check`. Do not invent a stack-specific check that isn't there.

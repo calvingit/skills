@@ -1,4 +1,4 @@
 interface:
   display_name: "Quick Implement"
-  short_description: "在 SPEC 与可选 HLD 内完成单次实现和验证"
-  default_prompt: "使用 $quick-implement 读取已确认的 SPEC.md 与可选 HLD.md，重新调查当前代码，并完成实现、验证和审查。"
+  short_description: "Implement and verify a single scope under SPEC and optional HLD, with no execution graph"
+  default_prompt: "Use $quick-implement to read the confirmed SPEC.md and optional HLD.md, re-investigate the current code, and finish implementation, verification, and review."

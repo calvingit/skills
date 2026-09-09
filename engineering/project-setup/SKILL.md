@@ -1,76 +1,76 @@
 ---
 name: project-setup
-description: "用于检测并初始化项目工程工作流约定与需求权威入口；变更须用户确认。"
+description: Detect and persist a project's engineering-workflow conventions and requirement-authority entries. Writes need user confirmation.
 ---
 
 # Project Setup
 
-把目标仓库已有的工程工作流、domain docs、可选 issue tracker 与 triage 约定整理为根级 `AGENTS.md` 中的一段稳定配置。它是可选的约定持久化助手，不是其他 engineering Skills 的运行前置条件。
+Turn the target repo's existing engineering workflow, domain docs, optional issue tracker, and triage conventions into a stable block in root `AGENTS.md`. This is an optional convention-persistence helper. It is not a runtime prerequisite for other engineering skills.
 
 ## Resolution contract
 
-engineering Skills 按以下优先级解析项目约定：
+Engineering skills resolve project convention in this order:
 
-1. 用户在当前任务中的明确指定；
-2. 当前作用域适用的 `AGENTS.md` 中 `Engineering Skills Profile`；
-3. 仓库已有目录、文档和工具所证明的约定；
-4. Skill 自身的通用默认行为；
-5. 仍有会改变落盘位置或行为的歧义时再询问用户。
+1. What the user named in the current task.
+2. `Engineering Skills Profile` in the applicable `AGENTS.md`.
+3. Conventions proven by directories, docs, and tools already in the repo.
+4. The skill's own generic defaults.
+5. Ask the user only when remaining ambiguity would change write location or behaviour.
 
-没有 Profile、用户取消 setup 或某项保持 `auto` 时，继续动态发现，不得停止其他 Skill。
+Missing Profile, cancelled setup, or an item left `auto` means keep discovering dynamically. Other skills must not stop.
 
 ## Stable settings only
 
-Profile 只记录跨任务稳定的入口和策略：
+The Profile records entries and policies that stay stable across tasks:
 
-- task contract 根目录与任务目录命名规则。
-- 长期项目上下文。
-- 领域术语来源。
-- 架构权威入口。
-- 需求权威的可访问模式与项目内说明入口。
-- ADR 目录或 `auto`。
-- 已完成任务契约的归档目录或 `auto`。
-- 可选 issue tracker 模式与项目内操作说明入口。
-- triage skill 可用或用户明确启用时采用的 label vocabulary。
+- Task-contract root and task-directory naming.
+- Long-lived project context.
+- Domain-vocabulary source.
+- Architecture-authority entries.
+- Requirement-authority access mode and in-repo instructions entry.
+- ADR directory or `auto`.
+- Archive directory for finished task contracts, or `auto`.
+- Optional issue-tracker mode and in-repo operations entry.
+- Label vocabulary when the triage skill is available or the user explicitly enabled it.
 
-不要把以下内容变成可配置变量：
+Do not turn these into configurable variables:
 
-- `SPEC.md`、`HLD.md` 与 `tickets/` 的名称及其契约职责。
-- 当前任务目录、当前 task、进度、retry、iteration 或 verification evidence。
-- 具体测试命令、Agent / 模型选择或 commit / push 权限。
-- 临时报告路径。
+- The names and contract duties of `SPEC.md`, `HLD.md`, and `tickets/`.
+- Current task directory, current task, progress, retry, iteration, or verification evidence.
+- Concrete test commands, agent / model choice, or commit / push permission.
+- Temporary report paths.
 
-不预建空 ADR、示例 SPEC、HLD 或 tickets/ 占位目录。真正需要产物时由对应 Skill 按项目约定创建。
+Do not pre-create empty ADRs, sample SPECs, HLDs, or placeholder `tickets/` directories. The owning skill creates a real artifact when it is needed, using project convention.
 
 ## Detect before asking
 
-先只读检查：
+Read-only first:
 
-- 适用的 `AGENTS.md`、README、CONTRIBUTING 和更深层指令。
-- 已有 task / spec、project context、glossary、architecture、ADR 和 archive 结构。
-- PRD、需求文档或其他 requirement authority 是否位于仓库、已集成外部工具，或只能由用户提供快照。
-- Git remote、已有 issue tracker instructions、`.scratch/` 或其他协作约定。
-- `triage` skill 是否可用，以及仓库是否已有对应 labels。
-- Git 状态，避免覆盖用户现有改动。
+- Applicable `AGENTS.md`, README, CONTRIBUTING, and deeper instructions.
+- Existing task / spec, project context, glossary, architecture, ADR, and archive layout.
+- Whether PRDs, requirement docs, or other requirement authority live in the repo, in an already-integrated external tool, or only as user-supplied snapshots.
+- Git remote, existing issue-tracker instructions, `.scratch/`, or other collaboration convention.
+- Whether a `triage` skill is available, and whether the repo already has matching labels.
+- Git status, so existing user edits are not overwritten.
 
-把候选值区分为 `confirmed`、`inferred`、`missing` 和 `conflict`。不能仅因某个常见目录存在就把它判定为权威；需要项目文档、实际使用或用户指定支持。
+Classify candidates as `confirmed`, `inferred`, `missing`, or `conflict`. A common directory existing is not enough to call it authority. Need project docs, actual use, or an explicit user choice.
 
 ## Ask once
 
-在写入前，一次性展示：
+Before writing, show in one pass:
 
-1. 检测结果及依据；
-2. 完整推荐 Profile；
-3. 将修改的 `AGENTS.md` 和任何明确请求的新长期文档；
-4. 以下选择：接受推荐、自定义配置、某项设为 `auto`、取消。
+1. Detection results and why.
+2. The full recommended Profile.
+3. Which `AGENTS.md` will change, and any new long-lived docs explicitly requested.
+4. Choices: accept the recommendation, customise, leave an item `auto`, or cancel.
 
-用户在调用 setup 时已经明确给出所有选择时，把这些输入视为本次回答，不重复提问。正常路径只询问一次；只有自定义值无效、与现有约定冲突或会覆盖已有内容时才继续确认。
+If the user already gave every choice when invoking setup, treat those as this round's answers. Do not ask again. The happy path asks once. Keep confirming only when a custom value is invalid, conflicts with existing convention, or would overwrite existing content.
 
-`auto` 表示不固定该项，消费者继续动态发现；它不表示禁用相关能力。取消表示不修改任何文件。
+`auto` means do not pin that item; consumers keep discovering dynamically. It does not disable the capability. Cancel means write nothing.
 
 ## Profile format
 
-在根级 `AGENTS.md` 使用以下受控区块；尖括号表示项目自行确认的值，不是默认路径。默认 `requirement_authority.mode: auto`、`requirement_authority.instructions: auto`、`issue_tracker.mode: local`、`issue_tracker.instructions: auto`、`triage.enabled: false`：
+Use this controlled block in root `AGENTS.md`. Angle brackets are values the project confirms, not default paths. Defaults: `requirement_authority.mode: auto`, `requirement_authority.instructions: auto`, `issue_tracker.mode: local`, `issue_tracker.instructions: auto`, `triage.enabled: false`.
 
 ````markdown
 ## Engineering Skills Profile
@@ -104,29 +104,29 @@ triage:
 <!-- engineering-skills-profile:end -->
 ````
 
-路径字段必须相对仓库根目录，不能指向用户主目录、全局 Skills 仓库或仓库外位置。不要从上述占位符推导项目目录；`auto` 表示消费者继续动态发现项目现有约定。
+Path fields are relative to the repo root. They must not point at a home directory, a global skills repo, or anywhere outside this repo. Do not infer project directories from the placeholders above. `auto` means consumers keep discovering the project's existing convention.
 
-`requirement_authority` 与 `issue_tracker` 是正交配置：代码托管或 issue tracker 可位于 GitLab，而 PRD 仍可能位于不可集成的飞书或企业微信。其模式含义如下：
+`requirement_authority` and `issue_tracker` are orthogonal. Code hosting or the issue tracker can be GitLab while the PRD still lives in Feishu or WeCom that cannot be integrated.
 
-- `repository`：规范需求位于仓库内；`instructions` 指向项目内的读取说明或索引。
-- `integrated`：规范需求位于 Agent 可通过项目已配置工具读取的外部系统；`instructions` 指向项目内的访问与优先级说明。
-- `external-manual`：规范需求位于 Agent 无法直接访问的外部系统；由用户提供当前任务的确认快照，Agent 不得声称已验证原始来源。
-- `auto`：不固定模式，由消费者在每项任务中动态发现；无法确认时不得猜测。
+- `repository`: normative requirements live in the repo; `instructions` points at in-repo read notes or an index.
+- `integrated`: normative requirements live in an external system the agent can already reach through project-configured tools; `instructions` points at in-repo access and priority notes.
+- `external-manual`: normative requirements live in a system the agent cannot reach; the user supplies a confirmed snapshot for this task; the agent must not claim to have verified the original source.
+- `auto`: do not pin a mode; the consumer discovers per task and must not guess when it cannot confirm.
 
-Profile 只保存稳定的模式和项目内说明入口，不保存当前 PRD 内容、临时链接或某次任务的需求快照。`to-spec` 是主要消费者；`grilling` 和 `wayfinding` 只用它判断哪些需求事实必须由用户提供。下游 `high-level-design`、`to-tickets`、`quick-implement`、`loop` 和 `code-review` 只消费已确认的 SPEC、适用 HLD 或 tickets，不直接解释该配置。
+The Profile stores stable modes and in-repo instruction entries. It does not store current PRD content, temporary links, or a one-task requirement snapshot. `to-spec` is the main consumer. `grilling` and `wayfinding` use it only to decide which requirement facts the user must supply. Downstream `high-level-design`, `to-tickets`, `quick-implement`, `loop`, and `code-review` consume confirmed SPEC, applicable HLD, or tickets. They do not interpret this config directly.
 
-`triage.enabled: false` 时省略 `labels`。只有检测到 triage skill 或用户明确启用时才询问 labels，默认使用 `needs-triage`、`needs-info`、`ready-for-agent`、`ready-for-human`、`wontfix`。GitHub、GitLab 或 other 模式的具体操作写入 `issue_tracker.instructions` 指向的项目内文档；Profile 只保存稳定入口。
+Omit `labels` when `triage.enabled: false`. Ask for labels only when a triage skill is detected or the user explicitly enables triage. Defaults: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. GitHub, GitLab, or other operations live in the in-repo doc `issue_tracker.instructions` points at. The Profile stores the stable entry only.
 
 ## Write safely
 
-- marker 不存在时新增一个 Profile 章节；完整且唯一时原位更新。
-- marker 缺失一端、重复出现或区块与其他项目规则冲突时停止，不猜测覆盖范围。
-- 已有 Profile 视为合法的部分配置。保留未知字段和已经确认的值；缺少当前模板中的字段不算错误，只在用户确认后补充或修改对应字段，不得为了匹配模板整体重写 Profile。
-- 已配置的路径字段必须存在，除非用户明确选择创建对应长期文档；目录 pattern、策略枚举和 `auto` 不按路径检查。
-- 保留 `AGENTS.md` 其他内容、顺序和用户已有改动。
-- 重复执行同一配置不得产生第二个区块或无意义 diff。
-- 写入后重新读取 Profile，验证路径、marker 唯一性和 Git diff；不自动 commit 或 push。
+- No marker: add one Profile section. Complete and unique: update in place.
+- One-sided marker, duplicates, or a block that conflicts with other project rules: stop. Do not guess overwrite range.
+- An existing Profile is valid partial config. Keep unknown fields and already-confirmed values. Missing fields from the current template are not an error. Add or change fields only after the user confirms. Do not rewrite the whole Profile just to match the template.
+- Configured path fields must exist unless the user explicitly chose to create that long-lived doc. Directory patterns, policy enums, and `auto` are not checked as paths.
+- Keep the rest of `AGENTS.md`, its order, and the user's existing edits.
+- Repeating the same config must not produce a second block or a meaningless diff.
+- After writing, re-read the Profile and verify paths, unique markers, and the Git diff. Do not commit or push.
 
 ## Report
 
-汇报采用的推荐 / 自定义项、保持 `auto` 的项、实际修改、创建的长期文档和未验证内容。不要把静态路径存在描述为所有 Runtime 已成功加载。
+Report recommended vs custom items, items left `auto`, what actually changed, long-lived docs created, and what was not verified. Do not describe a static path existing as every runtime having loaded it.

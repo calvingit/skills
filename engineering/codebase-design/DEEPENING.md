@@ -1,32 +1,37 @@
 # Deepening
 
-说明如何根据依赖类型，把一组 shallow Modules 安全地收敛为更少、更 deep 的 Modules。术语以 [SKILL.md](SKILL.md) 为准。
+How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in [SKILL.md](SKILL.md) — **module**, **interface**, **seam**, **adapter**.
 
 ## Dependency categories
 
+When assessing a candidate for deepening, classify its dependencies. The category determines how the deepened module is tested across its seam.
+
 ### 1. In-process
 
-纯计算或内存状态，没有 I/O。可以直接合并 Modules，并通过新 Interface 测试，不需要 Adapter。
+Pure computation, in-memory state, no I/O. Always deepenable — merge the modules and test through the new interface directly. No adapter needed.
 
 ### 2. Local-substitutable
 
-这类依赖有可在测试中运行的本地替代物，例如 PGLite 或 in-memory filesystem。测试通过本地替代物运行；该 Seam 属于 Module 内部，不要把 port 暴露到外部 Interface。
+Dependencies that have local test stand-ins (PGLite for Postgres, in-memory filesystem). Deepenable if the stand-in exists. The deepened module is tested with the stand-in running in the test suite. The seam is internal; no port at the module's external interface.
 
-### 3. Remote but owned
+### 3. Remote but owned (Ports & Adapters)
 
-依赖是自己控制的远程服务。由 deep Module 拥有业务逻辑，在 Seam 上定义 port；生产使用 HTTP、gRPC 或 queue Adapter，测试使用 in-memory Adapter。
+Your own services across a network boundary (microservices, internal APIs). Define a **port** (interface) at the seam. The deep module owns the logic; the transport is injected as an **adapter**. Tests use an in-memory adapter. Production uses an HTTP/gRPC/queue adapter.
 
-### 4. True external
+Recommendation shape: *"Define a port at the seam, implement an HTTP adapter for production and an in-memory adapter for testing, so the logic sits in one deep module even though it's deployed across a network."*
 
-依赖是无法控制的第三方服务。deep Module 接收外部 port，测试提供最小 mock Adapter，只模拟已确认的外部 contract。
+### 4. True external (Mock)
+
+Third-party services (Stripe, Twilio, etc.) you don't control. The deepened module takes the external dependency as an injected port; tests provide a mock adapter.
 
 ## Seam discipline
 
-- 一个 Adapter 只是 hypothetical Seam，至少两个有真实用途的 Adapter 才证明 Seam 成立。
-- deep Module 可以有只供自身 Implementation 使用的 internal Seams，但不要因为测试使用它们就把它们暴露到外部 Interface。
+- **One adapter means a hypothetical seam. Two adapters means a real one.** Don't introduce a port unless at least two adapters are justified (typically production + test). A single-adapter seam is just indirection.
+- **Internal seams vs external seams.** A deep module can have internal seams (private to its implementation, used by its own tests) as well as the external seam at its interface. Don't expose internal seams through the interface just because tests use them.
 
-## Testing strategy
+## Testing strategy: replace, don't layer
 
-- 新测试通过深化后 Module 的 Interface 验证可观察结果。
-- 当 Interface 级测试已经覆盖原有行为时，删除只约束旧 shallow Modules 内部结构的测试，不叠加重复测试层。
-- Implementation 重构但外部行为不变时，Interface 级测试应继续有效。
+- Old unit tests on shallow modules become waste once tests at the deepened module's interface exist — delete them.
+- Write new tests at the deepened module's interface. The **interface is the test surface**.
+- Tests assert on observable outcomes through the interface, not internal state.
+- Tests should survive internal refactors — they describe behaviour, not implementation. If a test has to change when the implementation changes, it's testing past the interface.

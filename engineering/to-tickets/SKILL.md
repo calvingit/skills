@@ -1,91 +1,95 @@
 ---
 name: to-tickets
-description: "从已确认的 SPEC 与可选 HLD 派生带真实阻塞依赖的交付任务，或在上游修订后同步受影响 graph，不补做需求或概要设计、不实现代码。"
+description: Break a confirmed SPEC and optional HLD into tracer-bullet delivery tickets with real blocking edges, or sync the affected graph after an upstream amendment. Do not redo requirements or high-level design, and do not implement code.
 ---
 
 # To Tickets
 
-把已确认的 `SPEC.md` 与任务目录中存在的 `HLD.md` 拆成同级 `tickets/` 下可领取的 **交付任务**，每个 ticket 都是可独立验证的端到端交付任务，并明确声明真正阻塞其开始的其他 tickets，其中 SPEC 定义需求规范，HLD 如存在则定义多处实现需要共同遵守的概要设计。
+Break the confirmed `SPEC.md` and, when present, the task directory's `HLD.md` into claimable **delivery tickets** under sibling `tickets/`. Each ticket is an independently verifiable end-to-end delivery, and each declares the other tickets that actually block it from starting.
 
-`to-tickets` 是 `to-spec` 以及适用时 `high-level-design` 的下游，只处理交付分解，不重做 decision、需求规格或概要设计，完成的 Wayfinding Map 中影响需求的决定必须先经过 `to-spec`，纯技术决定则在 SPEC 确认后由 `high-level-design` 吸收，没有 SPEC 时停止并交回 `to-spec`。
+SPEC owns the requirement. HLD, when it exists, owns the high-level design several implementations must share.
 
-每张 ticket 必须通过 `covers.requirements` 和 `covers.spec_acceptance` 引用已有协议语义，例如：
+`to-tickets` sits downstream of `to-spec` and, when applicable, `high-level-design`. It only decomposes delivery. It does not redo decisions, the requirement spec, or high-level design. Wayfinding Map decisions that affect requirements must go through `to-spec` first. Purely technical decisions are absorbed by `high-level-design` after the SPEC is confirmed. Stop and hand back to `to-spec` when there is no SPEC.
+
+Every ticket must cite existing protocol meaning through `covers.requirements` and `covers.spec_acceptance`, for example:
 
 ```json
 {"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"acceptance_criteria":[{"id":"AC1","description":"..."}]}
 ```
 
-只引用已有验收语义，不在 ticket 中创建验收条件。Graph 检查必须报告 `R`/`AC`/`D` coverage 和 ticket coverage；只有任务启用独立验收场景时才检查 scenario coverage，且仅在场景缺少 expected result 时交回 `to-spec`。
+Cite existing acceptance meaning. Do not create acceptance criteria on the ticket. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and hand back to `to-spec` only when a scenario is missing an expected result.
 
-## 输入与准备
+## Inputs
 
-1. 读取完整 `SPEC.md`，包括 Destination、需求、边界、验收、Out of scope 和决策依据，不能只按标题猜测范围。
-2. 若同一任务目录存在 `HLD.md`，读取完整 HLD、D IDs、局部实现空间、迁移与集成约束，若不存在则检查是否仍有跨 Module、跨调用方或跨实现任务的共享类型、Interface、状态或错误语义、依赖方向或集成选择，存在时停止并交回 `high-level-design`。
-3. 按需调查目标仓库当前状态、适用 `AGENTS.md`、领域词汇、ADR、相关调用链和已有任务约定，只有这些事实会改变 ticket 的结果、粒度或依赖时才继续展开，不要为了拆 ticket 做无关探索。
-4. ticket 标题和交付描述沿用项目的领域术语。发现未解决的需求、公开 contract、边界或验收决定时交回 `grilling` / `to-spec`，发现概要技术设计缺口时交回 `high-level-design`，不要把假设写成 ticket。
+1. Read the full `SPEC.md`: Destination, requirements, bounds, acceptance, Out of scope, and decision basis. Do not guess scope from headings.
+2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check whether shared types, Interfaces, state or error semantics, dependency direction, or integration choices still span modules, callers, or implementation tasks. If they do, stop and hand back to `high-level-design`.
+3. Investigate the target repo, applicable `AGENTS.md`, domain vocabulary, ADRs, related call chains, and existing task conventions only when those facts would change a ticket's outcome, grain, or dependencies. Do not explore just to split tickets.
+4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance go back to `grilling` / `to-spec`. High-level technical gaps go back to `high-level-design`. Do not write assumptions as tickets.
 
-SPEC 是范围、验收与 Solution Constraints 的最终依据，HLD 如存在则是多处实现共用设计约束的最终依据，tickets 只是面向领取和协作派生出的任务执行图。发现冲突时交回对应产物的维护者修正，不能通过 ticket 静默改变上游语义。
+SPEC is the final authority for scope, acceptance, and Solution Constraints. HLD, when present, is the final authority for design constraints several implementations share. Tickets are the derived execution graph for claiming and collaboration. On conflict, hand back to the owner of that artifact. Tickets must not silently change upstream meaning.
 
-`to-tickets` 不读取或解释 Profile 的 `requirement_authority`、外部 PRD 或聊天中的新需求，这些输入必须先由 `to-spec` 写入并确认到 SPEC，也不把聊天中的技术偏好直接写入 ticket，影响多处实现的设计决定必须先进入 HLD。
+`to-tickets` does not read or interpret the Profile's `requirement_authority`, an external PRD, or new requirements from chat. Those inputs must already be written and confirmed into the SPEC by `to-spec`. Do not write chat-level technical preferences onto tickets. Design decisions that affect several implementations must enter the HLD first.
 
-## 拆分规则
+## Split rules
 
-优先按可独立验证的端到端交付任务拆分：
+Prefer independently verifiable end-to-end delivery:
 
-- 每个 ticket 穿过为交付行为所需的完整路径，必要时同时包含数据、接口、界面、测试和文档，完成后应从用户、调用方或验收视角独立演示或验证，且能在一次独立上下文内完成。
-- 测试、验证和必要的局部整理默认属于对应 slice，不另建没有独立交付的“统一补测试”或“最后清理” ticket，只有前置结果缺失会使 ticket 无法正确开始时才建立阻塞依赖，没有阻塞项的 ticket 组成首批可执行任务，不得为了叙述顺序制造线性依赖或保留循环依赖。
+- Each ticket cuts a narrow but **complete** path through every layer the delivery needs — data, interface, UI, tests, docs when they are load-bearing. A completed slice is demoable or verifiable on its own from the user, caller, or acceptance view, and fits in one fresh context.
+- Tests, verification, and necessary local tidy-up belong on the slice. Do not create a "add all the tests" or "final cleanup" ticket with no independent delivery. A blocking edge exists only when a missing prior result would make this ticket start incorrectly. Tickets with no blockers are the first executable set. Do not invent a linear chain for narrative order, and do not keep cycles.
 
-共享 contract 默认由第一个真实使用它的端到端交付任务落地，后续 tickets 仅在该 contract 尚不存在会导致无法正确开始时依赖它，不要默认创建“先建所有接口/枚举”的横向架构 ticket。只有 schema 生成、先扩展后收缩、兼容层或其他真实 blocker 才建立前置技术任务。宽范围机械重构按先扩展后收缩组织，先兼容性扩展，再按真实影响范围分批迁移，最后删除旧形式，每批尽量保持 CI 可绿，确实无法独立保持时说明共享 integration branch 的必要性，并增加最终集成验证 ticket。
+A shared contract lands on the first end-to-end ticket that actually uses it. Later tickets depend on it only when that contract's absence would make them start incorrectly. Do not default to a horizontal "build all the interfaces / enums first" architecture ticket. Prefactoring technical tickets exist only for real blockers: schema generation, expand-then-contract, compatibility layers.
 
-ticket 应描述结果，不写易过期的文件路径、代码片段或逐步实现配方。存在 HLD 时，每张 ticket 只引用适用的 D IDs，并把这些决定派生为 Constraints，不复制完整 HLD，唯一例外是 HLD 明确要求落地的状态机、schema 或共享类型形状，此时只保留必要部分并注明 D ID。
+**Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius, each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains. When even the batches cannot stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
 
-## 确认拆分
+Tickets describe outcomes, not stale file paths, snippets, or step-by-step recipes. When an HLD exists, each ticket cites only the applicable D IDs and derives those decisions as Constraints. Do not copy the full HLD. The only exception is a state machine, schema, or shared type shape the HLD explicitly requires to land — keep only what is necessary and cite the D ID.
 
-写入前以编号列表向用户展示每个候选 ticket，并说明以下内容：
+## Confirm the split
 
-1. **标题**，简短且面向结果的名称。
-2. **Blocked by**，真实前置 ticket，或“无（可立即开始）”。
-3. **交付**，该 ticket 单独使什么端到端行为可验证。
-4. **Design**，适用的 HLD D IDs，或 `None`。
+Before writing, show the user a numbered list of candidate tickets:
 
-请用户确认粒度是否合适、阻塞依赖是否只表达真实阻塞以及是否需要合并或继续拆分，未经用户确认不得创建 tickets。
+1. **Title** — short, outcome-facing name.
+2. **Blocked by** — real prior tickets, or "None — can start immediately".
+3. **What it delivers** — the end-to-end behaviour this ticket alone makes verifiable.
+4. **Design** — applicable HLD D IDs, or `None`.
 
-## 同步 SPEC / HLD amendment
+Ask whether the grain is right, whether blocking edges only express real gates, and whether any tickets should merge or split. Do not create tickets without that confirmation.
 
-已有 tickets 且 SPEC 或 HLD 已确认修订时，先确认 `loop` 已停止受影响的新 dispatch，并已终止或收回仍在写入的对应 worker。`to-tickets` 不自行管理 subagent，然后比较旧 / 新上游契约及现有 graph：
+## Sync a SPEC / HLD amendment
 
-- 未受影响 ticket 保留 immutable ID、contract 和 current evidence。
-- HLD design-only amendment 不改变已经满足 SPEC 的历史验收，既有 `done` 行为仍有效但不符合新设计时保留其需求 evidence，创建明确的 correction / migration ticket 覆盖受影响 D，只有原 delivery contract 整体被替换时才 supersede。
-- SPEC amendment 继续按需求契约变化处理，HLD 不得被用来暗中改变 `R`/`AC`。
-- 尚未开始的 `open` ticket 在交付边界不变时可由 reconciliation 原位更新 contract，边界已经改变时将旧 ticket 标为 `superseded` 并创建 replacement ticket，`ready` / `blocked` 是动态 projection，不是可直接写入的 lifecycle。
-- 受影响的 `in_progress` ticket 必须先由 `loop` 停止 worker 并回收 partial receipt，已经产生已实现改动时保留原 ticket 与 evidence，将其标为 `superseded` 后创建 replacement / correction ticket，确认尚无已实现改动且交付边界未变时才允许原位更新。
-- `done` ticket 的既有 contract 与已实现行为对当前 SPEC 仍完全有效时保持 `done`，只需追加行为时保留原 ticket 并另建 amendment ticket，原行为需要修改、替换或撤销时将旧 ticket 标为 `superseded` 并创建 replacement / correction ticket。
-- 新端到端交付任务创建新 ticket，移除的需求若已有已实现行为则创建明确的 removal / correction ticket，不得只删除旧 ticket 或 evidence。
+When tickets already exist and a SPEC or HLD amendment is confirmed, first confirm `loop` has stopped affected new dispatch and has terminated or reclaimed workers still writing. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
 
-上游契约变更不得把既有 `done` ticket 直接 `reopen`。`done → open` 只表示 SPEC / HLD 均未变、整体交付审查发现原 ticket 没有正确满足原 contract。SPEC 或 HLD amendment 必须保留仍有效的 evidence，并用 amendment / correction / migration / replacement ticket 或必要的 `superseded` 表达变化。
+- Unaffected tickets keep immutable ID, contract, and current evidence.
+- An HLD design-only amendment does not change historical acceptance that still satisfies the SPEC. If done behaviour still matches the requirement but not the new design, keep its requirement evidence and create an explicit correction / migration ticket covering the affected Ds. Supersede only when the original delivery contract is replaced as a whole.
+- SPEC amendments follow requirement-contract change. The HLD must not be used to quietly change `R` / `AC`.
+- An unstarted `open` ticket may be updated in place by reconciliation when the delivery bound is unchanged. When the bound has changed, mark the old ticket `superseded` and create a replacement. `ready` / `blocked` are dynamic projections, not a writable lifecycle.
+- An affected `in_progress` ticket must first be stopped by `loop`, with its partial receipt reclaimed. If implemented changes exist, keep the original ticket and evidence, mark it `superseded`, then create a replacement / correction ticket. In-place update is allowed only when nothing has been implemented and the delivery bound is unchanged.
+- A `done` ticket stays `done` when its existing contract and implemented behaviour still fully satisfy the current SPEC. Additional behaviour keeps the original ticket and adds an amendment ticket. When original behaviour must change, replace, or reverse, mark the old ticket `superseded` and create a replacement / correction ticket.
+- New end-to-end delivery creates a new ticket. Removed requirements that already have implemented behaviour get an explicit removal / correction ticket. Do not merely delete the old ticket or its evidence.
 
-向用户展示 impact plan 并确认后再调用 `reconcile-batch`，CLI 验证所有 dependencies、lineage、coverage 与 current lifecycle 并重新计算 readiness，任何指向 `superseded` ticket 的依赖都必须删除、替换或重连以确保没有悬空引用或 dependency cycle，active worker 仍在写入同一 ticket 时必须停止同步并交回 `loop` 处理其 lifecycle。
+Upstream contract change must not `reopen` a `done` ticket. `done → open` means SPEC and HLD are unchanged and overall delivery review found the original ticket did not satisfy its original contract. A SPEC or HLD amendment must keep still-valid evidence and express the change with amendment / correction / migration / replacement tickets or necessary `superseded`.
 
-`superseded` 是 terminal、non-active lifecycle，不进入 frontier，不作为当前 SPEC 的验收覆盖，也不等同于失败，同时保留原 ticket 的 evidence 并写入 supersession reason 与 nullable replacement lineage。
+Show the user an impact plan and confirm before `reconcile-batch`. The CLI validates all dependencies, lineage, coverage, and current lifecycle, then recomputes readiness. Any dependency pointing at a `superseded` ticket must be deleted, replaced, or rewired so there is no dangling reference or cycle. If an active worker is still writing the same ticket, stop the sync and hand the lifecycle back to `loop`.
 
-## 写入本地 tickets
+`superseded` is terminal and non-active. It is not on the frontier, does not cover current SPEC acceptance, and is not failure. It keeps the original evidence and records the supersession reason plus nullable replacement lineage.
 
-`tickets/*.json` 是唯一 execution graph，`to-tickets` 不直接写 JSON 文件、不扫描最大 ID，也不维护 readiness、checkbox 或 evidence，而是先向用户确认候选 tickets，再构造 `create-batch` JSON request，每项提供临时 key、title、covers、适用 D IDs、what to build、constraints、ticket-local Acceptance Criteria 和以临时 key 表达的真实 dependencies。
+## Write local tickets
 
-请求结构与修订示例通过 `loopx graph create-batch --help`、`loopx graph reconcile-batch --help` 查看；命令输入只描述当前 graph contract，不复制验收协议。
+`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the user confirms candidates, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, ticket-local Acceptance Criteria, and real dependencies expressed as temporary keys.
 
-确认后通过统一 CLI 写入：
+Request shape and amendment examples: `loopx graph create-batch --help`, `loopx graph reconcile-batch --help`. Command input describes the current graph contract. It does not copy the acceptance protocol.
+
+After confirmation:
 
 ```bash
 loopx graph create-batch <task-dir> --input <request.json>
 ```
 
-CLI 分配不可变 `T001` 式 ID、解析批次内 dependencies、写入初始 `open` lifecycle / 空 execution facts，并返回 key / ID / path mapping 与完整 graph projection。Ticket document 的 schema、filename slug、证据、blocker、current attempt、supersession lineage 与动态 readiness 均由 graph tool 拥有，Skill 中不得维护第二份 JSON template。
+The CLI assigns immutable `T001`-style IDs, resolves in-batch dependencies, writes initial `open` lifecycle / empty execution facts, and returns key / ID / path mapping plus the full graph projection. Ticket-document schema, filename slug, evidence, blockers, current attempt, supersession lineage, and dynamic readiness belong to the graph tool. This skill must not keep a second JSON template.
 
-同一 ticket 内的 AC ID 必须唯一，其完整 evidence identity 是 ticket ID 加 local AC ID。ticket 通过 `covers.requirements`、`covers.spec_acceptance` 和 `design_decisions` 引用上游 contract 而不复制 SPEC / HLD 描述。普通 delivery ticket 必须覆盖至少一个当前 `R` 或 SPEC `AC`，design-only correction / migration 至少引用一个 D ID。
+AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `design_decisions` without copying SPEC / HLD prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
-初次 graph 创建后，`to-tickets` 报告 CLI 计算的 frontier、blocked reasons、ID / path mapping、适用 D IDs 与未验证项。只要 execution graph 已存在，无论 active ticket 是一张还是多张都调用 `loop`；没有 graph 的单一 SPEC / HLD 才使用 `quick-implement`。
+After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, call `loop` whether one ticket or several are active. `quick-implement` is only for a single SPEC / HLD with no graph.
 
 ## Handoff
 
-`to-tickets` 不自动领取 ticket、不实现代码，也不自动获得 commit、push、建分支或改写历史的授权。
+`to-tickets` does not claim a ticket, implement code, or automatically gain authorisation to commit, push, create a branch, or rewrite history.

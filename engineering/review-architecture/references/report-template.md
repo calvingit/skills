@@ -1,52 +1,51 @@
 # Report Template
 
-报告位置遵循目标仓库已有任务/报告约定；没有稳定约定且用户未指定位置时，先在当前会话输出，不擅自创建项目级目录规范。
+Write the report where the target repo already puts task / review artifacts. With no stable convention and no user-named path, emit in the current session. Do not invent a project-level directory convention.
 
 ```markdown
 # Architecture Review — <scope>
 
 ## Summary
-- 范围: <评审范围>
-- 覆盖范围: <已覆盖区域与未覆盖部分>
-- Result: <critical/high/medium/low 审查发现 / no 审查发现 / needs more evidence>
-- Top 审查发现: <ID、主题、severity>
-- 下一步: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
+- Scope: <what this review covers>
+- Coverage: <covered areas and what was left out>
+- Result: <critical/high/medium/low findings / no findings / needs more evidence>
+- Top finding: <ID, theme, severity>
+- Next: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
 
 ## Review Basis
-- Question: <本轮要回答的架构问题>
-- Project authorities: <实际发现的 instructions、architecture docs、ADRs、rules>
-- Project controls: <实际存在且相关的 checks；没有则写 none>
-- External guidance: <实际使用的官方技术栈依据；没有则写 none>
+- Question: <architecture question this round answers>
+- Project authorities: <instructions, architecture docs, ADRs, rules actually found>
+- Project controls: <checks that exist and apply; else none>
+- External guidance: <official stack basis actually used; else none>
 
 ## Architecture Map
-- Entrypoints: <主要入口>
-- Ownership boundaries: <相关 Module / package / layer>
-- Dependency direction: <关键依赖关系>
-- State / lifecycle owners: <关键状态与生命周期>
+- Entrypoints: <main entries>
+- Ownership boundaries: <related Module / package / layer>
+- Dependency direction: <load-bearing dependencies>
+- State / lifecycle owners: <load-bearing state and lifecycle>
 
 ## Evidence
 | Kind | Source | Observation | Status |
 |---|---|---|---|
 | code / call path / test / rule / history / command / official guidance | file:symbol / command / source | ... | Observed / Inferred / External guidance / Unknown |
 
-## 评审发现
+## Findings
 
-### A-001 — <审查发现> `[Critical | High | Medium | Low | Speculative]`
+### A-001 — <finding> `[Critical | High | Medium | Low | Speculative]`
 
 - Concern: <Boundary / Ownership / Dependency / State / ...>
-- Evidence: <当前代码、关系、测试、规则或命令>
-- Impact: <实际风险、变更扩散、维护成本或验证困难>
+- Evidence: <current code, relations, tests, rules, or commands>
+- Impact: <actual risk, change fan-out, maintenance cost, or verification difficulty>
 - Basis: <project rule / current architecture evidence / external guidance / design judgment>
-- Recommendation direction: <目标架构结果，不写文件级实现步骤>
-- 未知项: <仍需决策或验证的事实>
-- 反证 / trade-off: <为什么现有设计可能合理，或已考虑但不足以否定审查发现的证据>
+- Recommendation direction: <target architecture outcome, not file-level steps>
+- Unknown: <facts still needing a decision or check>
+- Counter-evidence / trade-off: <why the current design may be reasonable, or evidence considered but not enough to reject the finding>
 
-## Not 评审发现
-- <被检查但 evidence 不支持的问题，以及反证>
+## Not Findings
+- <issues checked whose evidence does not hold, plus counter-evidence>
 
 ## Next Step
-- <用户选择审查发现后交给对应 Skill；review-architecture 本身不实现>
+- <after the user picks a finding, hand to the matching skill; review-architecture itself does not implement>
 ```
 
-若项目存在 lint、dependency check、architecture guard 或 baseline，可作为 Evidence 记录命令、退出状态和摘要；不要为了填充模板要求项目必须具备这些机制。
-
+If the project has lint, a dependency check, an architecture guard, or a baseline, record command, exit status, and a summary as Evidence. Do not require those mechanisms just to fill the template.

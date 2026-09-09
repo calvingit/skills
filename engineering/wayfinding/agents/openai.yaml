@@ -1,7 +1,7 @@
 interface:
   display_name: "Wayfinding"
-  short_description: "建立跨会话技术决策地图并推进当前可处理项"
-  default_prompt: "使用 $wayfinding 为已确认目标中的技术或方案不确定性建立并推进决策地图。"
+  short_description: "Chart a cross-session technical decision map and work the current frontier"
+  default_prompt: "Use $wayfinding to chart and work a decision map for technical or design uncertainty inside a confirmed destination."
 
 policy:
   allow_implicit_invocation: false
