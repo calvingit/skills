@@ -18,7 +18,7 @@ Review
 └── Exploratory review    # reports out-of-scope high risk; does not widen the completion gate
 ```
 
-Contract review pins requirements and acceptance. Change-surface and Exploratory both look for reachable regressions this change introduced or enlarged. Only a violation of the current contract, or a reachable correctness / high-risk issue this change introduced or enlarged, can block. Pre-existing out-of-scope risk is reported separately with a new-ticket recommendation. It does not change this round's implementation bar. Review must not invent missing acceptance protocol.
+Contract review pins requirements and acceptance. Change-surface and Exploratory look for reachable regressions this change introduced or enlarged. Classify findings using the Blocking rules below; review must not invent missing acceptance protocol.
 
 ## Inputs and scope
 
@@ -47,48 +47,11 @@ Use a task-level HLD only when the user or caller supplied it, or it sits next t
 2. Read target-repo rules, `SPEC.md` / `ACCEPTANCE.md`, HLD, config, tests, and the direct call chain.
 3. Run Contract, Change-surface, and Exploratory in that order. If the environment cannot spawn independent reviewers, the current agent still runs them separately.
 4. Every finding cites a file, line, branch, `R` / `AC`, acceptance section, or call relation, plus impact, suggestion, and how to verify.
-5. Aggregate per [worker.md](references/worker.md), [review-criteria.md](references/review-criteria.md), and [output-contract.md](references/output-contract.md). Do not merge layers or re-rank severity across them.
+5. Aggregate per [output-contract.md](references/output-contract.md). Do not merge layers or re-rank severity across them. Read [worker.md](references/worker.md) when assigning or acting as a delegated reviewer; it contains worker inputs and prompts.
 
-## Contract review
+## Layer checks
 
-Contract review only checks this ticket's completion gate:
-
-- Every in-scope `R` / `AC` has observable passing evidence.
-- When `ACCEPTANCE.md` exists, check Public Interface, Observable Behavior, Acceptance Criteria / Scenarios, Failure and Environment Notes, and Evidence Rules; otherwise use the task's stated acceptance.
-- Scope, permissions, data safety, error / cancel / timeout semantics, and resource-cleanup constraints hold.
-- The change does not introduce unauthorised public behaviour or behaviour the current ticket does not require.
-
-Contradictory existing protocol, inability to cover a real high-risk path, or missing evidence the task declared goes into `acceptance_protocol_gaps` and back to `grilling` / `to-spec`. Do not write implied acceptance. With no separate protocol, report only the current-task contract that cannot be judged.
-
-## Change-surface review
-
-Change-surface always covers:
-
-- Changed files.
-- Direct callers and directly called modules.
-- Related public types, serialization / deserialization, and config.
-- Related tests, artifact persistence, and resource-lifecycle paths.
-
-Report only direct-chain issues this change introduced or enlarged. Correctness, safety, permissions, data corruption, process leaks, or clear regressions on that chain go in `blocking_findings`.
-
-HLD module duties, dependency direction, shared types, and error semantics are the applicable basis here. The HLD does not by itself widen this review's scope.
-
-## Exploratory review
-
-Exploratory review may look at neighbouring modules and out-of-scope paths to find high-risk issues. It does not change this ticket's `R` / `AC`, `SPEC.md`, or `ACCEPTANCE.md`.
-
-Out-of-scope issues must be classified separately:
-
-```json
-{
-  "category": "out_of_scope_risk",
-  "severity": "P2",
-  "evidence": "concrete code or reachable-path evidence",
-  "recommended_route": "new-ticket"
-}
-```
-
-Ordinary out-of-scope risk goes in `non_blocking_findings`. If evidence shows this change introduced or enlarged a reachable issue involving safety, data loss, permission bypass, resource leaks, or other high risk, it also goes in `blocking_findings` and blocks current completion.
+Read [references/review-criteria.md](references/review-criteria.md) for the checks in each layer. Keep Contract, Change-surface, and Exploratory results separate. HLD decisions inform Change-surface review without widening scope.
 
 ## Blocking rules
 
@@ -101,6 +64,8 @@ Ordinary out-of-scope risk goes in `non_blocking_findings`. If evidence shows th
 | Neighbouring risk that does not affect this behaviour | Report; recommend a new ticket |
 | Pure style, refactor suggestions, speculative risk | Does not block |
 | Enabled acceptance protocol contradicts itself or cannot cover a high-risk path | `acceptance_protocol_gaps`; hand back to `grilling` / `to-spec` |
+
+Record contradictory existing protocol, inability to cover a real high-risk path, or missing evidence the task declared in `acceptance_protocol_gaps` and hand back to `grilling` / `to-spec`. Without a separate protocol, report only the current-task contract that cannot be judged.
 
 Final completion requires all three layers passing, empty `blocking_findings`, empty `acceptance_protocol_gaps`, empty `unverified_scope`, and every applicable verification command succeeding.
 
@@ -125,8 +90,8 @@ Final output always includes:
 - `acceptance_protocol_gaps`
 - `unverified_scope`
 
-Each finding has at least `category`, `severity`, `evidence`, and `recommended_route`, plus location, impact, suggestion, and how to verify. Empty sections or empty arrays stay when there is nothing to report.
+Finding fields and Markdown format are defined in [output-contract.md](references/output-contract.md).
 
-This is a read-only review. Root-cause work goes to `debug`. Whole-repo architecture diagnosis goes to `review-architecture`. Test or build failures go to `verify` / `debug`. Review may suggest a commit. It must not commit, push, edit branches, edit the acceptance protocol, or widen this ticket's completion gate.
+Root-cause work goes to `debug`. Whole-repo architecture diagnosis goes to `review-architecture`. Test or build failures go to `verify` / `debug`. Review may suggest a commit. It must not commit, push, edit branches, edit the acceptance protocol, or widen this ticket's completion gate.
 
 When Loop calls this skill, return JSON per the [Runtime capability output contract](../../docs/loop-runtime.md#capability-result). Standalone review keeps a Markdown receipt.

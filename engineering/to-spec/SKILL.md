@@ -11,7 +11,7 @@ Create when there is no SPEC. Amend the same file when an existing SPEC's requir
 
 `SPEC.md` is the workflow's only local requirement snapshot: problem, solution, behaviour, Solution Constraints, testing decisions, bounds, and acceptance. It does not contain derived high-level design, an execution graph, or an implementation recipe. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
-`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `high-level-design`. A single, clearly bounded task goes to `quick-implement`. Several execution units are derived by `to-tickets` and run by `loop`.
+`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `high-level-design`.
 
 ## Entry
 
@@ -29,8 +29,8 @@ Do not invent missing fields, errors, public contracts, test seams, Solution Con
 
 ## Modes
 
-- **Create**: no `SPEC.md` in the task directory. Write `SPEC.md` from settled inputs. Create `ACCEPTANCE.md` only when a separate acceptance protocol has a clear use.
-- **Amendment**: `SPEC.md` already exists. Read the full current SPEC and this delta, then update in place. Read or update `ACCEPTANCE.md` only if it already exists or this turn explicitly enables separate acceptance. Keep unaffected `R` / `AC` IDs. Bump an existing protocol version when public behaviour, error or cancel semantics, CLI / JSON / schema / exit codes, permissions, or artifact bounds change. Internal refactors and new tests do not bump.
+- **Create**: no `SPEC.md` in the task directory. Follow the process below.
+- **Amendment**: an existing SPEC has requirement changes. Before proceeding, read [references/amendment.md](references/amendment.md).
 - Ticket granularity, dependencies, or execution facts with unchanged SPEC meaning go to `to-tickets` or the execution owner. Do not touch the SPEC.
 
 ## Process
@@ -40,8 +40,6 @@ Do not invent missing fields, errors, public contracts, test seams, Solution Con
 Collect the conversation, user docs, finished decisions, and requirement authority. Keep only explicit facts, constraints, terms, trade-offs, and Out of scope. Do not grow scope to fill a template.
 
 Task directory: what the user named this turn → the applicable `AGENTS.md` `Engineering Skills Profile` → the repo's existing task-doc convention. Missing Profile does not block. Ask only when write location or requirement meaning is still undetermined.
-
-For an amendment, split the delta into `added` / `changed` / `removed` / `no normative effect`. List affected `R`, `AC`, bounds, Solution Constraints, and testing decisions. When an HLD or tickets already exist, read related Ds, ticket contracts, status, and evidence — report which design and delivery may still hold, need appending, replacement, or reversal. Do not edit downstream artifacts. Keep existing `R` / `AC` IDs; append new IDs for new requirements; keep a traceable note for removals and do not renumber. Unsettled product choices go back to `grilling` on the affected branches only. Directed `wayfinding` only when the requirement is settled but a new technical path is still in fog.
 
 ### 2. Investigate the codebase
 
@@ -58,7 +56,7 @@ Use the project's domain language. Stop once scope, public contracts, and accept
 
 Before the formal docs, sketch which *external* seams this change should be accepted through: observable behaviour, test level, and expected-result source. Do not design internal Modules, shared types, or dependency direction — those are the HLD's Verification Seams.
 
-An amendment re-evaluates only affected seams. Keep testing decisions that still cover the changed behaviour, and say so in the impact summary. Inside a confirmed public interface, acceptance coverage, trust boundary, and test contract, choosing an existing test entry can be decided and recorded. Changing those requires user confirmation.
+Inside a confirmed public interface, acceptance coverage, trust boundary, and test contract, choosing an existing test entry can be decided and recorded. Changing those requires user confirmation.
 
 - Prefer existing external seams. A new public contract must be part of the requirement, not an internal structure exposed for tests.
 - Use one stable seam when it covers the whole change.
@@ -86,14 +84,12 @@ Without a separate acceptance protocol, check `R → AC` and decidable results b
 6. Bounds, defaults, Out of Scope, and acceptance do not conflict or silently expand.
 7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
 8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
-9. Every current `R` / `AC` is covered by the SPEC's Acceptance Criteria; check ACCEPTANCE scenarios only when separate acceptance is enabled.
-10. An amendment keeps unaffected `R` / `AC` IDs and rechecks the applicable SPEC and ACCEPTANCE, not only the delta.
 
 Fix what confirmed context or the codebase can fix. Stop and hand back to `grilling` or `wayfinding` when a new decision is required.
 
 ### 6. Write and hand off
 
-After consistency holds, write into the task directory. Create the reports directory, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items. Amendment shows the requirement delta, spec impact, and possibly affected HLD decisions / tickets first, updates in place after confirmation, and reports kept, added, or removed `R` / `AC`.
+After consistency holds, write into the task directory. Create the reports directory, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items.
 
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
@@ -108,7 +104,7 @@ No automatic authorisation to publish externally, commit, push, create a branch,
 
 ## Change rules
 
-- **Normative change** → Amendment. Update `SPEC.md`; sync `ACCEPTANCE.md` only when separate acceptance is already enabled. Do not force re-confirmation when testing seams are unaffected. When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. If affected tickets are running, ask `loop` to stop related dispatch, stop the affected workers, reclaim their partial receipts, and keep evidence.
+- **Normative change** → Amendment mode above.
 - **High-level design change** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
 - **Execution split change** → `to-tickets` only. Do not rewrite upstream.
 - **Execution change** → update the ticket or execution evidence only. Do not edit SPEC / HLD.
