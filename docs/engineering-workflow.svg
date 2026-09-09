@@ -5043,8 +5043,8 @@
         <text data-detail="fine" x="845.2" y="940" class="t-cloud" font-size="7" text-anchor="middle">DONE</text>
         </g>
 
-        <g id="node-loop" data-node-id="loop" data-node-label="loop + capabilities" tabindex="0" role="button" aria-label="聚焦loop + capabilities，scheduling · evidence · review, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="scheduling · evidence · review" data-node-context="执行与交付 › 选择执行路径">
-          <title>loop + capabilities · scheduling · evidence · review · 执行与交付 › 选择执行路径</title>
+        <g id="node-loop" data-node-id="loop" data-node-label="loop" tabindex="0" role="button" aria-label="聚焦loop，scheduling · evidence · review, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="scheduling · evidence · review" data-node-context="执行与交付 › 选择执行路径">
+          <title>loop · scheduling · evidence · review · 执行与交付 › 选择执行路径</title>
           <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-mask"/>
           <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-messagebus" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(778.2 1038) scale(0.6875)">
@@ -5053,7 +5053,7 @@
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="845.2" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop + capabilities</text>
+          <text data-node-label="" data-detail-anchor="" x="845.2" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop</text>
           <text data-detail="context" x="845.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">任务选择 · 命令 · 证据 · 审查</text>
         </g>
 

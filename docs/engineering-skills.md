@@ -81,24 +81,25 @@ implement → verify → code-review → aggregate evidence → complete / retry
 
 `loop` 管理 implement、verify 和 review 的顺序与权限；verify 负责实际验证命令，Loop 只聚合结果并通过 `loopx graph` 维护状态。
 
-`loopx loop run` 只负责 Loop pipeline、ticket lifecycle 和 capability result 聚合；provider、权限和环境失败进入 blocker，而不是代码 repair。
+`loopx loop run` 只负责 Loop pipeline、ticket lifecycle 和 worker receipt 聚合；worker 由当前 Runtime 独立执行，权限和环境失败进入 blocker，而不是代码 repair。
 
-长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，runtime heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
+长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，runtime heartbeat 可提供 heartbeat freshness 和 progress freshness；Runtime 保存 worker raw output 到 task-local artifact，Loop 在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
 
-完整的 graph mutation、backend contract、provider 参数、artifact layout、失败路由和验证边界见：[Loop Runtime 与 Backend Contract](./loop-runtime.md)。
+完整的 graph mutation、worker handoff、artifact layout、失败路由和验证边界见：[Loop Runtime](./loop-runtime.md)。
 
 loopx 的公开契约、失败状态矩阵和统一验收入口见：[loopx 验收协议](./loopx-acceptance.md)。
 
 ### Agent 调用边界
 
-Loop 通过 `loopx` 的 provider-neutral prompt contract 调用底层 Agent，不直接暴露具体 Agent 工具：
+Loop 通过当前 Runtime 调度独立 worker；`loopx` 不启动或管理 worker：
 
 ```text
 Loop
-  └── CapabilityAdapter
+  ├── loopx graph / lifecycle
+  └── Runtime worker
 ```
 
-session handle、provider assignment 和 raw output 只属于当前 runtime，不写入 ticket JSON。
+Worker handle 和 raw output 只属于当前 Runtime，不写入 ticket JSON。
 
 每次 CLI capability 的完整 stdout/stderr/returncode/JSONL 事件保存到 task-local receipt artifact；只有 Loop 接受的 normalized evidence、verification、review 和 blocker facts 才进入 execution graph。长任务默认不设固定 wall-clock timeout，可由调用方提供任务预算，或通过 heartbeat/progress freshness 失鲜判定中断。
 

@@ -36,7 +36,7 @@
   "states": [
     { "id": "created", "type": "start", "label": "open", "sublabel": "create-batch 初始 lifecycle", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY" },
     { "id": "ready", "type": "active", "label": "ready（动态）", "sublabel": "dependencies done 且无 blocker", "lane": "main", "col": 1, "step": "02" },
-    { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "loop 已派发 worker", "lane": "main", "col": 2, "step": "03" },
+    { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "loop 已开始执行", "lane": "main", "col": 2, "step": "03" },
     { "id": "done", "type": "success", "label": "done", "sublabel": "全部 local AC 的 passed evidence 完整", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE" },
     { "id": "blocked", "type": "waiting", "label": "blocked（动态）", "sublabel": "dependency 或 execution blocker", "lane": "waiting", "col": 0, "tag": "WAIT" },
     { "id": "amendment", "type": "external", "label": "reconcile-batch", "sublabel": "同步 execution graph", "lane": "change", "col": 2, "tag": "EVENT" },
@@ -52,7 +52,7 @@
     { "id": "done_ready", "from": "done", "to": "ready", "label": "reopen → open", "fromSide": "top", "toSide": "top", "route": "top-channel", "channelY": 62, "labelAt": [402, 74] },
     { "id": "ready_amendment", "from": "ready", "to": "amendment", "fromSide": "top", "toSide": "top", "via": [[248, 38], [710, 38], [710, 380]], "variant": "dashed" },
     { "id": "blocked_amendment", "from": "blocked", "to": "amendment", "fromSide": "bottom", "toSide": "bottom", "via": [[402, 380], [710, 380]], "variant": "dashed" },
-    { "id": "progress_amendment", "from": "in_progress", "to": "amendment", "label": "停止并回收 worker", "fromSide": "right", "toSide": "left", "via": [[480, 157], [480, 250], [620, 250], [620, 307]], "variant": "security", "labelAt": [550, 240] },
+    { "id": "progress_amendment", "from": "in_progress", "to": "amendment", "label": "停止执行并回收 receipt", "fromSide": "right", "toSide": "left", "via": [[480, 157], [480, 250], [620, 250], [620, 307]], "variant": "security", "labelAt": [550, 240] },
     { "id": "done_amendment", "from": "done", "to": "amendment", "fromSide": "bottom", "toSide": "top", "via": [[556, 210], [710, 210]], "variant": "dashed" },
     { "id": "amendment_superseded", "from": "amendment", "to": "superseded", "fromSide": "bottom", "toSide": "top", "route": "straight" }
   ],

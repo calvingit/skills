@@ -1,11 +1,11 @@
 ---
 name: loop
-description: Consume a ticket graph with loopx, schedule execution units in serial or multi-agents mode, and run delivery review through the completion gate.
+description: Consume a ticket graph with loopx, schedule independent workers in serial or multi-agent mode, and run delivery review through the completion gate.
 ---
 
 # Loop
 
-This skill owns ticket selection, attempts, workspace baseline, scheduling mode, receipt acceptance, and the completion gate. Concrete execution comes from the installed `loopx` CLI.
+This skill owns ticket selection, attempts, workspace baseline, scheduling mode, receipt acceptance, and the completion gate. `loopx` maintains graph and lifecycle state. Worker execution comes from the current runtime and is outside `loopx` and this skill.
 
 ## Entry
 

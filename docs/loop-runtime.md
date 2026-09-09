@@ -1,6 +1,6 @@
 # Loop Runtime
 
-本文档是 Loop、execution graph、capability backend 和 task-local artifact 的稳定参考。它记录当前已实现的 contract；具体项目的需求、设计和验收仍以目标任务的 `SPEC.md`、`HLD.md` 和 ticket graph 为准。
+本文档是 Loop、execution graph、worker handoff 和 task-local artifact 的稳定参考。它记录当前已实现的 contract；具体项目的需求、设计和验收仍以目标任务的 `SPEC.md`、`HLD.md` 和 ticket graph 为准。
 
 ## 1. 职责边界
 
@@ -17,15 +17,15 @@ tickets/*.json <---- loopx graph CLI
         |
         v
 CapabilityAdapter ---- Backend
-                         `-- Provider backend
+                         `-- Worker process
 ```
 
 | 部件 | 拥有的职责 | 不拥有的职责 |
 | --- | --- | --- |
-| `loopx graph` | ticket schema、依赖、readiness、lifecycle、锁、transaction、recovery | worker dispatch、workspace 判断、provider session |
-| Loop | ticket 选择、baseline、scope、dispatch、receipt acceptance、完成门、graph mutation | provider 细节、需求改写、sibling ticket 拆分 |
+| `loopx graph` | ticket schema、依赖、readiness、lifecycle、锁、transaction、recovery | worker dispatch、workspace 判断、worker session |
+| Loop | ticket 选择、baseline、scope、dispatch、receipt acceptance、完成门、graph mutation | worker 运行时、需求改写、sibling ticket 拆分 |
 | `CapabilityAdapter` | capability 顺序、session 生命周期、结果聚合 | ticket lifecycle、完成门、业务解释 |
-| Backend/CLI driver | create/send/wait/interrupt/close、session、事件和 provider 参数 | graph、ticket JSON、最终 evidence 接受 |
+| Worker runner | 启动 worker、传递 handoff、收集结果和事件 | graph、ticket JSON、最终 evidence 接受 |
 | Worker/capability | 当前 ticket 的实现、验证或 review | graph mutation、sibling 调度、commit/push |
 
 Loop 是正常执行期间唯一的 graph writer；所有状态写入都通过 `loopx graph` CLI。完成门通过后，只有调用方以 `commit_on_complete=True` 明确启用时，Loop 才提交当前 ticket 的归属变更；不会 push 或 merge。
@@ -67,7 +67,7 @@ Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 
 
 Loop 只有两种执行模式：`serial` 在单一会话中顺序执行 capability；`multi-agents` 为可隔离的 ticket 或 capability 创建多个 sub-agent。默认使用 `serial`，只有隔离证据成立时才使用 `multi-agents`。
 
-## 4. Backend Contract
+## 4. Worker Handoff Contract
 
 统一生命周期：
 
@@ -79,7 +79,7 @@ interrupt(handle)
 close(handle)
 ```
 
-handle 只存在当前 runtime，包含 provider / session reference、capability 和 opaque `agent_instance_id`；不进入 ticket JSON。
+handle 只存在当前 runtime，包含 worker session reference、capability 和 opaque `agent_instance_id`；不进入 ticket JSON。
 
 独立 `ACCEPTANCE.md` 只在任务明确需要时作为额外契约；普通任务直接使用 SPEC 的验收条件。
 
@@ -91,7 +91,7 @@ handle 只存在当前 runtime，包含 provider / session reference、capabilit
 - 已有的 acceptance 约束和 verify evidence；
 - prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify / review 都只收到 implement receipt。
 
-Loop 只接收 capability result，不把 provider CLI 细节写入 graph。
+Loop 只接收 worker capability result，不把 worker runtime 细节写入 graph。
 
 ## 5. Receipt and Artifact
 
@@ -128,31 +128,31 @@ artifact 原子写入并校验 ticket、attempt、capability、instance identity
 
 - 调用方可以提供任务预算；
 - Runtime heartbeat 可以提供 heartbeat freshness；
-- progress freshness 可以识别 provider 长时间无业务进展；
-- 没有预算或 freshness 阈值时持续等待 provider 终态或用户取消。
+- progress freshness 可以识别 worker 长时间无业务进展；
+- 没有预算或 freshness 阈值时持续等待 worker 终态或用户取消。
 
 失败路由：
 
 ```text
 verify/review business failure -> retry
-provider / permission / environment / dependency failure -> block
+worker / permission / environment / dependency failure -> block
 interrupt / stale heartbeat -> cleanup, then caller decides retry or block
 ```
 
-所有 active handle / process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 provider handle，而是根据 current attempt 和 artifact 创建新 instance。verify / review 默认只能向 `.loop/tmp/` 写隔离缓存；其他临时路径必须由调用方显式分配。
+所有 active handle / process 必须在完成、失败、阻塞、取消或预算结束时清理。进程重启不恢复旧 worker handle，而是根据 current attempt 和 artifact 创建新 instance。verify / review 默认只能向 `.loop/tmp/` 写隔离缓存；其他临时路径必须由调用方显式分配。
 
 ## 7. Verification Status
 
-loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/loopx/scripts/check.py all`。它检查 loopx 的单元测试、CLI、wheel 和干净 venv 安装；协议文档的一致性由 `to-spec`、`to-tickets`、`loop` 和 review / verify 各自按本协议负责。真实 provider、生产副作用与吞吐仍须标记为未验证。
+loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/loopx/scripts/check.py all`。它检查 loopx 的单元测试、CLI、wheel 和干净 venv 安装；协议文档的一致性由 `to-spec`、`to-tickets`、`loop` 和 review / verify 各自按本协议负责。Worker runtime、生产副作用与吞吐仍须标记为未验证。
 
 当前自动化覆盖：
 
 - 测试命令和覆盖范围以 `tools/loopx/tests/` 当前测试文件为准；交付前运行 README 中的完整测试命令。
-- CLI backend：provider-neutral 的命令构造、session / resume、权限参数、raw output、heartbeat freshness 和失败归一化。
+- Worker runner：命令构造、session / resume、权限参数、raw output、heartbeat freshness 和失败归一化。
 - graph：retry stale attempt、空 scope、completion gate、transaction / recovery。
 - workspace：scope、graph mutation、Git HEAD commit 防护。
 
-尚未证明：真实 provider turn、生产级 API/数据库副作用、生产 transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake/backend 测试当作 live provider acceptance。
+尚未证明：真实 worker execution、生产级 API/数据库副作用、生产 transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake worker 测试当作 live execution acceptance。
 
 ## Capability result
 
@@ -163,7 +163,7 @@ CLI backend 从包内 worker receipt schema 派生当前角色的 response contr
 - review 的成功 payload 必须包含 `review`，分别报告 `contract`、`change_surface`、`exploratory` 和 `protocol_health`。
 - 各角色均可报告 `blocking_findings`、`non_blocking_findings`、`acceptance_protocol_gaps`、`unverified_scope`、`unverified` 和 `blocker`。未知或失败范围不得省略成通过。blocked 必须给出 blocker 的 category、reason 和 release_condition。
 
-verify 负责执行项目已有验证命令并记录实际结果。业务验证失败进入 retry；provider、权限和环境失败进入 blocker。capability 自报 completed 不能覆盖失败的 review 或 blocker。
+verify 负责执行项目已有验证命令并记录实际结果。业务验证失败进入 retry；worker、权限和环境失败进入 blocker。capability 自报 completed 不能覆盖失败的 review 或 blocker。
 
 保护检查覆盖 SPEC、ACCEPTANCE、HLD、tickets、Git 状态和 runtime 产物。检测到上游变化时停止并保留现场，不自动恢复旧文件；这是一种事后检查，不是操作系统写入隔离。
 
