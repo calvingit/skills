@@ -63,6 +63,8 @@ Engineering workflow
 
 `loopx` 是 `to-tickets` 和 `loop` 使用的 graph 工具；Loop 是正常执行期间唯一的 graph writer。
 
+`grilling` 仅在验收结论需要持久化、跨会话继续或交接时生成 `acceptance-draft.md`；同一会话内直接进入实现的简单讨论，在会话中保留已确认的验收结论、预期结果和证据来源即可。
+
 `ACCEPTANCE.md` 是按需使用的独立验收文档；普通任务的验证由 verify 记录，Loop 只聚合任务证据。
 
 工作流图：
