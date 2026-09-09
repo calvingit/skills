@@ -2,6 +2,8 @@
 
 本文件是 loopx 的完成门。修复、审查和发布只以本协议及其可执行检查为准，不通过临时增加审查范围来改变完成标准。
 
+本文件只定义 loopx CLI 和运行时公开边界；任务验收按任务自身的 SPEC 和可选 ACCEPTANCE.md 执行。
+
 ## 公开边界
 
 - `worker` 只执行外部 prompt；不负责 implement、verify、review 编排。
@@ -16,8 +18,8 @@ loopx version
 loopx graph inspect <task-dir>
 loopx loop status <task-dir>
 loopx loop run <task-dir> --scope <path>
-loopx worker run <workspace> --prompt <prompt>
-loopx worker run <workspace> --provider <provider> --model <model> --prompt <prompt>
+loopx worker run <workspace> --prompt <prompt> [--scope <path>]
+loopx worker run <workspace> --provider <provider> --model <model> --prompt <prompt> [--scope <path>]
 ```
 
 ## 失败状态矩阵

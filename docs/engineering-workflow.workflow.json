@@ -37,10 +37,10 @@
     { "id": "formalize", "label": "形成契约", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
     { "id": "deliver_phase", "label": "选择执行路径", "fromCol": 4, "toCol": 5, "variant": "dashed" }
   ],
-  "mainPath": ["start", "spec_check", "to_spec", "spec", "contract_check", "high_level_design"],
+  "mainPath": ["start", "scope_check", "execution_check", "quick_implement", "delivery"],
   "nodes": [
     { "id": "start", "lane": "intake", "col": 0, "type": "frontend", "label": "当前工作", "sublabel": "识别现有 artifact", "tag": "START" },
-    { "id": "spec_check", "lane": "intake", "col": 1, "type": "security", "label": "已有已确认 SPEC？", "sublabel": "检查未合并需求变更", "tag": "DECISION", "width": 124 },
+    { "id": "spec_check", "lane": "intake", "col": 1, "type": "security", "label": "已有 SPEC 需修订？", "sublabel": "检查未合并需求变更", "tag": "DECISION", "width": 124 },
     { "id": "scope_check", "lane": "discovery", "col": 1, "type": "security", "label": "需求与关键路径收敛？", "sublabel": "区分需求缺口与技术迷雾", "tag": "DECISION", "width": 144 },
     { "id": "grilling", "lane": "discovery", "col": 2, "type": "external", "label": "grilling", "sublabel": "收敛需求与边界" },
     { "id": "wayfinding", "lane": "discovery", "col": 3, "type": "external", "label": "wayfinding", "sublabel": "MAP.md + decisions" },
@@ -51,7 +51,7 @@
     { "id": "execution_check", "lane": "execution", "col": 3, "type": "security", "label": "需要 execution graph？", "sublabel": "单一任务或多执行单元", "tag": "DECISION", "width": 158 },
     { "id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "单次实现与验证", "width": 112, "yOffset": -70 },
     { "id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.json", "yOffset": 70 },
-    { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop + ticket-worker", "sublabel": "CLI graph · evidence · review", "width": 146, "yOffset": 70 },
+    { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop + capabilities", "sublabel": "scheduling · evidence · review", "width": 160, "yOffset": 70 },
     { "id": "delivery", "lane": "execution", "col": 5, "type": "cloud", "label": "verified delivery", "sublabel": "实现、验证与审查完成", "tag": "DONE", "width": 124, "yOffset": -70 }
   ],
   "edges": [
@@ -61,7 +61,8 @@
     { "id": "spec_current", "from": "spec_check", "to": "spec", "label": "已确认且无变更", "role": "main" },
     { "id": "needs_grilling", "from": "scope_check", "to": "grilling", "label": "需求或边界未定", "role": "branch" },
     { "id": "needs_wayfinding", "from": "scope_check", "to": "wayfinding", "label": "技术路径存在 Fog", "role": "branch" },
-    { "id": "already_converged", "from": "scope_check", "to": "to_spec", "label": "已收敛", "variant": "emphasis" },
+    { "id": "already_converged", "from": "scope_check", "to": "to_spec", "label": "需要持久化契约", "variant": "emphasis" },
+    { "id": "direct_or_quick", "from": "scope_check", "to": "execution_check", "label": "当前会话可判定", "role": "main" },
     { "id": "grilling_to_spec", "from": "grilling", "to": "to_spec" },
     { "id": "wayfinding_to_spec", "from": "wayfinding", "to": "to_spec", "label": "需要构建契约", "role": "return" },
     { "id": "spec_output", "from": "to_spec", "to": "spec", "variant": "emphasis" },

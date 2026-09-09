@@ -37,6 +37,8 @@ description: "用于只读评审既有架构是否符合项目约束和技术标
 
 ## Workflow
 
+默认只做当前架构是否 sound 的审查。用户明确要求寻找重构候选时，才加载 `../improve-codebase-architecture/SKILL.md` 的主动候选模式；该模式不增加新的交付阶段。
+
 ### 1. Define scope and review question
 
 先明确本轮评审对象和判断标准。

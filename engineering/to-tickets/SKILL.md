@@ -9,13 +9,13 @@ description: "从已确认的 SPEC 与可选 HLD 派生带真实阻塞依赖的�
 
 `to-tickets` 是 `to-spec` 以及适用时 `high-level-design` 的下游，只处理交付分解，不重做 decision、需求规格或概要设计，完成的 Wayfinding Map 中影响需求的决定必须先经过 `to-spec`，纯技术决定则在 SPEC 确认后由 `high-level-design` 吸收，没有 SPEC 时停止并交回 `to-spec`。
 
-每张 ticket 必须通过 `covers.requirements`、`covers.spec_acceptance` 和 `acceptance_scenarios` 引用已有协议语义，例如：
+每张 ticket 必须通过 `covers.requirements` 和 `covers.spec_acceptance` 引用已有协议语义，例如：
 
 ```json
-{"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"acceptance_scenarios":["success-basic"]}
+{"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"acceptance_criteria":[{"id":"AC1","description":"..."}]}
 ```
 
-只引用已有场景，不在 ticket 中创建验收语义。Graph 检查必须报告 `R`/`AC` coverage、scenario coverage 和 ticket coverage，并拒绝引用 `superseded` 场景或 ticket；缺少 expected result 时交回 `to-spec`。
+只引用已有验收语义，不在 ticket 中创建验收条件。Graph 检查必须报告 `R`/`AC`/`D` coverage 和 ticket coverage；只有任务启用独立验收场景时才检查 scenario coverage，且仅在场景缺少 expected result 时交回 `to-spec`。
 
 ## 输入与准备
 
@@ -71,6 +71,8 @@ ticket 应描述结果，不写易过期的文件路径、代码片段或逐步�
 ## 写入本地 tickets
 
 `tickets/*.json` 是唯一 execution graph，`to-tickets` 不直接写 JSON 文件、不扫描最大 ID，也不维护 readiness、checkbox 或 evidence，而是先向用户确认候选 tickets，再构造 `create-batch` JSON request，每项提供临时 key、title、covers、适用 D IDs、what to build、constraints、ticket-local Acceptance Criteria 和以临时 key 表达的真实 dependencies。
+
+请求结构与修订示例通过 `loopx graph create-batch --help`、`loopx graph reconcile-batch --help` 查看；命令输入只描述当前 graph contract，不复制验收协议。
 
 确认后通过统一 CLI 写入：
 

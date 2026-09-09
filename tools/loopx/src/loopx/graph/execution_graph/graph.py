@@ -40,7 +40,7 @@ def find_cycles(graph: dict[str, list[str]]) -> list[list[str]]:
 
 def validate_graph(
     tickets: list[dict[str, Any]],
-    authority: dict[str, set[str]],
+    authority: dict[str, object],
     *,
     has_hld: bool,
 ) -> tuple[list[dict[str, str]], dict[str, list[str]]]:
@@ -56,19 +56,24 @@ def validate_graph(
     for ticket in tickets:
         ticket_id = ticket["id"]
         path = ticket["_path"]
-        for requirement in ticket["covers"]["requirements"]:
-            if requirement not in authority["requirements"]:
-                problems.append(problem("authority", "unknown_requirement", f"Ticket references unknown SPEC requirement: {requirement}", ticket_id=ticket_id, path=path))
-        for acceptance_id in ticket["covers"]["spec_acceptance"]:
-            if acceptance_id not in authority["spec_acceptance"]:
-                problems.append(problem("authority", "unknown_spec_acceptance", f"Ticket references unknown SPEC Acceptance ID: {acceptance_id}", ticket_id=ticket_id, path=path))
-        if ticket["design_decisions"] and not has_hld:
-            problems.append(problem("authority", "missing_hld", "Ticket references design decisions but HLD.md was not found.", ticket_id=ticket_id, path=path))
-        for decision in ticket["design_decisions"]:
-            if decision not in authority["design_decisions"]:
-                problems.append(problem("authority", "unknown_design_decision", f"Ticket references unknown HLD decision: {decision}", ticket_id=ticket_id, path=path))
-        if not ticket["covers"]["requirements"] and not ticket["covers"]["spec_acceptance"] and not ticket["design_decisions"]:
-            problems.append(problem("graph", "missing_delivery_coverage", "Ticket must cover a SPEC R/AC or an HLD D ID.", ticket_id=ticket_id, path=path))
+        active_ticket = ticket["lifecycle"]["phase"] != "superseded"
+        if active_ticket:
+            requirements = authority.get("requirements", set())
+            spec_acceptance = authority.get("spec_acceptance", set())
+            design_decisions = authority.get("design_decisions", set())
+            for requirement in ticket["covers"]["requirements"]:
+                if requirement not in requirements:
+                    problems.append(problem("authority", "unknown_requirement", f"Ticket references unknown SPEC requirement: {requirement}", ticket_id=ticket_id, path=path))
+            for acceptance_id in ticket["covers"]["spec_acceptance"]:
+                if acceptance_id not in spec_acceptance:
+                    problems.append(problem("authority", "unknown_spec_acceptance", f"Ticket references unknown SPEC Acceptance ID: {acceptance_id}", ticket_id=ticket_id, path=path))
+            if ticket["design_decisions"] and not has_hld:
+                problems.append(problem("authority", "missing_hld", "Ticket references design decisions but HLD.md was not found.", ticket_id=ticket_id, path=path))
+            for decision in ticket["design_decisions"]:
+                if decision not in design_decisions:
+                    problems.append(problem("authority", "unknown_design_decision", f"Ticket references unknown HLD decision: {decision}", ticket_id=ticket_id, path=path))
+            if not ticket["covers"]["requirements"] and not ticket["covers"]["spec_acceptance"] and not ticket["design_decisions"]:
+                problems.append(problem("graph", "missing_delivery_coverage", "Ticket must cover a SPEC R/AC or an HLD D ID.", ticket_id=ticket_id, path=path))
 
         for dependency in ticket["dependencies"]:
             if dependency == ticket_id:
@@ -92,9 +97,9 @@ def validate_graph(
 
     active = [ticket for ticket in tickets if ticket["lifecycle"]["phase"] in ACTIVE_PHASES]
     coverage = {
-        "requirements": sorted(authority["requirements"] - {value for ticket in active for value in ticket["covers"]["requirements"]}),
-        "spec_acceptance": sorted(authority["spec_acceptance"] - {value for ticket in active for value in ticket["covers"]["spec_acceptance"]}),
-        "design_decisions": sorted(authority["design_decisions"] - {value for ticket in active for value in ticket["design_decisions"]}),
+        "requirements": sorted(authority.get("requirements", set()) - {value for ticket in active for value in ticket["covers"]["requirements"]}),
+        "spec_acceptance": sorted(authority.get("spec_acceptance", set()) - {value for ticket in active for value in ticket["covers"]["spec_acceptance"]}),
+        "design_decisions": sorted(authority.get("design_decisions", set()) - {value for ticket in active for value in ticket["design_decisions"]}),
     }
     for kind, missing in coverage.items():
         if missing:

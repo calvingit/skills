@@ -10,7 +10,6 @@ from typing import Any
 from .batch import create_batch, reconcile_batch, recover_transaction
 from .contracts import emit, envelope, problem
 from .lifecycle import mutate_ticket
-from .migrations import migrate_graph
 from .queries import inspect, list_tickets, show_ticket
 
 
@@ -67,10 +66,7 @@ def main(argv: list[str] | None = None) -> int:
     elif operation == "recover":
         if len(arguments) != 3: return argument_failure(operation, "Usage: loopx graph recover <task-dir> <rollback|commit>")
         payload, exit_code = recover_transaction(Path(arguments[1]).expanduser().resolve(), arguments[2])
-    elif operation == "migrate":
-        if len(arguments) not in {2, 3} or (len(arguments) == 3 and arguments[2] != "--check"): return argument_failure(operation, "Usage: loopx graph migrate <task-dir> [--check]")
-        payload, exit_code = migrate_graph(Path(arguments[1]).expanduser().resolve(), check_only=len(arguments) == 3)
     else:
-        return argument_failure(operation, "Supported commands: inspect, list, show, start, retry, block, unblock, complete, reopen, create-batch, reconcile-batch, recover, migrate")
+        return argument_failure(operation, "Supported commands: inspect, list, show, start, retry, block, unblock, complete, reopen, create-batch, reconcile-batch, recover")
     emit(payload)
     return exit_code

@@ -113,12 +113,9 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
             if not request_problems:
                 request_problems.append(invalid_field("<request>", None, "tickets", "tickets must be a non-empty array."))
             return envelope("create-batch", ok=False, problems=request_problems), 1
-        candidate_fields = {"key", "title", "covers", "design_decisions", "what_to_build", "constraints", "acceptance_criteria", "acceptance_scenarios", "dependencies"}
+        candidate_fields = {"key", "title", "covers", "design_decisions", "what_to_build", "constraints", "acceptance_criteria", "dependencies"}
         keys: list[str] = []
         for index, candidate in enumerate(candidates):
-            if isinstance(candidate, dict):
-                candidate = {**candidate, "acceptance_scenarios": candidate.get("acceptance_scenarios", [])}
-                candidates[index] = candidate
             issues = validate_shape(candidate, candidate_fields, path="<request>", ticket_id=None, field=f"tickets[{index}]")
             request_problems.extend(issues)
             if not issues and isinstance(candidate, dict):
@@ -150,7 +147,6 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
                 "what_to_build": candidate["what_to_build"],
                 "constraints": candidate["constraints"],
                 "acceptance_criteria": candidate["acceptance_criteria"],
-                "acceptance_scenarios": candidate.get("acceptance_scenarios", []),
                 "dependencies": [ids[value] for value in dependencies],
                 "lifecycle": {"phase": "open"},
                 "execution": {"attempt_sequence": 0, "evidence": {}, "blocker": None, "current_attempt": None, "reopen_context": None},
@@ -184,7 +180,7 @@ def reconcile_batch(
         return envelope("reconcile-batch", ok=False, problems=lock_problems), 1
     try:
         tickets, graph, current_problems = validated_snapshot(task_dir)
-        if current_problems:
+        if not tickets:
             return envelope("reconcile-batch", ok=False, graph=graph, problems=current_problems), 1
         request_problems = validate_shape(
             request,
@@ -234,7 +230,6 @@ def reconcile_batch(
             "what_to_build",
             "constraints",
             "acceptance_criteria",
-            "acceptance_scenarios",
         }
         new_contract_fields = contract_fields | {"dependencies"}
         for index, operation in enumerate(operations):
@@ -247,9 +242,6 @@ def reconcile_batch(
                 shape_problems = validate_shape(operation, {"operation", "key", "ticket"}, path="<request>", ticket_id=None, field=operation_field)
                 request_problems.extend(shape_problems)
                 contract = operation.get("ticket")
-                if isinstance(contract, dict):
-                    contract = {**contract, "acceptance_scenarios": contract.get("acceptance_scenarios", [])}
-                    operation = {**operation, "ticket": contract}
                 contract_problems = validate_shape(contract, new_contract_fields, path="<request>", ticket_id=None, field=f"{operation_field}.ticket")
                 request_problems.extend(contract_problems)
                 if shape_problems or contract_problems or not isinstance(contract, dict):
@@ -273,7 +265,6 @@ def reconcile_batch(
                     "what_to_build": contract["what_to_build"],
                     "constraints": contract["constraints"],
                     "acceptance_criteria": contract["acceptance_criteria"],
-                    "acceptance_scenarios": contract.get("acceptance_scenarios", []),
                     "dependencies": resolved_dependencies,
                     "lifecycle": {"phase": "open"},
                     "execution": {"attempt_sequence": 0, "evidence": {}, "blocker": None, "current_attempt": None, "reopen_context": None},

@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from pathlib import PurePosixPath
 
-GRAPH_PATHS = {"SPEC.md", "HLD.md"}
+GRAPH_PATHS = {"SPEC.md", "ACCEPTANCE.md", "HLD.md"}
+
+
+def contains(scope: list[str], path: str) -> bool:
+    return any(item == "." or path == item.rstrip("/") or path.startswith(item.rstrip("/") + "/") for item in scope)
 
 
 def allowed_scope(capability: str, scope: list[str]) -> list[str]:
@@ -12,7 +16,7 @@ def allowed_scope(capability: str, scope: list[str]) -> list[str]:
         capability == "implement"
         and isinstance(scope, list)
         and scope
-        and all(isinstance(item, str) and item.strip() for item in scope)
+        and all(isinstance(item, str) and item.strip() and not PurePosixPath(item).is_absolute() and ".." not in PurePosixPath(item).parts for item in scope)
     ):
         return list(scope)
     if capability in {"verify", "review"} and isinstance(scope, list) and not scope:
@@ -38,12 +42,13 @@ def violations(
             problems.append(normalized)
             continue
         is_temporary = any(normalized == item.rstrip("/") or normalized.startswith(item.rstrip("/") + "/") for item in temporary)
-        if normalized in GRAPH_PATHS or normalized.startswith("tickets/") or (normalized.startswith(".loop/") and not is_temporary):
+        parts = PurePosixPath(normalized).parts
+        if PurePosixPath(normalized).name in GRAPH_PATHS or "tickets" in parts[:-1] or (".loop" in parts and not is_temporary):
             problems.append(normalized)
             continue
         if capability != "implement" and not is_temporary:
             problems.append(normalized)
             continue
-        if capability == "implement" and not any(normalized == item or normalized.startswith(item.rstrip("/") + "/") for item in allowed):
+        if capability == "implement" and not contains(allowed, normalized):
             problems.append(normalized)
     return sorted(set(problems))

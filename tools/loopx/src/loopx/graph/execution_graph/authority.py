@@ -21,21 +21,18 @@ def extract_ids(path: Path, pattern: re.Pattern[str]) -> tuple[set[str], list[st
 
 def authority_index(
     task_dir: Path,
-) -> tuple[dict[str, set[str]], list[dict[str, str]]]:
+) -> tuple[dict[str, object], list[dict[str, str]]]:
     problems: list[dict[str, str]] = []
     spec = task_dir / "SPEC.md"
     hld = task_dir / "HLD.md"
-    index = {"requirements": set(), "spec_acceptance": set(), "design_decisions": set()}
+    index: dict[str, object] = {
+        "requirements": set(), "spec_acceptance": set(), "design_decisions": set(),
+    }
     if not spec.is_file():
         return index, problems
     try:
         requirements, duplicate_requirements = extract_ids(spec, SPEC_REQUIREMENT_RE)
         acceptance, duplicate_acceptance = extract_ids(spec, SPEC_ACCEPTANCE_RE)
-        acceptance_doc = task_dir / "ACCEPTANCE.md"
-        if acceptance_doc.is_file():
-            extra, extra_duplicates = extract_ids(acceptance_doc, re.compile(r"(?:^|[^A-Za-z])(AC\d+)(?:[^A-Za-z]|$)"))
-            acceptance |= extra
-            duplicate_acceptance = sorted(set(duplicate_acceptance) | set(extra_duplicates))
         index["requirements"] = requirements
         index["spec_acceptance"] = acceptance
         if not requirements:

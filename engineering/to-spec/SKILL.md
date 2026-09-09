@@ -1,11 +1,11 @@
 ---
 name: to-spec
-description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md 与 ACCEPTANCE.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或执行图，不拆 ticket 或实现。"
+description: "根据需求权威、已收敛对话与代码库事实创建或修订规范性 SPEC.md；按需维护独立 ACCEPTANCE.md，区分需求约束与概要技术设计，并判断下游是否需要 HLD 或执行图。"
 ---
 
 # To Spec
 
-把已收敛共识、需求权威和代码库事实写入任务目录的 `SPEC.md` 与 `ACCEPTANCE.md`。没有 SPEC 时用 Create；已有 SPEC 且需求新增、修改、删除或澄清时用 Amendment 修订同一文件。不重新做全面需求访谈，不拆 ticket，不实现代码。
+把已收敛共识、需求权威和代码库事实写入任务目录的 `SPEC.md`。只有任务明确需要独立验收协议，或任务目录已有 `ACCEPTANCE.md` 时，才按需创建或更新该文件。没有 SPEC 时用 Create；已有 SPEC 且需求新增、修改、删除或澄清时用 Amendment 修订同一文件。不重新做全面需求访谈，不拆 ticket，不实现代码。
 
 `SPEC.md` 是工作流唯一的本地需求规范快照，说明问题、方案、行为、Solution Constraints、测试决策、边界与验收。它不包含派生概要设计、执行图或实现配方。外部 PRD 或用户输入可以是上游 requirement authority，但不能替代已确认 SPEC 直接驱动 HLD、tickets 或实现。除非用户明确要求，不向外部 tracker 发布，也不创建 `SPEC-v2.md` 等并行 authority。
 
@@ -22,8 +22,8 @@ description: "根据需求权威、已收敛对话与代码库事实创建或修
 
 ## 模式选择
 
-- **Create**：任务目录没有 `SPEC.md`，从已收敛输入生成 `SPEC.md` 与 `ACCEPTANCE.md`。
-- **Amendment**：已有 `SPEC.md`，读取完整现有 `SPEC.md` 与 `ACCEPTANCE.md` 及本次 delta 后原位更新。保留未受影响的 `R`/`AC`；受影响场景原位更新。公开行为、错误或取消语义、CLI/JSON/schema/退出码、权限或 artifact 边界变化时递增 `protocol_version`；内部重构和新增测试不升级。
+- **Create**：任务目录没有 `SPEC.md`，从已收敛输入生成 `SPEC.md`；只有独立验收有明确用途时才同时创建 `ACCEPTANCE.md`。
+- **Amendment**：已有 `SPEC.md`，读取完整现有 `SPEC.md` 与本次 delta 后原位更新。仅当 `ACCEPTANCE.md` 已存在或本次明确启用独立验收时才读取或更新它。保留未受影响的 `R`/`AC`；公开行为、错误或取消语义、CLI/JSON/schema/退出码、权限或 artifact 边界变化时递增已有协议版本；内部重构和新增测试不升级。
 - SPEC 语义未变、只有 ticket 粒度、依赖或执行事实变化时，交给 `to-tickets` 或对应执行 owner，不触碰 SPEC。
 
 ## Process
@@ -60,14 +60,14 @@ Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为�
 
 向用户说明建议的 seam、依据和取舍。在已确认的公开接口、验收覆盖、信任边界和测试契约内选择现有测试入口时，可以直接决定并记录依据，不作为落盘前置确认。改变公开接口、验收覆盖、信任边界或已确认测试契约时，必须先请用户确认。出现新的产品、协议、架构、范围或验收选择时，先交回 `grilling` 或 `wayfinding`。
 
-### 4. 写 SPEC.md 与 ACCEPTANCE.md
+### 4. 写 SPEC.md，并按需写 ACCEPTANCE.md
 
 验收 seam 已决定后按模板落盘。写入前读取：
 
 - [references/spec-template.md](references/spec-template.md)
-- [references/acceptance-template.md](references/acceptance-template.md)
+- 只有启用独立验收时才读取 [references/acceptance-template.md](references/acceptance-template.md)。
 
-写入前对协议做 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口交回 `grilling`，不伪装成实现任务。
+没有启用独立验收协议时，写入前只检查 `R → AC` 和可判定结果；创建或修订 `ACCEPTANCE.md` 时，才执行 `R → AC → scenario → expected result → executable evidence` 双向检查。协议缺口交回 `grilling`，不伪装成实现任务。
 
 ### 5. 一致性检查
 
@@ -79,8 +79,8 @@ Amendment 只重评受影响 seam。既有测试决策仍覆盖变更后行为�
 6. Boundaries、默认行为、Out of Scope 与验收无冲突、无悄然扩张。
 7. 无占位符、未处理冲突、虚构事实或被静默跳过的 blocker。
 8. Requirement Authority 如实记录来源、快照边界和未验证项。
-9. 每个当前 `R`/`AC` 都被 `ACCEPTANCE.md` 场景覆盖；成功、失败、取消、超时、权限和环境路径已写明。
-10. Amendment 保留未受影响的 `R`/`AC` ID，并对整份 `SPEC.md` 与 `ACCEPTANCE.md` 复查，不只检查 delta。
+9. 每个当前 `R`/`AC` 都被 SPEC 的 Acceptance Criteria 覆盖；启用独立验收时再检查 ACCEPTANCE 场景。
+10. Amendment 保留未受影响的 `R`/`AC` ID，并对适用的 SPEC 和 ACCEPTANCE 复查，不只检查 delta。
 
 能根据已确认上下文或代码库修正的直接修正；需要新决策时停止并交回 `grilling` 或 `wayfinding`。
 
@@ -101,7 +101,7 @@ SPEC 确认后分别判断两条路径，不能用 ticket 数量替代设计判�
 
 ## 变更规则
 
-- **规范性变化** → Amendment。更新同一份 `SPEC.md` 与 `ACCEPTANCE.md` 并重新确认受影响决定；testing seam 未受影响时不强制再确认。已有 HLD 时先由 `high-level-design` 同步受影响 D，再由 `to-tickets` 协调 graph。受影响 ticket 正在执行时，先请求 `loop` 停止相关 dispatch、回收 worker 并保留 evidence。
+- **规范性变化** → Amendment。更新 `SPEC.md`；只有独立验收已启用时才同步 `ACCEPTANCE.md`。testing seam 未受影响时不强制再确认。已有 HLD 时先由 `high-level-design` 同步受影响 D，再由 `to-tickets` 协调 graph。受影响 ticket 正在执行时，先请求 `loop` 停止相关 dispatch、回收 worker 并保留 evidence。
 - **概要设计变化** → 不改 SPEC。由 `high-level-design` 修订 HLD，再由 `to-tickets` 协调受影响 graph。
 - **执行拆分变化** → 只由 `to-tickets` 调整 tickets，不能反向改写上游。
 - **执行变化** → 只更新对应 ticket 或执行证据，不改 SPEC / HLD。

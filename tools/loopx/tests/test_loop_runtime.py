@@ -619,8 +619,10 @@ class LoopRuntimeTests(unittest.TestCase):
             baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []},
         )
 
-        self.assertEqual(result.outcome, "failed")
-        self.assertIn("completion_gate_failed", {item["code"] for item in result.problems})
+        self.assertEqual(result.outcome, "blocked")
+        stored = json.loads((self.task_dir / "tickets" / "T001-runtime.json").read_text())
+        self.assertEqual(stored["lifecycle"]["phase"], "open")
+        self.assertEqual(stored["execution"]["blocker"]["reason"], "Simplification cannot run.")
 
     def test_retry_commit_includes_the_first_attempt_delivery(self) -> None:
         subprocess.run(["git", "init", "-q", str(self.task_dir)], check=True)

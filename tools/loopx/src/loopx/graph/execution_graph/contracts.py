@@ -8,6 +8,7 @@ import sys
 from typing import Any
 
 CURRENT_SCHEMA_VERSION = 1
+WORKER_RECEIPT_VERSION = 1
 ACTIVE_PHASES = {"open", "in_progress", "done"}
 SPEC_REQUIREMENT_RE = re.compile(r"^\d+\.\s+\*\*(R\d+)\*\*\s+[—–-]")
 SPEC_ACCEPTANCE_RE = re.compile(r"^-\s+\*\*(AC\d+)\*\*\s+[—–-]")
@@ -19,7 +20,7 @@ DESIGN_ID_RE = re.compile(r"^D[0-9]+$")
 TICKET_FIELDS = {
     "schema_version", "id", "title", "covers", "design_decisions",
     "what_to_build", "constraints", "acceptance_criteria", "dependencies",
-    "acceptance_scenarios", "lifecycle", "execution", "supersession",
+    "lifecycle", "execution", "supersession",
 }
 RECEIPT_FIELDS = {
     "schema_version", "outcome", "ticket_id", "current_attempt",
@@ -170,6 +171,9 @@ def validate_summary_items(
             if name == "exit_code":
                 if not isinstance(item[name], int) or isinstance(item[name], bool):
                     problems.append(invalid_field(path, ticket_id, f"{item_field}.{name}", "exit_code must be an integer."))
+            elif name == "argv":
+                if not isinstance(item[name], list) or not item[name] or any(not non_empty_string(value) for value in item[name]):
+                    problems.append(invalid_field(path, ticket_id, f"{item_field}.{name}", "argv must be a non-empty string array."))
             elif not non_empty_string(item[name]):
                 problems.append(invalid_field(path, ticket_id, f"{item_field}.{name}", f"{name} must be a non-empty string."))
     return problems
@@ -182,9 +186,9 @@ def validate_worker_receipt(receipt: object) -> list[dict[str, str]]:
     if problems or not isinstance(receipt, dict):
         return problems
     version = receipt["schema_version"]
-    if version != CURRENT_SCHEMA_VERSION:
+    if type(version) is not int or version != WORKER_RECEIPT_VERSION:
         code = "unsupported_schema_version" if isinstance(version, int) and not isinstance(version, bool) else "invalid_field"
-        problems.append(problem("contract", code, f"Worker receipt schema_version must be {CURRENT_SCHEMA_VERSION}.", ticket_id=ticket_id, path=path, field="schema_version"))
+        problems.append(problem("contract", code, f"Worker receipt schema_version must be {WORKER_RECEIPT_VERSION}.", ticket_id=ticket_id, path=path, field="schema_version"))
     if not isinstance(receipt["outcome"], str) or receipt["outcome"] not in {
         "completed",
         "blocked",
@@ -197,7 +201,8 @@ def validate_worker_receipt(receipt: object) -> list[dict[str, str]]:
     if not isinstance(receipt["current_attempt"], int) or isinstance(receipt["current_attempt"], bool) or receipt["current_attempt"] < 1:
         problems.append(invalid_field(path, ticket_id, "current_attempt", "current_attempt must be a positive integer."))
     problems.extend(validate_summary_items(receipt["landed_changes"], {"path", "summary"}, path=path, ticket_id=ticket_id, field="landed_changes"))
-    problems.extend(validate_summary_items(receipt["verification"], {"command", "exit_code", "summary"}, path=path, ticket_id=ticket_id, field="verification"))
+    verification_fields = {"command", "exit_code", "summary"}
+    problems.extend(validate_summary_items(receipt["verification"], verification_fields, path=path, ticket_id=ticket_id, field="verification"))
 
     evidence = receipt["acceptance_evidence"]
     evidence_ids: list[str] = []
@@ -293,8 +298,6 @@ def validate_worker_receipt(receipt: object) -> list[dict[str, str]]:
 
 def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
     ticket_id = ticket.get("id") if isinstance(ticket.get("id"), str) else None
-    # Backward-compatible v1 read: old tickets have no scenario index.
-    ticket = {**ticket, "acceptance_scenarios": ticket.get("acceptance_scenarios", [])}
     problems = validate_shape(ticket, TICKET_FIELDS, path=path, ticket_id=ticket_id, field="")
     if problems:
         return problems
@@ -340,9 +343,6 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
         problems.append(invalid_field(path, ticket_id, "constraints", "constraints must contain non-empty unique strings."))
     if not validate_string_list(ticket["dependencies"], pattern=TICKET_ID_RE):
         problems.append(invalid_field(path, ticket_id, "dependencies", "dependencies must contain unique ticket IDs."))
-    if not validate_string_list(ticket["acceptance_scenarios"]):
-        problems.append(invalid_field(path, ticket_id, "acceptance_scenarios", "acceptance_scenarios must contain unique scenario IDs."))
-
     acceptance = ticket["acceptance_criteria"]
     acceptance_ids: list[str] = []
     if not isinstance(acceptance, list) or not acceptance:

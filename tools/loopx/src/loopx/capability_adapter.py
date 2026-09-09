@@ -9,6 +9,8 @@ from typing import Any, Callable, Protocol
 from uuid import uuid4
 import threading
 
+from .graph.execution_graph.contracts import WORKER_RECEIPT_VERSION
+
 CAPABILITIES = ("implement", "verify", "review")
 OUTCOMES = {"completed", "blocked", "failed", "interrupted"}
 
@@ -202,8 +204,21 @@ class CapabilityAdapter:
         implement = payloads.get("implement", {})
         verify = payloads.get("verify", {})
         review = payloads.get("review", {})
+        unverified_scope = []
+        acceptance_protocol_gaps = []
+        blocking_findings = []
+        non_blocking_findings = []
+        for payload in payloads.values():
+            if isinstance(payload, dict):
+                for key, target in (("unverified_scope", unverified_scope), ("acceptance_protocol_gaps", acceptance_protocol_gaps), ("blocking_findings", blocking_findings), ("non_blocking_findings", non_blocking_findings)):
+                    value = payload.get(key, [])
+                    if not isinstance(value, list):
+                        raise ValueError(f"{key} must be an array")
+                    target.extend(value)
+                if not isinstance(payload.get("unverified", []), list) or any(not isinstance(value, str) for value in payload.get("unverified", [])):
+                    raise ValueError("unverified must be a string array")
         receipt = {
-            "schema_version": 1,
+            "schema_version": WORKER_RECEIPT_VERSION,
             "outcome": "completed" if completed and len(results) == len(CAPABILITIES) else (failure or results[-1].outcome),
             "ticket_id": results[0].ticket_id,
             "current_attempt": results[0].attempt,
@@ -212,12 +227,12 @@ class CapabilityAdapter:
             "verification": verify.get("verification", []),
             "simplification": implement.get("simplification", {"result": "blocked"}),
             "review": review.get("review", {"contract": "failed", "change_surface": "failed", "exploratory": "failed", "protocol_health": "not_triggered"}),
-            "blocking_findings": review.get("blocking_findings", []),
-            "non_blocking_findings": review.get("non_blocking_findings", []),
-            "acceptance_protocol_gaps": review.get("acceptance_protocol_gaps", []),
-            "unverified_scope": review.get("unverified_scope", []),
-            "blocker": None,
-            "unverified": verify.get("unverified", []),
+            "blocking_findings": blocking_findings,
+            "non_blocking_findings": non_blocking_findings,
+            "acceptance_protocol_gaps": acceptance_protocol_gaps,
+            "unverified_scope": unverified_scope,
+            "blocker": next((payload["blocker"] for payload in payloads.values() if payload.get("blocker") is not None), None),
+            "unverified": list(dict.fromkeys(value for payload in payloads.values() if isinstance(payload, dict) for value in payload.get("unverified", []) if isinstance(value, str))),
         }
         return {
             "outcome": receipt["outcome"],

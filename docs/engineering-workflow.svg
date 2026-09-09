@@ -4858,7 +4858,7 @@
 
 
         <!-- Edge paths -->
-        <path data-edge-from="scope_check" data-edge-to="to_spec" data-edge-label="已收敛" data-edge-key="0" data-edge-id="already_converged" data-composition-points="230,490;230,729;387.2,729" d="M 230 490 L 230 729 L 387.2 729" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="scope_check" data-edge-to="to_spec" data-edge-label="需要持久化契约" data-edge-key="0" data-edge-id="already_converged" data-composition-points="230,490;230,729;387.2,729" d="M 230 490 L 230 729 L 387.2 729" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="spec" data-edge-to="contract_check" data-edge-key="1" data-edge-id="check_contract" data-composition-points="599.2,722;627.2,722" d="M 599.2 722 L 627.2 722" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="contract_check" data-edge-to="execution_check" data-edge-label="否" data-edge-key="2" data-edge-id="design_not_required" data-composition-points="686.2,756;686.2,840;553.2,840;553.2,954" d="M 686.2 756 L 686.2 840 L 553.2 840 L 553.2 954" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="contract_check" data-edge-to="high_level_design" data-edge-label="是" data-edge-key="3" data-edge-id="design_required" data-composition-points="745.2,722;783.2,722" d="M 745.2 722 L 783.2 722" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
@@ -4894,15 +4894,15 @@
         <text data-detail="fine" x="94" y="212" class="t-frontend" font-size="7" text-anchor="middle">START</text>
         </g>
 
-        <g id="node-spec_check" data-node-id="spec_check" data-node-label="已有已确认 SPEC？" tabindex="0" role="button" aria-label="聚焦已有已确认 SPEC？，检查未合并需求变更, 入口与判断 › 理解问题" aria-pressed="false" data-node-kind="security" data-node-sublabel="检查未合并需求变更" data-node-tag="DECISION" data-node-context="入口与判断 › 理解问题">
-          <title>已有已确认 SPEC？ · 检查未合并需求变更 · 入口与判断 › 理解问题 · DECISION</title>
+        <g id="node-spec_check" data-node-id="spec_check" data-node-label="已有 SPEC 需修订？" tabindex="0" role="button" aria-label="聚焦已有 SPEC 需修订？，检查未合并需求变更, 入口与判断 › 理解问题" aria-pressed="false" data-node-kind="security" data-node-sublabel="检查未合并需求变更" data-node-tag="DECISION" data-node-context="入口与判断 › 理解问题">
+          <title>已有 SPEC 需修订？ · 检查未合并需求变更 · 入口与判断 › 理解问题 · DECISION</title>
           <rect x="168" y="156" width="124" height="68" rx="6" class="c-mask"/>
           <rect x="168" y="156" width="124" height="68" rx="6" class="c-security" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(174 162) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="230" y="177" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">已有已确认 SPEC？</text>
+          <text data-node-label="" data-detail-anchor="" x="230" y="177" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">已有 SPEC 需修订？</text>
           <text data-detail="context" x="230" y="194" class="t-muted" font-size="8" text-anchor="middle">检查未合并需求变更</text>
         <text data-detail="fine" x="230" y="212" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
@@ -5043,8 +5043,8 @@
         <text data-detail="fine" x="845.2" y="940" class="t-cloud" font-size="7" text-anchor="middle">DONE</text>
         </g>
 
-        <g id="node-loop" data-node-id="loop" data-node-label="loop + ticket-worker" tabindex="0" role="button" aria-label="聚焦loop + ticket-worker，任务选择 · 证据 · 审查, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="任务选择 · 证据 · 审查" data-node-context="执行与交付 › 选择执行路径">
-          <title>loop + ticket-worker · 任务选择 · 证据 · 审查 · 执行与交付 › 选择执行路径</title>
+        <g id="node-loop" data-node-id="loop" data-node-label="loop + capabilities" tabindex="0" role="button" aria-label="聚焦loop + capabilities，scheduling · evidence · review, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="scheduling · evidence · review" data-node-context="执行与交付 › 选择执行路径">
+          <title>loop + capabilities · scheduling · evidence · review · 执行与交付 › 选择执行路径</title>
           <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-mask"/>
           <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-messagebus" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(778.2 1038) scale(0.6875)">
@@ -5053,8 +5053,8 @@
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="845.2" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop + ticket-worker</text>
-          <text data-detail="context" x="845.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">任务选择 · 证据 · 审查</text>
+          <text data-node-label="" data-detail-anchor="" x="845.2" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop + capabilities</text>
+          <text data-detail="context" x="845.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">任务选择 · 命令 · 证据 · 审查</text>
         </g>
 
         <!-- Edge labels -->

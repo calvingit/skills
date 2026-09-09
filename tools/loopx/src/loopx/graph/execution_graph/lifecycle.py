@@ -7,6 +7,7 @@ from .authority import authority_index
 from .contracts import envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_summary_items, validate_ticket
 from .graph import public_ticket, ticket_readiness, validate_graph
 from .store import acquire_write_lock, atomic_write_ticket, release_lock, validated_snapshot
+from ...scope_guard import allowed_scope
 
 def transition_failure(ticket: dict[str, Any], code: str, detail: str):
     return None, [problem("transition", code, detail, ticket_id=ticket["id"], path=ticket["_path"])]
@@ -18,6 +19,10 @@ def apply_start(ticket, request, by_id):
     if issues: return None,issues
     if not validate_string_list(request["allowed_write_scope"], require_items=True):
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "start requires a non-empty allowed_write_scope.")]
+    try:
+        allowed_scope("implement", request["allowed_write_scope"])
+    except ValueError as exc:
+        return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate=copy.deepcopy(ticket); number=candidate["execution"]["attempt_sequence"]+1
     candidate["lifecycle"]["phase"]="in_progress"; candidate["execution"]["attempt_sequence"]=number
     candidate["execution"]["current_attempt"]={"number":number,"baseline":request["baseline"],"existing_changes":request["existing_changes"],"allowed_write_scope":request["allowed_write_scope"]}
@@ -57,6 +62,10 @@ def apply_retry(ticket, request):
         return None, [invalid_field("<request>", ticket["id"], "findings", "findings must be non-empty.")]
     if not validate_string_list(request["allowed_write_scope"], require_items=True):
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "retry requires a non-empty allowed_write_scope.")]
+    try:
+        allowed_scope("implement", request["allowed_write_scope"])
+    except ValueError as exc:
+        return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate = copy.deepcopy(ticket)
     number = candidate["execution"]["attempt_sequence"] + 1
     invalidated_acceptance = [item["id"] for item in ticket["acceptance_criteria"]]
@@ -76,12 +85,13 @@ def apply_retry(ticket, request):
     issues = validate_ticket(public_ticket(candidate), candidate["_path"])
     return (None, issues) if issues else (candidate, [])
 
-def apply_complete(ticket, request, *, has_hld):
+def apply_complete(ticket, request, *, has_hld, task_dir=None):
     if ticket["lifecycle"]["phase"] != "in_progress": return transition_failure(ticket,"invalid_transition","complete requires an in_progress ticket.")
     issues=validate_shape(request,{"evidence","verification","reviews","unverified"},path="<request>",ticket_id=ticket["id"],field="")
     if issues: return None,issues
     if not isinstance(request["evidence"],dict): return None,[invalid_field("<request>",ticket["id"],"evidence","evidence must be an object.")]
-    issues=validate_summary_items(request["verification"],{"command","exit_code","summary"},path="<request>",ticket_id=ticket["id"],field="verification")
+    fields = {"command", "exit_code", "summary"}
+    issues=validate_summary_items(request["verification"],fields,path="<request>",ticket_id=ticket["id"],field="verification")
     if issues: return None,issues
     reviews=request["reviews"]; issues=validate_shape(reviews,{"contract","change_surface","exploratory","protocol_health"},path="<request>",ticket_id=ticket["id"],field="reviews")
     if issues: return None,issues
@@ -116,7 +126,7 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
         elif operation=="retry":candidate,issues=apply_retry(ticket,request)
         elif operation=="block":candidate,issues=apply_block(ticket,request)
         elif operation=="unblock":candidate,issues=apply_unblock(ticket,request)
-        elif operation=="complete":candidate,issues=apply_complete(ticket,request,has_hld=(task_dir/"HLD.md").is_file())
+        elif operation=="complete":candidate,issues=apply_complete(ticket,request,has_hld=(task_dir/"HLD.md").is_file(),task_dir=task_dir)
         elif operation=="reopen":candidate,issues=apply_reopen(ticket,request)
         else:candidate,issues=None,[problem("contract","unsupported_operation",f"Unsupported mutation: {operation}")]
         if issues or candidate is None:return envelope(operation,ok=False,graph=graph,problems=issues),1

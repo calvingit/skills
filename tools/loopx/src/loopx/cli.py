@@ -10,7 +10,8 @@ from typing import Any
 from . import __version__
 from .graph.execution_graph.cli import main as graph_main
 from .cli_backend import BackendUnavailable, CliBackend
-from .loop_runtime import run_ticket
+from .loop_runtime import _git_metadata_fingerprint, _snapshot_changed, _workspace_snapshot, run_ticket
+from .scope_guard import allowed_scope, violations as scope_violations
 from .worker.routing import PROVIDERS, available_providers, select_provider
 from .worker.artifacts import save as save_worker_artifact
 
@@ -39,6 +40,15 @@ def _graph_help(operation: str) -> int:
         "inspect": "loopx graph inspect <task-dir>",
         "list": "loopx graph list <task-dir> [--phase <phase>] [--readiness <ready|blocked>]",
         "show": "loopx graph show <task-dir> <ticket-id>",
+        "start": "loopx graph start <task-dir> <ticket-id> --input <path|->",
+        "retry": "loopx graph retry <task-dir> <ticket-id> --input <path|->",
+        "block": "loopx graph block <task-dir> <ticket-id> --input <path|->",
+        "unblock": "loopx graph unblock <task-dir> <ticket-id> --input <path|->",
+        "complete": "loopx graph complete <task-dir> <ticket-id> --input <path|->",
+        "reopen": "loopx graph reopen <task-dir> <ticket-id> --input <path|->",
+        "create-batch": "loopx graph create-batch <task-dir> --input <path|->",
+        "reconcile-batch": "loopx graph reconcile-batch <task-dir> --input <path|->",
+        "recover": "loopx graph recover <task-dir> <rollback|commit>",
     }.get(operation, f"loopx graph {operation} ...")
     print(f"usage: {usage}")
     return 0
@@ -64,9 +74,14 @@ def _worker(args: argparse.Namespace) -> int:
     if not workspace.is_dir():
         return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "failed", "agent_instance_id": None, "selected_provider": selected, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": {}, "artifact": None}, "problems": [{"category": "workspace", "code": "workspace_invalid", "detail": f"Workspace directory does not exist: {workspace}"}]})
     try:
+        before = _workspace_snapshot(workspace)
+        metadata_before = _git_metadata_fingerprint(workspace)
+        if before is None or metadata_before is None:
+            return _emit({"version": 1, "ok": False, "command": "worker.run", "result": {"outcome": "failed", "agent_instance_id": None, "selected_provider": selected, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": {}, "artifact": None}, "problems": [{"category": "workspace", "code": "workspace_probe_unavailable", "detail": "Worker requires a Git workspace with a complete status probe."}]})
+        scope = allowed_scope("implement" if args.scope else "review", args.scope)
         backend = CliBackend(selected, workspace=workspace)
         handle = backend.create("worker", {"model": args.model, "prompt_mode": True})
-        backend.send(handle, {"prompt": args.prompt, "model": args.model, "prompt_mode": True})
+        backend.send(handle, {"prompt": args.prompt, "model": args.model, "prompt_mode": True, "allowed_write_scope": scope})
         raw = backend.wait(handle)
     except (BackendUnavailable, OSError, RuntimeError, ValueError, KeyboardInterrupt) as exc:
         interrupted = isinstance(exc, KeyboardInterrupt)
@@ -82,17 +97,27 @@ def _worker(args: argparse.Namespace) -> int:
     finally:
         if "handle" in locals():
             backend.close(handle)
+    after = _workspace_snapshot(workspace)
+    guard_problems = []
+    if after is None:
+        guard_problems.append({"category": "workspace", "code": "workspace_probe_unavailable", "detail": "Worker workspace could not be rechecked."})
+    else:
+        violations = scope_violations("implement" if scope else "review", scope, sorted(_snapshot_changed(before, after)))
+        if violations:
+            guard_problems.append({"category": "scope", "code": "write_scope_violation", "detail": ", ".join(violations)})
+    if _git_metadata_fingerprint(workspace) != metadata_before:
+        guard_problems.append({"category": "scope", "code": "git_state_violation", "detail": "Worker changed Git state."})
     payload = raw.get("payload", {})
     raw_meta = payload.get("_cli_raw", {}) if isinstance(payload, dict) else {}
     public_payload = {key: value for key, value in payload.items() if key not in {"_cli_raw", "stdout", "stderr"}} if isinstance(payload, dict) else {}
-    result = {"outcome": raw.get("outcome", "failed"), "agent_instance_id": handle.agent_instance_id, "selected_provider": selected, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": public_payload, "artifact": None}
+    result = {"outcome": "failed" if guard_problems else raw.get("outcome", "failed"), "agent_instance_id": handle.agent_instance_id, "selected_provider": selected, "model": args.model, "routing_reason": reason, "available_providers": available, "payload": public_payload, "artifact": None}
     if handle.cleanup_error:
         result["cleanup_warning"] = handle.cleanup_error
     try:
         result["artifact"] = str(save_worker_artifact(Path(args.task_dir).resolve(), result=result, stdout=raw_meta.get("stdout", ""), stderr=raw_meta.get("stderr", ""), returncode=raw_meta.get("returncode")))
     except OSError as exc:
         return _emit({"version": 1, "ok": False, "command": "worker.run", "result": result, "problems": [{"category": "storage", "code": "artifact_write_failed", "detail": str(exc)}]})
-    return _emit({"version": 1, "ok": result["outcome"] == "completed", "command": "worker.run", "result": result, "problems": [] if result["outcome"] == "completed" else [{"category": "provider", "code": "worker_failed", "detail": "Provider did not complete the prompt."}]})
+    return _emit({"version": 1, "ok": result["outcome"] == "completed", "command": "worker.run", "result": result, "problems": guard_problems or ([] if result["outcome"] == "completed" else [{"category": "provider", "code": "worker_failed", "detail": "Provider did not complete the prompt."}])})
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -121,6 +146,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--prompt", required=True)
     run.add_argument("--model")
     run.add_argument("--provider", choices=PROVIDERS)
+    run.add_argument("--scope", action="append", default=[])
     worker_commands.add_parser("providers", help="List supported and available providers.")
     worker_commands.add_parser("doctor", help="Check provider availability.")
     return parser

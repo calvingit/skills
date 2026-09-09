@@ -15,9 +15,9 @@
 | 类型 | Skills | 职责 |
 | --- | --- | --- |
 | Project Setup | `project-setup` | 配置需求权威、项目上下文和协作入口。 |
-| Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 收敛决策、规格化、概要设计、拆票和单次实现。 |
-| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `improve-codebase-architecture` | 提供可复用的工程判断和实践。 |
-| Capability | `worker` | 通过统一 `loopx worker` prompt 接口执行实现、验证、审查或其他外部指定任务；底层 Agent 由 runtime 路由。 |
+| Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
+| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的工程判断和实践。 |
+| Loop 内部 capability | `implement`, `verify`, `worker` | 仅由 Loop 或 loopx 调用，不是普通任务入口。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -26,10 +26,10 @@
 | --- | --- |
 | 需求、边界或验收未收敛 | `grilling` |
 | 技术路径存在跨会话迷雾 | `wayfinding` |
-| 需求已收敛，需要创建或修订规范 | `to-spec` |
+| 需求已收敛且需要持久化规范 | `to-spec` |
 | 多个 Module 或实现任务需要共享设计约束 | `high-level-design` |
 | 需要多个可独立领取的执行单元 | `to-tickets` → `loop` |
-| 单一范围、无需执行图 | `quick-implement` |
+| 单一范围、无需执行图 | `quick-implement`；简单改动可直接实现 |
 
 按需叠加 `debug`、`review-architecture`、`codebase-design`、`domain-modeling`、`tdd`、`simplify` 等 discipline。先判断是否真的需要 Skill；简单局部修改、事实查询和低风险机械修改通常直接处理即可。
 
@@ -41,12 +41,13 @@ Runtime
 
 Engineering workflow
     SPEC.md
+       └── ACCEPTANCE.md (when needed)
        │
     HLD.md (when required)
        │
-    tickets/*.json
+    tickets/*.json (when collaboration is needed)
        │
-      loop
+      loop (when tickets exist)
        └── frontier / lifecycle / evidence / completion gate
 ```
 
@@ -54,12 +55,15 @@ Engineering workflow
 | --- | --- | --- |
 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
 | 会话文档（默认 `${TMPDIR:-/tmp}/grilling-*/`） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
-| `SPEC.md` | `to-spec` | 要构建什么、范围是什么、如何验收？ |
+| `SPEC.md` | `to-spec` | 需要持久化时，要构建什么、范围是什么？ |
+| `ACCEPTANCE.md`（按需） | `to-spec` | 复杂或共享验收协议如何独立版本化？ |
 | `HLD.md` | `high-level-design` | 多处实现共享哪些职责、接口和集成约束？ |
 | `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
 | lifecycle/evidence/receipt | `loop` | 当前做到哪里，下一步能做什么？ |
 
-`loopx` 是 `to-tickets`、`loop` 和 `worker` 共同消费的工程执行工具。它拥有 ticket graph、Loop runtime、provider adapters、workspace guard 和 receipt；Loop 是正常执行期间唯一的 graph writer。
+`loopx` 是 `to-tickets` 和 `loop` 使用的 graph 工具；Loop 是正常执行期间唯一的 graph writer。
+
+`ACCEPTANCE.md` 是按需使用的独立验收文档；普通任务的验证由 verify 记录，Loop 只聚合任务证据。
 
 工作流图：
 
@@ -72,12 +76,12 @@ Loop 默认串行执行 ready ticket。只有依赖、写入范围、共享副�
 单张 ticket 的 capability 流程为：
 
 ```text
-implement → verify + code-review → aggregate evidence → complete / retry / block
+implement → verify → code-review → aggregate evidence → complete / retry / block
 ```
 
-`loop` 管理 implement、verify 和 review 的顺序与权限；Worker 只执行 Loop 或外部调用方提供的 prompt。Loop 通过 `loopx graph` 维护 `start`、`retry`、`block`、`unblock`、`complete` 和 `reopen` 等状态变更。
+`loop` 管理 implement、verify 和 review 的顺序与权限；verify 负责实际验证命令，Loop 只聚合结果并通过 `loopx graph` 维护状态。
 
-`loopx loop run` 当前使用 provider CLI backend；CLI backend 使用显式 session / resume 和 provider-specific full-access 参数，但不获得 graph 写权限。实现后的 capability receipt 会显式交给后续 verify / review；provider、权限和环境失败进入 blocker，而不是代码 repair。原生 multi-agents、multi-threads 和 serial 模式尚未作为公开 CLI 选项提供。
+`loopx loop run` 只负责 Loop pipeline、ticket lifecycle 和 capability result 聚合；provider、权限和环境失败进入 blocker，而不是代码 repair。
 
 长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi / CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
 
@@ -85,25 +89,16 @@ implement → verify + code-review → aggregate evidence → complete / retry /
 
 loopx 的公开契约、失败状态矩阵和统一验收入口见：[loopx 验收协议](./loopx-acceptance.md)。
 
-### Backend 设计
+### Agent 调用边界
 
 Loop 通过统一 `worker` Skill 和 `loopx` provider-neutral prompt contract 调用底层 Agent，不直接暴露具体 Agent 工具：
 
 ```text
 Loop
   └── CapabilityAdapter
-        └── Provider CLI backend
-              ├── Claude
-              ├── Codex
-              ├── Kimi
-              └── Pi
 ```
 
-Backend 生命周期固定为 `create` → `send` → `wait`，并支持 `interrupt` 和 `close`。session / thread handle、provider assignment 和 `agent_instance_id` 只属于当前 runtime，不写入 ticket JSON。
-
-执行模式由当前 `loopx` runtime 内部决定，尚未作为公开 CLI 参数暴露；调用方只依赖 Loop pipeline 和 Worker prompt contract。
-
-CLI backend 使用各 provider 的 full-access 参数，但 full-access 不等于 graph 权限：Worker 仍不能修改 ticket、SPEC、HLD、sibling ticket、提交版本或调度其他 Worker。Loop 通过 workspace diff、graph 文件和 Git HEAD revision 做事后校验。
+session handle、provider assignment 和 raw output 只属于当前 runtime，不写入 ticket JSON。
 
 每次 CLI capability 的完整 stdout/stderr/returncode/JSONL 事件保存到 task-local receipt artifact；只有 Loop 接受的 normalized evidence、verification、review 和 blocker facts 才进入 execution graph。长任务默认不设固定 wall-clock timeout，可由调用方提供任务预算，或通过 heartbeat/progress freshness 失鲜判定中断。
 

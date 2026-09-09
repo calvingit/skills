@@ -69,9 +69,9 @@ description: "用于定位已有 bug、非确定性故障或性能回归；修�
 
 没有合适 test seam 时，不暴露 `forTest`、可变回调、延迟参数、noop 或内部状态。需要判断 seam / Interface 是否应该调整时，调用或参考 `codebase-design`；不能证明需要生产接口变化时，不为了测试扩大 API。
 
-## 阶段 6：强制简化
+## 阶段 6：按需简化
 
-修复和回归测试通过后，调用 `simplify` Skill，范围是完整 debug diff 及直接回归测试。不要依赖某个 Agent Runtime 的固定 skills 安装路径。
+修复和回归测试通过后，只有当前 diff 存在明确复杂度问题或用户要求时才调用 `simplify`；不要把简化变成所有 Debug 的必经阶段。
 
 - `completed` 且有改动：重跑相关测试、适用的定向静态检查、格式检查和 diff whitespace 检查。
 - `no_change`：保留 receipt，复用仍有效的验证证据。

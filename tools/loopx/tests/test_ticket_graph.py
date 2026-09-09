@@ -187,6 +187,8 @@ class TicketGraphCliTests(unittest.TestCase):
         (staging / "tickets").mkdir(parents=True)
         (backup / "tickets").mkdir(parents=True)
         shutil.copy2(self.task_dir / "SPEC.md", staging / "SPEC.md")
+        if (self.task_dir / "ACCEPTANCE.md").is_file():
+            shutil.copy2(self.task_dir / "ACCEPTANCE.md", staging / "ACCEPTANCE.md")
         shutil.copy2(self.task_dir / "HLD.md", staging / "HLD.md")
         relative = ticket_path.relative_to(self.task_dir)
         shutil.copy2(ticket_path, backup / relative)
@@ -237,7 +239,7 @@ class TicketGraphCliTests(unittest.TestCase):
         invalid_phase_type = canonical_ticket(lifecycle={"phase": {"unexpected": True}})
         cases.append((invalid_phase_type, "invalid_field"))
 
-        unsupported_version = canonical_ticket(schema_version=2)
+        unsupported_version = canonical_ticket(schema_version=3)
         cases.append((unsupported_version, "unsupported_schema_version"))
 
         for ticket, expected_code in cases:
@@ -755,10 +757,11 @@ class TicketGraphCliTests(unittest.TestCase):
             },
         )
         path = self.write_ticket(ticket)
+        verification = [{"command": "test", "exit_code": 0, "summary": "Passed."}]
         incomplete_request = self.write_request(
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "First verified."}},
-                "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
+                "verification": verification,
                 "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
                 "unverified": [],
             }
@@ -782,7 +785,7 @@ class TicketGraphCliTests(unittest.TestCase):
                     "AC1": {"result": "passed", "summary": "First verified."},
                     "AC2": {"result": "passed", "summary": "Second verified."},
                 },
-                "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
+                "verification": verification,
                 "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
                 "unverified": [],
             }
@@ -1054,7 +1057,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertTrue(payload["ok"])
         self.assertEqual(json.loads(ticket_path.read_text(encoding="utf-8")), target)
 
-        invalid = canonical_ticket(schema_version=2)
+        invalid = canonical_ticket(schema_version=3)
         self.prepare_switching_transaction(original, invalid)
         before = ticket_path.read_bytes()
         invalid_result, invalid_payload = self.run_cli(
@@ -1067,42 +1070,6 @@ class TicketGraphCliTests(unittest.TestCase):
         )
         self.assertEqual(ticket_path.read_bytes(), before)
         self.assertTrue((self.task_dir / ".ticket-graph-transaction").exists())
-
-    def test_migrate_check_is_read_only_for_the_initial_current_version(self) -> None:
-        path = self.write_ticket(canonical_ticket())
-        before = path.read_bytes()
-
-        check_result, check_payload = self.run_cli(
-            "migrate", str(self.task_dir), "--check"
-        )
-        migrate_result, migrate_payload = self.run_cli("migrate", str(self.task_dir))
-
-        self.assertEqual(check_result.returncode, 0)
-        self.assertEqual(check_payload["result"]["plan"], [])
-        self.assertFalse(check_payload["result"]["migration_required"])
-        self.assertEqual(migrate_result.returncode, 0)
-        self.assertFalse(migrate_payload["result"]["migrated"])
-        self.assertEqual(path.read_bytes(), before)
-
-    def test_migrate_rejects_versions_without_an_explicit_adjacent_path(self) -> None:
-        path = self.write_ticket(canonical_ticket(schema_version=0))
-        before = path.read_bytes()
-
-        result, payload = self.run_cli("migrate", str(self.task_dir), "--check")
-
-        self.assertEqual(result.returncode, 1)
-        self.assertEqual(payload["problems"][0]["code"], "unsupported_migration_path")
-        self.assertEqual(path.read_bytes(), before)
-
-    def test_migrate_rejects_markdown_without_conversion(self) -> None:
-        legacy = self.task_dir / "tickets" / "01-legacy.md"
-        legacy.write_text("# Legacy graph\n", encoding="utf-8")
-
-        result, payload = self.run_cli("migrate", str(self.task_dir), "--check")
-
-        self.assertEqual(result.returncode, 1)
-        self.assertEqual(payload["problems"][0]["code"], "unsupported_markdown_ticket")
-        self.assertEqual(legacy.read_text(encoding="utf-8"), "# Legacy graph\n")
 
     def test_workflow_contract_docs_are_json_only_and_command_aligned(self) -> None:
         paths = [

@@ -18,14 +18,14 @@ Review
 └── Exploratory review    # 报告范围外高风险，不扩大完成门
 ```
 
-Contract review 是唯一固定完成门。Exploratory review 发现的问题不能偷偷变成本轮实现要求；验收协议缺口也不能由 review agent 自行补写。
+Contract review 固定需求与验收依据，Change-surface 和 Exploratory 同时检查本次变更引入或扩大的可达回归。只有违反当前契约或由本次变更引入、扩大的可达正确性与高风险问题才阻塞；范围外既有风险单列报告并建议新 ticket，不改变本轮实现要求。验收协议缺口不能由 review agent 自行补写。
 
 ## 输入与范围
 
 开始前必须锁定以下内容：
 
 - `review_mode`、`review_target`、对比基准和既有改动。
-- 当前 ticket 的 `R`/`AC`、`SPEC.md` 和存在时的 `ACCEPTANCE.md`。
+- 当前任务可用的 `R`/`AC`、`SPEC.md` 和（存在时）`ACCEPTANCE.md`；没有独立协议时，以用户要求、ticket 或 SPEC 中的验收条件为依据，不将协议缺失本身视为阻断。
 - 目标仓库的 `AGENTS.md`、项目规范、配置、相关测试和外部边界。
 - 变更文件、直接调用方、直接被调用模块、相关公开类型、测试和配置。
 - 存在时的任务级 `HLD.md`、适用 D IDs、实现回执、简化回执和验证证据。
@@ -54,11 +54,11 @@ Contract review 是唯一固定完成门。Exploratory review 发现的问题不
 Contract review 只围绕当前 ticket 的完成门检查：
 
 - 每条 in-scope `R`/`AC` 是否有可观察的通过证据。
-- `ACCEPTANCE.md` 的 Public Interface、Observable Behavior、Success Matrix、Failure Matrix 和 Evidence Rules 是否被实现遵守。
+- 存在时检查 `ACCEPTANCE.md` 的 Public Interface、Observable Behavior、Acceptance Criteria / Scenarios、Failure and Environment Notes 和 Evidence Rules；否则直接依据任务声明的验收条件。
 - scope、权限、数据安全、错误/取消/超时语义和资源清理约束是否满足。
 - 变更是否引入未经授权的公开行为或超出当前 ticket 的必需行为。
 
-协议缺失、矛盾、无法覆盖真实高风险路径或缺少可执行证据时，进入 `acceptance_protocol_gaps`，并回流 `grilling` / `to-spec`，不能补写隐含验收条件。
+已有协议矛盾、无法覆盖真实高风险路径或缺少任务声明的必要证据时，进入 `acceptance_protocol_gaps`，并回流 `grilling` / `to-spec`，不能补写隐含验收条件。没有独立协议时，只报告当前任务契约无法判定的范围。
 
 ## Change-surface review
 
@@ -88,18 +88,19 @@ Exploratory review 可以查看相邻模块和范围外路径，用于发现高�
 }
 ```
 
-普通范围外风险进入 `non_blocking_findings`。如果证据证明问题可达且涉及安全、数据丢失、权限越界、资源泄漏或其他高风险，则同时进入 `blocking_findings`，阻塞当前完成。
+普通范围外风险进入 `non_blocking_findings`。如果证据证明问题由本次变更引入或扩大、可达且涉及安全、数据丢失、权限越界、资源泄漏或其他高风险，则同时进入 `blocking_findings`，阻塞当前完成。
 
 ## 阻断规则
 
 | 问题 | 当前完成门 |
 | --- | --- |
 | 违反当前 SPEC、AC 或验收协议 | 阻塞 |
-| 安全、数据丢失、权限越界、进程/资源泄漏等高风险可达问题 | 阻塞 |
+| 本次变更引入或扩大的安全、数据丢失、权限越界、进程/资源泄漏等高风险可达问题 | 阻塞 |
+| 范围外既有高风险问题 | 单列报告并建议新 ticket |
 | 变更直接调用链上的正确性问题 | 阻塞 |
 | 相邻但不影响本次行为的风险 | 报告并建议新 ticket |
 | 纯风格、重构建议、推测性风险 | 不阻塞 |
-| 验收协议缺失或矛盾 | 进入 `acceptance_protocol_gaps`，交回 `grilling` / `to-spec` |
+| 已启用的验收协议矛盾或无法覆盖高风险路径 | 进入 `acceptance_protocol_gaps`，交回 `grilling` / `to-spec` |
 
 最终完成必须满足：三层 review 均通过、`blocking_findings` 为空、`acceptance_protocol_gaps` 为空、`unverified_scope` 为空，并且所有适用的验证命令成功。
 
@@ -127,3 +128,5 @@ Exploratory review 可以查看相邻模块和范围外路径，用于发现高�
 每条 finding 至少包含 `category`、`severity`、`evidence` 和 `recommended_route`，并保留位置、影响、建议和验证方式。没有发现时仍保留空章节或空数组。
 
 这是只读审查。根因定位转交 `debug`，全仓架构诊断转交 `review-architecture`，测试或构建失败交由 `verify` / `debug` 处理；review 可以提出提交建议，但不能 commit、push、修改分支、修改验收协议或扩大当前 ticket 的完成门。
+
+由 Loop 调用时，使用 [Runtime capability 输出契约](../../docs/loop-runtime.md#capability-result) 返回 JSON；独立审查沿用 Markdown 回执。

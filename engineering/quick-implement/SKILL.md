@@ -1,17 +1,17 @@
 ---
 name: quick-implement
-description: "在已确认的 SPEC 与可选 HLD 约束下完成无需 ticket graph 的单次实现、验证和审查。"
+description: "在已确认目标及存在时的 SPEC/HLD 约束下完成无需 execution graph 的单次实现、验证和审查。"
 ---
 
 # Quick Implement
 
-在一个 fresh context 内完成已确认 `SPEC.md` 的单一范围，并在同目录存在时遵守 `HLD.md`，交付可复核 evidence。Quick 表示不需要 execution graph，不表示跳过概要设计检查、调查、验证、简化或审查。任务文档定义契约，不是代码配方；实现前必须重新调查当前仓库。
+在一个 fresh context 内完成已确认目标的单一范围，并在同目录存在时遵守 `SPEC.md` 与 `HLD.md`，交付可复核 evidence。目标契约可以只存在于当前会话；Quick 表示不需要 execution graph，不表示跳过概要设计检查、调查、验证、简化或审查。任务文档定义契约，不是代码配方；实现前必须重新调查当前仓库。
 
 ## 入口
 
-开始前读取完整 `SPEC.md`，以及同目录存在的完整 `HLD.md`，确认需求、Solution Constraints、测试决策、边界、Acceptance Criteria 和适用 D IDs 已经确定，并且整个范围能在当前 context 内可靠完成。
+开始前确认目标、范围和可判定结果；有 `SPEC.md`、独立 `ACCEPTANCE.md` 或 `HLD.md` 时读取并遵守，没有这些文件不阻塞。确认整个范围能够在当前 context 内可靠完成。
 
-- 没有已确认 SPEC 时，交回 `grilling` / `wayfinding` / `to-spec` 收敛需求契约。
+- 目标、范围或结果仍未明确时，交回 `grilling` / `wayfinding`；只有需要持久化、共享或版本化需求时才调用 `to-spec` 创建 `SPEC.md`。
 - 没有 HLD，但存在跨 Module、跨调用方或跨实现任务的共享类型、Interface、状态 / 错误语义、依赖方向或集成选择时，交回 `high-level-design`。
 - HLD 存在冲突、缺口或已被代码事实证明不可行时停止，由 `high-level-design` 修订，不能在实现中静默改变共享 contract。
 - 范围需要多个执行单元、依赖关系或跨多个 fresh context 时，交给 `to-tickets` 创建 graph，再由 `loop` 执行。
@@ -33,10 +33,10 @@ description: "在已确认的 SPEC 与可选 HLD 约束下完成无需 ticket gr
 
 ## 收尾
 
-1. 基于当前交付的完整 diff 执行 `simplify`；没有本任务代码改动则记录 `no_change`；
+1. 当前 diff 存在明确复杂度问题或用户要求时执行 `simplify`；否则跳过并说明；
 2. 按 [references/verification-and-review.md](references/verification-and-review.md) 运行定向验证和项目定义的适用交付 gate；
-3. 按同一 reference 使用 `code-review` 的 implementation mode 分别执行项目规范审查、需求实现审查，以及存在 HLD 时的概要设计审查；修复审查发现后重新运行受影响验证与审查；
-4. 只有全部 Acceptance Criteria 都有可观察 evidence 时才宣告完成；
+3. 按同一 reference 使用 `code-review` 的 implementation mode 完成 Contract、Change-surface、Exploratory 三层审查，将项目规范、SPEC 和适用 HLD 作为依据；修复审查发现后重新运行受影响验证与审查；
+4. 只有全部适用 Acceptance Criteria 有可观察 evidence，必要验证和审查通过且没有未解决高风险问题时才宣告完成；
 5. 只有用户明确授权时才 commit；不自动 push，提交范围只含本任务改动。
 
 ## 边界
@@ -48,5 +48,4 @@ description: "在已确认的 SPEC 与可选 HLD 约束下完成无需 ticket gr
 - 不把模型自报、单次测试通过或实现细节检查当作完整验收证据。
 - 不把项目规则塞回通用 Skill。
 
-输出实现回执，列明 SPEC / HLD、baseline、既有改动、实际已实现改动、逐条验收 evidence、验证、simplification、项目规范、SPEC，以及存在 HLD 时的概要设计审查和未验证项。
-
+输出实现回执，列明适用的 SPEC / ACCEPTANCE / HLD、baseline、既有改动、实际改动、验收 evidence、验证、按需 simplification、审查结果和未验证项。

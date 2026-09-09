@@ -20,7 +20,7 @@ from .graph.execution_graph.contracts import TICKET_ID_RE, validate_worker_recei
 from .capability_adapter import CapabilityAdapter, CapabilitySession  # noqa: E402
 from .cli_backend import BackendUnavailable, CliBackend  # noqa: E402
 from .receipt_artifacts import save as save_capability_receipt  # noqa: E402
-from .scope_guard import allowed_scope, violations as scope_violations  # noqa: E402
+from .scope_guard import allowed_scope, contains, violations as scope_violations  # noqa: E402
 
 
 Worker = Callable[[dict[str, Any]], dict[str, Any]]
@@ -291,6 +291,11 @@ def _git_metadata_fingerprint(workspace_root: Path) -> str | None:
     digest.update(result.stdout)
     head = _workspace_revision(workspace_root) or "<unborn>"
     digest.update(head.encode("utf-8"))
+    for arguments in (["symbolic-ref", "-q", "HEAD"], ["for-each-ref", "--format=%(refname):%(objectname)"]):
+        metadata = subprocess.run(["git", "-C", str(workspace_root), *arguments], capture_output=True, check=False)
+        if metadata.returncode != 0 and not (arguments[0] == "symbolic-ref" and metadata.returncode == 1):
+            return None
+        digest.update(b"\0" + metadata.stdout)
     return digest.hexdigest()
 
 
@@ -306,12 +311,10 @@ def _workspace_baseline(workspace_root: Path) -> dict[str, Any]:
 
 def _authority_fingerprint(task_dir: Path) -> str:
     digest = hashlib.sha256()
-    for name in ("SPEC.md", "HLD.md"):
-        digest.update(name.encode("utf-8"))
-        digest.update(b"\0")
+    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
+        digest.update(name.encode("utf-8")); digest.update(b"\0")
         path = task_dir / name
-        if path.is_file():
-            digest.update(path.read_bytes())
+        if path.is_file(): digest.update(path.read_bytes())
         digest.update(b"\0")
     return digest.hexdigest()
 
@@ -332,7 +335,7 @@ def _changed_paths(before: dict[str, str], after: dict[str, str]) -> list[str]:
 
 
 def _scope_contains(scope: list[str], path: str) -> bool:
-    return any(path == item or path.startswith(item.rstrip("/") + "/") for item in scope)
+    return contains(scope, path)
 
 
 def _excluded_paths(existing_changes: dict[str, Any]) -> set[str]:
@@ -356,7 +359,7 @@ def _ticket_commit_paths(
 
 def _graph_files(task_dir: Path) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
-    for name in ("SPEC.md", "HLD.md"):
+    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
         path = task_dir / name
         if path.is_file():
             files[name] = path.read_bytes()
@@ -396,6 +399,9 @@ def _repair_findings(payload: object) -> str:
             value = payload.get(key)
             if isinstance(value, str) and value.strip():
                 return value
+        for key in ("blocking_findings", "acceptance_protocol_gaps", "unverified_scope"):
+            if payload.get(key):
+                return key + ": " + json.dumps(payload[key], ensure_ascii=False)
         review = payload.get("review")
         if isinstance(review, dict) and review:
             return "Review capability findings: " + json.dumps(review, ensure_ascii=False, sort_keys=True)
@@ -405,8 +411,8 @@ def _repair_findings(payload: object) -> str:
 def _provider_blocker(payload: object) -> dict[str, str] | None:
     if not isinstance(payload, dict):
         return None
-    category = payload.get("failure_category")
-    if category not in {"environment", "permission", "external"}:
+    category = payload.get("failure_category", payload.get("category"))
+    if category not in {"environment", "permission", "external", "dependency"}:
         return None
     reason = payload.get("reason")
     return {
@@ -461,8 +467,6 @@ def _completion_gate_problem(task_dir: Path, ticket: dict[str, Any], receipt: di
     local_ids = {item["id"] for item in ticket["acceptance_criteria"]}
     if set(evidence) != local_ids or any(item["result"] != "passed" for item in receipt["acceptance_evidence"]):
         return _problem("completion_gate_failed", "Every local AC needs passed evidence before complete.")
-    if not receipt["verification"] or any(item["exit_code"] != 0 for item in receipt["verification"]):
-        return _problem("completion_gate_failed", "All receipt verification commands must exit 0.")
     if receipt["blocker"] is not None or receipt["simplification"]["result"] not in {"completed", "no_change"}:
         return _problem("completion_gate_failed", "A completed receipt cannot retain a blocker or blocked simplification.")
     review = receipt["review"]
@@ -512,6 +516,7 @@ def _worker_request(
     return {
         "task_dir": str(task_dir),
         "spec": (task_dir / "SPEC.md").read_text(encoding="utf-8"),
+        "acceptance": (task_dir / "ACCEPTANCE.md").read_text(encoding="utf-8") if (task_dir / "ACCEPTANCE.md").is_file() else None,
         "hld": (task_dir / "HLD.md").read_text(encoding="utf-8") if (task_dir / "HLD.md").is_file() else None,
         "ticket": started_ticket,
         "attempt": started_ticket["execution"]["current_attempt"]["number"],
@@ -723,6 +728,16 @@ def run_ticket(
     temporary_scope = verification_temporary_scope if verification_temporary_scope is not None else [".loop/tmp/"]
     worker_request = _worker_request(task_dir, started_ticket, current_existing, scope, agent_instance_id, temporary_scope)
     runtime_artifact_paths: set[str] = set()
+    runtime_artifact_snapshots: dict[Path, bytes] = {}
+
+    def check_protected_state() -> None:
+        if _graph_files(task_dir) != graph_before_worker:
+            raise ValueError("Protected task authority changed during capability execution.")
+        if _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+            raise ValueError("Git state changed during capability execution.")
+        if any(not path.is_file() or path.read_bytes() != content for path, content in runtime_artifact_snapshots.items()):
+            raise ValueError("Worker modified a runtime receipt artifact.")
+
     try:
         if adapter is not None:
             checkpoint_status = workspace_before_worker
@@ -731,13 +746,10 @@ def run_ticket(
             def checkpoint(capability_result: Any) -> None:
                 nonlocal checkpoint_status
                 with checkpoint_lock:
+                    check_protected_state()
                     current_status = _workspace_snapshot(workspace_root)
-                    if (
-                        revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker
-                    ) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-                        raise ValueError("Worker changed the Git HEAD; Loop workers must not commit or rewrite history.")
                     if checkpoint_status is not None and current_status is not None:
-                        changed = [path for path in _snapshot_changed(checkpoint_status, current_status) if path not in runtime_artifact_paths]
+                        changed = sorted(_snapshot_changed(checkpoint_status, current_status))
                         violations = scope_violations(
                             capability_result.capability,
                             scope if capability_result.capability == "implement" else [],
@@ -748,6 +760,7 @@ def run_ticket(
                         if violations:
                             raise ValueError(f"{capability_result.capability} changed paths outside its scope: {', '.join(violations)}")
                     artifact_path = save_capability_receipt(task_dir, ticket_id=selected_id, attempt=attempt, capability=capability_result.capability, payload=capability_result.payload, agent_instance_id=capability_result.agent_instance_id)
+                    runtime_artifact_snapshots[artifact_path] = artifact_path.read_bytes()
                     relative_artifact = _workspace_relative(workspace_root, artifact_path)
                     if relative_artifact is not None:
                         runtime_artifact_paths.add(relative_artifact)
@@ -765,12 +778,12 @@ def run_ticket(
             relative_aggregate = _workspace_relative(workspace_root, aggregate_path)
             if relative_aggregate is not None:
                 runtime_artifact_paths.add(relative_aggregate)
-            if _graph_files(task_dir) != graph_before_worker or (
-                revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker
-            ) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+            if _graph_files(task_dir) != graph_before_worker:
                 if adapter_session is not None:
                     adapter.close_session(adapter_session)
-                return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed SPEC, HLD, or ticket JSON; graph remains owned by Loop.")])
+                return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
+            if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+                return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
             receipt = aggregate.get("receipt") if isinstance(aggregate, dict) else None
             capabilities = aggregate.get("capabilities", []) if isinstance(aggregate, dict) else []
             failed = next((item for item in capabilities if item.get("outcome") == "failed"), None)
@@ -800,20 +813,24 @@ def run_ticket(
                 return _result("retry" if retry.get("ok") else "failed", selected_id, retry.get("graph", {}), attempt=attempt, receipt=receipt, problems=retry.get("problems", []), session=adapter_session if retry.get("ok") else None)
         else:
             receipt = worker(worker_request)  # type: ignore[misc]
+            if isinstance(receipt, dict) and receipt.get("outcome") == "completed":
+                check_protected_state()
     except Exception as exc:  # worker boundary: preserve graph state for retry
         if adapter_session is not None:
             adapter.close_session(adapter_session)
-        if _graph_files(task_dir) != graph_before_worker or (
-            revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker
-        ) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
-            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed SPEC, HLD, or ticket JSON; graph remains owned by Loop.")])
+        if _graph_files(task_dir) != graph_before_worker:
+            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
+        if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+            return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("worker_failed", str(exc))])
-    if _graph_files(task_dir) != graph_before_worker or (
-        revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker
-    ) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+    if _graph_files(task_dir) != graph_before_worker:
         if adapter_session is not None:
             adapter.close_session(adapter_session)
-        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt if isinstance(receipt, dict) else None, problems=[_problem("worker_mutated_graph", "Worker changed SPEC, HLD, or ticket JSON; graph remains owned by Loop.")])
+        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt if isinstance(receipt, dict) else None, problems=[_problem("worker_mutated_graph", "Protected task authority changed; preserve the files and resolve the conflict before resuming.")])
+    if (revision_before_worker is not None and _workspace_revision(workspace_root) != revision_before_worker) or _git_metadata_fingerprint(workspace_root) != metadata_before_worker:
+        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt if isinstance(receipt, dict) else None, problems=[_problem("worker_mutated_graph", "Worker changed Git HEAD or metadata.")])
+    if any(not path.is_file() or path.read_bytes() != content for path, content in runtime_artifact_snapshots.items()):
+        return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, problems=[_problem("runtime_artifact_modified", "Worker modified a runtime receipt artifact.")])
     problems = _receipt_problems(receipt, started_ticket, attempt)
     if problems or not isinstance(receipt, dict):
         if adapter_session is not None:
@@ -825,8 +842,7 @@ def run_ticket(
             adapter.close_session(adapter_session)
         return _result("failed", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt, problems=[_problem("workspace_probe_unavailable", "Loop could not re-check the complete workspace status after the worker ran.")])
     changed = _snapshot_changed(workspace_before_worker, workspace_after_worker)
-    if adapter is not None:
-        changed -= runtime_artifact_paths
+    changed -= runtime_artifact_paths
     out_of_scope = sorted(
         path
         for path in changed
@@ -845,6 +861,15 @@ def run_ticket(
         if adapter_session is not None:
             adapter.close_session(adapter_session)
         return _result("interrupted", selected_id, started.get("graph", {}), attempt=attempt, receipt=receipt)
+    if receipt["outcome"] == "completed":
+        if receipt["blocker"] is None and (receipt["acceptance_protocol_gaps"] or receipt["review"]["protocol_health"] == "gap"):
+            receipt["blocker"] = {"category": "requirement", "reason": "Acceptance protocol needs clarification: " + _repair_findings(receipt), "release_condition": "The upstream owner confirms and reconciles the acceptance protocol."}
+        if receipt["blocker"] is None and (receipt["unverified_scope"] or receipt["unverified"]):
+            receipt["blocker"] = {"category": "environment", "reason": "Required scope is unverified: " + json.dumps(receipt["unverified_scope"] or receipt["unverified"], ensure_ascii=False), "release_condition": "The missing verification can be executed and its evidence reviewed."}
+        if receipt["blocker"] is not None:
+            receipt["outcome"] = "blocked"
+        elif receipt["blocking_findings"] or receipt["simplification"]["result"] == "blocked" or any(receipt["review"][key] != "pass" for key in ("contract", "change_surface", "exploratory")):
+            receipt["outcome"] = "failed"
     if receipt["outcome"] == "failed":
         provider_blocker = _provider_blocker(receipt.get("blocker"))
         if provider_blocker is not None:

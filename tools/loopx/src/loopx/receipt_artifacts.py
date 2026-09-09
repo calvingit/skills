@@ -17,7 +17,10 @@ CAPABILITIES = {"implement", "verify", "review", "aggregate"}
 def _path(root: Path, ticket_id: str, attempt: int, capability: str) -> Path:
     if not TICKET_ID_RE.fullmatch(ticket_id) or not isinstance(attempt, int) or isinstance(attempt, bool) or attempt < 1 or capability not in CAPABILITIES:
         raise ValueError("invalid receipt identity")
-    return root / ".loop" / "receipts" / ticket_id / f"attempt-{attempt}" / f"{capability}.json"
+    path = root / ".loop" / "receipts" / ticket_id / f"attempt-{attempt}" / f"{capability}.json"
+    if not path.resolve().is_relative_to(root.resolve()) or any(parent.is_symlink() for parent in (path, *path.parents) if parent != root and parent.is_relative_to(root)):
+        raise ValueError("receipt artifact must remain inside the task directory without symlinks")
+    return path
 
 
 def save(

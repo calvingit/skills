@@ -172,7 +172,7 @@ def commit_graph_transaction(
         transaction.mkdir()
         (staging / "tickets").mkdir(parents=True)
         (backup / "tickets").mkdir(parents=True)
-        for authority_name in ("SPEC.md", "HLD.md"):
+        for authority_name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
             source = task_dir / authority_name
             if source.is_file():
                 shutil.copy2(source, staging / authority_name)

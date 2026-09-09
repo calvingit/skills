@@ -4,7 +4,7 @@
 
 ## 1. 职责边界
 
-启动时 Loop 必须读取任务目录的 `SPEC.md`、`ACCEPTANCE.md`、可选 `HLD.md` 和 tickets。缺少协议、版本不匹配或场景没有 expected result 时，任务进入阻断，而不是由 Loop 推导新条件。
+启动时 Loop 读取任务目录已有的 `SPEC.md`、可选 `ACCEPTANCE.md`、可选 `HLD.md` 和 tickets。Loop 不要求普通任务额外创建验收协议或 expected result；只在任务已声明的必需契约、ticket/receipt 结构或证据无法校验时阻断，不由 Loop 推导新条件。
 
 ```text
 SPEC.md / HLD.md
@@ -59,14 +59,14 @@ start / retry / block / unblock / complete / reopen
 - `retry`：提交 `expected_attempt`、新的 attempt checkpoint、初始既有改动分类、scope 和 `findings`；在 graph lock 内 compare-and-set 并递增 attempt。commit 判断仍以首次排除的既有改动和当前 ticket scope 为准，implement scope 必须非空。
 - `block`：保存 blocker 和 Loop 接受的 evidence，ticket 回到 open projection。
 - execution blocker 的 category 可以是 `requirement`、`design`、`dependency`、`environment`、`permission` 或 `external`；依赖阻塞仍是当前 ticket 的 execution fact，不等同于 graph dependency edge。
-- `complete`：只有所有本地 AC 通过、verification 命令成功、Contract / Change-surface / Exploratory review 通过、没有阻断发现或验收协议缺口且 `unverified` 与 `unverified_scope` 为空时才成功。
+- `complete`：只有任务声明的本地 AC 全部有通过证据、必要 verification 成功、适用的 Contract / Change-surface / Exploratory review 通过、没有阻断发现且 `unverified` 与 `unverified_scope` 为空时才成功。没有启用独立验收协议时，不因协议缺失阻断。
 - `reopen`：仅适用于 upstream 未变的 done ticket，并要求 review finding 和失效 AC；SPEC / HLD amendment 不用它伪装。
 
 Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 问题时，Loop 停止受影响分支，不直接编辑 JSON 绕过 CLI。
 
 ## 3. Execution Modes
 
-当前 `loopx loop run` 使用 provider CLI backend 执行 Loop pipeline；原生 multi-agents、multi-threads 和 serial 模式尚未作为 CLI 选项暴露。文档不把未实现的模式作为当前能力，provider 选择由 loopx runtime 路由。
+Loop 只有两种执行模式：`serial` 在单一会话中顺序执行 capability；`multi-agents` 为可隔离的 ticket 或 capability 创建多个 sub-agent。默认使用 `serial`，只有隔离证据成立时才使用 `multi-agents`。
 
 ## 4. Backend Contract
 
@@ -82,25 +82,17 @@ close(handle)
 
 handle 只存在当前 runtime，包含 provider / session reference、capability 和 opaque `agent_instance_id`；不进入 ticket JSON。
 
+独立 `ACCEPTANCE.md` 只在任务明确需要时作为额外契约；普通任务直接使用 SPEC 的验收条件。
+
 每个 capability bundle 都是独立深拷贝，包含：
 
 - 完整 ticket contract、SPEC、可选 HLD；
 - current attempt、baseline、existing changes、当前 diff；
 - dependency evidence、allowed write scope；
+- 已有的 acceptance 约束和 verify evidence；
 - prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify / review 都只收到 implement receipt。
 
-### Provider 参数
-
-| Provider | 初始 session | 后续 resume | full-access |
-| --- | --- | --- | --- |
-| Claude | `claude -p --session-id ... --output-format stream-json` | `--resume <id>` | `--dangerously-skip-permissions` + `bypassPermissions` |
-| Codex | `codex exec --json` | `codex exec resume <id> --json` | `--dangerously-bypass-approvals-and-sandbox` |
-| Kimi | `kimi --auto --output-format stream-json -p ...` | `--session <id>` | `--auto` |
-| Pi | `pi -p --mode json --session-id ...` | `--session <id/path>` | `--approve` + 完整工具集 |
-
-禁止使用 `--last`、`--continue` 或模糊 session picker 作为多 Worker 恢复依据。global CLI Skills 是委托规则，不是 Loop backend API。
-
-Full-access 只改变 CLI 的执行权限，不授予 Worker 修改 graph、SPEC / HLD、ticket、sibling 或版本历史的权限。Loop 通过 workspace diff、graph 文件和 Git HEAD revision 做事后校验。
+Loop 只接收 capability result，不把 provider CLI 细节写入 graph。
 
 ## 5. Receipt and Artifact
 
@@ -117,7 +109,7 @@ outcome: completed | blocked | failed | interrupted
 payload
 ```
 
-Loop 将 implement / verify / review 结果聚合为现有 v1 worker receipt，再决定 `complete`、`retry` 或 `block`。失败或未验证结果不能降级为成功。
+Loop 将 implement / verify / review 结果聚合为稳定 worker receipt，再决定 `complete`、`retry` 或 `block`。失败或未验证结果不能降级为成功。
 
 ### Artifact layout
 
@@ -162,3 +154,26 @@ loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/lo
 - workspace：scope、graph mutation、Git HEAD commit 防护。
 
 尚未证明：真实 Claude/Codex/Kimi/Pi provider turn、生产级 API/数据库副作用、Codex App Server transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake/backend 测试当作 live provider acceptance。
+
+## Capability result
+
+CLI backend 从包内 worker receipt schema 派生当前角色的 response contract，随 handoff 一起发送；角色输出使用 `{"outcome":"completed|blocked|failed|interrupted","payload":{...}}`。schema 是字段结构依据，Skill 是行为职责依据。
+
+- implement 的成功 payload 必须包含 `landed_changes` 和 `simplification`。
+- verify 的成功 payload 必须包含 `acceptance_evidence`；每项提供 `acceptance_id`、`passed|not_verified` 和 `summary`。验证命令和退出码由 verify 真实记录，不由 Loop 重跑。
+- review 的成功 payload 必须包含 `review`，分别报告 `contract`、`change_surface`、`exploratory` 和 `protocol_health`。
+- 各角色均可报告 `blocking_findings`、`non_blocking_findings`、`acceptance_protocol_gaps`、`unverified_scope`、`unverified` 和 `blocker`。未知或失败范围不得省略成通过。blocked 必须给出 blocker 的 category、reason 和 release_condition。
+
+verify 负责执行项目已有验证命令并记录实际结果。业务验证失败进入 retry；provider、权限和环境失败进入 blocker。capability 自报 completed 不能覆盖失败的 review 或 blocker。
+
+保护检查覆盖 SPEC、ACCEPTANCE、HLD、tickets、Git 状态和 runtime 产物。检测到上游变化时停止并保留现场，不自动恢复旧文件；这是一种事后检查，不是操作系统写入隔离。
+
+## Graph mutation 与恢复
+
+`loopx graph <command> --help` 给出命令签名；`create-batch` 使用候选 key，`reconcile-batch` 支持 create、update_contract、supersede、replace_dependency。
+
+1. 环境或权限 blocker 解除后，Loop 先核验 release_condition，再通过 `unblock --input <request.json>` 提交 release_evidence，随后重新执行 `loop run`。
+2. 用户中断后先运行 `loop status` 和 `graph inspect`；只有一个 in_progress ticket 时，下一次 `loop run` 会恢复它，并重新执行验证命令。多张 in_progress 需要调用方明确选择 ticket，公开 CLI 当前不提供该选择参数。
+3. 上游被修改或 graph transaction 未完成时先停止 dispatch，保留修改和现有产物。上游合法修订由对应 owner 确认，再 reconcile；越界改动由调用方审查处理，不能自动覆盖。事务恢复使用 `graph recover <task-dir> <rollback|commit>`。
+4. `reopen` 仅处理上游未变时的原交付缺陷；SPEC、ACCEPTANCE 或 HLD 修订走对应 owner 与 reconciliation。
+5. 当前正式版未发布，不提供旧 schema 迁移；graph contract 变化时直接按当前规范重建任务图。

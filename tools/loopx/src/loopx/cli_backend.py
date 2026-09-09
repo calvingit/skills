@@ -148,9 +148,10 @@ class CliBackend:
             user_prompt = json.dumps(
             {
                 "loop_handoff": bundle,
+                "response_contract": capability_contract(handle.capability),
                 "worker_rules": [
                     "Return one JSON capability result with outcome completed, blocked, failed, or interrupted.",
-                    "Do not edit ticket JSON, SPEC.md, HLD.md, or sibling tickets.",
+                    "Do not edit ticket JSON, SPEC.md, ACCEPTANCE.md, HLD.md, runtime artifacts, or sibling tickets.",
                     "Do not commit, push, create branches, or schedule other workers.",
                     "Only implement may write inside allowed_write_scope; verify and review are read-only.",
                 ],
@@ -159,7 +160,9 @@ class CliBackend:
             )
             prompt = user_prompt
         else:
-            prompt = user_prompt + "\n\nRuntime constraints:\n- Return a result; structured JSON is preferred when practical, and plain text is accepted for prompt mode.\n- Do not modify ticket graph, SPEC.md, HLD.md, sibling tickets, or version history.\n- Do not commit, push, create branches, or schedule other workers."
+            prompt = user_prompt + "\n\nRuntime constraints:\n- Return a result; structured JSON is preferred when practical, and plain text is accepted for prompt mode.\n- Do not modify ticket graph, SPEC.md, ACCEPTANCE.md, HLD.md, runtime artifacts, sibling tickets, or version history.\n- Do not commit, push, create branches, or schedule other workers."
+        if handle.prompt_mode:
+            prompt += "\nAllowed write scope (empty means read-only): " + json.dumps(bundle.get("allowed_write_scope", []))
         if self.provider == "codex":
             self.session_dir.mkdir(parents=True, exist_ok=True)
             handle.output_file = self.session_dir / f"{handle.agent_instance_id}.last-message.json"
@@ -333,27 +336,20 @@ class CliBackend:
                 if isinstance(value, dict):
                     events.append(value)
         for event in reversed(events):
-            outcome = event.get("outcome")
-            payload = event.get("payload")
-            if outcome in OUTCOMES and isinstance(payload, dict):
-                return {"outcome": outcome, "payload": payload}
-            if outcome in OUTCOMES:
-                return {"outcome": outcome, "payload": event}
-            if event.get("schema_version") == 1 and event.get("outcome") in OUTCOMES:
-                return {"outcome": event["outcome"], "payload": event}
-            for key in ("result", "message", "text"):
-                value = event.get(key)
-                if isinstance(value, str):
-                    try:
-                        decoded = json.loads(value)
-                    except json.JSONDecodeError:
-                        continue
-                    if isinstance(decoded, dict) and decoded.get("outcome") in OUTCOMES:
-                        return {"outcome": decoded["outcome"], "payload": decoded.get("payload", decoded)}
-            decoded = _find_normalized_value(event)
-            if decoded is not None:
+            if isinstance(event.get("outcome"), str) and event["outcome"] in OUTCOMES and not event.get("type"):
+                return {"outcome": event["outcome"], "payload": event.get("payload", event)}
+            text = _assistant_text(event)
+            if text is None:
+                continue
+            try:
+                decoded = json.loads(text)
+            except json.JSONDecodeError:
+                decoded = None
+            if isinstance(decoded, dict) and isinstance(decoded.get("outcome"), str) and decoded["outcome"] in OUTCOMES:
                 return {"outcome": decoded["outcome"], "payload": decoded.get("payload", decoded)}
-        if allow_text and stdout.strip():
+            if allow_text:
+                return {"outcome": "completed", "payload": {"text": text}}
+        if allow_text and stdout.strip() and not events:
             return {"outcome": "completed", "payload": {"text": stdout}}
         return {
             "outcome": "failed",
@@ -390,26 +386,43 @@ def _heartbeat_timestamp(value: object) -> float | None:
     return datetime.fromisoformat(value.replace("Z", "+00:00")).timestamp()
 
 
-def _find_normalized_value(value: object) -> dict[str, Any] | None:
-    if isinstance(value, dict):
-        if value.get("outcome") in OUTCOMES:
-            return value
-        for child in value.values():
-            found = _find_normalized_value(child)
-            if found is not None:
-                return found
-    elif isinstance(value, list):
-        for child in value:
-            found = _find_normalized_value(child)
-            if found is not None:
-                return found
-    elif isinstance(value, str):
-        try:
-            decoded = json.loads(value)
-        except json.JSONDecodeError:
-            return None
-        return _find_normalized_value(decoded)
+def _assistant_text(event: dict[str, Any]) -> str | None:
+    """只提取助手消息，不从工具结果或任意嵌套 JSON 推导完成状态。"""
+    if event.get("type") == "result" and isinstance(event.get("result"), str):
+        return event["result"]
+    message = event
+    if event.get("type") == "item.completed":
+        message = event.get("item", {})
+    elif event.get("type") in {"assistant", "message_end"}:
+        message = event.get("message", {})
+    if not isinstance(message, dict):
+        return None
+    if message.get("role") != "assistant" and message.get("type") not in {"agent_message", "assistant_message"}:
+        return None
+    content = message.get("text", message.get("content"))
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        texts = [part["text"] for part in content if isinstance(part, dict) and part.get("type") == "text" and isinstance(part.get("text"), str)]
+        return "\n".join(texts) if texts else None
     return None
 
 
-__all__ = ["BackendUnavailable", "CliBackend", "CliHandle", "PROVIDERS"]
+def capability_contract(capability: str) -> dict[str, Any]:
+    """从同一回执 schema 派生角色输出，避免 Agent 猜测字段。"""
+    receipt = json.loads((Path(__file__).parent / "graph" / "worker-receipt.schema.json").read_text())
+    required = {
+        "implement": ["landed_changes", "simplification"],
+        "verify": ["acceptance_evidence", "verification"],
+        "review": ["review"],
+    }[capability]
+    common = ["blocking_findings", "non_blocking_findings", "acceptance_protocol_gaps", "unverified_scope", "unverified", "blocker"]
+    properties = {name: receipt["properties"][name] for name in required + common}
+    properties.update({"reason": {"type": "string"}, "findings": {"type": "string"}, "failure_category": {"enum": ["environment", "permission", "external", "dependency"]}})
+    return {
+        "type": "object", "required": ["outcome", "payload"], "additionalProperties": False,
+        "properties": {"outcome": receipt["properties"]["outcome"], "payload": {"type": "object", "properties": properties, "additionalProperties": False}},
+        "if": {"properties": {"outcome": {"const": "completed"}}},
+        "then": {"properties": {"payload": {"required": required}}},
+        "$defs": receipt["$defs"],
+    }

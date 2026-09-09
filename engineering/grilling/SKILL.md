@@ -41,7 +41,7 @@ description: "在实现前拷问方案、查证可访问事实、收敛需求或
 frontier 清空后：
 
 1. 在 `${DOC_DIR}/acceptance-draft.md` 写入仅含 `R`、`AC`、场景、expected result 和 evidence source 的草稿，不写实现建议、mock、文件路径或内部调用顺序。
-2. 汇总结论、会话文档位置，以及尚未写入项目的术语和 ADR，并请用户最终确认后建议交给 `to-spec` 落盘。
+2. 汇总结论、会话文档位置，以及尚未写入项目的术语和 ADR；用户最终确认后，只有需要持久化、共享或版本化契约时才交给 `to-spec`，否则转入 direct 或 `quick-implement`。
 
 ## 边界
 

@@ -19,7 +19,6 @@
 
 | Skill | 用途 |
 | --- | --- |
-| [`worker`](./engineering/worker/SKILL.md) | 通过统一 loopx prompt 接口执行外部任务；capability 编排由 Loop 管理。 |
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
 | [`find-docs`](./global/find-docs/SKILL.md) | 查询开发技术、库、SDK 和 CLI 的最新文档。 |
 | [`fuck-my-shit-mountain`](./global/fuck-my-shit-mountain/SKILL.md) | 对项目进行证据驱动的全面工程审计。 |
@@ -39,29 +38,22 @@
 | [`tavily-search`](./global/tavily-search/SKILL.md) | 获取面向 Agent 优化的 Tavily 搜索结果。 |
 | [`teach`](./global/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
 | [`url-to-markdown`](./global/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
+| [`agent-tool`](./global/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
 | [`zh-terminology`](./global/zh-terminology/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
 ## Engineering Skills
 
-Engineering Skills 负责需求收敛、概要设计、实现、验证、审查和 ticket 执行。它们遵循职责单一、证据优先、可组合和不接管项目规则的原则。
+Engineering Skills 是一组 Workflow Skills，负责需求收敛、概要设计、实现、验证、审查和 ticket 执行，它们遵循职责单一、证据优先、可组合和不接管项目规则的原则。
 
-完整的类型划分、选择指南、产物职责、Loop 执行约束和 ticket 生命周期见：
 
-**[Engineering Skills 详情](./docs/engineering-skills.md)**
+具体见**[Engineering Skills 详情](./docs/engineering-skills.md)**，里面包含完整的类型划分、选择指南、产物职责、Loop 执行约束和 ticket 生命周期。
 
-具体 Skill：
 
-- [Workflow Skills](./engineering/)
-- [Code Review](./engineering/code-review/SKILL.md)
-- [Implement](./engineering/implement/SKILL.md)
-- [Verify](./engineering/verify/SKILL.md)
-- [Worker](./engineering/worker/SKILL.md)
+其他文档：
 
-文档：
-
-- [Engineering Skills 详情](./docs/engineering-skills.md)
 - [Loopx Runtime 与 Backend Contract](./docs/loop-runtime.md)
 - [loopx 验收协议](./docs/loopx-acceptance.md)
+- [Engineering Acceptance 协议](./docs/engineering-acceptance.md)
 - [Engineering workflow 图示](./docs/engineering-workflow.html)
 - [Ticket lifecycle 图示](./docs/ticket-lifecycle.html)
 

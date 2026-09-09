@@ -20,8 +20,12 @@ description: "在独立只读上下文中验证 ticket 的 Acceptance Criteria�
 每条 evidence 使用以下字段并原样记录：
 
 ```json
-{"source":"unit_test|cli_black_box|workspace_diff|live_provider|staging","command":"...","exit_code":0,"environment":"...","expected_source":"ACCEPTANCE.md#success-basic","unverified_reason":null}
+{"acceptance_id":"AC1","result":"passed","summary":"..."}
 ```
+
+verify 记录实际执行的 `command`、`exit_code` 和摘要；不得伪造命令退出码。只有任务明确启用结构化验收时，才按该任务协议补充场景映射。
+
+CLI capability 的 JSON envelope、字段和示例见 [Runtime 输出契约](../../docs/loop-runtime.md#capability-result)。
 
 ## 边界
 
