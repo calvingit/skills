@@ -17,7 +17,7 @@ Every ticket must cite existing protocol meaning through `covers.requirements` a
 {"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"acceptance_criteria":[{"id":"AC1","description":"..."}]}
 ```
 
-Cite existing acceptance meaning. Do not create acceptance criteria on the ticket. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and hand back to `to-spec` only when a scenario is missing an expected result.
+Cite existing acceptance meaning. Derive ticket-specific acceptance criteria from the cited SPEC / AC; do not invent new acceptance semantics. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and hand back to `to-spec` only when a scenario is missing an expected result.
 
 ## Inputs
 
@@ -37,7 +37,7 @@ Prefer independently verifiable end-to-end delivery:
 - Each ticket cuts a narrow but **complete** path through every layer the delivery needs — data, interface, UI, tests, docs when they are load-bearing. A completed slice is demoable or verifiable on its own from the user, caller, or acceptance view, and fits in one fresh context.
 - Tests, verification, and necessary local tidy-up belong on the slice. Do not create a "add all the tests" or "final cleanup" ticket with no independent delivery. A blocking edge exists only when a missing prior result would make this ticket start incorrectly. Tickets with no blockers are the first executable set. Do not invent a linear chain for narrative order, and do not keep cycles.
 
-A shared contract lands on the first end-to-end ticket that actually uses it. Later tickets depend on it only when that contract's absence would make them start incorrectly. Do not default to a horizontal "build all the interfaces / enums first" architecture ticket. Prefactoring technical tickets exist only for real blockers: schema generation, expand-then-contract, compatibility layers.
+A shared contract lands on the first end-to-end ticket that actually uses it. Later tickets depend on it only when that contract's absence would make them start incorrectly. Do not default to a horizontal "build all the interfaces / enums first" architecture ticket. Preparatory technical-work tickets exist only for real blockers: schema generation, expand-then-contract, compatibility layers.
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change — rename a column, retype a shared symbol — whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius, each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains. When even the batches cannot stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket — green is promised only there.
 
@@ -47,7 +47,7 @@ Tickets describe outcomes, not stale file paths, snippets, or step-by-step recip
 
 Before writing, show the user a numbered list of candidate tickets:
 
-1. **Title** — short, outcome-facing name.
+1. **Title** — short, outcome-oriented name.
 2. **Blocked by** — real prior tickets, or "None — can start immediately".
 3. **What it delivers** — the end-to-end behaviour this ticket alone makes verifiable.
 4. **Design** — applicable HLD D IDs, or `None`.
@@ -56,7 +56,7 @@ Ask whether the grain is right, whether blocking edges only express real gates, 
 
 ## Sync a SPEC / HLD amendment
 
-When tickets already exist and a SPEC or HLD amendment is confirmed, first confirm `loop` has stopped affected new dispatch and has terminated or reclaimed workers still writing. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
+When tickets already exist and a SPEC or HLD amendment is confirmed, first confirm `loop` has stopped affected new dispatch and has stopped the affected workers and reclaimed their partial receipts. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
 
 - Unaffected tickets keep immutable ID, contract, and current evidence.
 - An HLD design-only amendment does not change historical acceptance that still satisfies the SPEC. If done behaviour still matches the requirement but not the new design, keep its requirement evidence and create an explicit correction / migration ticket covering the affected Ds. Supersede only when the original delivery contract is replaced as a whole.
@@ -74,7 +74,7 @@ Show the user an impact plan and confirm before `reconcile-batch`. The CLI valid
 
 ## Write local tickets
 
-`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the user confirms candidates, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, ticket-local Acceptance Criteria, and real dependencies expressed as temporary keys.
+`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the user confirms candidates, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, ticket-specific acceptance criteria, and real dependencies expressed as temporary keys.
 
 Request shape and amendment examples: `loopx graph create-batch --help`, `loopx graph reconcile-batch --help`. Command input describes the current graph contract. It does not copy the acceptance protocol.
 

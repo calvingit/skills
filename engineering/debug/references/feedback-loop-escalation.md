@@ -23,7 +23,7 @@ Once you have *a* loop, improve it for diagnosis. Don't polish it into a general
 - Repeatable: record whether it reproduces, under what conditions, and the known failure rate. Pin time, RNG, filesystem, or network when you can. Don't stall on tooling to chase unattainable determinism.
 - Fast enough: cache setup, skip unrelated init, narrow the test. Iteration cost should match the current hypothesis. Count and duration are set by the failure. Slow integration, device paths, and rare races may stay slow if they still distinguish hypotheses.
 
-Seconds, deterministic, and unattended is better. It is not the bar for starting investigation.
+A fast, deterministic, unattended loop is preferable. It is not the bar for starting investigation.
 
 ## Non-deterministic bugs
 
@@ -37,4 +37,4 @@ Name one command you have already run, or a set of observations that together di
 - Reproducibility is recorded, not a one-off impression.
 - Performance problems have a baseline first, then measurement rather than generalised logs.
 
-Until a red-capable loop exists, do not proceed to hypothesise. You may inspect the environment only as needed to *build* the loop. Do not change code when the evidence cannot support a fix conclusion.
+Until a red-capable loop exists, do not proceed to repair decisions. You may inspect code, logs, and the environment as read-only inputs needed to *build* the loop. Do not change code when the evidence cannot support a fix conclusion.

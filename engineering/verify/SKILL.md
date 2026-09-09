@@ -5,7 +5,7 @@ description: Verify a ticket's Acceptance Criteria in an independent read-only c
 
 # Verify
 
-Against the implementation snapshot Loop supplies, verify ticket-local Acceptance Criteria. The question is whether it works as required, and what the evidence is. Do not judge code or design quality.
+Against the implementation snapshot Loop supplies, verify ticket-specific acceptance criteria. The question is whether it works as required, and what the evidence is. Do not judge code or design quality.
 
 ## Boundary with `code-review`
 

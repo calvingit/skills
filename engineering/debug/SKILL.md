@@ -42,10 +42,10 @@ The loop must assert the user's exact symptom, not "didn't crash".
 Phase 1 is done when you can name **one command** you have **already run at least once** (show the invocation and its redacted output) that is:
 
 - **Red-capable** — it drives the actual bug path and asserts the user's exact symptom, so it can go red on this bug and green once fixed.
-- **Repeatable** — same verdict every run, or, for flaky bugs, a pinned high enough reproduction rate to debug against.
+- **Repeatable** — same verdict every run, or, for flaky bugs, a recorded reproduction rate high enough to debug against.
 - **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
 
-If you catch yourself reading code to build a theory before this command exists, **stop**. No red-capable command, no Phase 2.
+While building the loop, you may inspect code, logs, and the environment as read-only inputs. Do not move to repair decisions or execution until a red-capable command exists.
 
 When you genuinely cannot build a loop: stop and say so. List what you tried. Ask for access to the reproducing environment, a redacted captured artifact (HAR, log dump, recording), or permission to add temporary instrumentation. Do **not** proceed to hypothesise without a loop.
 
@@ -77,7 +77,7 @@ Each probe maps to a Phase 3 prediction.
 
 Tag every debug log with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup becomes one grep.
 
-For performance regressions: measure a baseline first, then locate and change. Do not substitute generalised logs for measurement.
+For performance regressions: measure a baseline first, then locate the regression and change the code. Do not substitute generalized logs for measurement.
 
 ## Phase 5 — Fix + regression test
 

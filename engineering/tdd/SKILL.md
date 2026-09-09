@@ -50,7 +50,7 @@ one behaviour → one red test → minimal green implementation → next behavio
 
 ## Seams — where tests go
 
-A **seam** is the public boundary you test at: the interface where you observe behaviour without reaching inside. Tests live at seams, never against internals.
+A **Seam** is a variation point where behaviour can be changed without editing the code at that point. Tests should normally enter through the production public Interface at that Seam, never through private internals.
 
 **Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam.
 

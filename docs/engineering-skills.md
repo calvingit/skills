@@ -83,7 +83,7 @@ implement → verify → code-review → aggregate evidence → complete / retry
 
 `loopx loop run` 只负责 Loop pipeline、ticket lifecycle 和 capability result 聚合；provider、权限和环境失败进入 blocker，而不是代码 repair。
 
-长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，Pi / CLI heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
+长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，runtime heartbeat 可提供 heartbeat freshness 和 progress freshness；Loop 保存 provider raw output 到 task-local artifact，深拷贝 capability handoff，并在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
 
 完整的 graph mutation、backend contract、provider 参数、artifact layout、失败路由和验证边界见：[Loop Runtime 与 Backend Contract](./loop-runtime.md)。
 

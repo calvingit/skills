@@ -5,7 +5,7 @@ description: Plan a chunk of work too large for one agent session as a shared ma
 
 # Wayfinding
 
-A destination can be named, but the way from here to it is still in **fog**, and the decision work will not fit in one session. Wayfinding finds that way. It does not charge at the destination.
+A destination can be named, but the way from here to it is still in **fog**, and the decision work will not fit in one session. Wayfinding maps that path. It does not deliver the destination.
 
 By default this skill produces decisions, not deliverables. The destination might be a SPEC, a locked decision, or — when Notes explicitly allow it — a change made in place.
 
@@ -54,7 +54,7 @@ Fog is the dim view of questions you can tell are coming. **Not yet specified** 
 
 Out of scope never graduates as the frontier advances, unless the user redraws the destination.
 
-In everything the human reads, refer to a map or ticket by its **name**, never by a bare id. The id can ride inside the name.
+In everything the human reads, refer to a map or ticket by its **name**, never by a bare ID. Include the ID in the name when useful.
 
 ## Decision tickets
 
@@ -77,7 +77,7 @@ Every ticket is either **HITL** — worked *with* a human who speaks for themsel
 - **Prototype (HITL)**: discussion is not enough; a cheap, authorised analysis prototype is needed so the user can react.
 - **Task (HITL or AFK)**: nothing to decide, prototype, or research, but some external prep or human action must happen before a *decision* can be made. A task unblocks a decision. It does not deliver the destination.
 
-Do not disguise an implementation ticket as a decision. The answer answers the question. It does not include final implementation steps.
+Do not disguise an implementation ticket as a decision. The answer resolves the question; it does not include final implementation steps.
 
 ## Chart the map
 
@@ -101,8 +101,8 @@ Never resolve more than one decision ticket per session.
 5. Pause only to wait for answers already asked, when the ticket is done, when blocked, or for a closing handoff. "Should I continue?" is not a pause point.
 6. When the ticket is done, write evidence and the answer, set status `resolved`. If it sits past the destination, set `superseded`.
 7. Append a relative link and one-line gist to Decisions so far, and drop the ticket from Frontier.
-8. Create newly specifiable tickets and clear the matching patches from Not yet specified.
-9. Recompute the frontier. Move anything past the destination to Out of scope. If the frontier is not empty, recommend the next takeable ticket in the report — do not start it in this session.
+8. Create newly well-defined tickets and clear the matching entries from Not yet specified.
+9. Recompute the frontier. Move anything past the destination to Out of scope. If the frontier is not empty, recommend the next ticket that is ready to claim in the report — do not start it in this session.
 
 `MAP.md` and `decisions/` may update incrementally before the map is done. Do not create or edit downstream `SPEC.md`, `HLD.md`, or delivery tickets.
 

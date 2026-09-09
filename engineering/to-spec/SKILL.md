@@ -93,7 +93,7 @@ Fix what confirmed context or the codebase can fix. Stop and hand back to `grill
 
 ### 6. Write and hand off
 
-After consistency holds, write into the task directory. Create reports path, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items. Amendment shows the requirement delta, spec impact, and possibly affected HLD decisions / tickets first, updates in place after confirmation, and reports kept, added, or removed `R` / `AC`.
+After consistency holds, write into the task directory. Create the reports directory, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items. Amendment shows the requirement delta, spec impact, and possibly affected HLD decisions / tickets first, updates in place after confirmation, and reports kept, added, or removed `R` / `AC`.
 
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
@@ -108,7 +108,7 @@ No automatic authorisation to publish externally, commit, push, create a branch,
 
 ## Change rules
 
-- **Normative change** → Amendment. Update `SPEC.md`; sync `ACCEPTANCE.md` only when separate acceptance is already enabled. Do not force re-confirmation when testing seams are unaffected. When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. If affected tickets are running, ask `loop` to stop related dispatch, reclaim workers, and keep evidence.
+- **Normative change** → Amendment. Update `SPEC.md`; sync `ACCEPTANCE.md` only when separate acceptance is already enabled. Do not force re-confirmation when testing seams are unaffected. When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. If affected tickets are running, ask `loop` to stop related dispatch, stop the affected workers, reclaim their partial receipts, and keep evidence.
 - **High-level design change** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
 - **Execution split change** → `to-tickets` only. Do not rewrite upstream.
 - **Execution change** → update the ticket or execution evidence only. Do not edit SPEC / HLD.

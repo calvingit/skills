@@ -35,4 +35,4 @@ Two execution modes only:
 - After the completion gate passes, do not commit version-control changes unless the caller explicitly authorised it. Accept only acceptance conditions from the ticket, SPEC, or a separate protocol the task explicitly enabled, plus command output, workspace diff, receipts, and review evidence. Do not add acceptance conditions, and do not let worker self-report replace independent evidence.
 - `verify` runs the commands the task needs and records actual results. Loop only accepts that evidence, checks scope / Git / graph bounds, and then `unblock`, retry, block, or complete. A separate `ACCEPTANCE.md` is used only when the task explicitly needs it. It is not a default prerequisite.
 
-Command input, interrupts, blockers, and transaction recovery: [Runtime recovery contract](../../docs/loop-runtime.md#graph-mutation-与恢复).
+Command input, interrupts, blockers, and transaction recovery: [Runtime recovery contract](../../docs/loop-runtime.md).

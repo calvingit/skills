@@ -17,8 +17,7 @@ tickets/*.json <---- loopx graph CLI
         |
         v
 CapabilityAdapter ---- Backend
-                         `-- Provider CLI backend
-                              `-- Claude / Codex / Kimi / Pi
+                         `-- Provider backend
 ```
 
 | 部件 | 拥有的职责 | 不拥有的职责 |
@@ -128,7 +127,7 @@ artifact 原子写入并校验 ticket、attempt、capability、instance identity
 长任务默认不设固定 wall-clock timeout：
 
 - 调用方可以提供任务预算；
-- Pi / CLI heartbeat 可以提供 heartbeat freshness；
+- Runtime heartbeat 可以提供 heartbeat freshness；
 - progress freshness 可以识别 provider 长时间无业务进展；
 - 没有预算或 freshness 阈值时持续等待 provider 终态或用户取消。
 
@@ -149,11 +148,11 @@ loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/lo
 当前自动化覆盖：
 
 - 测试命令和覆盖范围以 `tools/loopx/tests/` 当前测试文件为准；交付前运行 README 中的完整测试命令。
-- CLI backend：四个 provider 的命令构造、session / resume、权限参数、raw output、heartbeat freshness 和失败归一化。
+- CLI backend：provider-neutral 的命令构造、session / resume、权限参数、raw output、heartbeat freshness 和失败归一化。
 - graph：retry stale attempt、空 scope、completion gate、transaction / recovery。
 - workspace：scope、graph mutation、Git HEAD commit 防护。
 
-尚未证明：真实 Claude/Codex/Kimi/Pi provider turn、生产级 API/数据库副作用、Codex App Server transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake/backend 测试当作 live provider acceptance。
+尚未证明：真实 provider turn、生产级 API/数据库副作用、生产 transport 和生产吞吐。实现仍应把这些状态报告为未验证，不把本地 fake/backend 测试当作 live provider acceptance。
 
 ## Capability result
 

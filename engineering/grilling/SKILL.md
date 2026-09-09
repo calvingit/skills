@@ -1,11 +1,11 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea until the open choices are settled. Use before implementation, when requirements or design still branch.
+description: Question the user about a plan, decision, or idea until the open choices are settled. Use before implementation, when requirements or design still branch.
 ---
 
 # Grilling
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+Interview the user until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that depend on it.
 
 `grilling` investigates facts, maintains the Design Tree, computes the frontier, and runs rounds. The user confirms decisions.
 

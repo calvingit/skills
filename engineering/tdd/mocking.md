@@ -12,7 +12,7 @@ A test double should satisfy a confirmed Interface and return a result independe
 
 ## Designing for Mockability
 
-At system boundaries, inject a concrete, stable Interface. Prefer one entry per real operation. Don't expose a generic fetcher that needs conditional logic inside the mock.
+At system boundaries, inject a concrete adapter behind a stable Interface. Prefer one entry per real operation. Don't expose a generic fetcher that needs conditional logic inside the mock.
 
 **1. Use dependency injection**
 

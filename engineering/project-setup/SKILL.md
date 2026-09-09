@@ -115,7 +115,7 @@ Path fields are relative to the repo root. They must not point at a home directo
 
 The Profile stores stable modes and in-repo instruction entries. It does not store current PRD content, temporary links, or a one-task requirement snapshot. `to-spec` is the main consumer. `grilling` and `wayfinding` use it only to decide which requirement facts the user must supply. Downstream `high-level-design`, `to-tickets`, `quick-implement`, `loop`, and `code-review` consume confirmed SPEC, applicable HLD, or tickets. They do not interpret this config directly.
 
-Omit `labels` when `triage.enabled: false`. Ask for labels only when a triage skill is detected or the user explicitly enables triage. Defaults: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. GitHub, GitLab, or other operations live in the in-repo doc `issue_tracker.instructions` points at. The Profile stores the stable entry only.
+Omit `labels` when `triage.enabled: false`. Ask for labels only when a triage skill is detected or the user explicitly enables triage. Defaults: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. GitHub, GitLab, or other operations live in the in-repo document referenced by `issue_tracker.instructions`. The Profile stores the stable entry only.
 
 ## Write safely
 

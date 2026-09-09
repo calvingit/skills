@@ -39,7 +39,7 @@ Use a task-level HLD only when the user or caller supplied it, or it sits next t
 - **branch / commit**: `git rev-parse` the fixed point, then pin `git diff <fixed-point>...HEAD` and `git log <fixed-point>..HEAD --oneline`. Stop on a bad ref or empty diff.
 - **working tree**: baseline is `HEAD`. Review staged and unstaged separately, and record untracked files. Unread untracked files are not coverage.
 - **explicit path**: only the paths the user named, and state the limit of not having a full commit range.
-- **implementation**: use the implementation flow's baseline, actual scope, execution receipt, and verification evidence. Do not re-guess the caller's declared scope. Return `BLOCKER` when full-scope coverage cannot be proven.
+- **implementation**: use the implementation flow's baseline, actual scope, execution receipt, and verification evidence. Do not second-guess the caller's declared scope. Return `BLOCKER` when full-scope coverage cannot be proven.
 
 ## Order
 
@@ -71,7 +71,7 @@ Change-surface always covers:
 
 Report only direct-chain issues this change introduced or enlarged. Correctness, safety, permissions, data corruption, process leaks, or clear regressions on that chain go in `blocking_findings`.
 
-HLD module duties, dependency direction, shared types, and error semantics are applicable basis here. The HLD does not by itself widen this review's scope.
+HLD module duties, dependency direction, shared types, and error semantics are the applicable basis here. The HLD does not by itself widen this review's scope.
 
 ## Exploratory review
 

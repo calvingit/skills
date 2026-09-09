@@ -29,8 +29,8 @@ Don't treat internal collaborator call counts, private methods, or current call 
 ```typescript
 // BAD: Tests implementation details
 test("checkout calls paymentService.process", async () => {
-  const mockPayment = jest.mock(paymentService);
-  await checkout(cart, payment);
+  const mockPayment = { process: jest.fn() };
+  await checkout(cart, mockPayment);
   expect(mockPayment.process).toHaveBeenCalledWith(cart.total);
 });
 ```
