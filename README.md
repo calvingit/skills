@@ -19,6 +19,10 @@
 
 | Skill | 用途 |
 | --- | --- |
+| [`challenge`](./global/challenge/SKILL.md) | 对已有技术判断或方案进行有边界的对抗式审查。 |
+| [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
+| [`document-sync`](./global/document-sync/SKILL.md) | 检查文档与当前实现和规范是否一致，只更新受影响内容。 |
+| [`tech-research`](./global/tech-research/SKILL.md) | 开展基于证据的技术调研，并给出可执行建议。 |
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
 | [`find-docs`](./global/find-docs/SKILL.md) | 查询开发技术、库、SDK 和 CLI 的最新文档。 |
 | [`fuck-my-shit-mountain`](./global/fuck-my-shit-mountain/SKILL.md) | 对项目进行证据驱动的全面工程审计。 |
