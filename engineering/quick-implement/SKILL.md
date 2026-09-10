@@ -37,7 +37,7 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 
 1. Run `simplify` when the current diff has a clear complexity problem or the user asks; otherwise skip and say so.
 2. Run targeted verification and the project's applicable delivery gates per [references/verification-and-review.md](references/verification-and-review.md).
-3. Using the same reference, run `code-review` in implementation mode through Contract, Change-surface, and Exploratory, with project standards, SPEC, and applicable HLD as the basis. After review findings are fixed, re-run affected verification and review.
+3. Using the same reference, run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. After review findings are fixed, re-run affected verification and review.
 4. Declare done only when every applicable Acceptance Criterion has observable evidence, required verification and review passed, and no unresolved high-risk issue remains.
 5. Commit only with explicit user authorisation. Do not push on your own. The commit contains only this task's changes.
 

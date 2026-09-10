@@ -45,6 +45,16 @@ Do not treat the absence of a ready ticket as completion without first determini
 
 Workers implement, verify, or review the current scope. They do not modify upstream artifacts, schedule siblings, edit graph state, or commit. Verify runs the necessary commands; Loop accepts the recorded evidence and checks workspace, Git, graph, and completion bounds. Do not substitute self-report for results or invent new acceptance conditions.
 
+## Review reports
+
+`code-review` returns readable Markdown in every context. The CLI backend requests its report headings and normalises the final assistant message into the internal receipt; do not ask the reviewer for JSON. Read the preserved report when deciding how to respond.
+
+- Confirmed current-scope findings require correction through the ticket's retry workflow.
+- Requirement gaps go to the requirement owner; missing evidence or access must be resolved before completion.
+- Optional follow-up does not block delivery. A missing, malformed, or contradictory report cannot pass; obtain a corrected report without inventing evidence or changing code merely to fix its format.
+
+The internal receipt retains its existing review fields for graph validation. They are derived from the report, not separate review passes. For final delivery, apply the same mapping in [references/delivery-review.md](references/delivery-review.md).
+
 ## Requirement changes
 
 Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch for this task, interrupt active workers, confirm they have stopped writing, preserve their partial receipts, and `graph block` each active attempt. Block can preserve a stopped attempt even when new requirement IDs temporarily leave graph coverage invalid.

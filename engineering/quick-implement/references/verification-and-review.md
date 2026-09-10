@@ -10,7 +10,7 @@ Run verification for the current scope through the project's existing entries. R
 
 ## Review
 
-After verification, use `code-review` in `implementation` mode. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review must emit Contract, Change-surface, and Exploratory. After review findings are fixed, re-run affected verification and review.
+After verification, use `code-review` against the implemented scope. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After review findings are fixed, re-run affected verification and review.
 
 The review receipt follows code-review's [canonical template](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
 
@@ -44,7 +44,7 @@ The review receipt follows code-review's [canonical template](../../code-review/
 
 ### Review
 
-<Paste the three-layer result, blocking findings, protocol gaps, and unverified scope from the canonical code-review receipt>
+<Paste the conclusion, findings, requirement gaps, unverified scope, and evidence from the canonical Markdown review report>
 
 ### Unverified
 

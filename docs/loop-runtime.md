@@ -58,7 +58,7 @@ start / retry / block / unblock / complete / reopen
 - `retry`：提交 `expected_attempt`、新的 attempt checkpoint、初始既有改动分类、scope 和 `findings`；在 graph lock 内 compare-and-set 并递增 attempt。commit 判断仍以首次排除的既有改动和当前 ticket scope 为准，implement scope 必须非空。
 - `block`：保存 blocker 和 Loop 接受的 evidence，ticket 回到 open projection。
 - execution blocker 的 category 可以是 `requirement`、`design`、`dependency`、`environment`、`permission` 或 `external`；依赖阻塞仍是当前 ticket 的 execution fact，不等同于 graph dependency edge。
-- `complete`：只有任务声明的本地 AC 全部有通过证据、必要 verification 成功、适用的 Contract / Change-surface / Exploratory review 通过、没有阻断发现且 `unverified` 与 `unverified_scope` 为空时才成功。没有启用独立验收协议时，不因协议缺失阻断。
+- `complete`：只有任务声明的本地 AC 全部有通过证据、必要 verification 成功、Markdown 审查报告经运行时转换后通过检查、没有阻断发现且 `unverified` 与 `unverified_scope` 为空时才成功。没有启用独立验收协议时，不因协议缺失阻断。
 - `reopen`：仅适用于 upstream 未变的 done ticket，并要求 review finding 和失效 AC；SPEC / HLD amendment 不用它伪装。
 
 Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 问题时，Loop 停止受影响分支，不直接编辑 JSON 绕过 CLI。
@@ -156,11 +156,12 @@ loopx 的统一运行时验收入口从仓库根目录运行：`python3 tools/lo
 
 ## Capability result
 
-CLI backend 从包内 worker receipt schema 派生当前角色的 response contract，随 handoff 一起发送；角色输出使用 `{"outcome":"completed|blocked|failed|interrupted","payload":{...}}`。schema 是字段结构依据，Skill 是行为职责依据。
+CLI backend 从包内 worker receipt schema 派生当前角色的 response contract，随 handoff 一起发送；implement / verify 输出使用 `{"outcome":"completed|blocked|failed|interrupted","payload":{...}}`。review 始终输出可读 Markdown，由 CLI backend 转为内部 receipt。schema 是内部字段结构依据，Skill 是行为职责依据。
 
 - implement 的成功 payload 必须包含 `landed_changes` 和 `simplification`。
 - verify 的成功 payload 必须包含 `acceptance_evidence`；每项提供 `acceptance_id`、`passed|not_verified` 和 `summary`。验证命令和退出码由 verify 真实记录，不由 Loop 重跑。
-- review 的成功 payload 必须包含 `review`，分别报告 `contract`、`change_surface`、`exploratory` 和 `protocol_health`。
+- review 使用 code-review 的固定 Markdown 标题和结论值，正文使用用户语言。CLI backend 只转换最终助手消息（Codex 有最终消息文件时优先使用），保留完整报告和原始输出。Findings 进入 retry；Requirement gaps 和 Unverified 阻止完成；Follow-up 不阻断。格式缺失、重复或结论矛盾时阻塞等待修正报告，不能默认为通过。
+- 转换后的 `review` 保留现有内部字段：需求或证据缺口使 `contract` 失败，当前缺陷或证据缺口使 `change_surface` 失败；`exploratory: pass` 表示不另设探索审查门槛，不声称做过全库审计。需求缺口对应 `protocol_health: gap`，其余为 `not_triggered`。审查者无需输出这些字段。
 - 各角色均可报告 `blocking_findings`、`non_blocking_findings`、`acceptance_protocol_gaps`、`unverified_scope`、`unverified` 和 `blocker`。未知或失败范围不得省略成通过。blocked 必须给出 blocker 的 category、reason 和 release_condition。
 
 verify 负责执行项目已有验证命令并记录实际结果。业务验证失败进入 retry；worker、权限和环境失败进入 blocker。capability 自报 completed 不能覆盖失败的 review 或 blocker。

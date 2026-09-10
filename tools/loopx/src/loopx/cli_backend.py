@@ -14,6 +14,8 @@ import time
 from typing import Any
 from uuid import uuid4
 
+from .review_report import REPORT_CONTRACT, normalize_review_report
+
 PROVIDERS = ("codex", "claude", "kimi", "pi")
 OUTCOMES = {"completed", "blocked", "failed", "interrupted"}
 
@@ -144,13 +146,14 @@ class CliBackend:
         if handle.process is not None and handle.process.poll() is None:
             raise RuntimeError("CLI session already has a running turn")
         user_prompt = bundle.get("prompt")
-        if not isinstance(user_prompt, str) or not user_prompt.strip():
+        if not isinstance(user_prompt, str) or not user_prompt.strip() or (handle.capability == "review" and not handle.prompt_mode):
             user_prompt = json.dumps(
             {
                 "loop_handoff": bundle,
                 "response_contract": capability_contract(handle.capability),
                 "worker_rules": [
-                    "Return one JSON capability result with outcome completed, blocked, failed, or interrupted.",
+                    ("Return the code-review Markdown report, not JSON." if handle.capability == "review"
+                     else "Return one JSON capability result with outcome completed, blocked, failed, or interrupted."),
                     "Do not edit ticket JSON, SPEC.md, ACCEPTANCE.md, HLD.md, runtime artifacts, or sibling tickets.",
                     "Do not commit, push, create branches, or schedule other workers.",
                     "Only implement may write inside allowed_write_scope; verify and review are read-only.",
@@ -212,10 +215,13 @@ class CliBackend:
                         process.returncode,
                     )
         handle.process = None
+        final_text = None
         if handle.output_file and handle.output_file.is_file():
-            stdout = stdout + "\n" + handle.output_file.read_text(encoding="utf-8", errors="replace")
+            final_text = handle.output_file.read_text(encoding="utf-8", errors="replace")
+            stdout = stdout + "\n" + final_text
         result = self._with_raw(
-            self._parse_output(stdout, stderr, process.returncode, allow_text=handle.prompt_mode),
+            self._parse_output(stdout, stderr, process.returncode, allow_text=handle.prompt_mode,
+                               review=handle.capability == "review" and not handle.prompt_mode, final_text=final_text),
             stdout,
             stderr,
             process.returncode,
@@ -309,7 +315,7 @@ class CliBackend:
             handle.process = None
 
     @staticmethod
-    def _parse_output(stdout: str, stderr: str, returncode: int | None, *, allow_text: bool = False) -> dict[str, Any]:
+    def _parse_output(stdout: str, stderr: str, returncode: int | None, *, allow_text: bool = False, review: bool = False, final_text: str | None = None) -> dict[str, Any]:
         if returncode not in {0, None}:
             return {
                 "outcome": "failed",
@@ -335,6 +341,14 @@ class CliBackend:
                     continue
                 if isinstance(value, dict):
                     events.append(value)
+        if review:
+            # Use the authoritative final message, never a tool result or an earlier pass.
+            report = final_text
+            if report is None:
+                report = next((text for event in reversed(events) if (text := _assistant_text(event)) is not None), None)
+            if report is None:
+                report = stdout if not events else ""
+            return normalize_review_report(report)
         for event in reversed(events):
             if isinstance(event.get("outcome"), str) and event["outcome"] in OUTCOMES and not event.get("type"):
                 return {"outcome": event["outcome"], "payload": event.get("payload", event)}
@@ -410,6 +424,8 @@ def _assistant_text(event: dict[str, Any]) -> str | None:
 
 def capability_contract(capability: str) -> dict[str, Any]:
     """从同一回执 schema 派生角色输出，避免 Agent 猜测字段。"""
+    if capability == "review":
+        return REPORT_CONTRACT
     receipt = json.loads((Path(__file__).parent / "graph" / "worker-receipt.schema.json").read_text())
     required = {
         "implement": ["landed_changes", "simplification"],
