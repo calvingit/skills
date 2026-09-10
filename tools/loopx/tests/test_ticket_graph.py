@@ -14,6 +14,8 @@ from pathlib import Path
 SCRIPT = Path(__file__).parents[1] / "src" / "loopx" / "graph" / "ticket_graph.py"
 SCHEMAS = Path(__file__).parents[1] / "src" / "loopx" / "graph"
 REPOSITORY = Path(__file__).parents[3]
+sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+from loopx.graph.execution_graph.authority import bind_authority
 
 
 def schema_errors(
@@ -611,6 +613,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         request = self.write_request(
             {
@@ -650,6 +653,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         request = self.write_request(
             {
@@ -684,6 +688,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         request = self.write_request(
             {
@@ -756,6 +761,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         verification = [{"command": "test", "exit_code": 0, "summary": "Passed."}]
         incomplete_request = self.write_request(
@@ -830,6 +836,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         request = self.write_request(
             {

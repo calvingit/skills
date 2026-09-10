@@ -25,13 +25,11 @@ When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Localit
 
 ## Boundaries
 
-- Read-only by default. Do not edit source, tests, config, rules, baselines, or architecture docs.
-- Do not form a concrete target architecture. Hand a needed Module / Interface / Seam design to `codebase-design`.
+- Do not edit source, tests, config, rules, baselines, or architecture docs.
 - Directory layout, naming taste, or "it looks inelegant" is not automatically an architecture problem.
 - Ordinary bugs, local code quality, or performance stay out unless evidence shows the root is ownership, a boundary, dependency, state lifecycle, or architecture policy.
 - Do not force Clean Architecture, DDD, or MVVM. Check conformance only when the project chose that constraint, or official stack rules are directly relevant to this question.
 - Every finding needs current evidence, actual impact, and the architecture outcome expected. Candidate stage does not write file-level implementation recipes.
-- Uncovered scope is listed as uncovered. Do not pretend a whole-repo audit finished.
 
 ## Workflow
 
@@ -115,13 +113,3 @@ This skill stops at the review conclusion. If the user chooses to act on a findi
 - Need a formal task contract → `to-spec`
 - Plan already clear → `to-spec`, then `high-level-design` when several implementations must share design, then `quick-implement` or `loop` by scope
 - Goal is only to delete proven-unnecessary complexity → `simplify`
-
-## Done when
-
-- Review scope, judgement basis, and uncovered parts are stated.
-- Current architecture facts come from code, relations, tests, or runnable checks — not from restating docs.
-- Project rules, official external guidance, and general design judgement are distinguished.
-- Every finding has evidence, impact, and an architecture concern.
-- Important counter-evidence was sought and recorded. A reasonable trade-off is not mislabelled as a problem.
-- The report concludes `Critical / High / Medium / Low / Speculative` or **no findings**.
-- The review did not drift into redesign or implementation.

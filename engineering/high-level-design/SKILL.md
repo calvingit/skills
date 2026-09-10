@@ -7,9 +7,7 @@ description: Search the current codebase against a confirmed SPEC and create or 
 
 Take a confirmed `SPEC.md` and current codebase facts, and form the high-level technical design for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
 
-Create `HLD.md` in the task directory only when a design will affect several modules, callers, or implementation tasks at once, so a single implementer cannot decide it alone. Do not write an empty document to complete a process.
-
-`HLD.md` is the final authority for that delivery's shared technical design. It is not a UI/UX, visual, or interaction draft. It does not prescribe private methods, local helpers, or a single caller's internal callbacks.
+`HLD.md` is the final authority for the delivery's shared technical design. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
 
 ## Authority and bounds
 
@@ -57,7 +55,6 @@ Ordinary technical choices are decided from repo evidence. Do not hand them to t
 
 - **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
 - **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
-- **No HLD**: no shared design several implementations must obey. Report the judgement. Write no artifact.
 
 ## Handoff
 
@@ -67,4 +64,4 @@ Report the HLD path, D IDs, local implementation space, unverified items, and do
 - Several implementation tasks, blocking edges, or unified scheduling → `to-tickets`.
 - An execution graph already exists and the HLD was amended → `to-tickets` syncs affected tickets.
 
-This skill does not split tickets, implement code, or produce UI/UX drafts. It does not automatically gain authorisation to commit, push, create a branch, or rewrite history.
+This skill does not split tickets, implement code, or produce UI/UX, visual, or interaction drafts. It does not automatically gain authorisation to commit, push, create a branch, or rewrite history.

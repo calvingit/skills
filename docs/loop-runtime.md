@@ -65,7 +65,7 @@ Graph 发现 schema、authority、cycle、dependency、transaction 或 recovery 
 
 ## 3. Execution Modes
 
-Loop 只有两种执行模式：`serial` 在单一会话中顺序执行 capability；`multi-agents` 为可隔离的 ticket 或 capability 创建多个 sub-agent。默认使用 `serial`，只有隔离证据成立时才使用 `multi-agents`。
+当前共享工作区运行时仅串行执行：implement → verify → review。每次 `loop run` 处理一张 ticket 的一次 attempt，外层调用方继续驱动；有进行中的 attempt 时优先恢复。`dispatch_ready` 处理一个就绪批次，遇到 retry、blocked、interrupted 或 failed 即停止。运行时不提供多 ticket 并行或 verify/review 并行参数。
 
 ## 4. Worker Handoff Contract
 
@@ -89,7 +89,7 @@ handle 只存在当前 runtime，包含 worker session reference、capability �
 - current attempt、baseline、existing changes、当前 diff；
 - dependency evidence、allowed write scope；
 - 已有的 acceptance 约束和 verify evidence；
-- prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts；并行 verify / review 都只收到 implement receipt。
+- prior capability receipts 和 repair findings。串行执行时，verify 收到 implement receipt，review 收到 implement 与 verify receipts。
 
 Loop 只接收 worker capability result，不把 worker runtime 细节写入 graph。
 
@@ -169,10 +169,23 @@ verify 负责执行项目已有验证命令并记录实际结果。业务验证�
 
 ## Graph mutation 与恢复
 
-`loopx graph <command> --help` 给出命令签名；`create-batch` 使用候选 key，`reconcile-batch` 支持 create、update_contract、supersede、replace_dependency。
+`loopx graph <command> --help` 给出命令签名；`create-batch` 使用候选 key，`reconcile-batch` 支持 create、update_contract、supersede、replace_dependency、retain_contract。协调前必须停止 worker 并 block 所有 active attempts。
 
 1. 环境或权限 blocker 解除后，Loop 先核验 release_condition，再通过 `unblock --input <request.json>` 提交 release_evidence，随后重新执行 `loop run`。
-2. 用户中断后先运行 `loop status` 和 `graph inspect`；只有一个 in_progress ticket 时，下一次 `loop run` 会恢复它，并重新执行验证命令。多张 in_progress 需要调用方明确选择 ticket，公开 CLI 当前不提供该选择参数。
+2. 用户中断后先运行 `loop status` 和 `graph inspect`；只有一个 in_progress ticket 时，下一次 `loop run` 会恢复它，并重新执行验证命令。多张 in_progress 需要调用方明确选择 ticket，公开 CLI 使用 `loop run --ticket <id> --scope <path>` 选择。
 3. 上游被修改或 graph transaction 未完成时先停止 dispatch，保留修改和现有产物。上游合法修订由对应 owner 确认，再 reconcile；越界改动由调用方审查处理，不能自动覆盖。事务恢复使用 `graph recover <task-dir> <rollback|commit>`。
 4. `reopen` 仅处理上游未变时的原交付缺陷；SPEC、ACCEPTANCE 或 HLD 修订走对应 owner 与 reconciliation。
 5. 当前正式版未发布，不提供旧 schema 迁移；graph contract 变化时直接按当前规范重建任务图。
+
+
+## 需求依据与最终交付
+
+- `execution.authority` 记录需求文件和当前 ticket 契约的指纹及确认原因。CLI 创建 ticket 时绑定；未执行且未绑定的手工 ticket 在首次 start 时绑定。执行过的 ticket 缺少绑定时必须重新确认，不能默认为有效。
+- start、retry、complete、reopen 及中断恢复检查绑定；当前依赖的证据也必须有效。指纹仅忽略文档末尾空行和平台换行编码，不自动判断需求语义等价。
+- 需求新增/删除 ID 暂时破坏覆盖时，`graph block` 仍可保存已停止的旧 attempt；返回的 `remaining_problems` 保留待协调问题，不把无效图标成有效。
+- `retain_contract` 由需求协调方明确确认未受影响的契约、依赖和证据后使用。它保留历史状态与证据，记录当前依据。受影响行为通过补充、修正或替换 ticket 处理。完成的 ticket 不允许原地改写契约或依赖。
+- `stale_authority` 标记待确认的 ticket；`all_active_done` 仅反映历史状态。`delivery_ready` 表示可以开始整体验收，尚不代表交付完成。
+- `loop delivery-prepare` 固定最终需求、任务图和代码快照；verify 与 code-review 完成整项验证后，`loop delivery-complete` 接受对应证据。`loop status` 的 `delivery_review` 返回 not_reviewed、pending、passed 或 stale。后续代码、需求、任务图、Git HEAD 或子模块变化会使结论失效。
+- 验证命令仍由 verify 执行，CLI 不重复执行。历史证据复用需要确认其含义、代码、依赖与环境仍适用；文件指纹无法证明外部系统状态未变化。
+
+命令和字段以 [最终交付审查](../engineering/loop/references/delivery-review.md) 为准。相关产物位于任务的 `.loop/`，该目录不得放置产品代码。

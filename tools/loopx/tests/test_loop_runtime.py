@@ -230,32 +230,6 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(result.outcome, "failed")
         self.assertIn("worker_failed", {item["code"] for item in result.problems})
 
-    def test_run_ticket_forwards_capability_parallelism_options(self) -> None:
-        calls: dict[str, object] = {}
-
-        class Adapter:
-            def run(self, bundle: dict[str, object], **options: object) -> dict[str, object]:
-                calls.update(options)
-                return {
-                    "outcome": "completed",
-                    "capabilities": [],
-                    "receipt": receipt(),
-                }
-
-        proof = {"dependencies": True, "write_scope": True, "shared_side_effects": True, "integration_order": True}
-        result = run_ticket(
-            self.task_dir,
-            adapter=Adapter(),  # type: ignore[arg-type]
-            allowed_write_scope=["src/"],
-            isolation_proof=proof,
-            concurrency_limit=2,
-            baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []},
-        )
-
-        self.assertEqual(result.outcome, "completed")
-        self.assertEqual(calls["isolation_proof"], proof)
-        self.assertEqual(calls["concurrency_limit"], 2)
-
     def test_adapter_failure_routes_to_retry(self) -> None:
         class Backend:
             def create(self, capability: str, bundle: dict[str, object]) -> str: return capability
@@ -779,7 +753,7 @@ class LoopRuntimeTests(unittest.TestCase):
         self.assertEqual(result.outcome, "failed")
         self.assertIn("upstream_changed", {item["code"] for item in result.problems})
 
-    def test_dispatch_defaults_to_serial_without_isolation_proof(self) -> None:
+    def test_dispatch_defaults_to_serial(self) -> None:
         second = ticket()
         second["id"] = "T002"
         (self.task_dir / "tickets" / "T002-runtime.json").write_text(json.dumps(second) + "\n", encoding="utf-8")
@@ -798,7 +772,7 @@ class LoopRuntimeTests(unittest.TestCase):
                 active -= 1
             return value
 
-        results = dispatch_ready(self.task_dir, worker, concurrency_limit=2, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
+        results = dispatch_ready(self.task_dir, worker, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
         self.assertEqual([item.outcome for item in results], ["completed", "completed"])
         self.assertEqual(maximum, 1)
 
@@ -821,8 +795,7 @@ class LoopRuntimeTests(unittest.TestCase):
                 active -= 1
             return value
 
-        proof = {"dependencies": True, "write_scope": True, "shared_side_effects": True, "integration_order": True}
-        results = dispatch_ready(self.task_dir, worker, concurrency_limit=2, isolation_proof=proof, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
+        results = dispatch_ready(self.task_dir, worker, allowed_write_scope=["src/"], baseline={"reference": "test", "staged": [], "unstaged": [], "untracked": []})
         self.assertEqual([item.outcome for item in results], ["completed", "completed"])
         self.assertEqual(maximum, 1)
 

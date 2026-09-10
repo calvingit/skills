@@ -34,23 +34,6 @@ Do not force every prompt into a rigid template. Short prompts are acceptable wh
 
 Ask at most one or two clarifying questions only when a missing decision changes the result and cannot be safely assumed. Otherwise, make the smallest reasonable assumption and state it outside the rewritten prompt.
 
-## What To Fix
-
-Prioritize issues that directly affect output quality:
-
-- unclear or missing goal
-- missing context that would change the answer
-- too much context that distracts from the task
-- vague output format or length
-- missing audience or use case
-- missing source/tool boundary
-- conflicting instructions
-- unverifiable success criteria
-- over-control of process when only the result matters
-- requests to guess facts, sources, APIs, files, or tool capabilities
-
-Do not repeat the same diagnosis in different words.
-
 ## Construction Rules
 
 - Start with the desired result, not a long list of steps.
@@ -64,86 +47,13 @@ Do not repeat the same diagnosis in different words.
 - Remove decorative constraints, repeated warnings, model-specific names, and "for later" scaffolding unless the user explicitly needs them.
 - Flag missing information instead of inventing it.
 
-## Default Skeleton
+## Output
 
-Use this only when structure helps; delete unused sections.
-
-```markdown
-# Goal
-[What to produce, decide, explain, change, or verify.]
-
-# Context
-[Only the sources, facts, audience, examples, files, screenshots, or constraints that change the result.]
-
-# Requirements
-- [Concrete requirement]
-- [Concrete requirement]
-
-# Boundaries
-- [What must stay unchanged or out of scope]
-- [What not to guess, send, publish, modify, or spend]
-
-# Output
-[Format, order, length, tone, table/schema, or file requirements.]
-
-# Final Check
-- [Verification, source check, consistency check, owner/due-date check, test command, or assumption report.]
-```
-
-## Output Modes
-
-Use one mode. Do not add extra sections when the user asks for only the final prompt.
-
-### Final Prompt Only
-
-When the user asks for "只输出最终版本", "直接给 prompt", or similar, return only the rewritten prompt.
-
-### Failed Output Provided
-
-```markdown
-## 问题诊断
-
-| 问题 | 证据 | 修复方式 |
-|---|---|---|
-| [问题] | [来自原 prompt 或失败输出的具体表现] | [对应改法] |
-
-## 最小修复版本
-
-[Smallest prompt that fixes the failure.]
-
-## 完整优化版本
-
-[Reusable or more structured prompt, only if useful.]
-```
-
-### Normal Case
-
-```markdown
-## 主要问题
-
-- [Only the issues that materially affect the result.]
-
-## 优化后的提示词
-
-[Copy-ready prompt.]
-
-## 可选增强
-
-- [Only if a genuinely useful optional addition exists; otherwise omit this section.]
-```
+Return only the rewritten prompt when requested. Otherwise briefly explain material issues and provide the usable prompt. Read [references/output-patterns.md](references/output-patterns.md) when a structured template or failed-output diagnosis is useful.
 
 ## Quality Check
 
-Before responding, confirm:
-
-- The goal is visible near the top.
-- Context is sufficient but not bloated.
-- Output format is stable enough for the user's use case.
-- Boundaries prevent real problems, not imaginary ones.
-- Important work has a final check.
-- Missing facts are marked or converted into assumptions.
-- The rewritten prompt does not depend on a specific model name unless the user asked for that.
-- The response itself is no longer than needed.
+Check the result against the five-part Core Standard and resolve conflicting instructions. Mark missing facts or state assumptions; do not repeat the diagnosis or add unnecessary response sections.
 
 ## References
 

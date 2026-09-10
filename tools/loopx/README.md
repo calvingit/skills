@@ -21,3 +21,19 @@ Build: `python3 -m pip wheel --no-deps tools/loopx` (requires an available setup
 Runtime package checks: `python3 tools/loopx/scripts/check.py all`.
 
 Task acceptance uses the task's SPEC and verify evidence. An independent ACCEPTANCE.md is optional; Loop does not execute a second copy of verification commands.
+
+
+Each `loop run` executes one attempt, serially: implement → verify → review. The caller continues on `retry` and selects the next ticket after `completed`; a frontier batch stops on any other result. `--ticket T001` selects an explicit recovery target. There are no ticket/capability parallelism switches in this runtime.
+
+After a requirement change, stop workers and block active attempts before reconciliation. Graph `stale_authority` identifies tickets needing an impact decision; `retain_contract` confirms unchanged contracts/evidence without discarding historical done records. See [amendment rules](../../engineering/to-tickets/references/amendment.md).
+
+Final delivery is separate from `all_active_done`:
+
+```bash
+loopx loop delivery-prepare <task-dir> --workspace <repo-root>
+# Run verify and code-review on this snapshot; save their receipt under <task-dir>/.loop/.
+loopx loop delivery-complete <task-dir> --input <task-dir>/.loop/delivery-input.json
+loopx loop status <task-dir>
+```
+
+The final receipt must cover all current SPEC AC IDs. Changes to requirements, graph, Git HEAD, workspace code or submodules invalidate it. Commands and receipt format: [final review](../../engineering/loop/references/delivery-review.md).

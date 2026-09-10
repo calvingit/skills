@@ -10,7 +10,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from .authority import authority_index
+from .authority import authority_index, authority_current, authority_fingerprint
 from .contracts import problem, validate_shape, validate_string_list, validate_ticket
 from .graph import graph_projection, public_ticket, validate_graph
 
@@ -96,6 +96,10 @@ def validated_snapshot(
     )
     graph_problems = authority_problems + graph_problems
     graph = graph_projection(tickets, valid=not graph_problems, coverage=coverage)
+    stale = [ticket["id"] for ticket in tickets if ticket["lifecycle"]["phase"] != "superseded" and not authority_current(task_dir, ticket)]
+    graph["authority_fingerprint"] = authority_fingerprint(task_dir)
+    graph["stale_authority"] = stale
+    graph["delivery_ready"] = graph["all_active_done"] and not stale and not graph_problems
     return tickets, graph, graph_problems
 
 

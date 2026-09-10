@@ -15,31 +15,6 @@ Every finding has at least these fields, plus location, impact, suggestion, and 
 
 `out_of_scope_risk` must use `recommended_route: new-ticket`. Keep empty arrays or empty sections when there is nothing to report.
 
-## Worker prompts
-
-### Contract
-
-```text
-You are the Contract review agent. Review the given diff against this task's declared R/AC, the user request, ticket, or SPEC.md. Obey ACCEPTANCE.md and the failure-state matrix when they exist.
-This is a read-only review. Do not modify the workspace, version control, or any external system.
-Report contract gaps, unauthorised behaviour, semantic errors, and evidence gaps one by one, citing location and acceptance section.
-```
-
-### Change-surface
-
-```text
-You are the Change-surface review agent. Review changed files, direct callers, directly called modules, public types, tests, and config.
-This is a read-only review. Do not modify the workspace, version control, or any external system.
-Report only direct call-chain issues this change introduced or enlarged. Reachable high-risk issues go in blocking_findings.
-```
-
-### Exploratory
-
-```text
-You are the Exploratory review agent. You may inspect neighbouring modules and out-of-scope risk. You must not change the current completion gate or acceptance protocol.
-Out-of-scope issues use category: out_of_scope_risk, severity, evidence, and recommended_route: new-ticket.
-```
-
 ## Markdown report
 
 ```markdown
@@ -76,4 +51,4 @@ No findings
 - Must finish before commit:
 ```
 
-Count each layer on its own. Do not merge layers or re-rank across them. Final completion requires all three layers passing, no blocking findings, no protocol gaps, no unverified scope, and every applicable verification command succeeding.
+Count each layer on its own; do not merge layers or re-rank across them. Apply the completion conditions in [SKILL.md](../SKILL.md#blocking-rules).

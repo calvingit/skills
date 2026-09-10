@@ -8,7 +8,7 @@ Compare old / new SPEC, the current HLD, codebase facts, and existing tickets. C
 - Requirement or external-behaviour change is amended in the SPEC by `to-spec` first, then the HLD.
 - Design change with unchanged requirements updates only the HLD. Do not rewrite the SPEC backwards.
 - When a graph exists, read-only check which tickets cite affected Ds, which implemented behaviour still holds, and what needs amendment, correction, migration, or replacement. Do not edit tickets.
-- If an affected worker is still writing, ask `loop` to stop new dispatch, reclaim partial receipts, and confirm it is no longer writing.
+- Before writing a shared HLD while a graph exists, ask `loop` to stop task dispatch, interrupt workers, preserve partial receipts, and block all active attempts. The current shared-workspace runtime pauses the task, not just the selected tickets.
 - Show the user the design delta and ticket impact. After confirmation, update the same HLD, then hand to `to-tickets` to coordinate the graph.
 
 If implementation finds the HLD cannot hold, the worker must report blocked. It must not quietly change a shared design constraint and continue. After the HLD is amended, resume execution according to actual impact.
