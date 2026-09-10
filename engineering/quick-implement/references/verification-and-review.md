@@ -12,7 +12,7 @@ Run verification for the current scope through the project's existing entries. R
 
 After verification, use `code-review` against the implemented scope. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After review findings are fixed, re-run affected verification and review.
 
-The review receipt follows code-review's [canonical template](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
+The review receipt follows code-review's [report guidance](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
 
 ## Receipt
 

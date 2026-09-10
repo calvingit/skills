@@ -7,7 +7,7 @@ from .authority import authority_index, authority_current, bind_authority
 from .contracts import envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_summary_items, validate_ticket
 from .graph import public_ticket, ticket_readiness, validate_graph
 from .store import acquire_write_lock, atomic_write_ticket, release_lock, validated_snapshot
-from ...scope_guard import allowed_scope
+from ...scope_guard import validate_scope
 
 def transition_failure(ticket: dict[str, Any], code: str, detail: str):
     return None, [problem("transition", code, detail, ticket_id=ticket["id"], path=ticket["_path"])]
@@ -20,7 +20,7 @@ def apply_start(ticket, request, by_id):
     if not validate_string_list(request["allowed_write_scope"], require_items=True):
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "start requires a non-empty allowed_write_scope.")]
     try:
-        allowed_scope("implement", request["allowed_write_scope"])
+        validate_scope(request["allowed_write_scope"])
     except ValueError as exc:
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate=copy.deepcopy(ticket); number=candidate["execution"]["attempt_sequence"]+1
@@ -63,7 +63,7 @@ def apply_retry(ticket, request):
     if not validate_string_list(request["allowed_write_scope"], require_items=True):
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", "retry requires a non-empty allowed_write_scope.")]
     try:
-        allowed_scope("implement", request["allowed_write_scope"])
+        validate_scope(request["allowed_write_scope"])
     except ValueError as exc:
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate = copy.deepcopy(ticket)
@@ -85,21 +85,52 @@ def apply_retry(ticket, request):
     issues = validate_ticket(public_ticket(candidate), candidate["_path"])
     return (None, issues) if issues else (candidate, [])
 
-def apply_complete(ticket, request, *, has_hld, task_dir=None):
-    if ticket["lifecycle"]["phase"] != "in_progress": return transition_failure(ticket,"invalid_transition","complete requires an in_progress ticket.")
-    issues=validate_shape(request,{"evidence","verification","reviews","unverified"},path="<request>",ticket_id=ticket["id"],field="")
-    if issues: return None,issues
-    if not isinstance(request["evidence"],dict): return None,[invalid_field("<request>",ticket["id"],"evidence","evidence must be an object.")]
-    fields = {"command", "exit_code", "summary"}
-    issues=validate_summary_items(request["verification"],fields,path="<request>",ticket_id=ticket["id"],field="verification")
-    if issues: return None,issues
-    reviews=request["reviews"]; issues=validate_shape(reviews,{"contract","change_surface","exploratory","protocol_health"},path="<request>",ticket_id=ticket["id"],field="reviews")
-    if issues: return None,issues
-    ok=bool(request["verification"]) and all(x["exit_code"]==0 for x in request["verification"]) and reviews["contract"]=="pass" and reviews["change_surface"]=="pass" and reviews["exploratory"]=="pass" and reviews["protocol_health"] in {"not_triggered","pass"} and request["unverified"]==[]
-    if not ok: return transition_failure(ticket,"completion_gate_failed","Completion requires successful verification, passed applicable reviews, and no unverified scope.")
-    candidate=copy.deepcopy(ticket); candidate["execution"]["evidence"].update(request["evidence"]); candidate["execution"]["current_attempt"]=None; candidate["execution"]["blocker"]=None; candidate["execution"]["reopen_context"]=None; candidate["lifecycle"]["phase"]="done"
-    issues=validate_ticket(public_ticket(candidate),candidate["_path"])
-    return (None,issues) if issues else (candidate,[])
+def completion_problems(request, acceptance_ids):
+    """Check recorded facts and the caller's decision, without interpreting review prose."""
+    issues = validate_shape(request, {"evidence", "verification", "review", "approved", "unverified"},
+                            path="<request>", ticket_id=None, field="")
+    if issues:
+        return issues
+    if not isinstance(request["evidence"], dict):
+        return [invalid_field("<request>", None, "evidence", "Evidence must be keyed by acceptance ID.")]
+    issues = validate_summary_items(request["verification"], {"command", "exit_code", "summary"},
+                                    path="<request>", ticket_id=None, field="verification")
+    if issues:
+        return issues
+    if not non_empty_string(request["review"]):
+        return [invalid_field("<request>", None, "review", "Include the original review as a non-empty string.")]
+    if (request["approved"] is not True or request["unverified"] != []
+            or not request["verification"] or any(item["exit_code"] != 0 for item in request["verification"])):
+        return [problem("transition", "completion_gate_failed", "Completion requires caller approval, successful verification, and no unverified scope.")]
+    if set(request["evidence"]) != set(acceptance_ids):
+        return [problem("transition", "done_without_acceptance_evidence", "Evidence must cover exactly the current acceptance IDs.")]
+    for entry in request["evidence"].values():
+        issues = validate_shape(entry, {"result", "summary"}, path="<request>", ticket_id=None, field="evidence")
+        if issues:
+            return issues
+        if entry["result"] != "passed" or not non_empty_string(entry["summary"]):
+            return [problem("transition", "completion_gate_failed", "Each acceptance ID needs passed evidence and its source/result.")]
+    return []
+
+
+def apply_complete(ticket, request):
+    if ticket["lifecycle"]["phase"] != "in_progress":
+        return transition_failure(ticket, "invalid_transition", "complete requires an in_progress ticket.")
+    if not isinstance(request, dict) or type(request.get("expected_attempt")) is not int or request["expected_attempt"] != ticket["execution"]["attempt_sequence"]:
+        return transition_failure(ticket, "stale_attempt", "Complete expected_attempt must match the active attempt.")
+    result = {key: value for key, value in request.items() if key != "expected_attempt"}
+    issues = completion_problems(result, [item["id"] for item in ticket["acceptance_criteria"]])
+    if issues:
+        return None, issues
+    candidate = copy.deepcopy(ticket)
+    candidate["execution"]["evidence"] = request["evidence"]
+    candidate["execution"]["review"] = request["review"]
+    candidate["execution"]["current_attempt"] = None
+    candidate["execution"]["blocker"] = None
+    candidate["execution"]["reopen_context"] = None
+    candidate["lifecycle"]["phase"] = "done"
+    issues = validate_ticket(public_ticket(candidate), candidate["_path"])
+    return (None, issues) if issues else (candidate, [])
 
 def apply_reopen(ticket, request):
     if ticket["lifecycle"]["phase"] != "done": return transition_failure(ticket,"invalid_transition","reopen requires a done ticket.")
@@ -109,6 +140,7 @@ def apply_reopen(ticket, request):
     if request["upstream_unchanged"] is not True or not non_empty_string(request["review_finding"]) or not validate_string_list(invalidated,require_items=True) or not set(invalidated)<=acs:
         return transition_failure(ticket,"invalid_reopen_request","Reopen requires an unchanged upstream contract, a finding, and known invalidated AC IDs.")
     candidate=copy.deepcopy(ticket); candidate["lifecycle"]["phase"]="open"
+    candidate["execution"].pop("review", None)
     for ac in invalidated: candidate["execution"]["evidence"].pop(ac,None)
     candidate["execution"]["reopen_context"]={"review_finding":request["review_finding"],"invalidated_acceptance":invalidated}
     issues=validate_ticket(public_ticket(candidate),candidate["_path"])
@@ -133,7 +165,7 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
         elif operation=="retry":candidate,issues=apply_retry(ticket,request)
         elif operation=="block":candidate,issues=apply_block(ticket,request)
         elif operation=="unblock":candidate,issues=apply_unblock(ticket,request)
-        elif operation=="complete":candidate,issues=apply_complete(ticket,request,has_hld=(task_dir/"HLD.md").is_file(),task_dir=task_dir)
+        elif operation=="complete":candidate,issues=apply_complete(ticket,request)
         elif operation=="reopen":candidate,issues=apply_reopen(ticket,request)
         else:candidate,issues=None,[problem("contract","unsupported_operation",f"Unsupported mutation: {operation}")]
         if issues or candidate is None:return envelope(operation,ok=False,graph=graph,problems=issues),1

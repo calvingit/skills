@@ -59,6 +59,7 @@
       "additionalProperties": false,
       "required": ["attempt_sequence", "evidence", "blocker", "current_attempt", "reopen_context"],
       "properties": {
+        "review": {"type": "string", "minLength": 1},
         "authority": {
           "type": "object", "additionalProperties": false,
           "required": ["fingerprint", "reason"],

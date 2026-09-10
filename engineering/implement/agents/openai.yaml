@@ -1,7 +1,7 @@
 interface:
   display_name: "Implement"
   short_description: "Implement the current ticket within Loop's allowed write scope"
-  default_prompt: "Use $implement to implement the given ticket contract within the allowed write scope and return a structured capability receipt."
+  default_prompt: "Use $implement to implement the given ticket contract within the allowed write scope and return a readable Markdown account of changes and unresolved issues."
 
 policy:
   allow_implicit_invocation: false

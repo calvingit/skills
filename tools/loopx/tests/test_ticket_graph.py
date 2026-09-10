@@ -116,30 +116,6 @@ def canonical_ticket(**overrides: object) -> dict[str, object]:
     return ticket
 
 
-def canonical_receipt(**overrides: object) -> dict[str, object]:
-    receipt: dict[str, object] = {
-        "schema_version": 1,
-        "outcome": "completed",
-        "ticket_id": "T001",
-        "current_attempt": 1,
-        "landed_changes": [{"path": "example.py", "summary": "Delivered behavior."}],
-        "acceptance_evidence": [
-            {"acceptance_id": "AC1", "result": "passed", "summary": "Verified."}
-        ],
-        "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-        "simplification": {"result": "completed"},
-        "review": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
-        "blocking_findings": [],
-        "non_blocking_findings": [],
-        "acceptance_protocol_gaps": [],
-        "unverified_scope": [],
-        "blocker": None,
-        "unverified": [],
-    }
-    receipt.update(overrides)
-    return receipt
-
-
 class TicketGraphCliTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary_directory = tempfile.TemporaryDirectory()
@@ -254,18 +230,11 @@ class TicketGraphCliTests(unittest.TestCase):
 
     def test_public_schemas_define_closed_v1_contracts(self) -> None:
         ticket_schema = json.loads((SCHEMAS / "ticket.schema.json").read_text(encoding="utf-8"))
-        receipt_schema = json.loads(
-            (SCHEMAS / "worker-receipt.schema.json").read_text(encoding="utf-8")
-        )
 
         self.assertEqual(ticket_schema["properties"]["schema_version"]["const"], 1)
         self.assertFalse(ticket_schema["additionalProperties"])
         self.assertEqual(set(ticket_schema["required"]), set(canonical_ticket()))
-        self.assertEqual(receipt_schema["properties"]["schema_version"]["const"], 1)
-        self.assertFalse(receipt_schema["additionalProperties"])
-        self.assertIn("acceptance_evidence", receipt_schema["required"])
         self.assertEqual(schema_errors(canonical_ticket(), ticket_schema, ticket_schema), [])
-        self.assertEqual(schema_errors(canonical_receipt(), receipt_schema, receipt_schema), [])
         self.assertTrue(
             schema_errors(canonical_ticket(readiness="ready"), ticket_schema, ticket_schema)
         )
@@ -373,23 +342,6 @@ class TicketGraphCliTests(unittest.TestCase):
             )
             self.assertEqual(forbidden_result.returncode, 2)
             self.assertEqual(forbidden_payload["problems"][0]["code"], "invalid_arguments")
-
-    def test_worker_receipt_runtime_validation_matches_the_public_contract(self) -> None:
-        validate_worker_receipt = runpy.run_path(str(SCRIPT))["validate_worker_receipt"]
-
-        self.assertEqual(validate_worker_receipt(canonical_receipt()), [])
-
-        missing = canonical_receipt()
-        del missing["acceptance_evidence"]
-        unknown = canonical_receipt(extra="not allowed")
-        invalid = canonical_receipt(outcome="done")
-        invalid_type = canonical_receipt(outcome={"unexpected": True})
-        self.assertIn("missing_field", {item["code"] for item in validate_worker_receipt(missing)})
-        self.assertIn("unknown_field", {item["code"] for item in validate_worker_receipt(unknown)})
-        self.assertIn("invalid_field", {item["code"] for item in validate_worker_receipt(invalid)})
-        self.assertIn(
-            "invalid_field", {item["code"] for item in validate_worker_receipt(invalid_type)}
-        )
 
     def test_in_progress_ticket_requires_a_complete_current_attempt(self) -> None:
         ticket = canonical_ticket(
@@ -768,7 +720,7 @@ class TicketGraphCliTests(unittest.TestCase):
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "First verified."}},
                 "verification": verification,
-                "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
+                "expected_attempt": 1, "review": "检查完成，无需修改。", "approved": True,
                 "unverified": [],
             }
         )
@@ -792,7 +744,7 @@ class TicketGraphCliTests(unittest.TestCase):
                     "AC2": {"result": "passed", "summary": "Second verified."},
                 },
                 "verification": verification,
-                "reviews": {"contract": "pass", "change_surface": "pass", "exploratory": "pass", "protocol_health": "not_triggered"},
+                "expected_attempt": 1, "review": "检查完成，无需修改。", "approved": True,
                 "unverified": [],
             }
         )
@@ -842,7 +794,7 @@ class TicketGraphCliTests(unittest.TestCase):
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "Verified."}},
                 "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-                "reviews": {"contract": "pass", "change_surface": "failed", "exploratory": "pass", "protocol_health": "not_triggered"},
+                "expected_attempt": 1, "review": "存在未修复问题。", "approved": False,
                 "unverified": ["A required edge case."],
             }
         )

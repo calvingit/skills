@@ -17,7 +17,7 @@
 | Project Setup | `project-setup` | 配置需求权威、项目上下文和协作入口。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的工程判断和实践。 |
-| Loop 内部 capability | `implement`, `verify` | 仅由 Loop 或 loopx 调用，不是普通任务入口。 |
+| Loop 内部 capability | `implement`, `verify` | 由 Loop 交给当前 Runtime 的 subagents 执行。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -73,41 +73,15 @@ Engineering workflow
 
 ## Ticket 执行
 
-Loop 在共享工作区串行执行，每次运行处理一张 ticket 的一次 attempt，并优先恢复未完成的 attempt。当前 runtime 不提供 ticket 或 verify/review 并行参数。
+Loop 默认通过当前 Runtime 的 subagents 串行执行 implement → verify → code-review，再阅读结果决定 complete、retry 或 block。不同阶段使用独立上下文。只有任务依赖和写入范围相互独立时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
 
-需求变更时先停止当前任务的执行，再协调上游文档与 tickets；历史 done 保留，但旧证据必须确认仍适用。全部 tickets 完成后，还需通过绑定当前需求、图与代码快照的整体验收，才能报告交付完成。
+结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；`loopx` 只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
 
-单张 ticket 的 capability 流程为：
+需求变更时先通过 Runtime 停止相关 subagents，再协调上游文档和 tickets。历史 done 保留，旧证据需确认仍适用。全部 tickets 完成后，由原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
 
-```text
-implement → verify → code-review → aggregate evidence → complete / retry / block
-```
+完成一张 ticket 后立即继续下一张。仅在最终交付通过、用户停止，或剩余工作依赖无法取得的外部输入/能力时停止。Runtime 结束后，Skill 不承诺后台自行继续。
 
-`loop` 管理 implement、verify 和 review 的顺序与权限；verify 负责实际验证命令，Loop 只聚合结果并通过 `loopx graph` 维护状态。
-
-`loopx loop run` 只负责 Loop pipeline、ticket lifecycle 和 worker receipt 聚合；worker 由当前 Runtime 独立执行，权限和环境失败进入 blocker，而不是代码 repair。
-
-长任务不以固定 wall-clock 时长判定失败：调用方可提供任务预算，runtime heartbeat 可提供 heartbeat freshness 和 progress freshness；Runtime 保存 worker raw output 到 task-local artifact，Loop 在 retry / 完成门前检查 scope、graph 文件和 Git HEAD。
-
-完整的 graph mutation、worker handoff、artifact layout、失败路由和验证边界见：[Loop Runtime](./loop-runtime.md)。
-
-loopx 的公开契约、失败状态矩阵和统一验收入口见：[loopx 验收协议](./loopx-acceptance.md)。
-
-### Agent 调用边界
-
-Loop 通过当前 Runtime 调度独立 worker；`loopx` 不启动或管理 worker：
-
-```text
-Loop
-  ├── loopx graph / lifecycle
-  └── Runtime worker
-```
-
-Worker handle 和 raw output 只属于当前 Runtime，不写入 ticket JSON。
-
-每次 CLI capability 的完整 stdout/stderr/returncode/JSONL 事件保存到 task-local receipt artifact；只有 Loop 接受的 normalized evidence、verification、review 和 blocker facts 才进入 execution graph。长任务默认不设固定 wall-clock timeout，可由调用方提供任务预算，或通过 heartbeat/progress freshness 失鲜判定中断。
-
-只有所有 ticket-local AC 有 passed evidence、验证成功、适用审查通过且没有未验证范围时，ticket 才能进入 `done`。上游 SPEC / HLD 变化由 `to-spec` / `high-level-design` 和 `to-tickets` 协调，不用 `reopen` 伪装。
+状态命令、输入与边界见 [Loop 与 Runtime 的职责](./loop-runtime.md)；可执行检查见 [loopx 验收协议](./loopx-acceptance.md)。
 
 Ticket 生命周期图：
 

@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "loopx"
 version = "0.1.0"
-description = "Shared engineering workflow and worker CLI"
+description = "Ticket state and delivery progress helpers"
 requires-python = ">=3.10"
 
 [project.scripts]
@@ -15,4 +15,4 @@ loopx = "loopx.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-loopx = ["graph/*.json", "providers/*.js", "contracts/*.json"]
+loopx = ["graph/*.json", "contracts/*.json"]

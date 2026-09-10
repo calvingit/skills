@@ -13,8 +13,9 @@ import tempfile
 from pathlib import Path
 
 from .graph.execution_graph.authority import authority_index, authority_fingerprint
-from .graph.execution_graph.contracts import validate_worker_receipt
-from .loop_runtime import _graph, _graph_files, _workspace_snapshot, _workspace_revision, _completion_gate_problem
+from .graph.execution_graph.queries import inspect
+from .graph.execution_graph.lifecycle import completion_problems
+from .snapshot import _graph_files, _workspace_snapshot, _workspace_revision
 
 
 def _write(path: Path, value: dict) -> None:
@@ -34,7 +35,7 @@ def _write(path: Path, value: dict) -> None:
 
 
 def _snapshot(task_dir: Path, workspace: Path) -> tuple[str, dict]:
-    graph = _graph('inspect', task_dir)
+    graph, _ = inspect(task_dir)
     if not graph.get('ok') or not graph['graph'].get('delivery_ready'):
         raise ValueError('All active tickets need current authority and passed delivery before whole-task review.')
     artifact_root = task_dir / '.loop'
@@ -106,22 +107,15 @@ def complete(task_dir: Path, request: dict) -> dict:
     path = task_dir / '.loop/delivery.json'
     artifact = json.loads(path.read_text())
     context = artifact['context']
-    fields = {'snapshot', 'acceptance_evidence', 'verification', 'review', 'blocking_findings',
-              'non_blocking_findings', 'acceptance_protocol_gaps', 'unverified_scope', 'unverified'}
+    fields = {'snapshot', 'evidence', 'verification', 'review', 'approved', 'unverified'}
     if not isinstance(request, dict) or set(request) != fields:
-        raise ValueError('Delivery receipt fields do not match the review contract.')
+        raise ValueError('Delivery input fields do not match the progress contract.')
     if request['snapshot'] != context['snapshot'] or _snapshot(task_dir, Path(context['workspace']))[0] != context['snapshot']:
         raise ValueError('Delivery review is stale; prepare and review the current snapshot.')
-    receipt = {key: value for key, value in request.items() if key != 'snapshot'}
-    receipt.update(schema_version=1, ticket_id='T000', current_attempt=1, outcome='completed',
-                   landed_changes=[], simplification={'result': 'no_change'}, blocker=None)
-    problems = validate_worker_receipt(receipt)
+    result = {key: value for key, value in request.items() if key != 'snapshot'}
+    problems = completion_problems(result, context['spec_acceptance'])
     if problems:
-        raise ValueError('Invalid delivery review receipt: ' + json.dumps(problems))
-    ticket = {'acceptance_criteria': [{'id': value} for value in context['spec_acceptance']]}
-    gate = _completion_gate_problem(task_dir, ticket, receipt)
-    if gate:
-        raise ValueError(gate['detail'])
+        raise ValueError('Delivery not accepted: ' + json.dumps(problems))
     # Recheck after validation, before accepting the receipt. Any subsequent change
     # also invalidates status(), so completion cannot become permanently stale-green.
     if _snapshot(task_dir, Path(context['workspace']))[0] != context['snapshot']:

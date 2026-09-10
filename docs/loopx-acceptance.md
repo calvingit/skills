@@ -1,33 +1,17 @@
-# loopx 验收协议 v1
+# loopx 验收边界
 
-本文件是 loopx 的完成门。修复、审查和发布只以本协议及其可执行检查为准，不通过临时增加审查范围来改变完成标准。
+`loopx` 只管理 tickets 和交付进度。Agent 的创建、等待、中断与会话恢复属于当前 Runtime；业务结果由 Loop 阅读并判断。
 
-本文件只定义 loopx CLI 和运行时公开边界；任务验收按任务自身的 SPEC 和可选 ACCEPTANCE.md 执行。
+## 必须满足
 
-## 公开边界
+- graph 查询和状态写入保留依赖、需求绑定、attempt、锁及事务校验。
+- complete 要求当前 attempt、全部 AC 证据、成功验证、非空原始 review 字符串、调用方批准和空未验证范围。
+- 审查字符串按原文存储，不解析标题、语言或严重性，不据此自动批准。
+- 非法状态、缺少证据、过期 attempt、未协调需求或失效交付快照不得标为完成。
+- 不提供 worker/provider/Agent CLI 命令，不启动 Agent 进程，不管理 session、heartbeat 或重试执行。
+- `loop status` 和 delivery-prepare/complete 只查询或记录进度，不执行实现、测试或审查。
 
-- `loop` 负责 ticket、attempt、scope、handoff、retry、block、complete 和 completion gate。
-- `graph` 负责 graph contract 与 lifecycle mutation。
-
-## 固定命令
-
-```text
-loopx version
-loopx graph inspect <task-dir>
-loopx loop status <task-dir>
-loopx loop run <task-dir> --scope <path>
-```
-
-## 失败状态矩阵
-
-| 输入/事件 | 结果 | 退出码 | 证据要求 |
-| --- | --- | --- | --- |
-| graph 缺少命令 | usage error | 2 | 标准 usage |
-| graph command --help | usage | 0 | 不访问 task-dir |
-| scope 越界 | rejected | 非 0 | graph 状态不被伪造完成 |
-| completion gate 不满足 | 不得 done | 非 0 | 保留 evidence |
-
-## 完成命令
+## 检查入口
 
 从仓库根目录执行：
 
@@ -35,4 +19,4 @@ loopx loop run <task-dir> --scope <path>
 python3 tools/loopx/scripts/check.py all
 ```
 
-该命令覆盖根目录测试、CLI 黑盒检查、compile/package smoke、干净虚拟环境安装和公开入口验证。
+覆盖图状态、需求变更、任意 Markdown 原文存储、最终快照失效、CLI 参数错误、wheel 打包和干净环境安装。Runtime subagent 行为由实际工作流验证，不用脚本测试代替。

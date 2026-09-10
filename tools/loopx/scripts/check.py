@@ -5,6 +5,8 @@ from __future__ import annotations
 
 import argparse
 import os
+import shutil
+import zipfile
 from pathlib import Path
 import subprocess
 import sys
@@ -26,14 +28,17 @@ def unit() -> None:
 def cli() -> None:
     env = os.environ.copy()
     env["PYTHONPATH"] = str(PACKAGE / "src")
-    for command in (("--help",), ("version",), ("loop", "run", "--help"), ("worker", "--help"), ("worker", "providers"), ("graph", "inspect", "--help")):
+    for command in (("--help",), ("version",), ("loop", "status", "--help"), ("loop", "delivery-complete", "--help"), ("graph", "inspect", "--help")):
         run([sys.executable, "-m", "loopx", *command], env=env)
 
 
 def package() -> None:
     with tempfile.TemporaryDirectory(prefix="loopx-check-") as directory:
         output = Path(directory)
-        run([sys.executable, "-m", "pip", "wheel", "--no-deps", "--wheel-dir", str(output), str(PACKAGE)])
+        source = output / "source"
+        # A reused setuptools build directory can ship modules deleted from src.
+        shutil.copytree(PACKAGE, source, ignore=shutil.ignore_patterns("build", "dist", "*.egg-info", "__pycache__", "*.pyc"))
+        run([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "--no-index", "--wheel-dir", str(output), str(source)])
         wheel = next(output.glob("loopx-*.whl"))
         venv = output / "venv"
         run([sys.executable, "-m", "venv", str(venv)])
@@ -42,9 +47,15 @@ def package() -> None:
         run([str(pip), "install", "--no-index", "--no-deps", str(wheel)])
         run([str(executable), "--help"])
         run([str(executable), "version"])
-        names = subprocess.check_output([sys.executable, "-c", "import zipfile,sys; z=zipfile.ZipFile(sys.argv[1]); print('\\n'.join(z.namelist()))", str(wheel)], text=True)
-        if "loopx/contracts/worker-result.schema.json" not in names or "loopx/contracts/cli-envelope.schema.json" not in names:
-            raise RuntimeError("wheel is missing public contract schemas")
+        with zipfile.ZipFile(wheel) as archive:
+            names = set(archive.namelist())
+        expected = {path.relative_to(PACKAGE / "src").as_posix()
+                    for path in (PACKAGE / "src" / "loopx").rglob("*")
+                    if path.is_file() and path.suffix in {".py", ".json"}}
+        shipped = {name for name in names if name.startswith("loopx/")}
+        if shipped != expected:
+            raise RuntimeError(f"Wheel differs from current source: missing={expected - shipped}, extra={shipped - expected}")
+
 
 
 def main(argv: list[str] | None = None) -> int:

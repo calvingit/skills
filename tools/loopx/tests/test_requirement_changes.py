@@ -8,11 +8,19 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from loopx.loop_runtime import run_ticket, reopen_ticket, _graph, dispatch_ready
+from loopx.graph.execution_graph.lifecycle import mutate_ticket
+from loopx.graph.execution_graph.queries import inspect
 from loopx.graph.execution_graph.batch import reconcile_batch
 from loopx.graph.execution_graph.authority import authority_fingerprint
 from loopx import delivery
-from test_loop_runtime import ticket, receipt
+from test_ticket_graph import canonical_ticket as ticket
+
+
+def completion(**overrides):
+    return {"evidence": {"AC1": {"result": "passed", "summary": "Observed expected result in test log."}},
+            "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
+            "review": "经检查，当前范围没有需要修复的问题。\n\n可选建议：后续改善命名。",
+            "approved": True, "unverified": [], **overrides}
 
 
 class RequirementChangesTests(unittest.TestCase):
@@ -32,12 +40,11 @@ class RequirementChangesTests(unittest.TestCase):
         subprocess.run(['git', '-C', str(self.workspace), 'add', '.'], check=True)
         subprocess.run(['git', '-C', str(self.workspace), '-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'baseline'], check=True)
 
-    def execute(self, **values):
-        return run_ticket(self.task, lambda bundle: receipt(current_attempt=bundle['attempt'], **values), workspace_root=self.workspace, allowed_write_scope=['src.py'])
 
     def change(self):
         p = self.task / 'SPEC.md'
         p.write_text(p.read_text().replace('Run.', 'Reject invalid input.'))
+
 
     def retain(self, **overrides):
         operation = {'operation': 'retain_contract', 'ticket_id': 'T001',
@@ -46,28 +53,16 @@ class RequirementChangesTests(unittest.TestCase):
         operation.update(overrides)
         return reconcile_batch(self.task, {'reason': 'Confirmed impact review.', 'operations': [operation]})
 
-    def test_resume_rejects_changed_requirement_without_calling_worker(self):
-        self.assertEqual(self.execute(outcome='interrupted').outcome, 'interrupted')
-        self.change()
-        result = run_ticket(self.task, lambda _: self.fail('stale worker dispatched'), workspace_root=self.workspace, allowed_write_scope=['src.py'])
-        self.assertEqual(result.outcome, 'blocked')
-        self.assertEqual(result.problems[0]['code'], 'upstream_changed')
-        self.assertEqual(json.loads(self.path.read_text())['execution']['attempt_sequence'], 1)
-
-    def test_trailing_blank_line_does_not_prevent_reopen(self):
-        self.assertEqual(self.execute().outcome, 'completed')
-        p = self.task / 'SPEC.md'; p.write_text(p.read_text() + '\n')
-        result = reopen_ticket(self.task, 'T001', review_finding='Original contract not met', invalidated_acceptance=['AC1'])
-        self.assertEqual(result.outcome, 'reopened')
 
     def test_done_is_historical_until_authority_is_reconciled(self):
         self.execute(); self.change()
-        graph = _graph('inspect', self.task)['graph']
+        graph = inspect(self.task)[0]['graph']
         self.assertEqual(graph['done'], ['T001'])
         self.assertEqual(graph['stale_authority'], ['T001'])
         self.assertTrue(graph['all_active_done'])
         self.assertFalse(graph['delivery_ready'])
         with self.assertRaises(ValueError): delivery.prepare(self.task, self.workspace)
+
 
     def test_retention_preserves_evidence_and_allows_original_defect_reopen(self):
         self.execute(); evidence = json.loads(self.path.read_text())['execution']['evidence']
@@ -75,45 +70,14 @@ class RequirementChangesTests(unittest.TestCase):
         payload, code = self.retain()
         self.assertEqual(code, 0, payload)
         self.assertEqual(json.loads(self.path.read_text())['execution']['evidence'], evidence)
-        result = reopen_ticket(self.task, 'T001', review_finding='Original AC failure', invalidated_acceptance=['AC1'])
-        self.assertEqual(result.outcome, 'reopened')
+        result, code = mutate_ticket('reopen', self.task, 'T001', {'review_finding': 'Original AC failure', 'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
+        self.assertEqual(code, 0, result)
 
-    def test_stale_retention_and_active_attempt_are_rejected(self):
-        self.execute(outcome='interrupted'); self.change()
-        self.assertEqual(self.retain()[1], 1)
-        _graph('block', self.task, 'T001', {'blocker': {'category': 'requirement', 'reason': 'Changed', 'release_condition': 'Reconciled'}, 'evidence': {}})
-        self.assertEqual(self.retain(expected_authority='0' * 64)[1], 1)
-        self.assertEqual(self.retain()[1], 0)
-
-    def test_direct_graph_retry_complete_and_reopen_reject_stale_authority(self):
-        self.execute(outcome='interrupted'); self.change()
-        for operation in ('retry', 'complete'):
-            result = _graph(operation, self.task, 'T001', {})
-            self.assertFalse(result['ok'])
-            self.assertEqual(result['problems'][0]['code'], 'upstream_changed')
-
-    def test_ticket_edit_invalidates_authority_even_with_same_spec(self):
-        self.execute(outcome='interrupted')
-        t = json.loads(self.path.read_text()); t['acceptance_criteria'][0]['description'] = 'Different'
-        self.path.write_text(json.dumps(t))
-        self.assertEqual(self.execute().outcome, 'blocked')
-
-    def test_resume_precedes_other_ready_ticket(self):
-        self.execute(outcome='interrupted')
-        second = ticket(); second['id'] = 'T002'
-        (self.task/'tickets/T002-test.json').write_text(json.dumps(second))
-        result = self.execute()
-        self.assertEqual(result.ticket_id, 'T001')
-        self.assertEqual(result.outcome, 'completed')
-
-    def test_failed_requirement_receipt_blocks_instead_of_retrying(self):
-        result = self.execute(outcome='failed', acceptance_protocol_gaps=[{'category': 'contract', 'severity': 'P1', 'evidence': 'Expected value missing', 'recommended_route': 'to-spec'}])
-        self.assertEqual(result.outcome, 'blocked')
 
     def test_new_acceptance_can_stop_old_attempt_before_reconciliation(self):
-        self.execute(outcome='interrupted')
+        self.start()
         p = self.task / 'SPEC.md'; p.write_text(p.read_text() + '- **AC2** — Covers: R1. Additional behavior.\n')
-        stopped = _graph('block', self.task, 'T001', {'blocker': {'category': 'requirement', 'reason': 'Amended', 'release_condition': 'Reconcile'}, 'evidence': {}})
+        stopped = mutate_ticket('block', self.task, 'T001', {'blocker': {'category': 'requirement', 'reason': 'Amended', 'release_condition': 'Reconcile'}, 'evidence': {}})[0]
         self.assertTrue(stopped['ok'], stopped)
         self.assertFalse(stopped['graph']['valid'])
         extra = {key: value for key, value in ticket().items() if key in {'title','covers','design_decisions','what_to_build','constraints','acceptance_criteria','dependencies'}}
@@ -126,11 +90,6 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(code, 0, result)
         self.assertTrue(result['graph']['valid'])
 
-    def test_open_bound_ticket_cannot_silently_adopt_changed_spec(self):
-        from loopx.graph.execution_graph.authority import bind_authority
-        t = ticket(); bind_authority(self.task, t, 'Confirmed split')
-        self.path.write_text(json.dumps(t)); self.change()
-        self.assertEqual(self.execute().outcome, 'blocked')
 
     def test_final_review_tracks_gitlink_worktree_content(self):
         child = self.workspace / 'vendor'; child.mkdir()
@@ -145,11 +104,6 @@ class RequirementChangesTests(unittest.TestCase):
         source.write_text('print(999)\n')
         self.assertEqual(delivery.status(self.task)['state'],'stale')
 
-    def review_request(self, context):
-        value = receipt()
-        return {'snapshot': context['snapshot'], **{key: value[key] for key in (
-            'acceptance_evidence', 'verification', 'review', 'blocking_findings',
-            'non_blocking_findings', 'acceptance_protocol_gaps', 'unverified_scope', 'unverified')}}
 
     def test_delivery_cli_prepare_complete_and_status(self):
         from loopx.cli import main
@@ -169,6 +123,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.code.write_text('print(3)\n')
         self.assertEqual(invoke('status', str(self.task))['delivery_review']['state'], 'stale')
 
+
     def test_final_review_covers_current_spec_and_expires_after_code_change(self):
         self.execute()
         context = delivery.prepare(self.task, self.workspace)
@@ -178,13 +133,15 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'stale')
         with self.assertRaises(ValueError): delivery.complete(self.task, self.review_request(context))
 
+
     def test_final_review_rejects_missing_acceptance_and_failed_verification(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
         request = self.review_request(context)
-        for key, value in [('acceptance_evidence', []), ('verification', []), ('verification', [{'command': 'check', 'exit_code': 1, 'summary': 'Failed'}]), ('unverified_scope', ['integration'])]:
+        for key, value in [('evidence', {}), ('verification', []), ('verification', [{'command': 'check', 'exit_code': 1, 'summary': 'Failed'}]), ('unverified', ['integration'])]:
             invalid = copy.deepcopy(request); invalid[key] = value
             with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
         self.assertEqual(delivery.status(self.task)['state'], 'pending')
+
 
     def test_final_review_expires_after_requirements_or_graph_change(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
@@ -192,12 +149,60 @@ class RequirementChangesTests(unittest.TestCase):
         with self.assertRaises(ValueError): delivery.complete(self.task, self.review_request(context))
         self.assertEqual(delivery.status(self.task)['state'], 'stale')
 
-    def test_failed_batch_stops_before_dispatching_sibling(self):
-        second = ticket(); second['id'] = 'T002'
-        (self.task/'tickets/T002-test.json').write_text(json.dumps(second))
-        calls = []
-        def worker(bundle):
-            calls.append(bundle['ticket']['id']); return receipt(outcome='interrupted')
-        results = dispatch_ready(self.task, worker, workspace_root=self.workspace, allowed_write_scope=['src.py'])
-        self.assertEqual(calls, ['T001'])
-        self.assertEqual(results[0].outcome, 'interrupted')
+
+    def start(self):
+        request = {"baseline": {"reference": "HEAD", "staged": [], "unstaged": [], "untracked": []},
+                   "existing_changes": {"included": [], "excluded": []}, "allowed_write_scope": ["src.py"]}
+        result, code = mutate_ticket("start", self.task, "T001", request)
+        self.assertEqual(code, 0, result)
+        return result["result"]["ticket"]["execution"]["attempt_sequence"]
+
+    def execute(self):
+        attempt = self.start()
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion()})
+        self.assertEqual(code, 0, result)
+        return result
+
+    def review_request(self, context):
+        return {"snapshot": context["snapshot"], **completion()}
+
+    def test_completion_preserves_arbitrary_markdown_verbatim(self):
+        attempt = self.start()
+        text = "# 人工审查\n符合需求。\n\n```text\nPASS 只是示例，不是解析指令\n```\n"
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion(review=text)})
+        self.assertEqual(code, 0, result)
+        self.assertEqual(json.loads(self.path.read_text())["execution"]["review"], text)
+        context = delivery.prepare(self.task, self.workspace)
+        delivery.complete(self.task, {"snapshot": context["snapshot"], **completion(review=text)})
+        stored = json.loads((self.task / ".loop/delivery.json").read_text())
+        self.assertEqual(stored["receipt"]["review"], text)
+
+    def test_completion_rejects_stale_attempt_and_unapproved_result(self):
+        attempt = self.start()
+        before = self.path.read_bytes()
+        cases = [{"expected_attempt": attempt + 1, **completion()},
+                 {"expected_attempt": attempt, **completion(approved=False)},
+                 {"expected_attempt": attempt, **completion(approved="true")},
+                 {"expected_attempt": attempt, **completion(review=" ")},
+                 {"expected_attempt": attempt, **completion(evidence={})},
+                 {"expected_attempt": attempt, **completion(unverified=["Integration not run"])},
+                 {"expected_attempt": attempt, **completion(verification=[{"command": "test", "exit_code": 1, "summary": "Failed"}])}]
+        for request in cases:
+            with self.subTest(request=request):
+                result, code = mutate_ticket("complete", self.task, "T001", request)
+                self.assertEqual(code, 1, result)
+                self.assertEqual(self.path.read_bytes(), before)
+
+    def test_requirement_change_blocks_old_attempt_completion(self):
+        attempt = self.start()
+        self.change()
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion()})
+        self.assertEqual(code, 1)
+        self.assertEqual(result["problems"][0]["code"], "upstream_changed")
+
+    def test_delivery_rejects_unapproved_review(self):
+        self.execute()
+        context = delivery.prepare(self.task, self.workspace)
+        with self.assertRaises(ValueError):
+            delivery.complete(self.task, {"snapshot": context["snapshot"], **completion(approved=False)})
+        self.assertEqual(delivery.status(self.task)["state"], "pending")
