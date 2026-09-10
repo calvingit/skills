@@ -10,11 +10,19 @@ Own ticket selection, handoff, progress, and completion decisions. Use the curre
 ## Execute
 
 1. Read `loopx loop status <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
-2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, allowed write scope, acceptance criteria, and current attempt. For a new attempt use `loopx graph start`; for a correction use `graph retry`. Request shapes are in [the state commands](../../docs/loop-runtime.md#state-commands).
-3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify only that scope. Subagents do not edit upstream documents, tickets, or Git history.
+2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `loopx graph start`; for a correction use `graph retry`. Request shapes are in [the state commands](../../docs/loop-runtime.md#state-commands).
+3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify that scope. Subagents do not edit upstream documents, tickets, or Git history.
 4. After implementation stops writing, use a separate native subagent for `verify`. Pass the actual changes and requirements; it runs the necessary checks and returns observed results. Then use a separate native subagent for `code-review`, with the scope, requirements, code, and verification evidence. Do not run review against code that is still changing.
-5. Read their text/Markdown results directly. Preserve the original reports under `.loop/` when needed for resume or handoff. No JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required.
-6. Decide the next state and write it through `loopx graph`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their write scopes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
+5. Read their text/Markdown results directly. Preserve the original reports under the task directory's `.loop/` when needed for resume or handoff. No JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required.
+6. Decide the next state and write it through `loopx graph`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their expected changes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
+
+## State location
+
+`.loop/` belongs to the task execution context: keep it inside the task directory, next to `SPEC.md` and `tickets/`, and never create it at the repository root, where separate tasks would share one state. It stores execution state — current attempts, preserved reports, command logs, delivery inputs — not project-level configuration. On resume, read the current task directory's `.loop/` first.
+
+## File scope
+
+A ticket's file scope describes expected areas of change. It is guidance for implementation and review, not a hard write restriction: the implement subagent may modify additional files when required to complete the ticket, keeping additional changes related to the ticket objective and avoiding unrelated refactoring. Pass the scope to review as a reference for expected change areas, not as a boundary that turns related out-of-scope edits into defects.
 
 ## Decide from evidence
 
