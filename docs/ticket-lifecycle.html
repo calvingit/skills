@@ -5050,7 +5050,7 @@
         <path data-edge-from="done" data-edge-to="ready" data-edge-label="整体交付审查发现问题" data-edge-key="6" data-edge-id="done_ready" data-composition-points="556,126;556,62;248,62;248,126" d="M 556 126 L 556 72 Q 556 62 546 62 L 258 62 Q 248 62 248 72 L 248 126" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
         <path data-edge-from="ready" data-edge-to="amendment" data-edge-key="7" data-edge-id="ready_amendment" data-composition-points="248,126;248,38;710,38;710,380;710,278" d="M 248 126 L 248 48 Q 248 38 258 38 L 700 38 Q 710 38 710 48 L 710 370 Q 710 380 710 370 L 710 278" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="blocked" data-edge-to="amendment" data-edge-key="8" data-edge-id="blocked_amendment" data-composition-points="402,336;402,380;710,380;710,336" d="M 402 336 L 402 370 Q 402 380 412 380 L 700 380 Q 710 380 710 370 L 710 336" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
-        <path data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收实现任务" data-edge-key="9" data-edge-id="progress_amendment" data-composition-points="461,157;480,157;480,250;620,250;620,307;647,307" d="M 461 157 L 470.5 157 Q 480 157 480 166.5 L 480 240 Q 480 250 490 250 L 610 250 Q 620 250 620 260 L 620 297 Q 620 307 630 307 L 647 307" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
+        <path data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止执行并保留结果" data-edge-key="9" data-edge-id="progress_amendment" data-composition-points="461,157;480,157;480,250;620,250;620,307;647,307" d="M 461 157 L 470.5 157 Q 480 157 480 166.5 L 480 240 Q 480 250 490 250 L 610 250 Q 620 250 620 260 L 620 297 Q 620 307 630 307 L 647 307" class="a-security" stroke-width="1.1" marker-end="url(#arrowhead-security)"/>
         <path data-edge-from="done" data-edge-to="amendment" data-edge-key="10" data-edge-id="done_amendment" data-composition-points="556,188;556,210;710,210;710,278" d="M 556 188 L 556 200 Q 556 210 566 210 L 700 210 Q 710 210 710 220 L 710 278" class="a-dashed" stroke-width="1.1" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="amendment" data-edge-to="superseded" data-edge-key="11" data-edge-id="amendment_superseded" data-composition-points="710,336;710,450" d="M 710 336 L 710 450" class="a-default" stroke-width="1.1" marker-end="url(#arrowhead)"/>
 
@@ -5081,8 +5081,8 @@
           <text data-detail="context" x="248" y="163" class="t-muted" font-size="7" text-anchor="middle">进入可执行任务集合</text>
         </g>
 
-        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，loop 已派发实现任务, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="loop 已派发实现任务" data-node-context="执行主路径">
-          <title>in_progress · loop 已派发实现任务 · 执行主路径</title>
+        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，Runtime 已派发 subagent, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="Runtime 已派发 subagent" data-node-context="执行主路径">
+          <title>in_progress · Runtime 已派发 subagent · 执行主路径</title>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="active" class="semantic-sigil s-backend" transform="translate(444 132) scale(0.6875)">
@@ -5090,7 +5090,7 @@
           </g>
         <text data-detail="fine" x="353" y="140" class="t-backend" font-size="7" font-weight="700">03</text>
           <text data-node-label="" data-detail-anchor="" x="402" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">in_progress</text>
-          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">loop 已派发实现任务</text>
+          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">Runtime 已派发 subagent</text>
         </g>
 
         <g id="node-done" data-node-id="done" data-node-label="done" tabindex="0" role="button" aria-label="聚焦done，验收与验证证据完整, 执行主路径" aria-pressed="false" data-node-kind="success" data-node-sublabel="验收与验证证据完整" data-node-tag="COVERAGE" data-node-context="执行主路径">
@@ -5173,9 +5173,9 @@
         </g>
 
 
-        <g data-detail="context" data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止并回收实现任务" data-edge-key="9" data-edge-id="progress_amendment">
+        <g data-detail="context" data-edge-from="in_progress" data-edge-to="amendment" data-edge-label="停止执行并保留结果" data-edge-key="9" data-edge-id="progress_amendment">
           <rect x="502.35" y="229" width="95.30000000000001" height="16" rx="4" class="c-mask"/>
-          <text x="550" y="240" class="t-security" font-size="8" text-anchor="middle">停止并回收实现任务</text>
+          <text x="550" y="240" class="t-security" font-size="8" text-anchor="middle">停止执行并保留结果</text>
         </g>
 
 
