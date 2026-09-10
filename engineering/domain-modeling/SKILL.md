@@ -18,7 +18,7 @@ Do not assume a fixed path or filename. Discover in this order:
 
 If the applicable `AGENTS.md` `Engineering Skills Profile` names a glossary or ADR entry, use it first. `auto` or no Profile means keep discovering in the order above. Do not run setup automatically.
 
-If the project has no glossary or ADR convention, do not invent a fixed `docs/**` layout. Prefer the repo's existing structure when a long-lived document is actually needed. If there is still no convention and the location will matter later, ask once where to write. Default shapes live in [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) and [ADR-FORMAT.md](ADR-FORMAT.md); a project format always wins.
+If the project has no glossary or ADR convention, do not invent a fixed documentation layout. Prefer the repo's existing structure when a long-lived document is actually needed. If there is still no convention and the location will matter later, ask once where to write. Default shapes live in [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) and [ADR-FORMAT.md](ADR-FORMAT.md); a project format always wins.
 
 ## When to update the glossary
 
