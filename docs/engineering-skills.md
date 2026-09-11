@@ -54,7 +54,7 @@ Engineering workflow
 | 产物 | 维护者 | 回答的问题 |
 | --- | --- | --- |
 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
-| 会话文档（默认 `${TMPDIR:-/tmp}/grilling-*/`） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
+| 会话文档（项目内 `task_contract` 任务目录） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
 | `SPEC.md` | `to-spec` | 需要持久化时，要构建什么、范围是什么？ |
 | `ACCEPTANCE.md`（按需） | `to-spec` | 复杂或共享验收协议如何独立版本化？ |
 | `HLD.md` | `high-level-design` | 多处实现共享哪些职责、接口和集成约束？ |
