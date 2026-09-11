@@ -20,14 +20,14 @@ Keep only sections that apply. Do not invent content to fill the template:
 ```markdown
 # <Change title> — High-Level Design
 
-## Authority
+## Context
 
 - Specification: [SPEC.md](SPEC.md)
 - Baseline: <commit or equivalent fixed point>
 - Scope: <covered R/AC>
 - Unverified: <items or None>
 
-## Current Structure
+## Current Architecture
 
 <Call chains, ownership, Interfaces, and constraints relevant to this design. List 1–3 primary reference implementations with path / symbol.>
 
@@ -36,8 +36,10 @@ Keep only sections that apply. Do not invent content to fill the template:
 - **D1** — <design decision several implementations must share>
   - Change: <Reuse | Extend | New | Replace>
   - Reference: <existing path / symbol or None>
-  - Covers: <R/AC, Module, or callers>
-  - Rationale: <why>
+  - Related: <SPEC R / AC and/or observed code fact with path / symbol>
+  - Affected: <Module or callers>
+  - Reason: <why>
+  - Trade-offs: <costs, limitations, and rejected alternatives when relevant>
   - Consequences: <what downstream must obey>
 
 ## Modules and Ownership
@@ -58,11 +60,18 @@ Keep only sections that apply. Do not invent content to fill the template:
 
 ## Integration and Migration
 
-- <which end-to-end delivery ticket lands the shared design, migration order, compatibility window, and deletion conditions>
+- <technical prerequisites, migration order, compatibility window, and deletion conditions>
 
-## Verification Seams
+## Verification Strategy
 
-- <how to verify the high-level design and cross-module behaviour, without copying SPEC Acceptance Criteria>
+- Verification Seam: <technical check boundary, e.g. repository integration or event contract test>
+  - Related: <D IDs and relevant R / AC>
+  - Invariant: <technical property and expected-result source>
+  - Evidence: <check level and observable proof; concrete execution belongs to verify>
+
+## Risks
+
+- <Concrete design risks, impact, and mitigation or accepted limitation>
 
 ## Local implementation space
 
@@ -79,7 +88,7 @@ Do not enumerate every class, file, or method by default. Write a name or signat
 
 ## Done when
 
-- Every design decision that several implementations share has codebase evidence, a change kind, and a stable D ID.
+- Every design decision has a stable D ID, a change kind, an R / AC or observed code-fact reference, a reason, and trade-offs.
 - The plan prefers reuse or extension of what exists. Every `New` / `Replace` has necessity and a migration bound.
 - Two implementers who do not share an implementation context would still make the same choice on shared types, Interface semantics, ownership, dependency direction, and integration order from SPEC, HLD, and their own tickets alone.
 - Private helpers, local classes, algorithms, and file layout remain in local implementation space.

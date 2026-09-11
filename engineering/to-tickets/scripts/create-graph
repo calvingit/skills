@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+import _bootstrap
+from ticket_graph.command import parser, task_argument, request, run
+from planning import create_batch, reconcile_batch
+p = parser("Create or reconcile a confirmed execution graph; input fields use the shared v2 schema.")
+p.add_argument('operation', choices=['create-batch', 'reconcile-batch'])
+task_argument(p)
+p.add_argument('--input', required=True, help='JSON request path, or - for stdin; see ../references/script-inputs.md')
+a = p.parse_args()
+raise SystemExit(run(a.operation, lambda: (create_batch if a.operation == 'create-batch' else reconcile_batch)(a.task_dir, request(a.input))))

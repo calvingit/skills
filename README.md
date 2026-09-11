@@ -56,7 +56,8 @@ Engineering Skills 是一组 Workflow Skills，负责需求收敛、概要设计
 其他文档：
 
 - [Loopx Runtime 与 Backend Contract](./docs/loop-runtime.md)
-- [loopx 验收协议](./docs/loopx-acceptance.md)
+- [状态脚本与旧图迁移](./docs/workflow-scripts.md)
+- [状态脚本验收协议](./docs/loopx-acceptance.md)
 - [Engineering Acceptance 协议](./docs/engineering-acceptance.md)
 - [Engineering workflow 图示](./docs/engineering-workflow.html)
 - [Ticket lifecycle 图示](./docs/ticket-lifecycle.html)

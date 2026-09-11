@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+import _bootstrap
+from ticket_graph.command import parser, task_argument, request, run
+from ticket_graph.queries import inspect
+import delivery
+p = parser("Inspect readiness, blockers, attempts and final delivery status.")
+task_argument(p)
+a = p.parse_args()
+def action():
+    payload, code = inspect(a.task_dir)
+    payload['result']['delivery_review'] = delivery.status(a.task_dir)
+    return payload, code
+raise SystemExit(run('frontier', action))

@@ -1,23 +1,23 @@
 # Loop 与 Runtime 的职责
 
-Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagents、等待、中断和会话恢复。`loopx` 仅辅助维护 tickets 和交付进度，不启动外部 Agent CLI，也不管理 provider、进程、会话、heartbeat 或结果解析。
+Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagents、等待、中断和会话恢复。Skill 内的状态脚本仅辅助维护 tickets 和交付进度，不启动外部 Agent CLI，也不管理 provider、进程、会话、heartbeat 或结果解析。
 
 | 部件 | 职责 |
 | --- | --- |
 | Loop | 选票、交接、阅读结果、判断修复/阻塞/完成、继续下一项任务 |
 | Runtime | 创建、等待、中断和恢复原生 subagents |
 | implement / verify / code-review | 实现、验证、审查；返回可读文本或 Markdown |
-| loopx | 图查询、依赖与需求绑定检查、状态写入、事务恢复、最终交付快照 |
+| skill 内状态脚本 | 图查询、依赖与需求绑定检查、状态写入、事务恢复、最终交付快照 |
 
 审查结果直接作为字符串使用。Loop 根据内容作判断；脚本不解析标题、严重性或通过措辞。JSON 仍用于确定的状态字段和命令输入，这不要求 subagent 返回 JSON。`approved` 是 Loop 对已读证据的明确判断，不是从报告中自动提取的结果。
 
 ## State commands
 
-从目标仓库根目录运行，`<task-dir>` 包含 SPEC 和 `tickets/*.json`。可选 ACCEPTANCE/HLD 不作为额外前置要求。
+将 `<loop-skill>` 替换为已安装 skill 的绝对路径；目录依赖见[状态脚本说明](./workflow-scripts.md)。从目标仓库根目录运行，`<task-dir>` 包含 SPEC 和 `tickets/*.json`。可选 ACCEPTANCE/HLD 不作为额外前置要求。
 
-- `loopx loop status <task-dir>`：查询图状态和最终交付状态。
-- `loopx graph show <task-dir> <ticket-id>`：读取任务、当前 attempt 和已记录证据。
-- `loopx graph <operation> --help`：查看状态命令参数；写操作用 `--input <path|->` 接收 JSON。
+- `python3 <loop-skill>/scripts/frontier <task-dir>`：查询图状态和最终交付状态。
+- `python3 <loop-skill>/scripts/graph-query show <task-dir> <ticket-id>`：读取任务、当前 attempt 和已记录证据。
+- `python3 <loop-skill>/scripts/update-status --help`：查看状态命令参数；写操作用 `--input <path|->` 接收 JSON。
 
 正常状态流转是 open → in_progress → done；ready、blocked 是计算结果。`superseded` 由需求协调产生。Loop 在执行期间拥有状态写权限；subagents 不写票据。
 
@@ -56,16 +56,16 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 需求、设计、图分别由 to-spec、high-level-design、to-tickets 更新。`stale_authority` 表示旧证据需要影响分析；保留历史 done。仅对确认未受影响的契约及证据使用 `retain_contract`；变更行为通过修正/替换 tickets 表达，不以 reopen 冒充需求修订。
 
-脚本保留图校验、锁、事务和 `graph recover`，拒绝过期 attempt、未知 AC、非法依赖或未协调的需求。Runtime 中断后，Loop 根据原生任务状态和记录继续，不通过脚本重建 Agent 会话。
+脚本保留图校验、锁、事务和 `scripts/update-status recover`，拒绝过期 attempt、未知 AC、非法依赖或未协调的需求。Runtime 中断后，Loop 根据原生任务状态和记录继续，不通过脚本重建 Agent 会话。
 
 ## Final delivery
 
 `all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。Loop 用原生 verify / code-review subagents 完成后，记录其判断：
 
 ```bash
-loopx loop delivery-prepare <task-dir> --workspace <repo-root>
-loopx loop delivery-complete <task-dir> --input <task-dir>/.loop/delivery-input.json
-loopx loop status <task-dir>
+python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>
+python3 <loop-skill>/scripts/update-status delivery-complete <task-dir> --input <task-dir>/.loop/delivery-input.json
+python3 <loop-skill>/scripts/frontier <task-dir>
 ```
 
 最终输入使用上面的 complete 格式，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC。review 仍是原始字符串。
@@ -74,4 +74,4 @@ loopx loop status <task-dir>
 
 ## 验证范围
 
-仓库根目录执行 `python3 tools/loopx/scripts/check.py all`，检查状态流转、需求协调、交付快照、CLI、打包及干净环境安装。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
+仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI、脱离仓库工作目录的脚本调用与迁移。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。

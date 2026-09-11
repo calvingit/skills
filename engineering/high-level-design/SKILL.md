@@ -11,7 +11,7 @@ Take a confirmed `SPEC.md` and current codebase facts, and form the high-level t
 
 ## Authority and bounds
 
-- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and confirmed Solution Constraints.
+- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and upstream-confirmed constraints.
 - `HLD.md` derives module duties, shared types, internal Interfaces, dependency direction, data / control flow, state and error semantics, migration, and integration constraints from the SPEC and codebase facts.
 - `tickets/*.json` only derive delivery split and blocking edges. Implementation owns local detailed design the HLD did not constrain.
 - The HLD must not change the SPEC. On conflict, stop. `to-spec` fixes the spec, or this skill fixes the design. Do not pick one and keep implementing.
@@ -57,6 +57,14 @@ Ordinary technical choices are decided from repo evidence. Do not hand them to t
 - **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
 When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, send only the affected execution impact to `to-tickets`.
+
+## Decision traceability and verification
+
+Every D ID must cite at least one SPEC requirement (R / AC) or an observed codebase fact with path / symbol. Record the decision, reason, and trade-offs. A module name alone is not evidence. Do not create a decision without a traceable basis.
+
+HLD owns **Verification Seams**: where technical correctness can be checked, such as a repository integration test or event contract test. Relate each seam to D IDs, technical invariants, and relevant SPEC acceptance; state the check level and expected evidence. SPEC Acceptance Seams remain public observations. `verify` chooses and executes concrete checks against the implementation.
+
+Keep integration order as technical prerequisites, not ticket IDs, assignments, or a task list. HLD defines shared design; tickets derive the execution graph.
 
 ## Handoff
 

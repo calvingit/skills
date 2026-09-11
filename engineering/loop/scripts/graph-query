@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+import _bootstrap
+from ticket_graph.command import parser, task_argument, request, run
+from ticket_graph.queries import inspect, list_tickets, show_ticket
+p = parser("Read the graph or a ticket; this entrypoint cannot mutate state.")
+p.add_argument('operation', choices=['inspect', 'list', 'show'])
+task_argument(p)
+p.add_argument('ticket_id', nargs='?')
+p.add_argument('--phase', choices=['open', 'in_progress', 'done', 'superseded'])
+p.add_argument('--readiness', choices=['ready', 'blocked'])
+a = p.parse_args()
+if a.operation == 'show' and not a.ticket_id: p.error('show requires ticket_id')
+def action():
+    if a.operation == 'show': return show_ticket(a.task_dir, a.ticket_id)
+    if a.operation == 'list': return list_tickets(a.task_dir, phase=a.phase, readiness=a.readiness)
+    return inspect(a.task_dir)
+raise SystemExit(run(a.operation, action))

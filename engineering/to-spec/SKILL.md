@@ -9,7 +9,7 @@ Write the settled consensus, requirement authority, and codebase facts into the 
 
 Create when there is no SPEC. Amend the same file when an existing SPEC's requirements are added, changed, removed, or clarified. Do not re-interview the whole requirement, split tickets, or implement code.
 
-`SPEC.md` is the workflow's only local requirement snapshot: problem, solution, behaviour, Solution Constraints, testing decisions, bounds, and acceptance. It does not contain derived high-level design, an execution graph, or an implementation recipe. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
+`SPEC.md` is the workflow's only local requirement snapshot: problem, goal, scope, requirements, business constraints, observable acceptance, and open questions. It does not contain derived high-level design, an execution graph, or an implementation recipe. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
 `HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `high-level-design`.
 
@@ -25,7 +25,7 @@ When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet s
 
 Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and route to `high-level-design` after the SPEC is confirmed.
 
-Do not invent missing fields, errors, public contracts, test seams, Solution Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
+Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
 
 ## Modes
 
@@ -47,23 +47,18 @@ If this session has not already looked enough, before writing the SPEC find:
 
 - Applicable `AGENTS.md`, domain glossary, architecture notes, and related ADRs.
 - Current external behaviour, related modules and callers, existing public contracts.
-- Which seams existing tests use for similar behaviour, and prior art worth reusing.
+- Which existing public surfaces expose similar behaviour and authoritative expected results.
 - The user's existing workspace changes, so they are not overwritten or silently absorbed into the spec.
 
 Use the project's domain language. Stop once scope, public contracts, and acceptance bounds are determined. Do not enter high-level design or implementation.
 
 ### 3. Decide the acceptance seams
 
-Before the formal docs, sketch which *external* seams this change should be accepted through: observable behaviour, test level, and expected-result source. Do not design internal Modules, shared types, or dependency direction — those are the HLD's Verification Seams.
+An **Acceptance Seam** is where requirement completion can be observed: a Conversation API response, user UI interaction, or exported file. For each seam, cite the covered R / AC and expected-result source.
 
-Inside a confirmed public interface, acceptance coverage, trust boundary, and test contract, choosing an existing test entry can be decided and recorded. Changing those requires user confirmation.
+Prefer existing public surfaces. Internal services, repository mocks, database tables, test levels, test files, and test implementation recipes belong to HLD / verification, not SPEC. An explicitly required public data artifact is a contract only when its upstream authority says so; do not expose internals merely to test them.
 
-- Prefer existing external seams. A new public contract must be part of the requirement, not an internal structure exposed for tests.
-- Use one stable seam when it covers the whole change.
-- For each seam, say which behaviour it covers, where the expected result comes from, and similar tests already in the repo.
-- Do not presuppose internal Interfaces for tests, and do not treat file paths, internal call order, or mock structure as the contract.
-
-Tell the user the proposed seams, why, and the trade-off. New product, protocol, architecture, scope, or acceptance choices go back to `grilling` or `wayfinding` first.
+Choose ordinary observation points from confirmed requirements without another approval step. Return to requirement clarification only if a new public contract, acceptance meaning, or scope decision is needed.
 
 ### 4. Write SPEC.md, and ACCEPTANCE.md when needed
 
@@ -76,11 +71,11 @@ Without a separate acceptance protocol, check `R → AC` and decidable results b
 
 ### 5. Consistency
 
-1. Problem, Solution, and Destination describe the same problem and goal.
+1. Problem, Goal, and Scope describe the same problem and goal.
 2. `R` and `AC` IDs are unique and stable; every in-scope `R` is covered by at least one `AC`.
 3. Each `AC` can be judged on its own and traces to a confirmed requirement or an authoritative expected source.
-4. Every Solution Constraint has an upstream basis and does not smuggle in derived technical design that HLD owns.
-5. Testing Decisions record the decided seams and why, and verify external behaviour from the highest seam that can.
+4. Every Business Constraint has an upstream basis. Explicit platform or compatibility requirements retain their source; derived architecture belongs to HLD.
+5. Acceptance Seams identify observable results and their expected source; test strategy and internal verification seams stay in HLD.
 6. Bounds, defaults, Out of Scope, and acceptance do not conflict or silently expand.
 7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
 8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
@@ -89,7 +84,7 @@ Fix what confirmed context or the codebase can fix. Stop and hand back to `grill
 
 ### 6. Write and hand off
 
-After consistency holds, write into the task directory. Create the reports directory, acceptance seams, Solution Constraints, design concerns, HLD / graph routing, and unverified items.
+After consistency holds, write into the task directory. Report acceptance seams, business constraints, design concerns, HLD / graph routing, and unverified items.
 
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 

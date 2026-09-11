@@ -61,11 +61,21 @@ Engineering workflow
 | `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
 | lifecycle/evidence/receipt | `loop` | 当前做到哪里，下一步能做什么？ |
 
-`loopx` 是 `to-tickets` 和 `loop` 使用的 graph 工具；Loop 是正常执行期间唯一的 graph writer。
+`to-tickets/scripts` 创建、校验、迁移和协调执行图；`loop/scripts` 查询进度、记录 attempt 和状态。两者共享 `engineering/shared/ticket-schema.json` 与图存储实现，无需全局安装 CLI。Loop 是正常执行期间唯一的 graph writer。
 
 `grilling` 仅在验收结论需要持久化、跨会话继续或交接时生成 `acceptance-draft.md`；同一会话内直接进入实现的简单讨论，在会话中保留已确认的验收结论、预期结果和证据来源即可。
 
 `ACCEPTANCE.md` 是按需使用的独立验收文档；普通任务的验证由 verify 记录，Loop 只聚合任务证据。
+
+## 需求、设计与交付验收
+
+SPEC 只记录为什么做、做什么、完成标准及有来源的约束；不写类、方法、测试文件或实现步骤。Acceptance Seam 是观察需求完成的公共入口，例如 API 响应、UI 操作或导出文件。
+
+HLD 基于已有代码定义技术方案。每个 D 决策引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
+
+Ticket 使用 `referenced_design_decisions` 引用 HLD，使用 `delivery_acceptance` 描述本次交付如何覆盖 SPEC。它构成执行图，不新增设计或需求，也不规定逐个方法的修改步骤。
+
+脚本分工、部署目录和旧图迁移见 [状态脚本说明](./workflow-scripts.md)。这些调整不增加工作流阶段，HLD 和执行图仍按需使用。
 
 ## 从需求到执行
 
@@ -110,13 +120,13 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 Loop 默认通过当前 Runtime 的 subagents 串行执行 implement → verify → code-review，再阅读结果决定 complete、retry 或 block。不同阶段使用独立上下文。只有任务依赖和写入范围相互独立时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
 
-结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；`loopx` 只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
+结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；Skill 内的状态脚本只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
 
 执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 subagents，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 完成后，由原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
 
 完成一张 ticket 后立即继续下一张。仅在最终交付通过、用户停止，或剩余工作依赖无法取得的外部输入/能力时停止。Runtime 结束后，Skill 不承诺后台自行继续。
 
-状态命令、输入与边界见 [Loop 与 Runtime 的职责](./loop-runtime.md)；可执行检查见 [loopx 验收协议](./loopx-acceptance.md)。
+状态命令、输入与边界见 [Loop 与 Runtime 的职责](./loop-runtime.md)；可执行检查见 [状态脚本验收协议](./loopx-acceptance.md)。
 
 Ticket 生命周期图：
 

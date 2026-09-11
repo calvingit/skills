@@ -5,16 +5,27 @@ description: Drive a ticket graph through implementation, verification, and revi
 
 # Loop
 
-Own ticket selection, handoff, progress, and completion decisions. Use the current runtime's native subagents for `implement`, `verify`, and `code-review`. `loopx` only reads and writes ticket state and delivery progress; it does not execute agents. Do not launch external Agent CLIs or build a session, provider, polling, or result-parsing layer. If native subagents are unavailable, report that limitation; do not silently substitute an external CLI or claim independent review.
+Own ticket selection, handoff, progress, and completion decisions. Use the current runtime's native subagents for `implement`, `verify`, and `code-review`. Skill-local state scripts only reads and writes ticket state and delivery progress; it does not execute agents. Do not launch external Agent CLIs or build a session, provider, polling, or result-parsing layer. If native subagents are unavailable, report that limitation; do not silently substitute an external CLI or claim independent review.
+
+## Script entrypoints
+
+Resolve `<loop-skill>` to this installed skill directory. Scripts require Python 3.10+ on macOS/Linux and sibling `engineering/shared/`; no global CLI or Agent-specific SDK is needed. Read [script inputs](references/script-inputs.md) when recording state.
+
+- `scripts/frontier <task-dir>`: readiness, blockers, current attempts and final delivery status.
+- `scripts/graph-query inspect|list|show ...`: read-only graph queries.
+- `scripts/record-attempt start|retry ...`: record a new/correction attempt.
+- `scripts/update-status block|unblock|complete|reopen|recover|delivery-prepare|delivery-complete ...`: persist Loop's decisions and recover interrupted transactions.
+
+Use `python3` plus the resolved script path. These helpers do not choose agents, execute tools, interpret reviews, or make completion decisions.
 
 ## Execute
 
-1. Read `loopx loop status <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
-2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `loopx graph start`; for a correction use `graph retry`. Use `loopx graph <command> --help` for the current request shape.
+1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
+2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `python3 <loop-skill>/scripts/record-attempt start`; for a correction use `scripts/record-attempt retry`. Use `python3 <loop-skill>/scripts/update-status --help` for the current request shape.
 3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify that scope. Subagents do not edit upstream documents, tickets, or Git history.
 4. After implementation stops writing, use a separate native subagent for `verify`. Pass the actual changes and requirements; it runs the necessary checks and returns observed results. Then use a separate native subagent for `code-review`, with the scope, requirements, code, and verification evidence. Do not run review against code that is still changing.
 5. Read their text/Markdown results directly. Preserve the original reports under the task directory's `.loop/` when needed for resume or handoff. No JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required.
-6. Decide the next state and write it through `loopx graph`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their expected changes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
+6. Decide the next state and write it through `scripts/update-status`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their expected changes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
 
 ## State location
 
@@ -26,10 +37,10 @@ A ticket's file scope describes expected areas of change. It is guidance for imp
 
 ## Decide from evidence
 
-- A confirmed defect in the current contract goes back to implement through `graph retry`, with the original findings as text. Re-run affected verification and review.
+- A confirmed defect in the current contract goes back to implement through `scripts/record-attempt retry`, with the original findings as text. Re-run affected verification and review.
 - Requirement/design conflicts go to their owner. Missing access, permissions, dependencies, or evidence needs a specific blocker and release condition. Do not busy-retry unresolved external blockers.
 - An unclear report needs clarification from its author. Do not infer success from silence, wording, headings, or a worker saying it finished. Optional follow-up does not block this change.
-- Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Pass the review string unchanged and your explicit approval to `graph complete`; the helper validates recorded facts, not prose meaning.
+- Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Pass the review string unchanged and your explicit approval to `scripts/update-status complete`; the helper validates recorded facts, not prose meaning.
 
 JSON remains the storage format for ticket state and command input. A review stored in a JSON string is still the original report; do not extract a second finding schema from it. Use a serializer to store multiline text faithfully.
 
@@ -37,7 +48,7 @@ JSON remains the storage format for ticket state and command input. A review sto
 
 Runtime owns waiting, interruption, and subagent handles. After interruption, check native task state before starting another writer; preserve partial code and reports. If the old subagent cannot be resumed, start a new one with current state and the recorded attempt. Do not claim an old session was recovered by a script.
 
-Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch, interrupt active subagents through the runtime, confirm they stopped writing, preserve partial results, and `graph block` their attempts. A graph state change alone does not stop a subagent.
+Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch, interrupt active subagents through the runtime, confirm they stopped writing, preserve partial results, and `scripts/update-status block` their attempts. A graph state change alone does not stop a subagent.
 
 Route unsettled requirement choices to `grilling` first, normative requirement changes to `to-spec`, shared design changes to `high-level-design`, and graph-only amendments to `to-tickets`. Do not inject changed requirements into an old attempt. Keep historical done records; retain only confirmed unaffected contracts/evidence. Changed behaviour needs correction/replacement tickets. Use `reopen` for defects against an unchanged confirmed contract.
 

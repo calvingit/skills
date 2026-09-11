@@ -1,0 +1,11 @@
+#!/usr/bin/env python3
+import _bootstrap
+from ticket_graph.command import parser, task_argument, request, run
+from lifecycle import mutate_ticket
+p = parser("Start or retry an attempt after Loop decides it is actionable.")
+p.add_argument('operation', choices=['start', 'retry'])
+task_argument(p)
+p.add_argument('ticket_id')
+p.add_argument('--input', required=True, help='JSON request path or -; see ../references/script-inputs.md')
+a = p.parse_args()
+raise SystemExit(run(a.operation, lambda: mutate_ticket(a.operation, a.task_dir, a.ticket_id, request(a.input))))

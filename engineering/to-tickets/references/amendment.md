@@ -16,7 +16,7 @@ Show the user an impact plan before `reconcile-batch`. Apply ordinary graph reco
 
 `superseded` is terminal and non-active. It is not on the frontier, does not cover current SPEC acceptance, and is not failure. It keeps the original evidence and records the supersession reason plus nullable replacement lineage.
 
-Request shape: `loopx graph reconcile-batch --help`. Use the shared authority and coverage rules in [SKILL.md](../SKILL.md).
+Request shape: `python3 <to-tickets-skill>/scripts/create-graph reconcile-batch --help`. Use the shared authority and coverage rules in [SKILL.md](../SKILL.md).
 
 ## Current evidence after an amendment
 

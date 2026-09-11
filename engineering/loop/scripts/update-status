@@ -1,0 +1,23 @@
+#!/usr/bin/env python3
+import _bootstrap
+from ticket_graph.command import parser, task_argument, request, run
+from lifecycle import mutate_ticket
+from ticket_graph.recovery import recover_transaction
+from ticket_graph.contracts import envelope
+import delivery
+from pathlib import Path
+p = parser("Record Loop's state decision or final delivery evidence; never execute an agent.")
+p.add_argument('operation', choices=['block', 'unblock', 'complete', 'reopen', 'recover', 'delivery-prepare', 'delivery-complete'])
+task_argument(p)
+p.add_argument('target', nargs='?', help='Ticket ID, or commit/rollback for recover')
+p.add_argument('--input', help='JSON request path or -; see ../references/script-inputs.md')
+p.add_argument('--workspace', type=Path, default=Path('.'))
+a = p.parse_args()
+if a.operation not in ['recover', 'delivery-prepare'] and not a.input: p.error('--input is required')
+if a.operation in ['block', 'unblock', 'complete', 'reopen', 'recover'] and not a.target: p.error('target is required')
+def action():
+    if a.operation == 'recover': return recover_transaction(a.task_dir, a.target)
+    if a.operation == 'delivery-prepare': return envelope(a.operation, ok=True, result=delivery.prepare(a.task_dir, a.workspace.resolve())), 0
+    if a.operation == 'delivery-complete': return envelope(a.operation, ok=True, result=delivery.complete(a.task_dir, request(a.input))), 0
+    return mutate_ticket(a.operation, a.task_dir, a.target, request(a.input))
+raise SystemExit(run(a.operation, action))
