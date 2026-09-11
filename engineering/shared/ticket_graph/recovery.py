@@ -82,5 +82,3 @@ def recover_transaction(
         return envelope("recover", ok=False, problems=problems), 1
     finally:
         release_lock(descriptor)
-
-
