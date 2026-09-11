@@ -45,7 +45,12 @@ For every decision that changes external behaviour, confirm: behaviour, inputs /
 When the frontier is empty:
 
 1. Summarise the confirmed acceptance conclusions, observable expected results, and evidence sources in the current conversation. Write `${DOC_DIR}/acceptance-draft.md` only when those conclusions need persistence, cross-session continuation, or handoff. When written, keep only `R`, `AC`, scenarios, expected result, and evidence source; exclude implementation advice, mocks, file paths, and internal call order. Simple discussions that proceed directly within this session do not require the draft.
-2. Summarise conclusions, session-doc locations, and any terms or ADRs not yet in the project. After the user's final confirmation, hand to `to-spec` only when the contract needs to be persisted, shared, or versioned. Otherwise go direct or to `quick-implement`.
+2. Summarise conclusions, session-doc locations, and any terms or ADRs not yet in the project.
+3. After the user's final confirmation, continue directly with `to-spec` when the contract needs to be persisted, shared, or versioned. Do not require the user to invoke the next skill separately. Otherwise go direct or to `quick-implement` within the user's authorised scope.
+
+## Amendments
+
+When invoked because a later requirement change reopens an earlier decision, reopen only the affected Design Tree branches. Confirmed unrelated decisions stay closed. Re-run acceptance-frontier checks only for behaviour and bounds affected by the delta, then continue to `to-spec` amendment after the user confirms the changed decisions.
 
 ## Boundaries
 

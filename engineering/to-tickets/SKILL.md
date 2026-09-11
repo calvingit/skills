@@ -19,7 +19,7 @@ Cite existing acceptance meaning. Derive ticket-specific acceptance criteria fro
 
 ## Modes
 
-- **Create**: follow the inputs, split, confirmation, and write steps below.
+- **Create**: follow the inputs, split, validation, and write steps below.
 - **Upstream amendment**: before changing an existing graph, read [references/amendment.md](references/amendment.md). Keep the authority and coverage rules here; use reconciliation instead of the initial-create steps.
 
 ## Inputs
@@ -46,24 +46,26 @@ When a mechanical change cannot land green as independent vertical slices, read 
 
 Tickets describe outcomes, not stale file paths, snippets, or step-by-step recipes. When an HLD exists, each ticket cites only the applicable D IDs and derives those decisions as Constraints. Do not copy the full HLD. The only exception is a state machine, schema, or shared type shape the HLD explicitly requires to land — keep only what is necessary and cite the D ID.
 
-## Confirm the split
+## Validate the split
 
-Before writing, show the user a numbered list of candidate tickets:
+Before writing, form a candidate split and check it against the confirmed SPEC, optional HLD, and real blocking edges:
 
 1. **Title** — short, outcome-oriented name.
 2. **Blocked by** — real prior tickets, or "None — can start immediately".
 3. **What it delivers** — the end-to-end behaviour this ticket alone makes verifiable.
 4. **Design** — applicable HLD D IDs, or `None`.
 
-Ask whether the grain is right, whether blocking edges only express real gates, and whether any tickets should merge or split. Do not create tickets without that confirmation.
+Choose ordinary ticket grain and blocking edges from the confirmed upstream contracts. Do not require user confirmation for ordinary execution decomposition.
+
+Stop and hand back to the owning upstream skill only when decomposition exposes a product, scope, priority, rollout, compatibility, acceptance, or shared-design choice that the SPEC / HLD does not settle. Do not encode that choice as a ticket assumption.
 
 ## Write local tickets
 
-`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the user confirms candidates, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, ticket-specific acceptance criteria, and real dependencies expressed as temporary keys.
+`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, ticket-specific acceptance criteria, and real dependencies expressed as temporary keys.
 
 Request shape: `loopx graph create-batch --help`. Command input describes the current graph contract. It does not copy the acceptance protocol.
 
-After confirmation:
+Then:
 
 ```bash
 loopx graph create-batch <task-dir> --input <request.json>
@@ -73,7 +75,9 @@ The CLI assigns immutable `T001`-style IDs, resolves in-batch dependencies, writ
 
 AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `design_decisions` without copying SPEC / HLD prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
-After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, call `loop` whether one ticket or several are active. `quick-implement` is only for a single SPEC / HLD with no graph.
+After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, continue directly with `loop` whether one ticket or several are active, but only when the user's current request authorises implementation. For planning-only requests, stop after the required planning artifacts are ready. `quick-implement` is only for a single SPEC / HLD with no graph.
+
+For an upstream amendment, reconcile only tickets affected by the confirmed delta. Preserve unaffected contracts, lifecycle, and still-valid evidence. Do not rebuild the graph from scratch merely because `SPEC.md` or `HLD.md` changed.
 
 ## Handoff
 

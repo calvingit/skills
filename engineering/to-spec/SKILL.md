@@ -98,13 +98,24 @@ After the SPEC is confirmed, judge two paths separately. Ticket count is not a s
 1. **High-level design**: call `high-level-design` first when shared types, Interfaces, state or error semantics, dependency direction, migration, or integration constraints span modules, callers, or implementation tasks. Otherwise record `hld_not_required` and why.
 2. **Execution**: `quick-implement` when the scope is single and needs no execution graph; `to-tickets` then `loop` when several implementation tasks, dependencies, or unified scheduling are needed.
 
+Continue directly into the selected downstream planning skill when its entry conditions are satisfied. Do not stop merely to ask the user to invoke `high-level-design` or `to-tickets`.
+
+Planning handoff does not expand implementation authority. Enter `quick-implement` or `loop` only when the user's current request authorises implementation; otherwise stop after the required planning artifacts are ready.
+
+Stop for a new user decision, missing requirement authority, unresolved load-bearing technical fog, or another action that requires explicit authorisation.
+
 When an HLD is required, it must exist before either execution path. This skill only forecasts whether several implementation tasks are likely. It does not choose ticket count or the split.
 
 No automatic authorisation to publish externally, commit, push, create a branch, or rewrite history.
 
 ## Change rules
 
-- **Normative change** → Amendment mode above.
-- **High-level design change** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
-- **Execution split change** → `to-tickets` only. Do not rewrite upstream.
-- **Execution change** → update the ticket or execution evidence only. Do not edit SPEC / HLD.
+When new information arrives after downstream work has started, classify the change by authority before editing anything downstream. Resume from the owning artifact instead of restarting the full workflow.
+
+- **Unsettled product / requirement choice** → `grilling` on the affected branch, then Amendment mode.
+- **Normative change** to behaviour, bounds, permissions, compatibility, public contracts, or acceptance → Amendment mode here.
+- **High-level design change with unchanged SPEC meaning** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
+- **Execution split / dependency change with unchanged SPEC / HLD meaning** → `to-tickets` only.
+- **Execution-only change** → update ticket execution state/evidence only.
+
+Do not restart unaffected upstream stages or regenerate unaffected artifacts.

@@ -56,6 +56,8 @@ Ordinary technical choices are decided from repo evidence. Do not hand them to t
 - **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
 - **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
+When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, send only the affected execution impact to `to-tickets`.
+
 ## Handoff
 
 Report the HLD path, D IDs, local implementation space, unverified items, and downstream impact:
@@ -63,5 +65,9 @@ Report the HLD path, D IDs, local implementation space, unverified items, and do
 - No execution graph needed → `quick-implement`.
 - Several implementation tasks, blocking edges, or unified scheduling → `to-tickets`.
 - An execution graph already exists and the HLD was amended → `to-tickets` syncs affected tickets.
+
+Continue directly into the selected downstream planning skill when its entry conditions are satisfied. Do not stop only to ask the user to invoke the next skill.
+
+Planning handoff does not expand implementation authority. Enter `quick-implement` or `loop` only when the user's current request authorises implementation.
 
 This skill does not split tickets, implement code, or produce UI/UX, visual, or interaction drafts. It does not automatically gain authorisation to commit, push, create a branch, or rewrite history.

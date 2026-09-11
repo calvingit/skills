@@ -39,7 +39,7 @@ Runtime owns waiting, interruption, and subagent handles. After interruption, ch
 
 Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch, interrupt active subagents through the runtime, confirm they stopped writing, preserve partial results, and `graph block` their attempts. A graph state change alone does not stop a subagent.
 
-Route requirements to `to-spec`, shared design to `high-level-design`, and graph amendments to `to-tickets`. Do not inject changed requirements into an old attempt. Keep historical done records; retain only confirmed unaffected contracts/evidence. Changed behaviour needs correction/replacement tickets. Use `reopen` for defects against an unchanged confirmed contract.
+Route unsettled requirement choices to `grilling` first, normative requirement changes to `to-spec`, shared design changes to `high-level-design`, and graph-only amendments to `to-tickets`. Do not inject changed requirements into an old attempt. Keep historical done records; retain only confirmed unaffected contracts/evidence. Changed behaviour needs correction/replacement tickets. Use `reopen` for defects against an unchanged confirmed contract.
 
 ## Continue through delivery
 

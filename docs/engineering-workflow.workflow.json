@@ -10,7 +10,7 @@
         "id": "requirement-path",
         "label": "需求收敛",
         "focus": ["start", "spec_check", "scope_check", "grilling", "wayfinding", "to_spec", "spec"],
-        "note": "从当前工作判断需求是否收敛，并形成唯一规范性需求来源。"
+        "note": "从当前工作判断需求是否收敛；正常向前推进，变更时回到对应上游 Skill。"
       },
       {
         "id": "design-path",
@@ -37,14 +37,14 @@
     { "id": "formalize", "label": "形成契约", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
     { "id": "deliver_phase", "label": "选择执行路径", "fromCol": 4, "toCol": 5, "variant": "dashed" }
   ],
-  "mainPath": ["start", "scope_check", "execution_check", "quick_implement", "delivery"],
+  "mainPath": ["start", "spec_check", "scope_check", "execution_check", "quick_implement", "delivery"],
   "nodes": [
     { "id": "start", "lane": "intake", "col": 0, "type": "frontend", "label": "当前工作", "sublabel": "识别现有 artifact", "tag": "START" },
     { "id": "spec_check", "lane": "intake", "col": 1, "type": "security", "label": "已有 SPEC 需修订？", "sublabel": "检查未合并需求变更", "tag": "DECISION", "width": 124 },
     { "id": "scope_check", "lane": "discovery", "col": 1, "type": "security", "label": "需求与关键路径收敛？", "sublabel": "区分需求缺口与技术迷雾", "tag": "DECISION", "width": 144 },
     { "id": "grilling", "lane": "discovery", "col": 2, "type": "external", "label": "grilling", "sublabel": "收敛需求与边界" },
     { "id": "wayfinding", "lane": "discovery", "col": 3, "type": "external", "label": "wayfinding", "sublabel": "MAP.md + decisions" },
-    { "id": "to_spec", "lane": "design", "col": 2, "type": "backend", "label": "to-spec", "sublabel": "创建或修订同一份规范", "tag": "OWNER" },
+    { "id": "to_spec", "lane": "design", "col": 2, "type": "backend", "label": "to-spec", "sublabel": "原位创建或修订规范", "tag": "OWNER" },
     { "id": "spec", "lane": "design", "col": 3, "type": "database", "label": "SPEC.md", "sublabel": "规范性需求来源", "tag": "ARTIFACT" },
     { "id": "contract_check", "lane": "design", "col": 4, "type": "security", "label": "跨局部技术契约？", "sublabel": "按契约范围判断", "tag": "DECISION", "width": 118 },
     { "id": "high_level_design", "lane": "design", "col": 5, "type": "backend", "label": "high-level-design", "sublabel": "HLD.md（需要时）", "width": 124 },
@@ -57,12 +57,12 @@
   "edges": [
     { "id": "start_check", "from": "start", "to": "spec_check" },
     { "id": "spec_missing", "from": "spec_check", "to": "scope_check", "label": "否", "role": "branch" },
-    { "id": "spec_changed", "from": "spec_check", "to": "to_spec", "label": "有需求变更", "variant": "emphasis", "role": "branch" },
-    { "id": "spec_current", "from": "spec_check", "to": "spec", "label": "已确认且无变更", "role": "main" },
+    { "id": "spec_changed", "from": "spec_check", "to": "to_spec", "fromSide": "right", "label": "有需求变更", "variant": "emphasis", "role": "branch" },
+    { "id": "spec_current", "from": "spec_check", "to": "spec", "fromSide": "right", "label": "已确认且无变更", "role": "main" },
     { "id": "needs_grilling", "from": "scope_check", "to": "grilling", "label": "需求或边界未定", "role": "branch" },
     { "id": "needs_wayfinding", "from": "scope_check", "to": "wayfinding", "label": "技术路径存在 Fog", "role": "branch" },
     { "id": "already_converged", "from": "scope_check", "to": "to_spec", "label": "需要持久化契约", "variant": "emphasis" },
-    { "id": "direct_or_quick", "from": "scope_check", "to": "execution_check", "label": "当前会话可判定", "role": "main" },
+    { "id": "direct_or_quick", "from": "scope_check", "to": "execution_check", "fromSide": "left", "label": "当前会话可判定", "role": "main" },
     { "id": "grilling_to_spec", "from": "grilling", "to": "to_spec" },
     { "id": "wayfinding_to_spec", "from": "wayfinding", "to": "to_spec", "label": "需要构建契约", "role": "return" },
     { "id": "spec_output", "from": "to_spec", "to": "spec", "variant": "emphasis" },
@@ -77,8 +77,9 @@
     { "id": "loop_delivery", "from": "loop", "to": "delivery", "variant": "emphasis" }
   ],
   "cards": [
+    { "dot": "amber", "title": "变更路由", "items": ["未定需求 → grilling；规范修订 → to-spec", "共享设计变化 → high-level-design，不改 SPEC", "执行拆分变化 → to-tickets，只协调受影响部分", "Loop 先暂停写入，完成上游修订后恢复"] },
     { "dot": "violet", "title": "Wayfinding 的其他出口", "items": ["最终决定可以形成 decision handoff", "Notes 明确允许直接变更时，转入对应执行流程"] },
-    { "dot": "cyan", "title": "路由依据", "items": ["ticket 数量不是 HLD 条件", "共享契约决定是否需要 HLD", "execution graph 决定 quick-implement 或 tickets + loop"] },
+    { "dot": "cyan", "title": "路由依据", "items": ["规划连续交接；实现须有当前授权", "ticket 数量不是 HLD 条件", "共享契约决定是否需要 HLD", "execution graph 决定 quick-implement 或 tickets + loop"] },
     { "dot": "emerald", "title": "Artifact 所有权", "items": ["to-spec 维护 SPEC.md", "high-level-design 维护 HLD.md", "to-tickets 维护 graph，loop 写入执行状态与 evidence"] }
   ]
 }

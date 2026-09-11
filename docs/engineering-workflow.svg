@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="955" height="1220" viewBox="0 0 955 1220" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase"><style><![CDATA[
+<svg xmlns="http://www.w3.org/2000/svg" width="1094" height="1220" viewBox="0 0 1094 1220" role="img" lang="zh-CN" aria-labelledby="archify-diagram-title archify-diagram-description" data-preset="classic" data-quality-profile="showcase"><style><![CDATA[
     /* ==========================================================
        THEME VARIABLES — switch by toggling [data-theme] on <html>
        ========================================================== */
@@ -311,10 +311,10 @@
 
     body {
       font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Noto Sans Mono CJK SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', monospace;
-      background: #020617;
+      background: var(--bg);
       min-height: 100vh;
       padding: 2rem;
-      color: #ffffff;
+      color: var(--text);
       transition: background 0.2s ease, color 0.2s ease;
     }
 
@@ -331,16 +331,16 @@
     }
     html[data-preset="blueprint"] body {
       background-image:
-        linear-gradient(#1e293b 1px, transparent 1px),
-        linear-gradient(90deg, #1e293b 1px, transparent 1px);
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
       background-size: 32px 32px;
       background-position: -1px -1px;
       background-attachment: fixed;
     }
     html[data-preset="editorial"] body {
       background-image:
-        linear-gradient(90deg, transparent 0, transparent 5.4rem, color-mix(in srgb, #fb7185 18%, transparent) 5.4rem, color-mix(in srgb, #fb7185 18%, transparent) calc(5.4rem + 1px), transparent calc(5.4rem + 1px)),
-        repeating-linear-gradient(0deg, transparent 0, transparent 31px, color-mix(in srgb, #1e293b 36%, transparent) 31px, color-mix(in srgb, #1e293b 36%, transparent) 32px);
+        linear-gradient(90deg, transparent 0, transparent 5.4rem, color-mix(in srgb, var(--security-stroke) 18%, transparent) 5.4rem, color-mix(in srgb, var(--security-stroke) 18%, transparent) calc(5.4rem + 1px), transparent calc(5.4rem + 1px)),
+        repeating-linear-gradient(0deg, transparent 0, transparent 31px, color-mix(in srgb, var(--grid) 36%, transparent) 31px, color-mix(in srgb, var(--grid) 36%, transparent) 32px);
       background-attachment: fixed;
     }
 
@@ -350,7 +350,7 @@
       min-height: 0;
       padding: 0;
       overflow: hidden;
-      background: #020617;
+      background: var(--bg);
       background-image: none;
     }
     html[data-embed="true"] .toolbar,
@@ -391,12 +391,12 @@
       min-height: 3.35rem;
       padding: 0.55rem 0.75rem 0.65rem;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #22d3ee 42%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 42%, var(--toolbar-border));
       border-radius: 0.75rem;
       background:
-        linear-gradient(115deg, color-mix(in srgb, rgba(8, 51, 68, 0.4) 52%, transparent), transparent 45%),
-        color-mix(in srgb, #0f172a 92%, transparent);
-      color: #e2e8f0;
+        linear-gradient(115deg, color-mix(in srgb, var(--frontend-fill) 52%, transparent), transparent 45%),
+        color-mix(in srgb, var(--toolbar-menu-bg) 92%, transparent);
+      color: var(--toolbar-text);
       box-shadow: 0 14px 42px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.045);
       backdrop-filter: blur(16px);
       pointer-events: none;
@@ -405,20 +405,20 @@
     html[data-preset="blueprint"] .share-chapter-cue {
       border-radius: 0.2rem;
       background:
-        linear-gradient(90deg, color-mix(in srgb, rgba(8, 51, 68, 0.4) 46%, transparent), transparent 36%),
-        #0f172a;
+        linear-gradient(90deg, color-mix(in srgb, var(--frontend-fill) 46%, transparent), transparent 36%),
+        var(--toolbar-menu-bg);
       box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
       backdrop-filter: none;
     }
     html[data-preset="editorial"] .share-chapter-cue {
-      border-color: #1e293b;
+      border-color: var(--panel-border);
       background:
-        linear-gradient(90deg, color-mix(in srgb, rgba(136, 19, 55, 0.4) 58%, transparent), transparent 42%),
-        #0f172a;
+        linear-gradient(90deg, color-mix(in srgb, var(--security-fill) 58%, transparent), transparent 42%),
+        var(--toolbar-menu-bg);
       box-shadow: 0 10px 30px color-mix(in srgb, #000 18%, transparent);
       backdrop-filter: none;
     }
-    html[data-preset="editorial"] .share-chapter-state { color: #34d399; }
+    html[data-preset="editorial"] .share-chapter-state { color: var(--arrow-emphasis); }
     html[data-preset="editorial"] .share-chapter-state::before {
       border-radius: 0;
       box-shadow: none;
@@ -429,13 +429,13 @@
       gap: 0.12rem;
       min-width: 5rem;
       padding-right: 0.75rem;
-      border-right: 1px solid #334155;
+      border-right: 1px solid var(--toolbar-border);
     }
     .share-chapter-state {
       display: inline-flex;
       align-items: center;
       gap: 0.36rem;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.14em;
@@ -453,7 +453,7 @@
       animation: archify-share-cue-pulse 1.15s ease-in-out infinite;
     }
     .share-chapter-count {
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       font-weight: 700;
       letter-spacing: 0.08em;
@@ -469,18 +469,18 @@
       white-space: nowrap;
     }
     .share-chapter-copy strong {
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font-size: 0.6875rem;
       line-height: 1.35;
     }
     .share-chapter-copy small {
       margin-top: 0.08rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.5rem;
       line-height: 1.35;
     }
     .share-chapter-route {
-      color: color-mix(in srgb, #22d3ee 76%, #94a3b8);
+      color: color-mix(in srgb, var(--frontend-stroke) 76%, var(--text-muted));
       font-size: 0.5625rem;
       font-weight: 650;
       letter-spacing: 0.015em;
@@ -493,14 +493,14 @@
       left: 0;
       height: 2px;
       overflow: hidden;
-      background: color-mix(in srgb, #334155 72%, transparent);
+      background: color-mix(in srgb, var(--toolbar-border) 72%, transparent);
     }
     .share-chapter-progress span {
       display: block;
       width: 100%;
       height: 100%;
-      background: linear-gradient(90deg, #22d3ee, #a78bfa);
-      box-shadow: 0 0 12px #22d3ee;
+      background: linear-gradient(90deg, var(--frontend-stroke), var(--database-stroke));
+      box-shadow: 0 0 12px var(--frontend-stroke);
       transform: scaleX(0);
       transform-origin: left center;
     }
@@ -545,7 +545,7 @@
       justify-content: center;
       min-height: 0;
       padding: 0.75rem;
-      padding-bottom: calc(0.75rem + transparent);
+      padding-bottom: calc(0.75rem + var(--archify-nav-reserve));
     }
     html[data-present="true"]:not([data-embed="true"]) .diagram-container > svg {
       flex: 1 1 auto;
@@ -556,8 +556,8 @@
     }
     html[data-present="true"]:not([data-embed="true"]) .cards { display: none; }
     html[data-present="true"]:not([data-embed="true"]) #btn-present {
-      border-color: #22d3ee;
-      color: #22d3ee;
+      border-color: var(--frontend-stroke);
+      color: var(--frontend-stroke);
     }
 
     /* The reader owns only the outer scale. Wide diagrams keep one authored
@@ -566,7 +566,7 @@
        jumps between a laptop and a tall monitor. */
     .container {
       width: 100%;
-      max-width: 1440px;
+      max-width: var(--archify-reader-width, 1440px);
       margin: 0 auto;
     }
     @media (min-width: 768px) and (max-height: 920px) {
@@ -592,7 +592,7 @@
     .pulse-dot {
       width: 12px;
       height: 12px;
-      background: #22d3ee;
+      background: var(--frontend-stroke);
       border-radius: 50%;
       animation: none;
     }
@@ -611,7 +611,7 @@
     }
 
     .subtitle {
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.875rem;
       margin-left: 1.75rem;
     }
@@ -619,8 +619,8 @@
     html[data-preset="signal-flow"] .header-row::after {
       content: attr(data-preset-badge-signal-flow);
       margin-left: auto;
-      color: #22d3ee;
-      border: 1px solid #22d3ee;
+      color: var(--frontend-stroke);
+      border: 1px solid var(--frontend-stroke);
       border-radius: 999px;
       padding: 0.28rem 0.6rem;
       font-size: 0.625rem;
@@ -633,10 +633,10 @@
     html[data-preset="blueprint"] .pulse-dot {
       width: 10px;
       height: 10px;
-      border: 1px solid #22d3ee;
+      border: 1px solid var(--frontend-stroke);
       border-radius: 1px;
       background: transparent;
-      box-shadow: inset 0 0 0 2px #020617;
+      box-shadow: inset 0 0 0 2px var(--bg);
       transform: rotate(45deg);
       animation: none;
     }
@@ -644,9 +644,9 @@
       content: attr(data-preset-badge-blueprint);
       margin-left: auto;
       padding: 0.28rem 0.55rem;
-      border-top: 1px solid #22d3ee;
-      border-bottom: 1px solid #22d3ee;
-      color: #22d3ee;
+      border-top: 1px solid var(--frontend-stroke);
+      border-bottom: 1px solid var(--frontend-stroke);
+      color: var(--frontend-stroke);
       font-size: 0.5625rem;
       font-weight: 700;
       letter-spacing: 0.14em;
@@ -662,10 +662,10 @@
     html[data-preset="editorial"] .pulse-dot {
       width: 9px;
       height: 9px;
-      border: 1px solid #34d399;
+      border: 1px solid var(--arrow-emphasis);
       border-radius: 0;
-      background: #34d399;
-      box-shadow: 0 0 0 3px color-mix(in srgb, #34d399 14%, transparent);
+      background: var(--arrow-emphasis);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--arrow-emphasis) 14%, transparent);
       transform: rotate(45deg);
       animation: none;
     }
@@ -673,8 +673,8 @@
       content: attr(data-preset-badge-editorial);
       margin-left: auto;
       padding: 0.32rem 0 0.24rem;
-      border-bottom: 2px solid #34d399;
-      color: #34d399;
+      border-bottom: 2px solid var(--arrow-emphasis);
+      color: var(--arrow-emphasis);
       font-family: Georgia, 'Times New Roman', serif;
       font-size: 0.625rem;
       font-style: italic;
@@ -685,11 +685,11 @@
 
     .diagram-container {
       --archify-nav-reserve: 0px;
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--panel);
       border-radius: 1rem;
-      border: 1px solid #1e293b;
+      border: 1px solid var(--panel-border);
       padding: 1.5rem;
-      padding-bottom: calc(1.5rem + transparent);
+      padding-bottom: calc(1.5rem + var(--archify-nav-reserve));
       overflow: hidden;
       position: relative;
     }
@@ -705,11 +705,11 @@
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 24px 60px rgba(45, 78, 99, 0.12);
     }
     html[data-preset="blueprint"] .diagram-container {
-      border-color: #1e293b;
+      border-color: var(--panel-border);
       border-radius: 0.35rem;
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--panel);
       box-shadow:
-        inset 0 0 0 1px color-mix(in srgb, #1e293b 34%, transparent),
+        inset 0 0 0 1px color-mix(in srgb, var(--panel-border) 34%, transparent),
         0 18px 48px rgba(0, 0, 0, 0.16);
     }
     html[data-preset="blueprint"] .diagram-container::after {
@@ -719,25 +719,25 @@
       inset: 0.7rem;
       pointer-events: none;
       background:
-        linear-gradient(#22d3ee, #22d3ee) left top / 1.35rem 1px no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) left top / 1px 1.35rem no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) right top / 1.35rem 1px no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) right top / 1px 1.35rem no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) left bottom / 1.35rem 1px no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) left bottom / 1px 1.35rem no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) right bottom / 1.35rem 1px no-repeat,
-        linear-gradient(#22d3ee, #22d3ee) right bottom / 1px 1.35rem no-repeat;
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left top / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left top / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right top / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right top / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left bottom / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) left bottom / 1px 1.35rem no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right bottom / 1.35rem 1px no-repeat,
+        linear-gradient(var(--frontend-stroke), var(--frontend-stroke)) right bottom / 1px 1.35rem no-repeat;
       opacity: 0.58;
     }
     html[data-preset="editorial"] .diagram-container {
       overflow: hidden;
-      border-color: #1e293b;
+      border-color: var(--panel-border);
       border-radius: 0.38rem;
       background:
-        linear-gradient(90deg, color-mix(in srgb, rgba(136, 19, 55, 0.4) 58%, transparent), transparent 12%),
-        rgba(15, 23, 42, 0.5);
+        linear-gradient(90deg, color-mix(in srgb, var(--security-fill) 58%, transparent), transparent 12%),
+        var(--panel);
       box-shadow:
-        0 1px 0 color-mix(in srgb, #ffffff 6%, transparent),
+        0 1px 0 color-mix(in srgb, var(--text) 6%, transparent),
         0 18px 48px color-mix(in srgb, #000 19%, transparent);
     }
     html[data-preset="editorial"] .diagram-container::after {
@@ -746,9 +746,9 @@
       top: 0.72rem;
       right: 1.25rem;
       padding: 0.2rem 0.52rem;
-      border: 1px solid #1e293b;
-      background: rgba(15, 23, 42, 0.5);
-      color: #34d399;
+      border: 1px solid var(--panel-border);
+      background: var(--panel);
+      color: var(--arrow-emphasis);
       content: attr(data-preset-badge-editorial-plate);
       font-family: Georgia, 'Times New Roman', serif;
       font-size: 0.52rem;
@@ -883,9 +883,9 @@
       padding: 0.15rem;
       gap: 0;
       overflow-x: auto;
-      border: 1px solid color-mix(in srgb, #334155 48%, transparent);
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 48%, transparent);
       border-radius: 0.58rem;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.8) 82%, transparent);
+      background: color-mix(in srgb, var(--toolbar-bg) 82%, transparent);
       box-shadow: 0 5px 14px rgba(0, 0, 0, 0.07);
       backdrop-filter: blur(10px);
       scrollbar-width: none;
@@ -896,7 +896,7 @@
     .guided-views button {
       border: 0;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       cursor: pointer;
     }
@@ -905,7 +905,7 @@
       height: 2rem;
       padding: 0 0.35rem;
       border-radius: 0.35rem;
-      color: color-mix(in srgb, #e2e8f0 68%, transparent);
+      color: color-mix(in srgb, var(--toolbar-text) 68%, transparent);
       font-size: 0.56rem;
       font-weight: 600;
       letter-spacing: 0.02em;
@@ -916,11 +916,11 @@
     .focus-chip button:hover,
     .focus-chip button:focus-visible,
     .guided-views button:hover,
-    .guided-views button:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .guided-views button:focus-visible { background: var(--toolbar-hover); }
     .diagram-nav button:focus-visible,
     .focus-chip button:focus-visible,
     .guided-views button:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 1px;
     }
     .diagram-nav button:disabled { opacity: 0.38; cursor: default; }
@@ -930,7 +930,7 @@
     .diagram-nav #btn-semantic-lens {
       min-width: auto;
       padding-inline: 0.5rem;
-      color: color-mix(in srgb, #e2e8f0 86%, transparent);
+      color: color-mix(in srgb, var(--toolbar-text) 86%, transparent);
       font-weight: 650;
     }
     .diagram-nav #btn-node-finder,
@@ -945,7 +945,7 @@
       bottom: 0.4rem;
       left: -0.13rem;
       width: 1px;
-      background: color-mix(in srgb, #334155 62%, transparent);
+      background: color-mix(in srgb, var(--toolbar-border) 62%, transparent);
       content: "";
       pointer-events: none;
     }
@@ -990,23 +990,23 @@
       min-width: 3.8rem;
     }
     .diagram-nav-detail {
-      color: color-mix(in srgb, #e2e8f0 52%, transparent);
+      color: color-mix(in srgb, var(--toolbar-text) 52%, transparent);
       font-size: 0.44rem;
       font-weight: 700;
       line-height: 1;
       letter-spacing: 0.07em;
     }
     .diagram-nav-percent {
-      color: color-mix(in srgb, #e2e8f0 84%, transparent);
+      color: color-mix(in srgb, var(--toolbar-text) 84%, transparent);
       font-size: 0.55rem;
       font-weight: 650;
       line-height: 1;
     }
     .diagram-container[data-camera-indicator="true"] .diagram-nav-detail,
-    .diagram-container[data-camera-indicator="true"] .diagram-nav-percent { color: #22d3ee; }
+    .diagram-container[data-camera-indicator="true"] .diagram-nav-percent { color: var(--frontend-stroke); }
     .diagram-nav #btn-diagram-guide[aria-expanded="true"] {
-      color: #fbbf24;
-      background: rgba(15, 23, 42, 0.95);
+      color: var(--cloud-stroke);
+      background: var(--toolbar-hover);
     }
 
     /* Semantic Radar is a deliberately simplified, viewer-only overview. It
@@ -1016,14 +1016,14 @@
     .overview-map {
       position: absolute;
       right: 1rem;
-      bottom: calc(4.15rem + transparent);
+      bottom: calc(4.15rem + var(--archify-nav-reserve));
       z-index: 12;
       width: 11.25rem;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #22d3ee 52%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 52%, var(--toolbar-border));
       border-radius: 0.78rem;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 16px 42px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(16px);
       font-size: 0.625rem;
@@ -1031,13 +1031,13 @@
     .overview-map[hidden] { display: none; }
     .overview-map[data-docked="true"] {
       position: fixed;
-      right: 1rem;
-      top: 1rem;
+      right: var(--archify-radar-right, 1rem);
+      top: var(--archify-radar-top, 1rem);
       bottom: auto;
     }
     .overview-map[data-docked="true"][data-dock-side="left"] {
       right: auto;
-      left: 1rem;
+      left: var(--archify-radar-left, 1rem);
     }
     html[data-preset="blueprint"] .overview-map { border-radius: 0.28rem; }
     .overview-map-head {
@@ -1047,16 +1047,16 @@
       gap: 0.45rem;
       min-height: 2.25rem;
       padding: 0.42rem 0.48rem 0.38rem 0.55rem;
-      border-bottom: 1px solid #334155;
-      background: linear-gradient(110deg, color-mix(in srgb, rgba(8, 51, 68, 0.4) 45%, transparent), transparent 68%);
+      border-bottom: 1px solid var(--toolbar-border);
+      background: linear-gradient(110deg, color-mix(in srgb, var(--frontend-fill) 45%, transparent), transparent 68%);
       cursor: grab;
       touch-action: none;
       user-select: none;
     }
     .overview-map[data-panel-dragging="true"] .overview-map-head { cursor: grabbing; }
     .overview-map[data-placement-invalid="true"] {
-      border-color: #fb7185;
-      box-shadow: 0 0 0 2px color-mix(in srgb, #fb7185 34%, transparent), 0 16px 42px rgba(0, 0, 0, 0.3);
+      border-color: var(--security-stroke);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--security-stroke) 34%, transparent), 0 16px 42px rgba(0, 0, 0, 0.3);
     }
     .overview-map[data-compact="true"] {
       width: 7.4rem;
@@ -1084,15 +1084,15 @@
       width: 0.42rem;
       height: 0.42rem;
       border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 0 0 color-mix(in srgb, #34d399 52%, transparent);
+      background: var(--backend-stroke);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--backend-stroke) 52%, transparent);
       animation: archify-radar-live 2.4s ease-out infinite;
     }
     .overview-map-copy { min-width: 0; line-height: 1.1; }
     .overview-map-copy strong {
       display: block;
       overflow: hidden;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.59rem;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -1103,7 +1103,7 @@
       display: block;
       margin-top: 0.18rem;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.52rem;
       letter-spacing: 0.04em;
       white-space: nowrap;
@@ -1120,7 +1120,7 @@
       border: 0;
       border-radius: 0.3rem;
       background: transparent;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font: inherit;
       font-size: 0.49rem;
       font-weight: 700;
@@ -1136,7 +1136,7 @@
       border: 0;
       border-radius: 0.34rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       font-size: 0.9rem;
       cursor: pointer;
@@ -1144,12 +1144,12 @@
     .overview-map-expand:hover,
     .overview-map-expand:focus-visible,
     .overview-map-close:hover,
-    .overview-map-close:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .overview-map-close:focus-visible { background: var(--toolbar-hover); }
     .overview-map-expand:focus-visible,
     .overview-map-close:focus-visible,
     .overview-map-surface:focus-visible,
     .overview-map-node:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 1px;
     }
     .overview-map-surface {
@@ -1157,12 +1157,12 @@
       height: 7rem;
       margin: 0.42rem;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #1e293b 72%, transparent);
+      border: 1px solid color-mix(in srgb, var(--panel-border) 72%, transparent);
       border-radius: 0.42rem;
       background:
-        linear-gradient(color-mix(in srgb, #1e293b 26%, transparent) 1px, transparent 1px),
-        linear-gradient(90deg, color-mix(in srgb, #1e293b 26%, transparent) 1px, transparent 1px),
-        color-mix(in srgb, #020617 86%, transparent);
+        linear-gradient(color-mix(in srgb, var(--panel-border) 26%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--panel-border) 26%, transparent) 1px, transparent 1px),
+        color-mix(in srgb, var(--bg) 86%, transparent);
       background-size: 12px 12px;
       cursor: crosshair;
       touch-action: none;
@@ -1178,26 +1178,26 @@
       overflow: visible;
     }
     .overview-map-node {
-      fill: #34d399;
+      fill: var(--backend-stroke);
       fill-opacity: 0.52;
-      stroke: #34d399;
+      stroke: var(--backend-stroke);
       stroke-opacity: 0.86;
       vector-effect: non-scaling-stroke;
       cursor: pointer;
       transition: fill-opacity 140ms ease, stroke-width 140ms ease, filter 140ms ease;
     }
     .overview-map-node[data-kind="frontend"],
-    .overview-map-node[data-kind="start"] { fill: #22d3ee; stroke: #22d3ee; }
+    .overview-map-node[data-kind="start"] { fill: var(--frontend-stroke); stroke: var(--frontend-stroke); }
     .overview-map-node[data-kind="database"],
-    .overview-map-node[data-kind="success"] { fill: #a78bfa; stroke: #a78bfa; }
+    .overview-map-node[data-kind="success"] { fill: var(--database-stroke); stroke: var(--database-stroke); }
     .overview-map-node[data-kind="cloud"],
-    .overview-map-node[data-kind="waiting"] { fill: #fbbf24; stroke: #fbbf24; }
-    .overview-map-node[data-kind="messagebus"] { fill: #fb923c; stroke: #fb923c; }
+    .overview-map-node[data-kind="waiting"] { fill: var(--cloud-stroke); stroke: var(--cloud-stroke); }
+    .overview-map-node[data-kind="messagebus"] { fill: var(--messagebus-stroke); stroke: var(--messagebus-stroke); }
     .overview-map-node[data-kind="security"],
     .overview-map-node[data-kind="decision"],
-    .overview-map-node[data-kind="failure"] { fill: #fb7185; stroke: #fb7185; }
+    .overview-map-node[data-kind="failure"] { fill: var(--security-stroke); stroke: var(--security-stroke); }
     .overview-map-node[data-kind="external"],
-    .overview-map-node[data-kind="neutral"] { fill: #94a3b8; stroke: #94a3b8; }
+    .overview-map-node[data-kind="neutral"] { fill: var(--external-stroke); stroke: var(--external-stroke); }
     .overview-map-node[data-radar-active="true"],
     .overview-map-node:hover,
     .overview-map-node:focus-visible {
@@ -1206,26 +1206,26 @@
       filter: drop-shadow(0 0 3px currentColor);
     }
     .overview-map-viewport {
-      fill: color-mix(in srgb, rgba(8, 51, 68, 0.4) 56%, transparent);
-      stroke: #22d3ee;
+      fill: color-mix(in srgb, var(--frontend-fill) 56%, transparent);
+      stroke: var(--frontend-stroke);
       stroke-width: 2;
       vector-effect: non-scaling-stroke;
       pointer-events: none;
-      filter: drop-shadow(0 0 3px color-mix(in srgb, #22d3ee 54%, transparent));
+      filter: drop-shadow(0 0 3px color-mix(in srgb, var(--frontend-stroke) 54%, transparent));
     }
     .overview-map-hint {
       display: flex;
       justify-content: space-between;
       gap: 0.5rem;
       padding: 0 0.52rem 0.46rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.49rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
     }
     .diagram-nav #btn-overview-map[aria-expanded="true"] {
-      color: #22d3ee;
-      background: rgba(15, 23, 42, 0.95);
+      color: var(--frontend-stroke);
+      background: var(--toolbar-hover);
     }
     .overview-map-feedback {
       position: absolute;
@@ -1234,10 +1234,10 @@
       z-index: 13;
       max-width: min(16rem, calc(100% - 2rem));
       padding: 0.38rem 0.55rem;
-      border: 1px solid color-mix(in srgb, #22d3ee 52%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 52%, var(--toolbar-border));
       border-radius: 0.5rem;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
       font-size: 0.52rem;
       line-height: 1.35;
@@ -1246,13 +1246,13 @@
     .overview-map-feedback[hidden] { display: none; }
     .focus-chip[data-radar-yielded="true"] { display: none !important; }
     .diagram-nav #btn-route-probe[aria-pressed="true"] {
-      color: #34d399;
-      background: rgba(15, 23, 42, 0.95);
+      color: var(--backend-stroke);
+      background: var(--toolbar-hover);
     }
     .diagram-nav #btn-semantic-lens[aria-expanded="true"],
     .diagram-nav #btn-semantic-lens[aria-pressed="true"] {
-      color: #a78bfa;
-      background: rgba(15, 23, 42, 0.95);
+      color: var(--database-stroke);
+      background: var(--toolbar-hover);
     }
 
     /* Semantic Lens turns the compiled node-kind palette into an analytical
@@ -1261,16 +1261,16 @@
     .semantic-lens {
       position: absolute;
       right: 1rem;
-      bottom: calc(4.15rem + transparent);
+      bottom: calc(4.15rem + var(--archify-nav-reserve));
       z-index: 24;
       width: min(20rem, calc(100% - 2rem));
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #a78bfa 58%, #334155);
+      border: 1px solid color-mix(in srgb, var(--database-stroke) 58%, var(--toolbar-border));
       border-radius: 0.82rem;
       background:
-        linear-gradient(135deg, color-mix(in srgb, rgba(76, 29, 149, 0.4) 34%, transparent), transparent 48%),
-        #0f172a;
-      color: #e2e8f0;
+        linear-gradient(135deg, color-mix(in srgb, var(--database-fill) 34%, transparent), transparent 48%),
+        var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 18px 52px rgba(0, 0, 0, 0.36);
       backdrop-filter: blur(18px);
       animation: archify-lens-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1285,11 +1285,11 @@
       align-items: start;
       gap: 0.75rem;
       padding: 0.72rem 0.78rem 0.62rem;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid var(--toolbar-border);
     }
     .semantic-lens-eyebrow {
       display: block;
-      color: #a78bfa;
+      color: var(--database-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.16em;
@@ -1298,7 +1298,7 @@
     .semantic-lens-title {
       display: block;
       margin-top: 0.16rem;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.82rem;
       letter-spacing: -0.02em;
     }
@@ -1309,17 +1309,17 @@
       border: 0;
       border-radius: 0.35rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       font-size: 1rem;
       cursor: pointer;
     }
     .semantic-lens-close:hover,
-    .semantic-lens-close:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .semantic-lens-close:focus-visible { background: var(--toolbar-hover); }
     .semantic-lens-instruction {
       margin: 0;
       padding: 0.52rem 0.78rem 0.48rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.55rem;
       line-height: 1.45;
     }
@@ -1333,7 +1333,7 @@
       scrollbar-width: thin;
     }
     .semantic-lens-kind {
-      --lens-color: #94a3b8;
+      --lens-color: var(--external-stroke);
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
@@ -1341,10 +1341,10 @@
       min-width: 0;
       min-height: 2.15rem;
       padding: 0.35rem 0.42rem;
-      border: 1px solid color-mix(in srgb, transparent 24%, #334155);
+      border: 1px solid color-mix(in srgb, var(--lens-color) 24%, var(--toolbar-border));
       border-radius: 0.45rem;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 76%, transparent);
-      color: #e2e8f0;
+      background: color-mix(in srgb, var(--panel) 76%, transparent);
+      color: var(--toolbar-text);
       font: inherit;
       text-align: left;
       cursor: pointer;
@@ -1352,27 +1352,27 @@
     }
     html[data-preset="blueprint"] .semantic-lens-kind { border-radius: 0.12rem; }
     .semantic-lens-kind[data-kind="frontend"],
-    .semantic-lens-kind[data-kind="start"] { --lens-color: #22d3ee; }
+    .semantic-lens-kind[data-kind="start"] { --lens-color: var(--frontend-stroke); }
     .semantic-lens-kind[data-kind="backend"],
-    .semantic-lens-kind[data-kind="active"] { --lens-color: #34d399; }
+    .semantic-lens-kind[data-kind="active"] { --lens-color: var(--backend-stroke); }
     .semantic-lens-kind[data-kind="database"],
-    .semantic-lens-kind[data-kind="success"] { --lens-color: #a78bfa; }
+    .semantic-lens-kind[data-kind="success"] { --lens-color: var(--database-stroke); }
     .semantic-lens-kind[data-kind="cloud"],
-    .semantic-lens-kind[data-kind="waiting"] { --lens-color: #fbbf24; }
-    .semantic-lens-kind[data-kind="messagebus"] { --lens-color: #fb923c; }
+    .semantic-lens-kind[data-kind="waiting"] { --lens-color: var(--cloud-stroke); }
+    .semantic-lens-kind[data-kind="messagebus"] { --lens-color: var(--messagebus-stroke); }
     .semantic-lens-kind[data-kind="security"],
     .semantic-lens-kind[data-kind="decision"],
-    .semantic-lens-kind[data-kind="failure"] { --lens-color: #fb7185; }
+    .semantic-lens-kind[data-kind="failure"] { --lens-color: var(--security-stroke); }
     .semantic-lens-kind:hover,
     .semantic-lens-kind:focus-visible,
     .semantic-lens-kind[aria-pressed="true"] {
-      border-color: color-mix(in srgb, transparent 78%, #334155);
-      background: color-mix(in srgb, transparent 11%, rgba(15, 23, 42, 0.5));
+      border-color: color-mix(in srgb, var(--lens-color) 78%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--lens-color) 11%, var(--panel));
     }
     .semantic-lens-kind:focus-visible,
     .semantic-lens-close:focus-visible,
     .semantic-lens-actions button:focus-visible {
-      outline: 2px solid #a78bfa;
+      outline: 2px solid var(--database-stroke);
       outline-offset: 1px;
     }
     .semantic-lens-kind:disabled { opacity: 0.34; cursor: default; }
@@ -1380,18 +1380,18 @@
       width: 0.48rem;
       height: 0.48rem;
       border-radius: 50%;
-      background: transparent;
-      box-shadow: 0 0 8px color-mix(in srgb, transparent 58%, transparent);
+      background: var(--lens-color);
+      box-shadow: 0 0 8px color-mix(in srgb, var(--lens-color) 58%, transparent);
     }
     .semantic-lens-kind strong {
       overflow: hidden;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.61rem;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .semantic-lens-kind em {
-      color: transparent;
+      color: var(--lens-color);
       font-size: 0.54rem;
       font-style: normal;
       font-weight: 800;
@@ -1400,12 +1400,12 @@
       min-height: 2.5rem;
       margin: 0;
       padding: 0.55rem 0.78rem;
-      border-top: 1px solid #334155;
-      color: #7d8da1;
+      border-top: 1px solid var(--toolbar-border);
+      color: var(--text-faint);
       font-size: 0.55rem;
       line-height: 1.45;
     }
-    .semantic-lens-status strong { color: #a78bfa; font-weight: 800; }
+    .semantic-lens-status strong { color: var(--database-stroke); font-weight: 800; }
     .semantic-lens-actions {
       display: flex;
       justify-content: flex-end;
@@ -1418,13 +1418,13 @@
       border: 0;
       border-radius: 0.35rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       font-size: 0.56rem;
       cursor: pointer;
     }
-    .semantic-lens-actions button:hover { background: rgba(15, 23, 42, 0.95); }
-    .semantic-lens-actions #semantic-lens-copy { color: #a78bfa; }
+    .semantic-lens-actions button:hover { background: var(--toolbar-hover); }
+    .semantic-lens-actions #semantic-lens-copy { color: var(--database-stroke); }
     @keyframes archify-lens-in {
       from { opacity: 0; transform: translateY(5px) scale(0.985); }
       to { opacity: 1; transform: translateY(0) scale(1); }
@@ -1436,17 +1436,17 @@
     .route-probe {
       position: absolute;
       left: 1rem;
-      bottom: calc(1rem + transparent);
+      bottom: calc(1rem + var(--archify-nav-reserve));
       z-index: 12;
       width: min(46rem, calc(100% - 25rem));
       min-width: 18rem;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #34d399 62%, #334155);
+      border: 1px solid color-mix(in srgb, var(--backend-stroke) 62%, var(--toolbar-border));
       border-radius: 0.82rem;
       background:
-        linear-gradient(115deg, color-mix(in srgb, rgba(6, 78, 59, 0.4) 50%, transparent), transparent 62%),
-        #0f172a;
-      color: #e2e8f0;
+        linear-gradient(115deg, color-mix(in srgb, var(--backend-fill) 50%, transparent), transparent 62%),
+        var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(16px);
       font-size: 0.625rem;
@@ -1463,12 +1463,12 @@
       align-items: start;
       gap: 0.65rem;
       padding: 0.52rem 0.58rem 0.44rem;
-      border-bottom: 1px solid color-mix(in srgb, #334155 80%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--toolbar-border) 80%, transparent);
     }
     .route-probe-copy { min-width: 0; }
     .route-probe-eyebrow {
       display: block;
-      color: #34d399;
+      color: var(--backend-stroke);
       font-size: 0.48rem;
       font-weight: 800;
       letter-spacing: 0.15em;
@@ -1478,7 +1478,7 @@
       display: block;
       margin-top: 0.14rem;
       overflow: hidden;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font-size: 0.72rem;
       line-height: 1.25;
       white-space: nowrap;
@@ -1491,18 +1491,18 @@
       border: 0;
       border-radius: 0.36rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       cursor: pointer;
     }
     .route-probe button:hover,
-    .route-probe button:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .route-probe button:focus-visible { background: var(--toolbar-hover); }
     .route-probe button:focus-visible {
-      outline: 2px solid #34d399;
+      outline: 2px solid var(--backend-stroke);
       outline-offset: 1px;
     }
-    .route-probe-copy-link { color: #22d3ee !important; }
-    .route-probe-find { color: #34d399 !important; }
+    .route-probe-copy-link { color: var(--frontend-stroke) !important; }
+    .route-probe-find { color: var(--backend-stroke) !important; }
     .route-probe-copy-link[hidden] { display: none; }
     .route-probe-find[hidden] { display: none; }
     .route-probe-path {
@@ -1521,30 +1521,30 @@
       overflow: hidden;
       min-height: 1.75rem !important;
       padding: 0.22rem 0.38rem;
-      border: 1px solid color-mix(in srgb, #34d399 46%, #334155);
+      border: 1px solid color-mix(in srgb, var(--backend-stroke) 46%, var(--toolbar-border));
       border-radius: 999px;
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 52%, transparent);
-      color: #ffffff;
+      background: color-mix(in srgb, var(--backend-fill) 52%, transparent);
+      color: var(--text);
       font-size: 0.56rem;
       font-weight: 700;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .route-probe-node[data-endpoint="start"] {
-      border-color: #22d3ee;
-      color: #22d3ee;
+      border-color: var(--frontend-stroke);
+      color: var(--frontend-stroke);
     }
     .route-probe-node[data-endpoint="end"] {
-      border-color: #fb7185;
-      color: #fb7185;
+      border-color: var(--security-stroke);
+      color: var(--security-stroke);
     }
     .route-probe-node[data-route-journey-state="past"] { opacity: 0.66; }
     .route-probe-node[data-route-journey-state="future"] { opacity: 0.48; }
     .route-probe-node[aria-current="step"] {
-      border-color: #34d399;
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 82%, #0f172a);
-      color: #ffffff;
-      box-shadow: 0 0 0 1px color-mix(in srgb, #34d399 42%, transparent), 0 0 14px color-mix(in srgb, #34d399 34%, transparent);
+      border-color: var(--backend-stroke);
+      background: color-mix(in srgb, var(--backend-fill) 82%, var(--toolbar-menu-bg));
+      color: var(--text);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--backend-stroke) 42%, transparent), 0 0 14px color-mix(in srgb, var(--backend-stroke) 34%, transparent);
       opacity: 1;
     }
     html[data-preset="blueprint"] .route-probe-node[aria-current="step"] {
@@ -1556,11 +1556,11 @@
     .route-probe-arrow {
       flex: none;
       padding: 0 0.28rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.65rem;
     }
     .route-probe-placeholder {
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.56rem;
       letter-spacing: 0.03em;
     }
@@ -1568,7 +1568,7 @@
       display: block;
       min-height: 1.45rem;
       padding: 0.08rem 0.58rem 0.44rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.52rem;
       line-height: 1.35;
     }
@@ -1582,8 +1582,8 @@
     .route-journey-controls[hidden] { display: none; }
     .route-journey-controls button {
       min-height: 1.8rem;
-      border: 1px solid color-mix(in srgb, #334155 86%, transparent);
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.8) 72%, transparent);
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 86%, transparent);
+      background: color-mix(in srgb, var(--toolbar-bg) 72%, transparent);
       font-size: 0.54rem;
       font-weight: 700;
     }
@@ -1591,16 +1591,16 @@
       cursor: default;
       opacity: 0.34;
     }
-    .route-journey-play { color: #34d399 !important; }
-    .route-journey-overview { color: #22d3ee !important; }
+    .route-journey-play { color: var(--backend-stroke) !important; }
+    .route-journey-overview { color: var(--frontend-stroke) !important; }
     .route-journey-controls[data-playing="true"] .route-journey-play {
-      border-color: color-mix(in srgb, #34d399 64%, #334155);
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 62%, transparent);
+      border-color: color-mix(in srgb, var(--backend-stroke) 64%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--backend-fill) 62%, transparent);
     }
     .route-probe[data-state="error"] {
-      border-color: color-mix(in srgb, #fb7185 72%, #334155);
+      border-color: color-mix(in srgb, var(--security-stroke) 72%, var(--toolbar-border));
     }
-    .route-probe[data-state="error"] .route-probe-status { color: #fb7185; }
+    .route-probe[data-state="error"] .route-probe-status { color: var(--security-stroke); }
 
     .focus-chip {
       position: absolute;
@@ -1611,10 +1611,10 @@
       width: min(22rem, calc(100% - 13rem));
       max-width: calc(100% - 13rem);
       overflow: hidden;
-      border: 1px solid #22d3ee;
+      border: 1px solid var(--frontend-stroke);
       border-radius: 0.85rem;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 18px 48px rgba(0, 0, 0, 0.3);
       backdrop-filter: blur(16px);
       font-size: 0.6875rem;
@@ -1633,8 +1633,8 @@
       align-items: start;
       gap: 0.75rem;
       padding: 0.7rem 0.75rem 0.65rem;
-      border-bottom: 1px solid #334155;
-      background: linear-gradient(120deg, color-mix(in srgb, rgba(8, 51, 68, 0.4) 34%, transparent), transparent 72%);
+      border-bottom: 1px solid var(--toolbar-border);
+      background: linear-gradient(120deg, color-mix(in srgb, var(--frontend-fill) 34%, transparent), transparent 72%);
     }
     .relationship-lens-copy { min-width: 0; }
     .relationship-lens-actions {
@@ -1650,21 +1650,21 @@
       height: 1.75rem;
       padding: 0;
       place-items: center;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 1rem;
       line-height: 1;
     }
     .relationship-lens-actions #btn-focus-clear:hover,
     .relationship-lens-actions #btn-focus-clear:focus-visible {
-      background: rgba(15, 23, 42, 0.95);
-      color: #ffffff;
+      background: var(--toolbar-hover);
+      color: var(--text);
     }
-    .relationship-lens-actions #btn-focus-copy { color: #22d3ee; }
+    .relationship-lens-actions #btn-focus-copy { color: var(--frontend-stroke); }
     .relationship-lens-actions #btn-focus-relations { display: none; }
     .relationship-lens-eyebrow {
       display: block;
       margin-bottom: 0.18rem;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.14em;
@@ -1673,7 +1673,7 @@
     .relationship-lens-title {
       display: block;
       overflow: hidden;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.8rem;
       line-height: 1.35;
       text-overflow: ellipsis;
@@ -1683,7 +1683,7 @@
       display: block;
       margin-top: 0.12rem;
       overflow: hidden;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.625rem;
       line-height: 1.4;
       text-overflow: ellipsis;
@@ -1701,10 +1701,10 @@
       max-width: 100%;
       overflow: hidden;
       padding: 0.14rem 0.34rem;
-      border: 1px solid color-mix(in srgb, #334155 82%, transparent);
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 82%, transparent);
       border-radius: 999px;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 68%, transparent);
-      color: #7d8da1;
+      background: color-mix(in srgb, var(--panel) 68%, transparent);
+      color: var(--text-faint);
       font: inherit;
       font-size: 0.5rem;
       letter-spacing: 0.04em;
@@ -1712,15 +1712,15 @@
       white-space: nowrap;
     }
     .semantic-passport-meta [data-passport="kind"] {
-      border-color: color-mix(in srgb, #22d3ee 50%, #334155);
-      color: #22d3ee;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 50%, var(--toolbar-border));
+      color: var(--frontend-stroke);
       font-weight: 800;
       text-transform: uppercase;
     }
-    .semantic-passport-meta [data-passport="tag"] { color: #fbbf24; }
+    .semantic-passport-meta [data-passport="tag"] { color: var(--cloud-stroke); }
     .semantic-passport-meta [data-passport="brand"] {
-      border-color: color-mix(in srgb, #fb923c 52%, #334155);
-      color: #fb923c;
+      border-color: color-mix(in srgb, var(--messagebus-stroke) 52%, var(--toolbar-border));
+      color: var(--messagebus-stroke);
       font-weight: 700;
     }
     .semantic-passport-meta [hidden] { display: none; }
@@ -1729,9 +1729,9 @@
     .semantic-passport-evidence {
       margin-top: 0.52rem;
       padding: 0.5rem;
-      border: 1px solid color-mix(in srgb, #34d399 32%, #334155);
+      border: 1px solid color-mix(in srgb, var(--backend-stroke) 32%, var(--toolbar-border));
       border-radius: 0.55rem;
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 18%, rgba(15, 23, 42, 0.5));
+      background: color-mix(in srgb, var(--backend-fill) 18%, var(--panel));
     }
     .semantic-passport-evidence[hidden] { display: none; }
     html[data-preset="blueprint"] .semantic-passport-evidence { border-radius: 0.18rem; }
@@ -1746,7 +1746,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.28rem;
-      color: #34d399;
+      color: var(--backend-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -1757,20 +1757,20 @@
       width: 0.38rem;
       height: 0.38rem;
       border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 0 3px color-mix(in srgb, #34d399 14%, transparent);
+      background: var(--backend-stroke);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--backend-stroke) 14%, transparent);
     }
     .semantic-passport-repository {
       min-width: 0;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       text-decoration: none;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .semantic-passport-repository:hover,
-    .semantic-passport-repository:focus-visible { color: #34d399; }
+    .semantic-passport-repository:focus-visible { color: var(--backend-stroke); }
     .semantic-passport-evidence-links { display: grid; gap: 0.22rem; }
     .semantic-passport-source {
       display: grid;
@@ -1780,14 +1780,14 @@
       padding: 0.34rem 0.4rem;
       border: 1px solid transparent;
       border-radius: 0.38rem;
-      color: #94a3b8;
+      color: var(--text-muted);
       text-decoration: none;
     }
-    .semantic-passport-source:hover,
-    .semantic-passport-source:focus-visible {
-      border-color: color-mix(in srgb, #34d399 42%, transparent);
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 32%, transparent);
-      color: #ffffff;
+    a.semantic-passport-source:hover,
+    a.semantic-passport-source:focus-visible {
+      border-color: color-mix(in srgb, var(--backend-stroke) 42%, transparent);
+      background: color-mix(in srgb, var(--backend-fill) 32%, transparent);
+      color: var(--text);
     }
     .semantic-passport-source strong {
       overflow: hidden;
@@ -1796,14 +1796,14 @@
       white-space: nowrap;
     }
     .semantic-passport-source code {
-      color: #34d399;
+      color: var(--backend-stroke);
       font: inherit;
       font-size: 0.5rem;
     }
     .semantic-passport-source small {
       grid-column: 1 / -1;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1811,7 +1811,7 @@
     .relationship-lens-summary {
       display: block;
       margin-top: 0.12rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5625rem;
     }
     .semantic-passport-reach {
@@ -1819,11 +1819,11 @@
       gap: 0.28rem;
       margin-top: 0.52rem;
       padding-top: 0.48rem;
-      border-top: 1px solid color-mix(in srgb, #334155 76%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--toolbar-border) 76%, transparent);
     }
     .semantic-passport-reach[hidden] { display: none; }
     .semantic-passport-reach-label {
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.1em;
@@ -1842,18 +1842,18 @@
       min-width: 0;
       min-height: 2rem;
       padding: 0.32rem 0.42rem;
-      border: 1px solid color-mix(in srgb, #334155 86%, transparent);
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 70%, transparent);
-      color: #94a3b8;
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 86%, transparent);
+      background: color-mix(in srgb, var(--panel) 70%, transparent);
+      color: var(--text-muted);
       text-align: left;
     }
     .semantic-passport-reach-actions button:hover:not(:disabled),
     .semantic-passport-reach-actions button:focus-visible {
-      border-color: color-mix(in srgb, #22d3ee 62%, #334155);
-      color: #ffffff;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 62%, var(--toolbar-border));
+      color: var(--text);
     }
     .semantic-passport-reach-actions button:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 1px;
     }
     .semantic-passport-reach-actions button:disabled {
@@ -1861,24 +1861,24 @@
       opacity: 0.5;
     }
     .semantic-passport-reach-actions button[aria-pressed="true"] {
-      border-color: color-mix(in srgb, var(--frontend-stroke) 72%, #334155);
-      background: color-mix(in srgb, var(--frontend-fill) 48%, transparent);
-      color: #ffffff;
+      border-color: color-mix(in srgb, var(--reach-color, var(--frontend-stroke)) 72%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--reach-fill, var(--frontend-fill)) 48%, transparent);
+      color: var(--text);
     }
     #btn-reach-upstream {
-      --reach-color: #a78bfa;
-      --reach-fill: rgba(76, 29, 149, 0.4);
+      --reach-color: var(--database-stroke);
+      --reach-fill: var(--database-fill);
     }
     #btn-reach-downstream {
-      --reach-color: #34d399;
-      --reach-fill: rgba(6, 78, 59, 0.4);
+      --reach-color: var(--backend-stroke);
+      --reach-fill: var(--backend-fill);
     }
     .semantic-passport-reach-actions strong {
-      color: var(--frontend-stroke);
+      color: var(--reach-color, var(--frontend-stroke));
       font-size: 0.625rem;
     }
     .semantic-passport-reach-status {
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.525rem;
       line-height: 1.4;
     }
@@ -1888,18 +1888,18 @@
       overflow: auto;
       padding: 0.4rem;
       scrollbar-width: thin;
-      scrollbar-color: #22d3ee transparent;
+      scrollbar-color: var(--frontend-stroke) transparent;
     }
     .relationship-lens-list::-webkit-scrollbar { width: 4px; }
     .relationship-lens-list::-webkit-scrollbar-thumb {
       border-radius: 999px;
-      background: color-mix(in srgb, #22d3ee 68%, transparent);
+      background: color-mix(in srgb, var(--frontend-stroke) 68%, transparent);
     }
     .relationship-lens-group + .relationship-lens-group { margin-top: 0.35rem; }
     .relationship-lens-group-title {
       display: block;
       padding: 0.24rem 0.38rem 0.16rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.12em;
@@ -1916,33 +1916,33 @@
     .relationship-lens-row:hover,
     .relationship-lens-row:focus-visible,
     .relationship-lens-row[data-preview-active="true"] {
-      background: rgba(15, 23, 42, 0.95);
-      box-shadow: inset 2px 0 0 #22d3ee;
+      background: var(--toolbar-hover);
+      box-shadow: inset 2px 0 0 var(--frontend-stroke);
     }
     .relationship-lens-row:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: -2px;
     }
     .relationship-lens-direction {
       grid-row: 1 / 3;
       align-self: center;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.08em;
     }
-    .relationship-lens-row[data-direction="in"] .relationship-lens-direction { color: #a78bfa; }
-    .relationship-lens-row[data-direction="loop"] .relationship-lens-direction { color: #fb7185; }
+    .relationship-lens-row[data-direction="in"] .relationship-lens-direction { color: var(--database-stroke); }
+    .relationship-lens-row[data-direction="loop"] .relationship-lens-direction { color: var(--security-stroke); }
     .relationship-lens-row strong {
       overflow: hidden;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.6875rem;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
     .relationship-lens-row small {
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5625rem;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -1950,7 +1950,7 @@
     .relationship-lens-empty {
       margin: 0;
       padding: 0.75rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.625rem;
       text-align: center;
     }
@@ -1967,12 +1967,12 @@
       width: min(32rem, calc(100% - 2rem));
       max-height: min(42rem, calc(100% - 2rem));
       overflow: auto;
-      border: 1px solid color-mix(in srgb, #fbbf24 58%, #334155);
+      border: 1px solid color-mix(in srgb, var(--cloud-stroke) 58%, var(--toolbar-border));
       border-radius: 0.82rem;
       background:
-        linear-gradient(135deg, color-mix(in srgb, rgba(120, 53, 15, 0.3) 32%, transparent), transparent 42%),
-        #0f172a;
-      color: #e2e8f0;
+        linear-gradient(135deg, color-mix(in srgb, var(--cloud-fill) 32%, transparent), transparent 42%),
+        var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 22px 64px rgba(0, 0, 0, 0.4);
       backdrop-filter: blur(18px);
       animation: archify-guide-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
@@ -1985,11 +1985,11 @@
       align-items: start;
       gap: 1rem;
       padding: 0.82rem 0.9rem 0.68rem;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid var(--toolbar-border);
     }
     .diagram-guide-eyebrow {
       display: block;
-      color: #fbbf24;
+      color: var(--cloud-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.16em;
@@ -1998,7 +1998,7 @@
     .diagram-guide-title {
       display: block;
       margin-top: 0.16rem;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.86rem;
       letter-spacing: -0.02em;
     }
@@ -2008,21 +2008,21 @@
       border: 0;
       border-radius: 0.35rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       font-size: 1rem;
       cursor: pointer;
     }
     .diagram-guide-close:hover,
-    .diagram-guide-close:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .diagram-guide-close:focus-visible { background: var(--toolbar-hover); }
     .diagram-guide-stats {
       display: flex;
       align-items: center;
       gap: 0.5rem;
       margin: 0;
       padding: 0.54rem 0.9rem;
-      border-bottom: 1px solid color-mix(in srgb, #334155 74%, transparent);
-      color: #7d8da1;
+      border-bottom: 1px solid color-mix(in srgb, var(--toolbar-border) 74%, transparent);
+      color: var(--text-faint);
       font-size: 0.56rem;
       letter-spacing: 0.025em;
     }
@@ -2032,8 +2032,8 @@
       height: 0.42rem;
       flex: none;
       border-radius: 50%;
-      background: #34d399;
-      box-shadow: 0 0 10px color-mix(in srgb, #34d399 72%, transparent);
+      background: var(--backend-stroke);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--backend-stroke) 72%, transparent);
     }
     .diagram-guide-actions {
       display: grid;
@@ -2042,38 +2042,38 @@
       padding: 0.62rem;
     }
     .diagram-guide-action {
-      --guide-accent: #22d3ee;
+      --guide-accent: var(--frontend-stroke);
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
       align-items: center;
       gap: 0.55rem;
       min-height: 4.15rem;
       padding: 0.55rem 0.58rem;
-      border: 1px solid color-mix(in srgb, transparent 22%, #334155);
+      border: 1px solid color-mix(in srgb, var(--guide-accent) 22%, var(--toolbar-border));
       border-radius: 0.55rem;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 78%, transparent);
-      color: #e2e8f0;
+      background: color-mix(in srgb, var(--panel) 78%, transparent);
+      color: var(--toolbar-text);
       font: inherit;
       text-align: left;
       cursor: pointer;
       transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
     }
-    .diagram-guide-action[data-guide-action="route"] { --guide-accent: #34d399; }
-    .diagram-guide-action[data-guide-action="map"] { --guide-accent: #a78bfa; }
-    .diagram-guide-action[data-guide-action="lens"] { --guide-accent: #fb923c; }
-    .diagram-guide-action[data-guide-action="story"] { --guide-accent: #fb7185; }
+    .diagram-guide-action[data-guide-action="route"] { --guide-accent: var(--backend-stroke); }
+    .diagram-guide-action[data-guide-action="map"] { --guide-accent: var(--database-stroke); }
+    .diagram-guide-action[data-guide-action="lens"] { --guide-accent: var(--messagebus-stroke); }
+    .diagram-guide-action[data-guide-action="story"] { --guide-accent: var(--security-stroke); }
     .diagram-guide-action[data-guide-action="present"] {
-      --guide-accent: #fbbf24;
+      --guide-accent: var(--cloud-stroke);
     }
     .diagram-guide-action:hover,
     .diagram-guide-action:focus-visible {
-      border-color: color-mix(in srgb, transparent 76%, #334155);
-      background: color-mix(in srgb, transparent 9%, rgba(15, 23, 42, 0.5));
+      border-color: color-mix(in srgb, var(--guide-accent) 76%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--guide-accent) 9%, var(--panel));
       transform: translateY(-1px);
     }
     .diagram-guide-action:focus-visible,
     .diagram-guide-close:focus-visible {
-      outline: 2px solid #fbbf24;
+      outline: 2px solid var(--cloud-stroke);
       outline-offset: 1px;
     }
     .diagram-guide-action:disabled {
@@ -2086,9 +2086,9 @@
       place-items: center;
       width: 1.65rem;
       height: 1.65rem;
-      border: 1px solid color-mix(in srgb, transparent 64%, #334155);
+      border: 1px solid color-mix(in srgb, var(--guide-accent) 64%, var(--toolbar-border));
       border-radius: 0.35rem;
-      color: transparent;
+      color: var(--guide-accent);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.06em;
@@ -2097,7 +2097,7 @@
     .diagram-guide-action strong {
       display: block;
       overflow: hidden;
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.66rem;
       text-overflow: ellipsis;
       white-space: nowrap;
@@ -2106,7 +2106,7 @@
       display: -webkit-box;
       margin-top: 0.18rem;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       line-height: 1.35;
       -webkit-box-orient: vertical;
@@ -2116,9 +2116,9 @@
       align-self: start;
       min-width: 1.45rem;
       padding: 0.12rem 0.3rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.25rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font: inherit;
       font-size: 0.5rem;
       text-align: center;
@@ -2128,8 +2128,8 @@
       flex-wrap: wrap;
       gap: 0.34rem 0.62rem;
       padding: 0.58rem 0.9rem 0.68rem;
-      border-top: 1px solid #334155;
-      color: #7d8da1;
+      border-top: 1px solid var(--toolbar-border);
+      color: var(--text-faint);
       font-size: 0.5rem;
     }
     .diagram-guide-shortcuts span {
@@ -2141,7 +2141,7 @@
     .diagram-guide-feedback {
       min-height: 1rem;
       margin: -0.18rem 0.9rem 0.62rem;
-      color: #fb7185;
+      color: var(--security-stroke);
       font-size: 0.5rem;
     }
     .diagram-guide-feedback:empty { display: none; }
@@ -2160,19 +2160,19 @@
       width: min(22rem, calc(100% - 2rem));
       max-height: calc(100% - 2rem);
       overflow: hidden;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.85rem;
-      background: #0f172a;
-      color: #e2e8f0;
+      background: var(--toolbar-menu-bg);
+      color: var(--toolbar-text);
       box-shadow: 0 6px 8px rgba(0, 0, 0, 0.22);
       backdrop-filter: blur(16px);
     }
     .node-finder[hidden] { display: none; }
     .node-finder[data-context="route-source"] {
-      border-color: color-mix(in srgb, #22d3ee 68%, #334155);
+      border-color: color-mix(in srgb, var(--frontend-stroke) 68%, var(--toolbar-border));
     }
     .node-finder[data-context="route-target"] {
-      border-color: color-mix(in srgb, #fb7185 68%, #334155);
+      border-color: color-mix(in srgb, var(--security-stroke) 68%, var(--toolbar-border));
     }
     html[data-preset="blueprint"] .node-finder { border-radius: 0.3rem; }
     .node-finder-head {
@@ -2183,29 +2183,29 @@
       padding: 0.7rem 0.8rem 0.45rem;
     }
     .node-finder-head strong {
-      color: #ffffff;
+      color: var(--text);
       font-size: 0.6875rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    .node-finder[data-context="route-source"] .node-finder-head strong { color: #22d3ee; }
-    .node-finder[data-context="route-target"] .node-finder-head strong { color: #fb7185; }
+    .node-finder[data-context="route-source"] .node-finder-head strong { color: var(--frontend-stroke); }
+    .node-finder[data-context="route-target"] .node-finder-head strong { color: var(--security-stroke); }
     .node-finder-close {
       width: 1.75rem;
       height: 1.75rem;
       border: 0;
       border-radius: 0.35rem;
       background: transparent;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font: inherit;
       font-size: 1rem;
       cursor: pointer;
     }
     .node-finder-close:hover,
-    .node-finder-close:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .node-finder-close:focus-visible { background: var(--toolbar-hover); }
     .node-finder-close:focus-visible,
     .node-finder-result:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: -2px;
     }
     .node-finder-search {
@@ -2216,16 +2216,16 @@
       margin: 0 0.55rem 0.55rem;
       padding: 0 0.7rem;
       min-height: 2.6rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.55rem;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 78%, transparent);
+      background: color-mix(in srgb, var(--panel) 78%, transparent);
       transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
     }
     html[data-preset="blueprint"] .node-finder-search { border-radius: 0.18rem; }
-    .node-finder-search > span { color: #22d3ee; font-size: 0.875rem; }
+    .node-finder-search > span { color: var(--frontend-stroke); font-size: 0.875rem; }
     .node-finder-search:focus-within {
-      border-color: #22d3ee;
-      box-shadow: 0 0 0 2px color-mix(in srgb, #22d3ee 20%, transparent);
+      border-color: var(--frontend-stroke);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--frontend-stroke) 20%, transparent);
     }
     .node-finder-input {
       appearance: none;
@@ -2234,17 +2234,17 @@
       border: 0;
       outline: 0;
       background: transparent;
-      color: #ffffff;
+      color: var(--text);
       font: inherit;
       font-size: 0.75rem;
     }
     .node-finder-input:focus-visible { outline: none; }
-    .node-finder-input::placeholder { color: #7d8da1; }
+    .node-finder-input::placeholder { color: var(--text-faint); }
     .node-finder kbd {
       padding: 0.1rem 0.32rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.25rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font: inherit;
       font-size: 0.5625rem;
     }
@@ -2258,9 +2258,9 @@
       padding: 0;
       overflow-y: auto;
       overscroll-behavior: contain;
-      border: 1px solid color-mix(in srgb, #334155 78%, transparent);
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 78%, transparent);
       border-radius: 0.55rem;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.5) 54%, transparent);
+      background: color-mix(in srgb, var(--panel) 54%, transparent);
       scroll-padding-block: 0.25rem;
       scrollbar-width: thin;
     }
@@ -2275,20 +2275,20 @@
       border: 0;
       border-radius: 0;
       background: transparent;
-      color: #ffffff;
+      color: var(--text);
       font: inherit;
       text-align: left;
       cursor: pointer;
       transition: background-color 160ms ease-out;
     }
     .node-finder-result:not(:last-child) {
-      border-bottom: 1px solid color-mix(in srgb, #334155 62%, transparent);
+      border-bottom: 1px solid color-mix(in srgb, var(--toolbar-border) 62%, transparent);
     }
     .node-finder-result:hover,
     .node-finder-result:focus-visible {
       position: relative;
       z-index: 1;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 48%, rgba(15, 23, 42, 0.95));
+      background: color-mix(in srgb, var(--frontend-fill) 48%, var(--toolbar-hover));
     }
     .node-finder-result strong {
       overflow: hidden;
@@ -2300,7 +2300,7 @@
     .node-finder-result small {
       grid-column: 1 / -1;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5625rem;
       letter-spacing: 0.015em;
       text-overflow: ellipsis;
@@ -2308,7 +2308,7 @@
     }
     .node-finder-result em {
       align-self: center;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.625rem;
       font-style: normal;
     }
@@ -2321,17 +2321,17 @@
       letter-spacing: 0.05em;
       text-transform: uppercase;
     }
-    .node-finder[data-context="route-target"] .node-finder-result em { color: #fb7185; }
+    .node-finder[data-context="route-target"] .node-finder-result em { color: var(--security-stroke); }
     .node-finder-empty {
       padding: 1.1rem 0.75rem 1.25rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.6875rem;
       text-align: center;
     }
     .node-finder-status {
       margin: 0;
       padding: 0.1rem 0.8rem 0.65rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5625rem;
     }
 
@@ -2343,21 +2343,21 @@
       min-width: 0;
       margin: 0 0 0.75rem;
       padding: 0.35rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.85rem;
-      background: rgba(15, 23, 42, 0.8);
-      background: linear-gradient(120deg, rgba(15, 23, 42, 0.8), color-mix(in srgb, rgba(15, 23, 42, 0.8) 82%, rgba(8, 51, 68, 0.4)));
+      background: var(--toolbar-bg);
+      background: linear-gradient(120deg, var(--toolbar-bg), color-mix(in srgb, var(--toolbar-bg) 82%, var(--frontend-fill)));
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
       backdrop-filter: blur(12px);
     }
     .guided-views[hidden] { display: none; }
 
     html[data-preset="blueprint"] .guided-views {
-      border-color: #1e293b;
+      border-color: var(--panel-border);
       border-radius: 0.35rem;
       background:
-        linear-gradient(90deg, color-mix(in srgb, rgba(8, 51, 68, 0.4) 36%, transparent), transparent 24%),
-        rgba(15, 23, 42, 0.8);
+        linear-gradient(90deg, color-mix(in srgb, var(--frontend-fill) 36%, transparent), transparent 24%),
+        var(--toolbar-bg);
       box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
     }
     html[data-preset="blueprint"] .guided-views button { border-radius: 0.2rem; }
@@ -2375,7 +2375,7 @@
     .guided-view-copy {
       min-width: 0;
       padding: 0.2rem 0.5rem;
-      border-left: 1px solid #334155;
+      border-left: 1px solid var(--toolbar-border);
       overflow: hidden;
     }
     .guided-view-meta {
@@ -2384,7 +2384,7 @@
       gap: 0.5rem;
       min-height: 1rem;
       margin-bottom: 0.12rem;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.5625rem;
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -2397,10 +2397,10 @@
       max-width: 15rem;
       overflow: hidden;
       padding: 0 0.38rem;
-      border: 1px solid color-mix(in srgb, #22d3ee 46%, transparent);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 46%, transparent);
       border-radius: 999px;
-      color: #e2e8f0;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 44%, transparent);
+      color: var(--toolbar-text);
+      background: color-mix(in srgb, var(--frontend-fill) 44%, transparent);
       font-size: 0.5rem;
       line-height: calc(1rem - 2px);
       letter-spacing: 0.06em;
@@ -2411,8 +2411,8 @@
     html[data-preset="blueprint"] .guided-view-handoff { border-radius: 0.15rem; }
     .chapter-handoff-overlay { pointer-events: none; }
     .chapter-handoff-anchor {
-      fill: color-mix(in srgb, rgba(8, 51, 68, 0.4) 10%, transparent);
-      stroke: #22d3ee;
+      fill: color-mix(in srgb, var(--frontend-fill) 10%, transparent);
+      stroke: var(--frontend-stroke);
       stroke-width: 2;
       stroke-dasharray: 4 4;
       vector-effect: non-scaling-stroke;
@@ -2432,21 +2432,21 @@
       height: 2px;
       overflow: hidden;
       border-radius: 999px;
-      background: #334155;
+      background: var(--toolbar-border);
     }
     .guided-view-progress span {
       display: block;
       width: 100%;
       height: 100%;
       border-radius: inherit;
-      background: #22d3ee;
+      background: var(--frontend-stroke);
       transform: scaleX(0);
       transform-origin: left center;
     }
     .guided-view-copy strong,
     .guided-view-copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .guided-view-copy strong { color: #e2e8f0; font-size: 0.75rem; line-height: 1.35; }
-    .guided-view-copy small { margin-top: 0; color: #94a3b8; font-size: 0.625rem; line-height: 1.35; }
+    .guided-view-copy strong { color: var(--toolbar-text); font-size: 0.75rem; line-height: 1.35; }
+    .guided-view-copy small { margin-top: 0; color: var(--text-muted); font-size: 0.625rem; line-height: 1.35; }
     .guided-story-caption {
       display: grid;
       grid-template-columns: auto minmax(0, 1fr) auto;
@@ -2456,9 +2456,9 @@
       margin-top: 0.18rem;
       padding: 0.3rem 0.5rem;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #22d3ee 32%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 32%, var(--toolbar-border));
       border-radius: 0.58rem;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 26%, transparent);
+      background: color-mix(in srgb, var(--frontend-fill) 26%, transparent);
       animation: archify-story-caption-in 140ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
     .guided-story-caption[hidden] { display: none; }
@@ -2469,8 +2469,8 @@
       min-width: 3.3rem;
       place-items: center;
       padding-right: 0.52rem;
-      border-right: 1px solid color-mix(in srgb, #22d3ee 28%, #334155);
-      color: #22d3ee;
+      border-right: 1px solid color-mix(in srgb, var(--frontend-stroke) 28%, var(--toolbar-border));
+      color: var(--frontend-stroke);
       font-size: 0.5625rem;
       font-weight: 800;
       letter-spacing: 0.08em;
@@ -2484,8 +2484,8 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .guided-story-caption strong { color: #e2e8f0; font-size: 0.6875rem; line-height: 1.3; }
-    .guided-story-caption small { color: #94a3b8; font-size: 0.5625rem; line-height: 1.35; }
+    .guided-story-caption strong { color: var(--toolbar-text); font-size: 0.6875rem; line-height: 1.3; }
+    .guided-story-caption small { color: var(--text-muted); font-size: 0.5625rem; line-height: 1.35; }
     .guided-story-caption-next {
       grid-column: 3;
       grid-row: 1 / span 2;
@@ -2495,16 +2495,16 @@
       align-self: stretch;
       align-content: center;
       padding-left: 0.58rem;
-      border-left: 1px solid color-mix(in srgb, #22d3ee 22%, #334155);
+      border-left: 1px solid color-mix(in srgb, var(--frontend-stroke) 22%, var(--toolbar-border));
     }
     .guided-story-caption-next[hidden] { display: none; }
     .guided-story-caption-next small {
-      color: color-mix(in srgb, #22d3ee 72%, #94a3b8);
+      color: color-mix(in srgb, var(--frontend-stroke) 72%, var(--text-muted));
       font-weight: 800;
       letter-spacing: 0.09em;
       text-transform: uppercase;
     }
-    .guided-story-caption-next strong { color: #94a3b8; font-weight: 700; }
+    .guided-story-caption-next strong { color: var(--text-muted); font-weight: 700; }
     html[data-preset="blueprint"] .guided-story-caption { border-radius: 0.2rem; }
     .guided-views[data-story-beat] .guided-view-copy > #guided-view-label,
     .guided-views[data-story-beat] .guided-view-copy > #guided-view-note { display: none; }
@@ -2521,7 +2521,7 @@
       margin-top: 0;
       padding: 0;
       overflow-x: auto;
-      color: #7d8da1;
+      color: var(--text-faint);
       overscroll-behavior-x: contain;
       touch-action: pan-x;
       scrollbar-width: none;
@@ -2541,7 +2541,7 @@
       border: 1px solid transparent;
       border-radius: 999px;
       background: transparent;
-      color: #94a3b8;
+      color: var(--text-muted);
       cursor: pointer;
       font-family: inherit;
       font-size: 0.5625rem;
@@ -2551,11 +2551,11 @@
       transition: background 140ms ease, border-color 140ms ease, color 140ms ease, opacity 140ms ease;
     }
     .guided-view-stop:hover {
-      border-color: color-mix(in srgb, #22d3ee 36%, transparent);
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 34%, transparent);
+      border-color: color-mix(in srgb, var(--frontend-stroke) 36%, transparent);
+      background: color-mix(in srgb, var(--frontend-fill) 34%, transparent);
     }
     .guided-view-stop:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 1px;
     }
     .guided-view-stop:disabled { cursor: wait; }
@@ -2564,17 +2564,17 @@
       width: 1rem;
       height: 1rem;
       place-items: center;
-      border: 1px solid color-mix(in srgb, #22d3ee 54%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 54%, var(--toolbar-border));
       border-radius: 50%;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 58%, rgba(15, 23, 42, 0.8));
-      color: #22d3ee;
+      background: color-mix(in srgb, var(--frontend-fill) 58%, var(--toolbar-bg));
+      color: var(--frontend-stroke);
       content: attr(data-story-number);
       font-size: 0.5rem;
       line-height: 1;
     }
     .guided-view-stop + .guided-view-stop::after {
       order: -1;
-      color: color-mix(in srgb, #22d3ee 58%, #7d8da1);
+      color: color-mix(in srgb, var(--frontend-stroke) 58%, var(--text-faint));
       content: '\00b7';
       font-size: 0.65rem;
     }
@@ -2584,21 +2584,21 @@
     .guided-view-stop[data-story-beat-state="pending"] { opacity: 0.38; }
     .guided-view-stop[data-story-beat-state="next"] {
       border-style: dashed;
-      border-color: color-mix(in srgb, #22d3ee 42%, #334155);
-      color: color-mix(in srgb, #e2e8f0 68%, #94a3b8);
+      border-color: color-mix(in srgb, var(--frontend-stroke) 42%, var(--toolbar-border));
+      color: color-mix(in srgb, var(--toolbar-text) 68%, var(--text-muted));
       opacity: 0.58;
     }
-    .guided-view-stop[data-story-beat-state="past"] { color: #94a3b8; opacity: 0.76; }
+    .guided-view-stop[data-story-beat-state="past"] { color: var(--text-muted); opacity: 0.76; }
     .guided-view-stop[data-story-beat-state="active"] {
-      border-color: color-mix(in srgb, #22d3ee 72%, #334155);
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 42%, transparent);
-      color: #e2e8f0;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 72%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--frontend-fill) 42%, transparent);
+      color: var(--toolbar-text);
       font-weight: 800;
       opacity: 1;
     }
     .guided-view-stop[data-story-beat-state="active"]::before {
-      border-color: #22d3ee;
-      box-shadow: 0 0 10px color-mix(in srgb, #22d3ee 54%, transparent);
+      border-color: var(--frontend-stroke);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--frontend-stroke) 54%, transparent);
     }
     html[data-preset="blueprint"] .guided-view-stop,
     html[data-preset="blueprint"] .guided-view-stop::before { border-radius: 0.1rem; }
@@ -2611,11 +2611,11 @@
       justify-content: center;
       gap: 0.38rem;
       min-width: 6.25rem !important;
-      color: #22d3ee !important;
+      color: var(--frontend-stroke) !important;
       font-size: 0.625rem !important;
     }
-    .guided-view-play[aria-pressed="true"] { background: rgba(15, 23, 42, 0.95); }
-    .guided-view-all { min-width: 3.25rem !important; color: #94a3b8 !important; font-size: 0.625rem !important; }
+    .guided-view-play[aria-pressed="true"] { background: var(--toolbar-hover); }
+    .guided-view-all { min-width: 3.25rem !important; color: var(--text-muted) !important; font-size: 0.625rem !important; }
     .guided-view-beat-link {
       display: inline-flex;
       align-items: center;
@@ -2623,26 +2623,26 @@
       gap: 0.3rem;
       min-width: 5.4rem !important;
       min-height: 1.5rem;
-      color: #94a3b8 !important;
+      color: var(--text-muted) !important;
       font-size: 0.5625rem !important;
       letter-spacing: 0.025em;
       transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
     }
     .guided-view-beat-link:not(:disabled):hover {
-      border-color: color-mix(in srgb, #22d3ee 52%, #334155);
-      color: #22d3ee !important;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 52%, var(--toolbar-border));
+      color: var(--frontend-stroke) !important;
     }
     .guided-view-beat-link[data-copy-state="copied"] {
-      border-color: color-mix(in srgb, #34d399 58%, #334155);
-      background: color-mix(in srgb, rgba(6, 78, 59, 0.4) 46%, transparent);
-      color: #34d399 !important;
+      border-color: color-mix(in srgb, var(--backend-stroke) 58%, var(--toolbar-border));
+      background: color-mix(in srgb, var(--backend-fill) 46%, transparent);
+      color: var(--backend-stroke) !important;
     }
     .guided-view-index {
       grid-column: 1 / -1;
       min-width: 0;
       padding: 0.28rem 0.12rem 0.08rem;
       overflow: hidden;
-      border-top: 1px solid color-mix(in srgb, #334155 72%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--toolbar-border) 72%, transparent);
     }
     @media (min-width: 721px) {
       html[data-present="true"]:not([data-embed="true"]) .guided-views[data-playing="true"] .guided-view-index,
@@ -2681,19 +2681,19 @@
       min-height: 2.75rem;
       padding: 0.36rem 0.48rem !important;
       overflow: hidden;
-      border: 1px solid color-mix(in srgb, #334155 86%, transparent) !important;
+      border: 1px solid color-mix(in srgb, var(--toolbar-border) 86%, transparent) !important;
       border-radius: 0.48rem !important;
-      background: color-mix(in srgb, rgba(15, 23, 42, 0.8) 88%, transparent) !important;
-      color: #94a3b8 !important;
+      background: color-mix(in srgb, var(--toolbar-bg) 88%, transparent) !important;
+      color: var(--text-muted) !important;
       text-align: left;
       transition: background 0.16s ease, border-color 0.16s ease, opacity 0.16s ease;
     }
     .guided-view-chapter:hover {
-      border-color: color-mix(in srgb, #22d3ee 58%, #334155) !important;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 42%, rgba(15, 23, 42, 0.8)) !important;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 58%, var(--toolbar-border)) !important;
+      background: color-mix(in srgb, var(--frontend-fill) 42%, var(--toolbar-bg)) !important;
     }
     .guided-view-chapter:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 1px;
     }
     .guided-view-chapter-index {
@@ -2701,9 +2701,9 @@
       width: 1.32rem;
       height: 1.32rem;
       place-items: center;
-      border: 1px solid color-mix(in srgb, #22d3ee 48%, #334155);
+      border: 1px solid color-mix(in srgb, var(--frontend-stroke) 48%, var(--toolbar-border));
       border-radius: 50%;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       font-size: 0.5rem;
       font-weight: 800;
       letter-spacing: 0.03em;
@@ -2711,7 +2711,7 @@
     .guided-view-chapter-title {
       min-width: 0;
       overflow: hidden;
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font-size: 0.625rem;
       font-weight: 700;
       line-height: 1.3;
@@ -2722,7 +2722,7 @@
       grid-column: 3;
       grid-row: 1;
       margin-left: 0.38rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       font-style: normal;
       font-weight: 650;
@@ -2735,29 +2735,29 @@
       align-items: center;
       gap: 0.22rem;
       margin-left: 0.38rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.5rem;
       font-weight: 750;
       letter-spacing: 0.01em;
       white-space: nowrap;
     }
     .guided-view-chapter-delta[hidden] { display: none; }
-    .guided-view-chapter-delta [data-delta-kind="stay"] { color: #94a3b8; }
-    .guided-view-chapter-delta [data-delta-kind="enter"] { color: #22d3ee; }
-    .guided-view-chapter-delta [data-delta-kind="leave"] { color: #fb7185; }
+    .guided-view-chapter-delta [data-delta-kind="stay"] { color: var(--text-muted); }
+    .guided-view-chapter-delta [data-delta-kind="enter"] { color: var(--frontend-stroke); }
+    .guided-view-chapter-delta [data-delta-kind="leave"] { color: var(--security-stroke); }
     .guided-view-chapter[data-preview-active="true"] {
-      border-color: color-mix(in srgb, #22d3ee 72%, #334155) !important;
-      background: color-mix(in srgb, rgba(8, 51, 68, 0.4) 54%, rgba(15, 23, 42, 0.8)) !important;
+      border-color: color-mix(in srgb, var(--frontend-stroke) 72%, var(--toolbar-border)) !important;
+      background: color-mix(in srgb, var(--frontend-fill) 54%, var(--toolbar-bg)) !important;
     }
     .guided-view-chapter[data-chapter-position="current"] {
-      border: 2px solid #22d3ee !important;
+      border: 2px solid var(--frontend-stroke) !important;
       padding: calc(0.36rem - 1px) calc(0.48rem - 1px) !important;
-      box-shadow: inset 3px 0 0 #22d3ee;
-      color: #e2e8f0 !important;
+      box-shadow: inset 3px 0 0 var(--frontend-stroke);
+      color: var(--toolbar-text) !important;
     }
     .guided-view-chapter[data-chapter-position="current"] .guided-view-chapter-index {
-      background: #22d3ee;
-      color: #020617;
+      background: var(--frontend-stroke);
+      color: var(--bg);
     }
     .guided-view-chapter[data-chapter-position="before"] {
       border-style: solid !important;
@@ -2765,7 +2765,7 @@
     }
     .guided-view-chapter[data-chapter-position="after"] { border-style: dashed !important; }
     html[data-preset="signal-flow"] .guided-view-chapter[data-chapter-position="current"] {
-      box-shadow: inset 3px 0 0 #22d3ee, 0 0 18px color-mix(in srgb, #22d3ee 18%, transparent);
+      box-shadow: inset 3px 0 0 var(--frontend-stroke), 0 0 18px color-mix(in srgb, var(--frontend-stroke) 18%, transparent);
     }
     html[data-preset="blueprint"] .guided-view-chapter,
     html[data-preset="blueprint"] .guided-view-chapter-index { border-radius: 0.12rem !important; }
@@ -2800,7 +2800,7 @@
       grid-row: 1;
       padding: 0 0.08rem 0 0.42rem;
       border-top: 0;
-      border-left: 1px solid color-mix(in srgb, #334155 72%, transparent);
+      border-left: 1px solid color-mix(in srgb, var(--toolbar-border) 72%, transparent);
     }
     .guided-views[data-active-view="all"] .guided-view-chapters {
       gap: 0.3rem;
@@ -2815,9 +2815,9 @@
     }
 
     .card {
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--panel);
       border-radius: 0.75rem;
-      border: 1px solid #1e293b;
+      border: 1px solid var(--panel-border);
       padding: 1.25rem;
     }
 
@@ -2837,7 +2837,7 @@
       .header { margin-bottom: 1rem; }
       .diagram-container {
         padding: 0.875rem;
-        padding-bottom: calc(0.875rem + transparent);
+        padding-bottom: calc(0.875rem + var(--archify-nav-reserve));
       }
       .cards { margin-top: 1rem; }
       .card { padding: 1rem; }
@@ -2855,9 +2855,9 @@
 
     html[data-preset="blueprint"] .card {
       position: relative;
-      border-color: #1e293b;
+      border-color: var(--panel-border);
       border-radius: 0.3rem;
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--panel);
       box-shadow: none;
     }
     html[data-preset="blueprint"] .card::before {
@@ -2866,13 +2866,13 @@
       top: -1px;
       left: 1rem;
       width: 2.5rem;
-      border-top: 2px solid #22d3ee;
+      border-top: 2px solid var(--frontend-stroke);
     }
 
     html[data-preset="editorial"] .card {
       position: relative;
       border-radius: 0.28rem;
-      background: rgba(15, 23, 42, 0.5);
+      background: var(--panel);
       box-shadow: 0 10px 28px color-mix(in srgb, #000 10%, transparent);
     }
     html[data-preset="editorial"] .card::before {
@@ -2880,7 +2880,7 @@
       top: -1px;
       left: 1.25rem;
       width: 3.25rem;
-      border-top: 3px solid #34d399;
+      border-top: 3px solid var(--arrow-emphasis);
       content: "";
     }
     html[data-preset="editorial"] .card-dot { border-radius: 0; transform: rotate(45deg) scale(0.78); }
@@ -2898,19 +2898,19 @@
       border-radius: 50%;
     }
 
-    .card-dot.cyan     { background: #22d3ee; }
-    .card-dot.emerald  { background: #34d399; }
-    .card-dot.violet   { background: #a78bfa; }
-    .card-dot.amber    { background: #fbbf24; }
-    .card-dot.rose     { background: #fb7185; }
-    .card-dot.orange   { background: #fb923c; }
-    .card-dot.slate    { background: #94a3b8; }
+    .card-dot.cyan     { background: var(--frontend-stroke); }
+    .card-dot.emerald  { background: var(--backend-stroke); }
+    .card-dot.violet   { background: var(--database-stroke); }
+    .card-dot.amber    { background: var(--cloud-stroke); }
+    .card-dot.rose     { background: var(--security-stroke); }
+    .card-dot.orange   { background: var(--messagebus-stroke); }
+    .card-dot.slate    { background: var(--external-stroke); }
 
-    .card h3 { font-size: 0.875rem; font-weight: 600; color: #ffffff; }
+    .card h3 { font-size: 0.875rem; font-weight: 600; color: var(--text); }
 
     .card ul {
       list-style: none;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.75rem;
     }
 
@@ -3023,9 +3023,9 @@
       z-index: 100;
     }
     .toolbar button {
-      background: rgba(15, 23, 42, 0.8);
-      color: #e2e8f0;
-      border: 1px solid #334155;
+      background: var(--toolbar-bg);
+      color: var(--toolbar-text);
+      border: 1px solid var(--toolbar-border);
       padding: 0.5rem 0.875rem;
       border-radius: 0.625rem;
       font-family: inherit;
@@ -3042,13 +3042,13 @@
       min-height: 2.75rem;
     }
     .toolbar button:hover {
-      background: rgba(15, 23, 42, 0.95);
-      border-color: color-mix(in srgb, #64748b 62%, #334155);
+      background: var(--toolbar-hover);
+      border-color: color-mix(in srgb, var(--arrow) 62%, var(--toolbar-border));
     }
     .toolbar button[aria-expanded="true"],
     .toolbar button[aria-pressed="true"]:not(#btn-theme) {
-      background: color-mix(in srgb, #22d3ee 10%, rgba(15, 23, 42, 0.95));
-      border-color: color-mix(in srgb, #22d3ee 48%, #334155);
+      background: color-mix(in srgb, var(--frontend-stroke) 10%, var(--toolbar-hover));
+      border-color: color-mix(in srgb, var(--frontend-stroke) 48%, var(--toolbar-border));
     }
     .toolbar #btn-export {
       padding-right: 0.82rem;
@@ -3056,12 +3056,12 @@
     }
     .toolbar #btn-export:hover,
     .toolbar #btn-export[aria-expanded="true"] {
-      color: #e2e8f0;
-      background: color-mix(in srgb, #22d3ee 10%, rgba(15, 23, 42, 0.95));
-      border-color: color-mix(in srgb, #22d3ee 54%, #334155);
+      color: var(--toolbar-text);
+      background: color-mix(in srgb, var(--frontend-stroke) 10%, var(--toolbar-hover));
+      border-color: color-mix(in srgb, var(--frontend-stroke) 54%, var(--toolbar-border));
     }
     .toolbar button:focus-visible {
-      outline: 2px solid #22d3ee;
+      outline: 2px solid var(--frontend-stroke);
       outline-offset: 2px;
     }
     .toolbar #btn-motion[hidden] { display: none !important; }
@@ -3115,26 +3115,26 @@
       width: 0.58rem;
       height: 0.58rem;
       flex: 0 0 auto;
-      border: 1px solid #22d3ee;
+      border: 1px solid var(--frontend-stroke);
       border-radius: 0.2rem;
-      background: color-mix(in srgb, #22d3ee 28%, transparent);
+      background: color-mix(in srgb, var(--frontend-stroke) 28%, transparent);
       transition: border-radius 0.15s, box-shadow 0.15s, transform 0.15s;
     }
     #btn-preset[data-preset-option="signal-flow"] .preset-control-mark {
       border-radius: 50%;
-      box-shadow: 0 0 10px color-mix(in srgb, #22d3ee 78%, transparent);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--frontend-stroke) 78%, transparent);
     }
     #btn-preset[data-preset-option="blueprint"] .preset-control-mark {
       border-radius: 0.06rem;
       background: transparent;
-      box-shadow: inset 0 0 0 1px color-mix(in srgb, #22d3ee 32%, transparent);
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--frontend-stroke) 32%, transparent);
       transform: rotate(45deg) scale(0.84);
     }
     #btn-preset[data-preset-option="editorial"] .preset-control-mark {
-      border-color: #34d399;
+      border-color: var(--arrow-emphasis);
       border-radius: 0;
-      background: #34d399;
-      box-shadow: 0 0 0 2px color-mix(in srgb, #34d399 14%, transparent);
+      background: var(--arrow-emphasis);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--arrow-emphasis) 14%, transparent);
       transform: rotate(45deg) scale(0.72);
     }
     .toolbar .preset-menu {
@@ -3145,9 +3145,9 @@
       width: 18.5rem;
       max-width: calc(100vw - 2rem);
       padding: 0.45rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.875rem;
-      background: #0f172a;
+      background: var(--toolbar-menu-bg);
       box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
     }
     .toolbar .preset-menu.open { display: block; }
@@ -3166,7 +3166,7 @@
       justify-content: space-between;
       gap: 1rem;
       padding: 0.42rem 0.6rem 0.55rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.56rem;
       letter-spacing: 0.13em;
       text-transform: uppercase;
@@ -3192,10 +3192,10 @@
       text-align: left;
     }
     .toolbar .preset-option:hover,
-    .toolbar .preset-option:focus-visible { background: rgba(15, 23, 42, 0.95); }
+    .toolbar .preset-option:focus-visible { background: var(--toolbar-hover); }
     .toolbar .preset-option[aria-checked="true"] {
-      background: color-mix(in srgb, #22d3ee 9%, transparent);
-      border-color: color-mix(in srgb, #22d3ee 36%, transparent);
+      background: color-mix(in srgb, var(--frontend-stroke) 9%, transparent);
+      border-color: color-mix(in srgb, var(--frontend-stroke) 36%, transparent);
     }
     .preset-option-swatch {
       position: relative;
@@ -3280,14 +3280,14 @@
     .preset-option-copy strong,
     .preset-option-copy small { display: block; }
     .preset-option-copy strong {
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font-size: 0.72rem;
       font-weight: 600;
     }
     .preset-option-copy small {
       margin-top: 0.16rem;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.57rem;
       font-weight: 400;
       white-space: nowrap;
@@ -3297,7 +3297,7 @@
       display: inline-block;
       width: 0.9rem;
       height: 0.9rem;
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       background: currentColor;
       -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3 8.5 3 3 7-7' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       -webkit-mask-position: center;
@@ -3327,10 +3327,10 @@
       width: 0.46rem;
       height: 0.46rem;
       flex: 0 0 auto;
-      border: 1px solid #22d3ee;
+      border: 1px solid var(--frontend-stroke);
       border-radius: 50%;
-      background: #22d3ee;
-      box-shadow: 0 0 9px color-mix(in srgb, #22d3ee 72%, transparent);
+      background: var(--frontend-stroke);
+      box-shadow: 0 0 9px color-mix(in srgb, var(--frontend-stroke) 72%, transparent);
     }
     #btn-motion[aria-pressed="false"] .motion-control-dot {
       background: transparent;
@@ -3340,8 +3340,8 @@
       position: absolute;
       top: calc(100% + 0.375rem);
       right: 0;
-      background: #0f172a;
-      border: 1px solid #334155;
+      background: var(--toolbar-menu-bg);
+      border: 1px solid var(--toolbar-border);
       width: 19rem;
       max-width: calc(100vw - 2rem);
       max-height: calc(100vh - 5.5rem);
@@ -3363,22 +3363,22 @@
     .export-menu-header strong,
     .export-menu-header span { display: block; }
     .export-menu-header strong {
-      color: #e2e8f0;
+      color: var(--toolbar-text);
       font-size: 0.78rem;
       font-weight: 650;
       letter-spacing: -0.015em;
     }
     .export-menu-header span {
       margin-top: 0.16rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.56rem;
     }
     .export-menu-header kbd {
       padding: 0.16rem 0.36rem;
-      border: 1px solid #334155;
+      border: 1px solid var(--toolbar-border);
       border-radius: 0.3rem;
-      color: #7d8da1;
-      background: color-mix(in srgb, #334155 16%, transparent);
+      color: var(--text-faint);
+      background: color-mix(in srgb, var(--toolbar-border) 16%, transparent);
       font-family: inherit;
       font-size: 0.54rem;
       font-weight: 600;
@@ -3391,13 +3391,13 @@
     .export-menu-section + .export-menu-section {
       margin-top: 0.42rem;
       padding-top: 0.42rem;
-      border-top: 1px solid color-mix(in srgb, #334155 68%, transparent);
+      border-top: 1px solid color-mix(in srgb, var(--toolbar-border) 68%, transparent);
     }
     .export-menu-heading {
       grid-column: 1 / -1;
       display: block;
       padding: 0.24rem 0.55rem 0.2rem;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.54rem;
       font-weight: 600;
       letter-spacing: 0.12em;
@@ -3435,7 +3435,7 @@
     .export-item-copy small {
       margin-top: 0.12rem;
       overflow: hidden;
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.55rem;
       font-weight: 450;
       text-overflow: ellipsis;
@@ -3478,28 +3478,28 @@
     .toolbar .export-menu button[data-action="route-share-card"],
     .toolbar .export-menu button[data-action="reach-share-card"] {
       min-height: 3.35rem;
-      color: #e2e8f0;
-      background: color-mix(in srgb, #22d3ee 8%, transparent);
-      border-color: color-mix(in srgb, #22d3ee 24%, #334155);
+      color: var(--toolbar-text);
+      background: color-mix(in srgb, var(--frontend-stroke) 8%, transparent);
+      border-color: color-mix(in srgb, var(--frontend-stroke) 24%, var(--toolbar-border));
     }
     .toolbar .export-menu button[hidden] { display: none; }
     .toolbar .export-menu button:hover {
-      background: rgba(15, 23, 42, 0.95);
+      background: var(--toolbar-hover);
     }
     .toolbar .export-menu button:focus-visible {
-      background: rgba(15, 23, 42, 0.95);
+      background: var(--toolbar-hover);
       outline-offset: -2px;
     }
     .toolbar .export-menu button:disabled {
-      color: #7d8da1;
-      background: color-mix(in srgb, #334155 18%, transparent);
+      color: var(--text-faint);
+      background: color-mix(in srgb, var(--toolbar-border) 18%, transparent);
       cursor: not-allowed;
     }
     .toolbar .export-menu button:disabled:hover {
       border-color: transparent;
     }
     .toolbar .export-menu .hint {
-      color: #7d8da1;
+      color: var(--text-faint);
       font-size: 0.55rem;
     }
 
@@ -3509,9 +3509,9 @@
       top: 1rem;
       left: 50%;
       transform: translateX(-50%) translateY(-8px);
-      background: #0f172a;
-      color: #ffffff;
-      border: 1px solid #334155;
+      background: var(--toolbar-menu-bg);
+      color: var(--text);
+      border: 1px solid var(--toolbar-border);
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
       font-family: inherit;
@@ -3602,7 +3602,7 @@
       html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .semantic-lens,
       html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .diagram-guide,
       html:not([data-embed="true"]) .diagram-container[data-wide-diagram="true"] .node-finder {
-        transform: translateX(0px);
+        transform: translateX(var(--archify-scroll-x, 0px));
       }
       .diagram-nav { right: 0.5rem; bottom: 0.5rem; }
       .diagram-nav button {
@@ -3617,14 +3617,14 @@
         width: min(10.25rem, calc(100% - 1rem));
       }
       .overview-map[data-docked="true"] {
-        right: 0.5rem;
-        top: 0.5rem;
+        right: var(--archify-radar-right, 0.5rem);
+        top: var(--archify-radar-top, 0.5rem);
         bottom: auto;
         transform: none !important;
       }
       .overview-map[data-docked="true"][data-dock-side="left"] {
         right: auto;
-        left: 0.5rem;
+        left: var(--archify-radar-left, 0.5rem);
       }
       .overview-map-surface { height: 4rem; }
       .overview-map-feedback { right: 0.5rem; bottom: 3.7rem; }
@@ -3643,7 +3643,7 @@
         max-width: none;
       }
       .relationship-lens-list { max-height: min(12rem, 38vh); }
-      .relationship-lens-actions #btn-focus-relations { display: block; color: #a78bfa; }
+      .relationship-lens-actions #btn-focus-relations { display: block; color: var(--database-stroke); }
       .focus-chip:not([data-relations-expanded="true"]) .relationship-lens-head { border-bottom-color: transparent; }
       .focus-chip:not([data-relations-expanded="true"]) .relationship-lens-list { display: none; }
       /* While a mobile reader previews one relationship, turn the full Lens
@@ -3785,7 +3785,7 @@
         grid-column: 1 / -1;
         grid-row: 2;
         padding: 0.3rem 0.08rem 0;
-        border-top: 1px solid color-mix(in srgb, #334155 72%, transparent);
+        border-top: 1px solid color-mix(in srgb, var(--toolbar-border) 72%, transparent);
         border-left: 0;
       }
       html[data-embed="true"][data-share-playback="true"] .share-chapter-cue:not([hidden]),
@@ -3894,28 +3894,28 @@
     /* ==========================================================
        SVG SEMANTIC CLASSES — use these instead of inline fill/stroke
        ========================================================== */
-    .c-grid       { stroke: #1e293b; fill: none; }
-    .c-mask       { fill: #0f172a; stroke: none; }
+    .c-grid       { stroke: var(--grid); fill: none; }
+    .c-mask       { fill: var(--mask); stroke: none; }
 
-    .c-frontend   { fill: rgba(8, 51, 68, 0.4);   stroke: #22d3ee; }
-    .c-backend    { fill: rgba(6, 78, 59, 0.4);    stroke: #34d399; }
-    .c-database   { fill: rgba(76, 29, 149, 0.4);   stroke: #a78bfa; }
-    .c-cloud      { fill: rgba(120, 53, 15, 0.3);      stroke: #fbbf24; }
-    .c-security   { fill: rgba(136, 19, 55, 0.4);   stroke: #fb7185; }
-    .c-messagebus { fill: rgba(251, 146, 60, 0.3); stroke: #fb923c; }
-    .c-external   { fill: rgba(30, 41, 59, 0.5);   stroke: #94a3b8; }
+    .c-frontend   { fill: var(--frontend-fill);   stroke: var(--frontend-stroke); }
+    .c-backend    { fill: var(--backend-fill);    stroke: var(--backend-stroke); }
+    .c-database   { fill: var(--database-fill);   stroke: var(--database-stroke); }
+    .c-cloud      { fill: var(--cloud-fill);      stroke: var(--cloud-stroke); }
+    .c-security   { fill: var(--security-fill);   stroke: var(--security-stroke); }
+    .c-messagebus { fill: var(--messagebus-fill); stroke: var(--messagebus-stroke); }
+    .c-external   { fill: var(--external-fill);   stroke: var(--external-stroke); }
 
     /* Text helpers */
-    .t-primary { fill: #ffffff; }
-    .t-muted   { fill: #94a3b8; }
-    .t-dim     { fill: #475569; }
-    .t-frontend   { fill: #22d3ee; }
-    .t-backend    { fill: #34d399; }
-    .t-database   { fill: #a78bfa; }
-    .t-cloud      { fill: #fbbf24; }
-    .t-security   { fill: #fb7185; }
-    .t-messagebus { fill: #fb923c; }
-    .t-external   { fill: #94a3b8; }
+    .t-primary { fill: var(--text); }
+    .t-muted   { fill: var(--text-muted); }
+    .t-dim     { fill: var(--text-dim); }
+    .t-frontend   { fill: var(--frontend-stroke); }
+    .t-backend    { fill: var(--backend-stroke); }
+    .t-database   { fill: var(--database-stroke); }
+    .t-cloud      { fill: var(--cloud-stroke); }
+    .t-security   { fill: var(--security-stroke); }
+    .t-messagebus { fill: var(--messagebus-stroke); }
+    .t-external   { fill: var(--external-stroke); }
 
     /* Semantic Sigils are small authored role stamps, not icons from a brand
        pack and not viewer controls. Prefix selectors with svg so the canonical
@@ -3931,13 +3931,13 @@
     }
     svg .semantic-sigil > * { vector-effect: non-scaling-stroke; }
     svg .semantic-sigil .sigil-fill { fill: currentColor; stroke: none; }
-    svg .s-frontend   { color: #22d3ee; }
-    svg .s-backend    { color: #34d399; }
-    svg .s-database   { color: #a78bfa; }
-    svg .s-cloud      { color: #fbbf24; }
-    svg .s-security   { color: #fb7185; }
-    svg .s-messagebus { color: #fb923c; }
-    svg .s-external   { color: #94a3b8; }
+    svg .s-frontend   { color: var(--frontend-stroke); }
+    svg .s-backend    { color: var(--backend-stroke); }
+    svg .s-database   { color: var(--database-stroke); }
+    svg .s-cloud      { color: var(--cloud-stroke); }
+    svg .s-security   { color: var(--security-stroke); }
+    svg .s-messagebus { color: var(--messagebus-stroke); }
+    svg .s-external   { color: var(--external-stroke); }
 
     /* Brand Marks are authored identity badges. Their color is contained
        inside one neutral plate so vendor color never replaces Archify's
@@ -4014,16 +4014,16 @@
     svg [data-node-id]:focus-visible [data-detail-anchor] { transform: none; }
 
     /* Arrows */
-    .a-default   { stroke: #64748b; fill: none; }
-    .a-emphasis  { stroke: #34d399; fill: none; }
-    .a-security  { stroke: #fb7185; fill: none; stroke-dasharray: 5,5; }
-    .a-dashed    { stroke: #a78bfa; fill: none; stroke-dasharray: 4,4; }
+    .a-default   { stroke: var(--arrow); fill: none; }
+    .a-emphasis  { stroke: var(--arrow-emphasis); fill: none; }
+    .a-security  { stroke: var(--security-stroke); fill: none; stroke-dasharray: 5,5; }
+    .a-dashed    { stroke: var(--database-stroke); fill: none; stroke-dasharray: 4,4; }
 
     /* Arrowhead markers reference these */
-    .m-default   { fill: #64748b; }
-    .m-emphasis  { fill: #34d399; }
-    .m-security  { fill: #fb7185; }
-    .m-dashed    { fill: #a78bfa; }
+    .m-default   { fill: var(--arrow); }
+    .m-emphasis  { fill: var(--arrow-emphasis); }
+    .m-security  { fill: var(--security-stroke); }
+    .m-dashed    { fill: var(--database-stroke); }
 
     /* Stable semantic exploration hooks emitted by every renderer. */
     svg [data-node-id] {
@@ -4033,7 +4033,7 @@
     svg [data-edge-from] { transition: opacity 0.18s ease, filter 0.18s ease; }
     svg [data-node-id]:hover,
     svg [data-node-id]:focus-visible {
-      filter: drop-shadow(0 0 7px #22d3ee);
+      filter: drop-shadow(0 0 7px var(--frontend-stroke));
       outline: none;
     }
     /* Verified Source Beacons are installed at runtime only for nodes whose
@@ -4047,13 +4047,13 @@
       transition: opacity 160ms ease, filter 160ms ease;
     }
     .source-evidence-beacon rect {
-      fill: color-mix(in srgb, #0f172a 92%, #34d399);
-      stroke: color-mix(in srgb, #34d399 82%, #1e293b);
+      fill: color-mix(in srgb, var(--mask) 92%, var(--backend-stroke));
+      stroke: color-mix(in srgb, var(--backend-stroke) 82%, var(--panel-border));
       stroke-width: 1;
       vector-effect: non-scaling-stroke;
     }
     .source-evidence-beacon text {
-      fill: #34d399;
+      fill: var(--backend-stroke);
       font-size: 5.5px;
       font-weight: 800;
       letter-spacing: 0.06em;
@@ -4064,7 +4064,7 @@
     svg [data-node-id]:focus-visible .source-evidence-beacon,
     svg [data-node-id][data-focus-selected] .source-evidence-beacon {
       opacity: 1;
-      filter: drop-shadow(0 0 4px color-mix(in srgb, #34d399 72%, transparent));
+      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--backend-stroke) 72%, transparent));
     }
     svg[data-preset="signal-flow"] .source-evidence-beacon { opacity: 0.9; }
     svg[data-preset="blueprint"] .source-evidence-beacon rect {
@@ -4083,37 +4083,37 @@
     }
     svg [data-legend-count-badge] { pointer-events: none; }
     svg [data-legend-count-badge] rect {
-      fill: #0f172a;
-      stroke: #1e293b;
+      fill: var(--mask);
+      stroke: var(--panel-border);
       stroke-width: 1;
       vector-effect: non-scaling-stroke;
     }
     svg [data-legend-count-badge] text {
-      fill: #94a3b8;
+      fill: var(--text-muted);
       font-size: 8px;
       font-weight: 700;
       text-anchor: middle;
     }
     svg [data-legend-kind][role="button"]:hover [data-legend-hit] {
-      stroke: color-mix(in srgb, #a78bfa 58%, transparent);
+      stroke: color-mix(in srgb, var(--database-stroke) 58%, transparent);
     }
     svg [data-legend-kind][role="button"]:focus-visible [data-legend-hit] {
-      stroke: #22d3ee;
+      stroke: var(--frontend-stroke);
       stroke-width: 1.8;
-      filter: drop-shadow(0 0 3px #22d3ee);
+      filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
     svg [data-legend-kind][data-legend-selected] [data-legend-hit] {
-      stroke: #a78bfa;
+      stroke: var(--database-stroke);
       stroke-width: 2.2;
       stroke-dasharray: 3 2;
     }
     svg [data-legend-kind][data-legend-selected] [data-legend-count-badge] rect {
-      stroke: #a78bfa;
+      stroke: var(--database-stroke);
       stroke-width: 1.8;
     }
     svg [data-legend-kind][data-legend-zero] { opacity: 0.44; }
     svg[data-preset="signal-flow"] [data-legend-kind][data-legend-selected] [data-legend-hit] {
-      filter: drop-shadow(0 0 4px #a78bfa);
+      filter: drop-shadow(0 0 4px var(--database-stroke));
     }
     svg[data-preset="blueprint"] [data-legend-hit],
     svg[data-preset="blueprint"] [data-legend-count-badge] rect { rx: 0; filter: none; }
@@ -4122,14 +4122,14 @@
     svg[data-legend-preview-active] [data-legend-preview-match] { opacity: 1; }
     svg[data-legend-preview-active] [data-legend-preview-peer] { opacity: 0.62; }
     svg[data-legend-preview-active] [data-legend-preview-selected] {
-      filter: drop-shadow(0 0 8px #a78bfa);
+      filter: drop-shadow(0 0 8px var(--database-stroke));
     }
     svg[data-lens-active] [data-node-id],
     svg[data-lens-active] [data-edge-from] { opacity: 0.11; }
     svg[data-lens-active] [data-lens-match] { opacity: 1; }
     svg[data-lens-active] [data-lens-peer] { opacity: 0.62; }
     svg[data-lens-active] [data-lens-selected] {
-      filter: drop-shadow(0 0 10px #a78bfa);
+      filter: drop-shadow(0 0 10px var(--database-stroke));
     }
     .semantic-lens-overlay { pointer-events: none; }
     .semantic-lens-flow {
@@ -4141,21 +4141,21 @@
       vector-effect: non-scaling-stroke;
       opacity: 0.9;
       animation: archify-semantic-lens-flow 1.35s linear 1 both;
-      animation-delay: 0s;
+      animation-delay: var(--lens-flow-delay, 0s);
     }
     .semantic-lens-flow[data-direction="out"],
     .semantic-lens-flow[data-direction="forward"] {
-      stroke: #22d3ee;
-      filter: drop-shadow(0 0 3px #22d3ee);
+      stroke: var(--frontend-stroke);
+      filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
     .semantic-lens-flow[data-direction="in"],
     .semantic-lens-flow[data-direction="reverse"] {
-      stroke: #a78bfa;
-      filter: drop-shadow(0 0 3px #a78bfa);
+      stroke: var(--database-stroke);
+      filter: drop-shadow(0 0 3px var(--database-stroke));
     }
     .semantic-lens-flow[data-direction="within"] {
-      stroke: #fb923c;
-      filter: drop-shadow(0 0 3px #fb923c);
+      stroke: var(--messagebus-stroke);
+      filter: drop-shadow(0 0 3px var(--messagebus-stroke));
     }
     svg[data-preset="signal-flow"] .semantic-lens-flow {
       stroke-width: 3.7;
@@ -4163,14 +4163,14 @@
     }
     svg[data-preset="signal-flow"] .semantic-lens-flow[data-direction="out"],
     svg[data-preset="signal-flow"] .semantic-lens-flow[data-direction="forward"] {
-      filter: drop-shadow(0 0 6px #22d3ee);
+      filter: drop-shadow(0 0 6px var(--frontend-stroke));
     }
     svg[data-preset="signal-flow"] .semantic-lens-flow[data-direction="in"],
     svg[data-preset="signal-flow"] .semantic-lens-flow[data-direction="reverse"] {
-      filter: drop-shadow(0 0 6px #a78bfa);
+      filter: drop-shadow(0 0 6px var(--database-stroke));
     }
     svg[data-preset="signal-flow"] .semantic-lens-flow[data-direction="within"] {
-      filter: drop-shadow(0 0 6px #fb923c);
+      filter: drop-shadow(0 0 6px var(--messagebus-stroke));
     }
     svg[data-preset="blueprint"] .semantic-lens-flow {
       stroke-width: 2.45;
@@ -4183,7 +4183,7 @@
     svg[data-focus-active] [data-edge-from] { opacity: 0.13; }
     svg[data-focus-active] [data-focus-match] { opacity: 1; }
     svg[data-focus-active] [data-focus-selected] {
-      filter: drop-shadow(0 0 10px #22d3ee);
+      filter: drop-shadow(0 0 10px var(--frontend-stroke));
     }
 
     /* Authored Reachability is a bounded graph query over the relationships
@@ -4194,16 +4194,16 @@
     svg[data-reach-active] [data-edge-from] { opacity: 0.09; }
     svg[data-reach-active] [data-reach-match] { opacity: 1; }
     svg[data-reach-active="upstream"] [data-reach-origin] {
-      filter: drop-shadow(0 0 11px #a78bfa);
+      filter: drop-shadow(0 0 11px var(--database-stroke));
     }
     svg[data-reach-active="downstream"] [data-reach-origin] {
-      filter: drop-shadow(0 0 11px #34d399);
+      filter: drop-shadow(0 0 11px var(--backend-stroke));
     }
     svg[data-reach-active="upstream"] [data-edge-from][data-reach-match] {
-      filter: drop-shadow(0 0 4px color-mix(in srgb, #a78bfa 72%, transparent));
+      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--database-stroke) 72%, transparent));
     }
     svg[data-reach-active="downstream"] [data-edge-from][data-reach-match] {
-      filter: drop-shadow(0 0 4px color-mix(in srgb, #34d399 72%, transparent));
+      filter: drop-shadow(0 0 4px color-mix(in srgb, var(--backend-stroke) 72%, transparent));
     }
     svg[data-preset="blueprint"][data-reach-active] [data-reach-origin],
     svg[data-preset="blueprint"][data-reach-active] [data-edge-from][data-reach-match] {
@@ -4228,7 +4228,7 @@
     }
     .relationship-focus-rail {
       fill: none;
-      stroke: color-mix(in srgb, #22d3ee 34%, transparent);
+      stroke: color-mix(in srgb, var(--frontend-stroke) 34%, transparent);
       stroke-width: 6;
       stroke-dasharray: 2 4;
       stroke-linecap: round;
@@ -4266,7 +4266,7 @@
     svg[data-relationship-preview-active] [data-relationship-preview],
     svg[data-relationship-preview-active] [data-relationship-preview-node] { opacity: 1; }
     svg[data-relationship-preview-active] [data-relationship-preview] {
-      filter: drop-shadow(0 0 5px #34d399);
+      filter: drop-shadow(0 0 5px var(--arrow-emphasis));
     }
     svg[data-relationship-preview-active] [data-relationship-preview] path,
     svg[data-relationship-preview-active] path[data-relationship-preview],
@@ -4277,28 +4277,28 @@
       stroke-width: 2.75;
     }
     svg[data-relationship-preview-active] [data-relationship-preview-source] {
-      filter: drop-shadow(0 0 7px #22d3ee);
+      filter: drop-shadow(0 0 7px var(--frontend-stroke));
     }
     svg[data-relationship-preview-active] [data-relationship-preview-target] {
-      filter: drop-shadow(0 0 7px #a78bfa);
+      filter: drop-shadow(0 0 7px var(--database-stroke));
     }
     .relationship-pulse-overlay { pointer-events: none; }
     .relationship-flow-pulse {
       fill: none;
-      stroke: #34d399;
+      stroke: var(--arrow-emphasis);
       stroke-width: 3.35;
       stroke-linecap: round;
       stroke-dasharray: 0.085 0.915;
       stroke-dashoffset: 0;
       vector-effect: non-scaling-stroke;
       opacity: 0;
-      filter: drop-shadow(0 0 4px #34d399);
+      filter: drop-shadow(0 0 4px var(--arrow-emphasis));
       animation: archify-relationship-pulse 1.2s linear 1 both;
     }
     svg[data-preset="signal-flow"] .relationship-flow-pulse {
-      stroke: #22d3ee;
+      stroke: var(--frontend-stroke);
       stroke-width: 3.85;
-      filter: drop-shadow(0 0 7px #22d3ee);
+      filter: drop-shadow(0 0 7px var(--frontend-stroke));
     }
     svg[data-preset="blueprint"] .relationship-flow-pulse {
       stroke-width: 2.5;
@@ -4306,12 +4306,12 @@
       filter: none;
     }
     svg[data-preset="editorial"] .relationship-flow-pulse {
-      stroke: #34d399;
+      stroke: var(--arrow-emphasis);
       stroke-width: 2.75;
       filter: none;
     }
     .semantic-flow-token {
-      color: #22d3ee;
+      color: var(--frontend-stroke);
       opacity: 0;
       pointer-events: none;
     }
@@ -4322,14 +4322,14 @@
       animation: archify-relationship-token-life 0.78s linear 1 both;
     }
     .semantic-flow-token-halo {
-      fill: #0f172a;
+      fill: var(--mask);
       stroke: currentColor;
       stroke-width: 1.1;
       vector-effect: non-scaling-stroke;
       opacity: 0.96;
     }
     .relationship-flow-token-shape {
-      fill: #0f172a;
+      fill: var(--mask);
       stroke: currentColor;
       stroke-width: 1.35;
       stroke-linecap: round;
@@ -4344,10 +4344,10 @@
       vector-effect: non-scaling-stroke;
     }
     .relationship-flow-token-dot { fill: currentColor; stroke: none; }
-    .semantic-flow-token[data-token-kind="data"] { color: #a78bfa; }
-    .semantic-flow-token[data-token-kind="event"] { color: #fb923c; }
-    .semantic-flow-token[data-token-kind="security"] { color: #fb7185; }
-    .semantic-flow-token[data-token-kind="state"] { color: #fbbf24; }
+    .semantic-flow-token[data-token-kind="data"] { color: var(--database-stroke); }
+    .semantic-flow-token[data-token-kind="event"] { color: var(--messagebus-stroke); }
+    .semantic-flow-token[data-token-kind="security"] { color: var(--security-stroke); }
+    .semantic-flow-token[data-token-kind="state"] { color: var(--cloud-stroke); }
     svg[data-preset="signal-flow"] .semantic-flow-token {
       filter: drop-shadow(0 0 5px currentColor);
     }
@@ -4362,7 +4362,7 @@
     svg[data-intent-trace-active] [data-edge-from] { opacity: 0.2; }
     svg[data-intent-trace-active] [data-intent-trace-match] { opacity: 1; }
     svg[data-intent-trace-active] [data-intent-trace-selected] {
-      filter: drop-shadow(0 0 10px #22d3ee);
+      filter: drop-shadow(0 0 10px var(--frontend-stroke));
     }
     .intent-trace-overlay { pointer-events: none; }
     .intent-trace-flow {
@@ -4379,17 +4379,17 @@
        The cloned geometry already runs from the authored source to target, so
        incoming and outgoing signals must share the same playback direction. */
     .intent-trace-flow[data-direction="out"] {
-      stroke: #22d3ee;
-      filter: drop-shadow(0 0 4px #22d3ee);
+      stroke: var(--frontend-stroke);
+      filter: drop-shadow(0 0 4px var(--frontend-stroke));
     }
     .intent-trace-flow[data-direction="in"] {
-      stroke: #a78bfa;
-      filter: drop-shadow(0 0 4px #a78bfa);
+      stroke: var(--database-stroke);
+      filter: drop-shadow(0 0 4px var(--database-stroke));
       animation-direction: normal;
     }
     .intent-trace-flow[data-direction="loop"] {
-      stroke: #fb7185;
-      filter: drop-shadow(0 0 4px #fb7185);
+      stroke: var(--security-stroke);
+      filter: drop-shadow(0 0 4px var(--security-stroke));
     }
     svg[data-preset="blueprint"] [data-intent-trace-selected],
     svg[data-preset="blueprint"] .intent-trace-flow {
@@ -4419,55 +4419,55 @@
     svg[data-route-picking="target"] [data-route-start] { opacity: 1; }
     svg[data-route-picking] [data-node-id] { cursor: crosshair; }
     svg[data-route-picking] [data-route-start] {
-      filter: drop-shadow(0 0 10px #22d3ee);
+      filter: drop-shadow(0 0 10px var(--frontend-stroke));
     }
     svg[data-route-active] [data-node-id],
     svg[data-route-active] [data-edge-from] { opacity: 0.11; }
     svg[data-route-active] [data-route-match] { opacity: 1; }
     svg[data-route-active] [data-route-start] {
-      filter: drop-shadow(0 0 11px #22d3ee);
+      filter: drop-shadow(0 0 11px var(--frontend-stroke));
     }
     svg[data-route-active] [data-route-end] {
-      filter: drop-shadow(0 0 11px #fb7185);
+      filter: drop-shadow(0 0 11px var(--security-stroke));
     }
     svg[data-route-active] [data-route-step]:not([data-route-start]):not([data-route-end]) {
-      filter: drop-shadow(0 0 7px #34d399);
+      filter: drop-shadow(0 0 7px var(--backend-stroke));
     }
     svg[data-route-journey] [data-route-match][data-route-journey-state="past"] { opacity: 0.62; }
     svg[data-route-journey] [data-route-match][data-route-journey-state="future"] { opacity: 0.34; }
     svg[data-route-journey] [data-route-match][data-route-journey-state="current"] { opacity: 1; }
     svg[data-route-journey] [data-node-id][data-route-journey-current] {
-      filter: drop-shadow(0 0 10px #34d399);
+      filter: drop-shadow(0 0 10px var(--backend-stroke));
     }
     svg[data-route-journey] [data-edge-from][data-route-journey-current] {
       opacity: 1;
-      filter: drop-shadow(0 0 6px #34d399);
+      filter: drop-shadow(0 0 6px var(--backend-stroke));
     }
     .route-probe-overlay { pointer-events: none; }
     .route-journey-overlay { pointer-events: none; }
     .route-probe-flow {
       fill: none;
-      stroke: #34d399;
+      stroke: var(--backend-stroke);
       stroke-width: 3.25;
       stroke-linecap: round;
       stroke-dasharray: 0.085 0.915;
       stroke-dashoffset: 0;
       vector-effect: non-scaling-stroke;
       opacity: 0.96;
-      filter: drop-shadow(0 0 5px #34d399);
+      filter: drop-shadow(0 0 5px var(--backend-stroke));
       animation: archify-route-probe-flow 1.1s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
-      animation-delay: calc(0 * 0.16s);
+      animation-delay: calc(var(--route-step, 0) * 0.16s);
     }
     .route-journey-flow {
       fill: none;
-      stroke: #34d399;
+      stroke: var(--backend-stroke);
       stroke-width: 3.5;
       stroke-linecap: round;
       stroke-dasharray: 0.1 0.9;
       stroke-dashoffset: 0;
       vector-effect: non-scaling-stroke;
       opacity: 0;
-      filter: drop-shadow(0 0 6px #34d399);
+      filter: drop-shadow(0 0 6px var(--backend-stroke));
       animation: archify-route-journey-flow 780ms cubic-bezier(0.22, 1, 0.36, 1) 1 both;
     }
     svg[data-preset="blueprint"] [data-route-start],
@@ -4492,13 +4492,13 @@
       opacity: 0.48;
     }
     svg[data-preset="editorial"] .c-region {
-      fill: color-mix(in srgb, rgba(120, 53, 15, 0.3) 48%, transparent);
+      fill: color-mix(in srgb, var(--cloud-fill) 48%, transparent);
       stroke-dasharray: 9 4;
     }
     svg[data-preset="editorial"] [data-node-id]:hover,
     svg[data-preset="editorial"] [data-node-id]:focus-visible,
     svg[data-preset="editorial"][data-focus-active] [data-focus-selected] {
-      filter: drop-shadow(0 2px 2px color-mix(in srgb, #ffffff 18%, transparent));
+      filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--text) 18%, transparent));
     }
 
     svg[data-preset="blueprint"] .c-grid {
@@ -4506,17 +4506,17 @@
       opacity: 0.78;
     }
     svg[data-preset="blueprint"] .c-region {
-      fill: color-mix(in srgb, rgba(120, 53, 15, 0.3) 58%, transparent);
+      fill: color-mix(in srgb, var(--cloud-fill) 58%, transparent);
       stroke-dasharray: 12 4 2 4;
     }
     svg[data-preset="blueprint"] .c-security-group,
     svg[data-preset="blueprint"] .c-lane { stroke-dasharray: 7 3; }
     svg[data-preset="blueprint"] [data-node-id]:hover,
     svg[data-preset="blueprint"] [data-node-id]:focus-visible {
-      filter: drop-shadow(0 0 3px #22d3ee);
+      filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
     svg[data-preset="blueprint"][data-focus-active] [data-focus-selected] {
-      filter: drop-shadow(0 0 3px #22d3ee);
+      filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
     svg[data-preset="blueprint"][data-focus-active][data-reach-active] [data-focus-selected][data-reach-origin] {
       filter: none;
@@ -4524,7 +4524,7 @@
     svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationship-preview],
     svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationship-preview-source],
     svg[data-preset="blueprint"][data-relationship-preview-active] [data-relationship-preview-target] {
-      filter: drop-shadow(0 0 3px #22d3ee);
+      filter: drop-shadow(0 0 3px var(--frontend-stroke));
     }
 
     /* Story Trail is a viewer-only overlay derived from the ordered focus IDs
@@ -4534,12 +4534,12 @@
     .story-carrier-overlay { pointer-events: none; }
     .story-trail-flow {
       fill: none;
-      stroke: #22d3ee;
+      stroke: var(--frontend-stroke);
       stroke-width: 2.8;
       stroke-linecap: round;
       vector-effect: non-scaling-stroke;
       opacity: 0.34;
-      filter: drop-shadow(0 0 2px #22d3ee);
+      filter: drop-shadow(0 0 2px var(--frontend-stroke));
     }
     svg[data-story-beat] [data-story-step] {
       opacity: 0.22;
@@ -4556,7 +4556,7 @@
     }
     svg[data-story-beat] [data-story-step][data-story-beat-state="active"] {
       opacity: 1;
-      filter: drop-shadow(0 0 7px #22d3ee);
+      filter: drop-shadow(0 0 7px var(--frontend-stroke));
       animation: archify-story-beat-node 360ms cubic-bezier(0.22, 1, 0.36, 1) both;
     }
     svg[data-story-beat] [data-edge-from][data-story-beat-step] {
@@ -4587,7 +4587,7 @@
     }
     svg[data-preset="editorial"] .story-trail-flow { filter: none; }
     svg[data-preset="editorial"][data-story-beat] [data-story-step][data-story-beat-state="active"] {
-      filter: drop-shadow(0 2px 2px color-mix(in srgb, #ffffff 16%, transparent));
+      filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--text) 16%, transparent));
     }
 
     /* Chapter Delta Preview is a static, pre-commit comparison between two
@@ -4615,9 +4615,9 @@
     svg[data-preset="blueprint"][data-chapter-preview] [data-node-id] { filter: none !important; }
 
     /* Dashed boundary variants */
-    .c-security-group { fill: transparent; stroke: #fb7185; stroke-dasharray: 4,4; }
-    .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: #fbbf24; stroke-dasharray: 8,4; }
-    .c-lane           { fill: rgba(15, 23, 42, 0.22); stroke: #334155; stroke-dasharray: 6,6; }
+    .c-security-group { fill: transparent; stroke: var(--security-stroke); stroke-dasharray: 4,4; }
+    .c-region         { fill: rgba(251, 191, 36, 0.05); stroke: var(--cloud-stroke); stroke-dasharray: 8,4; }
+    .c-lane           { fill: var(--lane-fill); stroke: var(--lane-stroke); stroke-dasharray: 6,6; }
 
     /* Optional trace animation, enabled only by meta.animation = "trace".
        The ordinary viewer performs one ambient pass and then restores the
@@ -4625,17 +4625,17 @@
        authored geometry into an explicit canvas timeline. */
     html[data-ambient-motion="running"] svg[data-animation="trace"] [data-animate="edge"] {
       animation: archify-edge-flow 2.4s linear 1;
-      animation-delay: calc(0 * 160ms);
+      animation-delay: calc(var(--step, 0) * 160ms);
     }
     html[data-ambient-motion="running"] svg[data-animation="trace"] [data-animate="node"] {
       transform-box: fill-box;
       transform-origin: center;
       animation: archify-node-pulse 3.6s ease-in-out 1;
-      animation-delay: calc(0 * 160ms);
+      animation-delay: calc(var(--step, 0) * 160ms);
     }
     svg[data-preset="signal-flow"][data-animation="trace"] [data-animate="edge"] {
       stroke-linecap: round;
-      filter: drop-shadow(0 0 3px #34d399);
+      filter: drop-shadow(0 0 3px var(--arrow-emphasis));
       animation-duration: 1.75s;
     }
     svg[data-preset="signal-flow"][data-animation="trace"] [data-animate="node"] {
@@ -4675,17 +4675,17 @@
     @keyframes archify-node-pulse {
       0%, 72%, 100% { filter: none; stroke-width: 1.5; }
       18%, 36% {
-        filter: drop-shadow(0 0 8px #34d399);
+        filter: drop-shadow(0 0 8px var(--arrow-emphasis));
         stroke-width: 2.4;
       }
     }
     @keyframes archify-blueprint-node-pulse {
       0%, 72%, 100% { opacity: 1; filter: none; }
-      18%, 36% { opacity: 0.72; filter: drop-shadow(0 0 2px #22d3ee); }
+      18%, 36% { opacity: 0.72; filter: drop-shadow(0 0 2px var(--frontend-stroke)); }
     }
     @keyframes archify-editorial-node-pulse {
       0%, 72%, 100% { opacity: 1; filter: none; }
-      18%, 36% { opacity: 0.78; filter: drop-shadow(0 2px 2px color-mix(in srgb, #ffffff 18%, transparent)); }
+      18%, 36% { opacity: 0.78; filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--text) 18%, transparent)); }
     }
     @keyframes archify-signal-scan {
       0%, 18% { opacity: 1; transform: translateX(-70%); }
@@ -4693,11 +4693,11 @@
       100% { opacity: 0; transform: translateX(70%); }
     }
     @keyframes archify-radar-live {
-      0% { box-shadow: 0 0 0 0 color-mix(in srgb, #34d399 52%, transparent); }
+      0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--backend-stroke) 52%, transparent); }
       55%, 100% { box-shadow: 0 0 0 0.32rem transparent; }
     }
     @keyframes archify-guided-progress {
-      from { transform: scaleX(0); }
+      from { transform: scaleX(var(--guided-progress-start, 0)); }
       to { transform: scaleX(1); }
     }
     @keyframes archify-story-flow {
@@ -4735,8 +4735,8 @@
     }
     @keyframes archify-story-beat-node {
       from { opacity: 0.48; filter: saturate(0.6); }
-      58% { opacity: 1; filter: drop-shadow(0 0 10px #22d3ee); }
-      to { opacity: 1; filter: drop-shadow(0 0 7px #22d3ee); }
+      58% { opacity: 1; filter: drop-shadow(0 0 10px var(--frontend-stroke)); }
+      to { opacity: 1; filter: drop-shadow(0 0 7px var(--frontend-stroke)); }
     }
     @keyframes archify-share-cue-enter {
       from { opacity: 0; transform: translate(-50%, -0.45rem); }
@@ -4831,16 +4831,16 @@
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         <!-- Swimlanes -->
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="887" height="246" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-0" x="40" y="52" width="894" height="246" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="74" class="t-dim" font-size="10" font-weight="600">01 / 入口与判断</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="318" width="887" height="246" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-1" x="40" y="318" width="894" height="246" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="340" class="t-dim" font-size="10" font-weight="600">02 / 需求与探索</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="584" width="887" height="246" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-2" x="40" y="584" width="894" height="246" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="606" class="t-dim" font-size="10" font-weight="600">03 / 规范与设计</text>
 
-        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-3" x="40" y="850" width="887" height="246" rx="10" class="c-lane" stroke-width="1"/>
+        <rect data-graph-role="structural-frame" data-composition-frame-kind="lane" data-composition-frame-id="lane-3" x="40" y="850" width="894" height="246" rx="10" class="c-lane" stroke-width="1"/>
         <text x="54" y="872" class="t-dim" font-size="10" font-weight="600">04 / 执行与交付</text>
 
         <!-- Phase headers -->
@@ -4849,7 +4849,7 @@
         <text x="162" y="39" class="t-muted" font-size="8" font-weight="600" text-anchor="middle">理解问题</text>
         <line x1="387.20000000000005" y1="35" x2="599.2" y2="35" class="a-emphasis" stroke-width="1.1"/>
         <rect x="387.20000000000005" y="27" width="212.00000000000006" height="16" rx="4" class="c-mask"/>
-        <text x="493.20000000000005" y="39" class="t-backend" font-size="8" font-weight="600" text-anchor="middle">形成规范</text>
+        <text x="493.20000000000005" y="39" class="t-backend" font-size="8" font-weight="600" text-anchor="middle">形成契约</text>
         <line x1="640.2" y1="35" x2="891.2" y2="35" class="a-dashed" stroke-width="1.1"/>
         <rect x="640.2" y="27" width="251" height="16" rx="4" class="c-mask"/>
         <text x="765.7" y="39" class="t-messagebus" font-size="8" font-weight="600" text-anchor="middle">选择执行路径</text>
@@ -4863,24 +4863,25 @@
         <path data-edge-from="contract_check" data-edge-to="execution_check" data-edge-label="否" data-edge-key="2" data-edge-id="design_not_required" data-composition-points="686.2,756;686.2,840;553.2,840;553.2,954" d="M 686.2 756 L 686.2 840 L 553.2 840 L 553.2 954" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="contract_check" data-edge-to="high_level_design" data-edge-label="是" data-edge-key="3" data-edge-id="design_required" data-composition-points="745.2,722;783.2,722" d="M 745.2 722 L 783.2 722" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="high_level_design" data-edge-to="execution_check" data-edge-key="4" data-edge-id="design_to_execution" data-composition-points="845.2,748;845.2,800;553.2,800;553.2,954" d="M 845.2 748 L 845.2 800 L 553.2 800 L 553.2 954" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="execution_check" data-edge-to="to_tickets" data-edge-label="是" data-edge-key="5" data-edge-id="graph_required" data-composition-points="632.2,995;686.2,995;686.2,1032" d="M 632.2 995 L 686.2 995 L 686.2 1032" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="grilling" data-edge-to="to_spec" data-edge-key="6" data-edge-id="grilling_to_spec" data-composition-points="479.2,456;495.2,456;495.2,722;479.2,722" d="M 479.2 456 L 495.2 456 L 495.2 722 L 479.2 722" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="loop" data-edge-to="delivery" data-edge-key="7" data-edge-id="loop_delivery" data-composition-points="845.2,1032;845.2,952" d="M 845.2 1032 L 845.2 952" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="8" data-edge-id="needs_grilling" data-composition-points="230,490;230,580;433.2,580;433.2,482" d="M 230 490 L 230 580 L 433.2 580 L 433.2 482" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径仍不明确" data-edge-key="9" data-edge-id="needs_wayfinding" data-composition-points="230,422;230,302;553.2,302;553.2,430" d="M 230 422 L 230 302 L 553.2 302 L 553.2 430" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="quick_implement" data-edge-to="delivery" data-edge-key="10" data-edge-id="quick_delivery" data-composition-points="742.2,918;783.2,918" d="M 742.2 918 L 783.2 918" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="execution_check" data-edge-to="quick_implement" data-edge-label="否" data-edge-key="11" data-edge-id="single_task" data-composition-points="553.2,954;553.2,918;630.2,918" d="M 553.2 954 L 553.2 918 L 630.2 918" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="spec_check" data-edge-to="to_spec" data-edge-label="有需求变更" data-edge-key="12" data-edge-id="spec_changed" data-composition-points="168,190;152,190;152,846;433.2,846;433.2,756" d="M 168 190 L 152 190 L 152 846 L 433.2 846 L 433.2 756" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="spec_check" data-edge-to="spec" data-edge-label="已确认且无变更" data-edge-key="13" data-edge-id="spec_current" data-composition-points="230,156;230,140;20,140;20,772;553.2,772;553.2,756" d="M 230 156 L 230 140 L 20 140 L 20 772 L 553.2 772 L 553.2 756" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="spec_check" data-edge-to="scope_check" data-edge-label="否" data-edge-key="14" data-edge-id="spec_missing" data-composition-points="168,190;152,190;152,308;230,308;230,422" d="M 168 190 L 152 190 L 152 308 L 230 308 L 230 422" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="to_spec" data-edge-to="spec" data-edge-key="15" data-edge-id="spec_output" data-composition-points="433.2,756;433.2,772;553.2,772;553.2,756" d="M 433.2 756 L 433.2 772 L 553.2 772 L 553.2 756" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="start" data-edge-to="spec_check" data-edge-key="16" data-edge-id="start_check" data-composition-points="140,190;168,190" d="M 140 190 L 168 190" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="to_tickets" data-edge-to="loop" data-edge-key="17" data-edge-id="tickets_to_loop" data-composition-points="732.2,1058;772.2,1058" d="M 732.2 1058 L 772.2 1058" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="wayfinding" data-edge-to="to_spec" data-edge-label="需要形成规范" data-edge-key="18" data-edge-id="wayfinding_to_spec" data-composition-points="599.2,456;939,456;939,672;433.2,672;433.2,688" d="M 599.2 456 L 939 456 L 939 672 L 433.2 672 L 433.2 688" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="scope_check" data-edge-to="execution_check" data-edge-label="当前会话可判定" data-edge-key="5" data-edge-id="direct_or_quick" data-composition-points="158,456;20,456;20,988;474.20000000000005,988" d="M 158 456 L 20 456 L 20 988 L 474.20000000000005 988" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="execution_check" data-edge-to="to_tickets" data-edge-label="是" data-edge-key="6" data-edge-id="graph_required" data-composition-points="632.2,995;686.2,995;686.2,1032" d="M 632.2 995 L 686.2 995 L 686.2 1032" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="grilling" data-edge-to="to_spec" data-edge-key="7" data-edge-id="grilling_to_spec" data-composition-points="479.2,456;495.2,456;495.2,722;479.2,722" d="M 479.2 456 L 495.2 456 L 495.2 722 L 479.2 722" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="loop" data-edge-to="delivery" data-edge-key="8" data-edge-id="loop_delivery" data-composition-points="845.2,1032;845.2,952" d="M 845.2 1032 L 845.2 952" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="9" data-edge-id="needs_grilling" data-composition-points="230,490;230,580;433.2,580;433.2,482" d="M 230 490 L 230 580 L 433.2 580 L 433.2 482" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径存在 Fog" data-edge-key="10" data-edge-id="needs_wayfinding" data-composition-points="230,422;230,302;553.2,302;553.2,430" d="M 230 422 L 230 302 L 553.2 302 L 553.2 430" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="quick_implement" data-edge-to="delivery" data-edge-key="11" data-edge-id="quick_delivery" data-composition-points="742.2,918;783.2,918" d="M 742.2 918 L 783.2 918" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="execution_check" data-edge-to="quick_implement" data-edge-label="否" data-edge-key="12" data-edge-id="single_task" data-composition-points="553.2,954;553.2,918;630.2,918" d="M 553.2 954 L 553.2 918 L 630.2 918" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="spec_check" data-edge-to="to_spec" data-edge-label="有需求变更" data-edge-key="13" data-edge-id="spec_changed" data-composition-points="292,190;946,190;946,672;433.2,672;433.2,688" d="M 292 190 L 946 190 L 946 672 L 433.2 672 L 433.2 688" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="spec_check" data-edge-to="spec" data-edge-label="已确认且无变更" data-edge-key="14" data-edge-id="spec_current" data-composition-points="292,190;1077.2,190;1077.2,672;553.2,672;553.2,688" d="M 292 190 L 1077.2 190 L 1077.2 672 L 553.2 672 L 553.2 688" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="spec_check" data-edge-to="scope_check" data-edge-label="否" data-edge-key="15" data-edge-id="spec_missing" data-composition-points="168,190;152,190;152,308;230,308;230,422" d="M 168 190 L 152 190 L 152 308 L 230 308 L 230 422" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="to_spec" data-edge-to="spec" data-edge-key="16" data-edge-id="spec_output" data-composition-points="433.2,756;433.2,772;553.2,772;553.2,756" d="M 433.2 756 L 433.2 772 L 553.2 772 L 553.2 756" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
+        <path data-edge-from="start" data-edge-to="spec_check" data-edge-key="17" data-edge-id="start_check" data-composition-points="140,190;168,190" d="M 140 190 L 168 190" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="to_tickets" data-edge-to="loop" data-edge-key="18" data-edge-id="tickets_to_loop" data-composition-points="732.2,1058;765.2,1058" d="M 732.2 1058 L 765.2 1058" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="wayfinding" data-edge-to="to_spec" data-edge-label="需要构建契约" data-edge-key="19" data-edge-id="wayfinding_to_spec" data-composition-points="507.20000000000005,456;491.20000000000005,456;491.20000000000005,846;433.2,846;433.2,756" d="M 507.20000000000005 456 L 491.20000000000005 456 L 491.20000000000005 846 L 433.2 846 L 433.2 756" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
 
         <!-- Nodes -->
-        <g id="node-start" data-node-id="start" data-node-label="当前工作" tabindex="0" role="button" aria-label="聚焦当前工作，识别现有产物, 入口与判断 › 理解问题" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="识别现有产物" data-node-tag="START" data-node-context="入口与判断 › 理解问题">
-          <title>当前工作 · 识别现有产物 · 入口与判断 › 理解问题 · START</title>
+        <g id="node-start" data-node-id="start" data-node-label="当前工作" tabindex="0" role="button" aria-label="聚焦当前工作，识别现有 artifact, 入口与判断 › 理解问题" aria-pressed="false" data-node-kind="frontend" data-node-sublabel="识别现有 artifact" data-node-tag="START" data-node-context="入口与判断 › 理解问题">
+          <title>当前工作 · 识别现有 artifact · 入口与判断 › 理解问题 · START</title>
           <rect x="48" y="156" width="92" height="68" rx="6" class="c-mask"/>
           <rect x="48" y="156" width="92" height="68" rx="6" class="c-frontend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="frontend" class="semantic-sigil s-frontend" transform="translate(54 162) scale(0.6875)">
@@ -4890,7 +4891,7 @@
             <circle cx="6.3" cy="4.8" r=".7" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="94" y="177" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">当前工作</text>
-          <text data-detail="context" x="94" y="194" class="t-muted" font-size="8" text-anchor="middle">识别现有产物</text>
+          <text data-detail="context" x="94" y="194" class="t-muted" font-size="8" text-anchor="middle">识别现有 artifact</text>
         <text data-detail="fine" x="94" y="212" class="t-frontend" font-size="7" text-anchor="middle">START</text>
         </g>
 
@@ -4902,7 +4903,7 @@
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="230" y="177" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">已有 SPEC 需修订？</text>
+          <text data-node-label="" data-detail-anchor="" x="230" y="177" class="t-primary" font-size="10.7" font-weight="600" text-anchor="middle">已有 SPEC 需修订？</text>
           <text data-detail="context" x="230" y="194" class="t-muted" font-size="8" text-anchor="middle">检查未合并需求变更</text>
         <text data-detail="fine" x="230" y="212" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
@@ -4920,8 +4921,8 @@
         <text data-detail="fine" x="230" y="478" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
-        <g id="node-grilling" data-node-id="grilling" data-node-label="grilling" tabindex="0" role="button" aria-label="聚焦grilling，收敛需求与边界, 需求与探索 › 形成规范" aria-pressed="false" data-node-kind="external" data-node-sublabel="收敛需求与边界" data-node-context="需求与探索 › 形成规范">
-          <title>grilling · 收敛需求与边界 · 需求与探索 › 形成规范</title>
+        <g id="node-grilling" data-node-id="grilling" data-node-label="grilling" tabindex="0" role="button" aria-label="聚焦grilling，收敛需求与边界, 需求与探索 › 形成契约" aria-pressed="false" data-node-kind="external" data-node-sublabel="收敛需求与边界" data-node-context="需求与探索 › 形成契约">
+          <title>grilling · 收敛需求与边界 · 需求与探索 › 形成契约</title>
           <rect x="387.2" y="430" width="92" height="52" rx="6" class="c-mask"/>
           <rect x="387.2" y="430" width="92" height="52" rx="6" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(393.2 436) scale(0.6875)">
@@ -4932,8 +4933,8 @@
           <text data-detail="context" x="433.2" y="468" class="t-muted" font-size="8" text-anchor="middle">收敛需求与边界</text>
         </g>
 
-        <g id="node-wayfinding" data-node-id="wayfinding" data-node-label="wayfinding" tabindex="0" role="button" aria-label="聚焦wayfinding，MAP.md + decisions, 需求与探索 › 形成规范" aria-pressed="false" data-node-kind="external" data-node-sublabel="MAP.md + decisions" data-node-context="需求与探索 › 形成规范">
-          <title>wayfinding · MAP.md + decisions · 需求与探索 › 形成规范</title>
+        <g id="node-wayfinding" data-node-id="wayfinding" data-node-label="wayfinding" tabindex="0" role="button" aria-label="聚焦wayfinding，MAP.md + decisions, 需求与探索 › 形成契约" aria-pressed="false" data-node-kind="external" data-node-sublabel="MAP.md + decisions" data-node-context="需求与探索 › 形成契约">
+          <title>wayfinding · MAP.md + decisions · 需求与探索 › 形成契约</title>
           <rect x="507.20000000000005" y="430" width="92" height="52" rx="6" class="c-mask"/>
           <rect x="507.20000000000005" y="430" width="92" height="52" rx="6" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(513.2 436) scale(0.6875)">
@@ -4944,20 +4945,20 @@
           <text data-detail="context" x="553.2" y="468" class="t-muted" font-size="7.7" text-anchor="middle">MAP.md + decisions</text>
         </g>
 
-        <g id="node-to_spec" data-node-id="to_spec" data-node-label="to-spec" tabindex="0" role="button" aria-label="聚焦to-spec，创建或修订同一份规范, 规范与设计 › 形成规范" aria-pressed="false" data-node-kind="backend" data-node-sublabel="创建或修订同一份规范" data-node-tag="OWNER" data-node-context="规范与设计 › 形成规范">
-          <title>to-spec · 创建或修订同一份规范 · 规范与设计 › 形成规范 · OWNER</title>
+        <g id="node-to_spec" data-node-id="to_spec" data-node-label="to-spec" tabindex="0" role="button" aria-label="聚焦to-spec，原位创建或修订规范, 规范与设计 › 形成契约" aria-pressed="false" data-node-kind="backend" data-node-sublabel="原位创建或修订规范" data-node-tag="OWNER" data-node-context="规范与设计 › 形成契约">
+          <title>to-spec · 原位创建或修订规范 · 规范与设计 › 形成契约 · OWNER</title>
           <rect x="387.2" y="688" width="92" height="68" rx="6" class="c-mask"/>
           <rect x="387.2" y="688" width="92" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(393.2 694) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="433.2" y="709" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">to-spec</text>
-          <text data-detail="context" x="433.2" y="726" class="t-muted" font-size="7" text-anchor="middle">创建或修订同一份规范</text>
+          <text data-detail="context" x="433.2" y="726" class="t-muted" font-size="7.7" text-anchor="middle">原位创建或修订规范</text>
         <text data-detail="fine" x="433.2" y="744" class="t-backend" font-size="7" text-anchor="middle">OWNER</text>
         </g>
 
-        <g id="node-spec" data-node-id="spec" data-node-label="SPEC.md" tabindex="0" role="button" aria-label="聚焦SPEC.md，规范性需求来源, 规范与设计 › 形成规范" aria-pressed="false" data-node-kind="database" data-node-sublabel="规范性需求来源" data-node-tag="ARTIFACT" data-node-context="规范与设计 › 形成规范">
-          <title>SPEC.md · 规范性需求来源 · 规范与设计 › 形成规范 · ARTIFACT</title>
+        <g id="node-spec" data-node-id="spec" data-node-label="SPEC.md" tabindex="0" role="button" aria-label="聚焦SPEC.md，规范性需求来源, 规范与设计 › 形成契约" aria-pressed="false" data-node-kind="database" data-node-sublabel="规范性需求来源" data-node-tag="ARTIFACT" data-node-context="规范与设计 › 形成契约">
+          <title>SPEC.md · 规范性需求来源 · 规范与设计 › 形成契约 · ARTIFACT</title>
           <rect x="507.20000000000005" y="688" width="92" height="68" rx="6" class="c-mask"/>
           <rect x="507.20000000000005" y="688" width="92" height="68" rx="6" class="c-database" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="database" class="semantic-sigil s-database" transform="translate(513.2 694) scale(0.6875)">
@@ -4969,21 +4970,21 @@
         <text data-detail="fine" x="553.2" y="744" class="t-database" font-size="7" text-anchor="middle">ARTIFACT</text>
         </g>
 
-        <g id="node-contract_check" data-node-id="contract_check" data-node-label="是否需要统一设计？" tabindex="0" role="button" aria-label="聚焦是否需要统一设计？，按影响范围判断, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="security" data-node-sublabel="按影响范围判断" data-node-tag="DECISION" data-node-context="规范与设计 › 选择执行路径">
-          <title>是否需要统一设计？ · 按影响范围判断 · 规范与设计 › 选择执行路径 · DECISION</title>
+        <g id="node-contract_check" data-node-id="contract_check" data-node-label="跨局部技术契约？" tabindex="0" role="button" aria-label="聚焦跨局部技术契约？，按契约范围判断, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="security" data-node-sublabel="按契约范围判断" data-node-tag="DECISION" data-node-context="规范与设计 › 选择执行路径">
+          <title>跨局部技术契约？ · 按契约范围判断 · 规范与设计 › 选择执行路径 · DECISION</title>
           <rect x="627.2" y="688" width="118" height="68" rx="6" class="c-mask"/>
           <rect x="627.2" y="688" width="118" height="68" rx="6" class="c-security" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(633.2 694) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="686.2" y="709" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">是否需要统一设计？</text>
-          <text data-detail="context" x="686.2" y="726" class="t-muted" font-size="8" text-anchor="middle">按影响范围判断</text>
+          <text data-node-label="" data-detail-anchor="" x="686.2" y="709" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">跨局部技术契约？</text>
+          <text data-detail="context" x="686.2" y="726" class="t-muted" font-size="8" text-anchor="middle">按契约范围判断</text>
         <text data-detail="fine" x="686.2" y="744" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
         <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="high-level-design" tabindex="0" role="button" aria-label="聚焦high-level-design，HLD.md（需要时）, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="backend" data-node-sublabel="HLD.md（需要时）" data-node-context="规范与设计 › 选择执行路径">
-          <title>high-level-design · HLD.md（按需） · 规范与设计 › 选择执行路径</title>
+          <title>high-level-design · HLD.md（需要时） · 规范与设计 › 选择执行路径</title>
           <rect x="783.2" y="696" width="124" height="52" rx="6" class="c-mask"/>
           <rect x="783.2" y="696" width="124" height="52" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(789.2 702) scale(0.6875)">
@@ -4993,16 +4994,16 @@
           <text data-detail="context" x="845.2" y="734" class="t-muted" font-size="8" text-anchor="middle">HLD.md（需要时）</text>
         </g>
 
-        <g id="node-execution_check" data-node-id="execution_check" data-node-label="需要任务执行图？" tabindex="0" role="button" aria-label="聚焦需要任务执行图？，单项任务或多项协作任务, 执行与交付 › 形成规范" aria-pressed="false" data-node-kind="security" data-node-sublabel="单项任务或多项协作任务" data-node-tag="DECISION" data-node-context="执行与交付 › 形成规范">
-          <title>需要任务执行图？ · 单项任务或多项协作任务 · 执行与交付 › 形成规范 · DECISION</title>
+        <g id="node-execution_check" data-node-id="execution_check" data-node-label="需要 execution graph？" tabindex="0" role="button" aria-label="聚焦需要 execution graph？，单一任务或多执行单元, 执行与交付 › 形成契约" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一任务或多执行单元" data-node-tag="DECISION" data-node-context="执行与交付 › 形成契约">
+          <title>需要 execution graph？ · 单一任务或多执行单元 · 执行与交付 › 形成契约 · DECISION</title>
           <rect x="474.20000000000005" y="954" width="158" height="68" rx="6" class="c-mask"/>
           <rect x="474.20000000000005" y="954" width="158" height="68" rx="6" class="c-security" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(480.20000000000005 960) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="553.2" y="975" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">需要任务执行图？</text>
-          <text data-detail="context" x="553.2" y="992" class="t-muted" font-size="8" text-anchor="middle">单项任务或多项协作任务</text>
+          <text data-node-label="" data-detail-anchor="" x="553.2" y="975" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">需要 execution graph？</text>
+          <text data-detail="context" x="553.2" y="992" class="t-muted" font-size="8" text-anchor="middle">单一任务或多执行单元</text>
         <text data-detail="fine" x="553.2" y="1010" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
@@ -5031,36 +5032,36 @@
           <text data-detail="context" x="686.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">tickets/*.json</text>
         </g>
 
-        <g id="node-delivery" data-node-id="delivery" data-node-label="交付完成" tabindex="0" role="button" aria-label="聚焦交付完成，实现、验证与审查完成, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="实现、验证与审查完成" data-node-tag="DONE" data-node-context="执行与交付 › 选择执行路径">
-          <title>交付完成 · 实现、验证与审查完成 · 执行与交付 › 选择执行路径 · DONE</title>
+        <g id="node-delivery" data-node-id="delivery" data-node-label="verified delivery" tabindex="0" role="button" aria-label="聚焦verified delivery，实现、验证与审查完成, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="cloud" data-node-sublabel="实现、验证与审查完成" data-node-tag="DONE" data-node-context="执行与交付 › 选择执行路径">
+          <title>verified delivery · 实现、验证与审查完成 · 执行与交付 › 选择执行路径 · DONE</title>
           <rect x="783.2" y="884" width="124" height="68" rx="6" class="c-mask"/>
           <rect x="783.2" y="884" width="124" height="68" rx="6" class="c-cloud" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="cloud" class="semantic-sigil s-cloud" transform="translate(789.2 890) scale(0.6875)">
             <path d="M4.3 12.5h7.3a2.4 2.4 0 0 0 .2-4.8 4 4 0 0 0-7.5-1.3A3.1 3.1 0 0 0 4.3 12.5Z"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="845.2" y="905" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">交付完成</text>
+          <text data-node-label="" data-detail-anchor="" x="845.2" y="905" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">verified delivery</text>
           <text data-detail="context" x="845.2" y="922" class="t-muted" font-size="8" text-anchor="middle">实现、验证与审查完成</text>
         <text data-detail="fine" x="845.2" y="940" class="t-cloud" font-size="7" text-anchor="middle">DONE</text>
         </g>
 
         <g id="node-loop" data-node-id="loop" data-node-label="loop" tabindex="0" role="button" aria-label="聚焦loop，scheduling · evidence · review, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="scheduling · evidence · review" data-node-context="执行与交付 › 选择执行路径">
           <title>loop · scheduling · evidence · review · 执行与交付 › 选择执行路径</title>
-          <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-mask"/>
-          <rect x="772.2" y="1032" width="146" height="52" rx="6" class="c-messagebus" stroke-width="1.5"/>
-          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(778.2 1038) scale(0.6875)">
+          <rect x="765.2" y="1032" width="160" height="52" rx="6" class="c-mask"/>
+          <rect x="765.2" y="1032" width="160" height="52" rx="6" class="c-messagebus" stroke-width="1.5"/>
+          <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(771.2 1038) scale(0.6875)">
             <path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/>
             <circle cx="5" cy="4.5" r="1" class="sigil-fill"/>
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="845.2" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop</text>
-          <text data-detail="context" x="845.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">任务选择 · 命令 · 证据 · 审查</text>
+          <text data-detail="context" x="845.2" y="1070" class="t-muted" font-size="8" text-anchor="middle">scheduling · evidence · review</text>
         </g>
 
         <!-- Edge labels -->
-        <g data-detail="context" data-edge-from="scope_check" data-edge-to="to_spec" data-edge-label="已收敛" data-edge-key="0" data-edge-id="already_converged">
-          <rect x="289.20000000000005" y="709" width="38.8" height="14" rx="3" class="c-mask"/>
-          <text x="308.6" y="719" class="t-backend" font-size="8" text-anchor="middle">已收敛</text>
+        <g data-detail="context" data-edge-from="scope_check" data-edge-to="to_spec" data-edge-label="需要持久化契约" data-edge-key="0" data-edge-id="already_converged">
+          <rect x="270" y="709" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="308.6" y="719" class="t-backend" font-size="8" text-anchor="middle">需要持久化契约</text>
         </g>
 
         <g data-detail="context" data-edge-from="contract_check" data-edge-to="execution_check" data-edge-label="否" data-edge-key="2" data-edge-id="design_not_required">
@@ -5072,43 +5073,47 @@
           <text x="764.2" y="712" class="t-backend" font-size="8" text-anchor="middle">是</text>
         </g>
 
-        <g data-detail="context" data-edge-from="execution_check" data-edge-to="to_tickets" data-edge-label="是" data-edge-key="5" data-edge-id="graph_required">
+        <g data-detail="context" data-edge-from="scope_check" data-edge-to="execution_check" data-edge-label="当前会话可判定" data-edge-key="5" data-edge-id="direct_or_quick">
+          <rect x="208.50000000000003" y="968" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="247.10000000000002" y="978" class="t-muted" font-size="8" text-anchor="middle">当前会话可判定</text>
+        </g>
+        <g data-detail="context" data-edge-from="execution_check" data-edge-to="to_tickets" data-edge-label="是" data-edge-key="6" data-edge-id="graph_required">
           <rect x="644.2" y="975" width="30" height="14" rx="3" class="c-mask"/>
           <text x="659.2" y="985" class="t-backend" font-size="8" text-anchor="middle">是</text>
         </g>
 
 
-        <g data-detail="context" data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="8" data-edge-id="needs_grilling">
+        <g data-detail="context" data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="9" data-edge-id="needs_grilling">
           <rect x="293" y="560" width="77.2" height="14" rx="3" class="c-mask"/>
           <text x="331.6" y="570" class="t-muted" font-size="8" text-anchor="middle">需求或边界未定</text>
         </g>
-        <g data-detail="context" data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径仍不明确" data-edge-key="9" data-edge-id="needs_wayfinding">
+        <g data-detail="context" data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径存在 Fog" data-edge-key="10" data-edge-id="needs_wayfinding">
           <rect x="348.20000000000005" y="282" width="86.8" height="14" rx="3" class="c-mask"/>
-          <text x="391.6" y="292" class="t-muted" font-size="8" text-anchor="middle">技术路径仍不明确</text>
+          <text x="391.6" y="292" class="t-muted" font-size="8" text-anchor="middle">技术路径存在 Fog</text>
         </g>
 
-        <g data-detail="context" data-edge-from="execution_check" data-edge-to="quick_implement" data-edge-label="否" data-edge-key="11" data-edge-id="single_task">
+        <g data-detail="context" data-edge-from="execution_check" data-edge-to="quick_implement" data-edge-label="否" data-edge-key="12" data-edge-id="single_task">
           <rect x="576.7" y="898" width="30" height="14" rx="3" class="c-mask"/>
           <text x="591.7" y="908" class="t-muted" font-size="8" text-anchor="middle">否</text>
         </g>
-        <g data-detail="context" data-edge-from="spec_check" data-edge-to="to_spec" data-edge-label="有需求变更" data-edge-key="12" data-edge-id="spec_changed">
-          <rect x="263.6" y="826" width="58" height="14" rx="3" class="c-mask"/>
-          <text x="292.6" y="836" class="t-backend" font-size="8" text-anchor="middle">有需求变更</text>
+        <g data-detail="context" data-edge-from="spec_check" data-edge-to="to_spec" data-edge-label="有需求变更" data-edge-key="13" data-edge-id="spec_changed">
+          <rect x="590" y="170" width="58" height="14" rx="3" class="c-mask"/>
+          <text x="619" y="180" class="t-backend" font-size="8" text-anchor="middle">有需求变更</text>
         </g>
-        <g data-detail="context" data-edge-from="spec_check" data-edge-to="spec" data-edge-label="已确认且无变更" data-edge-key="13" data-edge-id="spec_current">
-          <rect x="248.00000000000003" y="752" width="77.2" height="14" rx="3" class="c-mask"/>
-          <text x="286.6" y="762" class="t-muted" font-size="8" text-anchor="middle">已确认且无变更</text>
+        <g data-detail="context" data-edge-from="spec_check" data-edge-to="spec" data-edge-label="已确认且无变更" data-edge-key="14" data-edge-id="spec_current">
+          <rect x="646" y="170" width="77.2" height="14" rx="3" class="c-mask"/>
+          <text x="684.6" y="180" class="t-muted" font-size="8" text-anchor="middle">已确认且无变更</text>
         </g>
-        <g data-detail="context" data-edge-from="spec_check" data-edge-to="scope_check" data-edge-label="否" data-edge-key="14" data-edge-id="spec_missing">
+        <g data-detail="context" data-edge-from="spec_check" data-edge-to="scope_check" data-edge-label="否" data-edge-key="15" data-edge-id="spec_missing">
           <rect x="176" y="288" width="30" height="14" rx="3" class="c-mask"/>
           <text x="191" y="298" class="t-muted" font-size="8" text-anchor="middle">否</text>
         </g>
 
 
 
-        <g data-detail="context" data-edge-from="wayfinding" data-edge-to="to_spec" data-edge-label="需要形成规范" data-edge-key="18" data-edge-id="wayfinding_to_spec">
-          <rect x="652.3000000000001" y="652" width="67.6" height="14" rx="3" class="c-mask"/>
-          <text x="686.1" y="662" class="t-muted" font-size="8" text-anchor="middle">需要形成规范</text>
+        <g data-detail="context" data-edge-from="wayfinding" data-edge-to="to_spec" data-edge-label="需要构建契约" data-edge-key="19" data-edge-id="wayfinding_to_spec">
+          <rect x="428.40000000000003" y="826" width="67.6" height="14" rx="3" class="c-mask"/>
+          <text x="462.20000000000005" y="836" class="t-muted" font-size="8" text-anchor="middle">需要构建契约</text>
         </g>
 
         <!-- Legend -->
