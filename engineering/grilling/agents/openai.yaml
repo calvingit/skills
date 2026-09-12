@@ -1,7 +1,7 @@
 interface:
   display_name: "Grilling"
   short_description: "Settle decisions in the project task directory"
-  default_prompt: "Use $grilling. Read Profile.task_contract; use its task directory, or create one under its root for all session docs. Without task_contract, suggest .grilling/grilling-<UTC timestamp>/ and remind once about project-setup."
+  default_prompt: "Use $grilling to resolve the current frontier in rounds, automatically record decisions in the task directory, and combine domain-modeling to align terms and record glossary entries and qualifying ADRs."
 
 policy:
   allow_implicit_invocation: false

@@ -10,6 +10,19 @@
 - 证据优先，代码、SPEC、测试、运行结果和 review evidence 高于模型自报。
 - 状态分离，Runtime 管理会话上下文；Engineering Skills 管理规范、执行图、交付进度和 evidence。
 
+## 上游适配与维护规范
+
+对于源自 Matt Pocock 的 Skill，以上游原版为基础，只添加 Engineering Skills 确有需要的适配。自行设计的 Skill 不强行套用上游结构。
+
+- 保留原版的核心机制、关键术语和交互节奏；改动前先核对原文，记录来源与适配理由。
+- 适配集中在项目约定、文档位置、必要的技能组合及 Runtime 能力差异。不把下游流程说明塞进每个 Skill。
+- 新增限制必须对应明确需求或已观察到的问题。通用常识、重复要求、分类教学和假设性防护不进入正文。
+- 通过组合复用已有规则，不复制另一 Skill 的细节。精简时也不能静默删掉已确认的能力，例如自动记录 decisions、术语对齐和 ADR。
+- 优先修正有问题的局部；不要因一次输出不理想反复重写整体流程，也不以行数作为质量指标。
+- 声称效果改善前，用相同任务、模型和上下文比较关键遗漏、无效追问、用户纠正及阅读负担。静态检查只能证明格式与规则一致，不能证明实际效果更好。
+
+当前 grilling 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)，保留 design tree、frontier 和 round，以及每轮批量提出整个 frontier 的机制。本地适配包括紧凑的快捷回复格式、通用事实调查、项目内决策记录，以及与 domain-modeling 组合写入术语和 ADR。尚未完成行为对比验证。
+
 ## 类型
 
 | 类型 | Skills | 职责 |
@@ -63,7 +76,7 @@ Engineering workflow
 
 `to-tickets/scripts` 创建、校验、迁移和协调执行图；`loop/scripts` 查询进度、记录 attempt 和状态。两者共享 `engineering/shared/ticket-schema.json` 与图存储实现，无需全局安装 CLI。Loop 是正常执行期间唯一的 graph writer。
 
-`grilling` 仅在验收结论需要持久化、跨会话继续或交接时生成 `acceptance-draft.md`；同一会话内直接进入实现的简单讨论，在会话中保留已确认的验收结论、预期结果和证据来源即可。
+`grilling` 每轮自动更新任务目录中的 `decisions.md`，记录已确认决定、理由、验收结论和未决问题；组合 `domain-modeling`，在术语或符合 ADR 门槛的决定确认后立即写入。优先复用项目已有 glossary 和 ADR，缺少约定时使用会话目录。`acceptance-draft.md` 仅在需要独立验收草稿时生成，避免重复记录。
 
 `ACCEPTANCE.md` 是按需使用的独立验收文档；普通任务的验证由 verify 记录，Loop 只聚合任务证据。
 
@@ -83,13 +96,13 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 | 阶段 | 职责与下游 |
 | --- | --- |
-| `grilling` | 确认开放的需求选择；需要持久化、共享或版本管理时继续 `to-spec`，简单任务可在授权范围内直接实现。 |
+| `grilling` | 确认开放选择并记录结论；调用方依据是否需要正式需求契约，继续 `to-spec` 或在授权范围内进入简单实现。 |
 | `to-spec` | 维护规范性需求；需要共享设计时继续 `high-level-design`，否则判断执行路径。 |
 | `high-level-design` | 维护多处实现共享的技术设计，然后判断执行路径。 |
 | 执行路径 | 单一范围且无需执行图时使用 `quick-implement`；需要拆分任务或管理依赖时继续 `to-tickets`。 |
 | `to-tickets` | 依据已确认的 SPEC / HLD 拆分任务、校验依赖；已获实现授权时继续 `loop`。 |
 
-普通交接不需要用户再次输入下一个 Skill 名称。普通拆票由 `to-tickets` 判断粒度和真实阻塞依赖；若拆分暴露未确定的产品、范围、优先级、发布、兼容、验收或共享设计选择，则交还对应上游 Skill，不能把它写成任务假设。
+跨阶段路由由调用方依据本流程处理；独立的 grilling 不承担下游 Skill 的调度说明。普通交接不需要用户再次输入下一个 Skill 名称。普通拆票由 `to-tickets` 判断粒度和真实阻塞依赖；若拆分暴露未确定的产品、范围、优先级、发布、兼容、验收或共享设计选择，则交还对应上游 Skill，不能把它写成任务假设。
 
 是否进入实现遵循用户当前授权：只要求规划时，在所需规划产物完成后停止；已授权实现时，继续进入 `quick-implement` 或 `loop`。连续交接不会自动授予提交、推送或分支操作权限。
 

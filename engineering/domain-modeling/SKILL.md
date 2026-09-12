@@ -74,7 +74,7 @@ Follow the project's ADR / decision-record format. With no existing format, keep
 
 Add status, considered options, or consequences only when they add lasting value. The value is the decision and why, not the template.
 
-When composed with `grilling`, this skill does not own the Design Tree, frontier, rounds, or question cadence. It finds domain issues that need clarifying or recording, hands them to `grilling` on the same frontier, and writes after the user confirms. Default write location is `grilling`'s session doc directory. When the user asks to write into the project, follow `grilling`'s Profile rules for location.
+When composed with `grilling`, this skill does not own the Design Tree, frontier, rounds, or question cadence. It finds domain issues that need clarifying or recording, hands them to `grilling` on the same frontier, and writes after the user confirms. Reuse the project's established glossary and ADR locations discovered above. If none exist, use `grilling`'s resolved session directory. Once a term or qualifying decision is confirmed, record it automatically; do not ask for a second approval just to document it.
 
 ## Verify
 
