@@ -40,6 +40,7 @@ Keep only sections that apply. Do not invent content to fill the template:
   - Affected: <Module or callers>
   - Reason: <why>
   - Trade-offs: <costs, limitations, and rejected alternatives when relevant>
+  - Evidence: <SPEC R / AC or observed code fact with path / symbol>
   - Consequences: <what downstream must obey>
 
 ## Modules and Ownership

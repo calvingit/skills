@@ -15,6 +15,56 @@ Each answered round reshapes the tree: settled decisions unblock dependent quest
 
 Finding facts is your job. Investigate available code, documents, and tools before asking the user. Use native subagents when available and useful. An ongoing investigation blocks only dependent questions; ask the rest of the frontier now. Decisions belong to the user: explain the relevant choices and wait. Do not invent inaccessible source content or silently assume unresolved choices.
 
+## Decision Classification
+
+Classify unresolved choices before asking:
+
+### Requirement Decision
+
+Changes:
+
+- user-visible behaviour
+- scope
+- acceptance
+- compatibility
+- permissions
+
+Owner: User
+
+Output: `SPEC.md`
+
+External technical facts are requirement decisions when they define required behaviour, such as API contracts, field semantics, protocol limitations, or backend-defined states.
+
+### Design Boundary Concern
+
+Changes:
+
+- architecture boundary
+- public contract
+- shared model direction
+- long-term technical choice
+
+Owner: `high-level-design` review
+
+Output: HLD input
+
+An existing external contract's semantics belong to Requirement Decision. A proposed new or changed public abstraction or cross-module contract belongs here.
+
+Record the concern without proposing an implementation solution. For example, write `Current mode model may need future extensibility`, not `Use Strategy Pattern`.
+
+### Implementation Detail
+
+Examples:
+
+- private methods
+- file layout
+- local helpers
+- internal refactoring
+
+Owner: Agent
+
+Do not ask the user.
+
 ## Question format
 
 Number questions and keep each focused on the decision, necessary context, and key consequences. Give a recommendation and its reason when supported. Use meaningful options or ask directly; do not force A/B/C. Accept free-form answers and alternatives.
@@ -48,8 +98,20 @@ After each round, automatically update `decisions.md` with confirmed decisions, 
 
 Create `acceptance-draft.md` only when a separate acceptance draft is needed for handoff or reuse; keep it to observable requirements, scenarios, expected results, and evidence sources.
 
+## Design Concerns
+
+Record unresolved technical boundaries discovered during requirement analysis.
+
+Examples:
+
+- future extensibility
+- public contract changes
+- shared model decisions
+
+Do not propose implementation solutions.
+
 ## Finish
 
-The session is done when the frontier is empty: relevant branches have been explored and no consequential choice is silently assumed. Summarize the settled outcome and document locations, and obtain the user's confirmation of shared understanding before handing back to the caller.
+The session is complete when all requirement-level decisions are settled. Implementation choices and unresolved design details may remain for HLD. Summarize the settled outcome and document locations, and obtain the user's confirmation of shared understanding before handing back to the caller.
 
 If interrupted, preserve unresolved questions alongside confirmed conclusions. This skill records the interview; it does not implement code or automatically rewrite downstream artifacts.

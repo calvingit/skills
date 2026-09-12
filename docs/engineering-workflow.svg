@@ -4867,7 +4867,7 @@
         <path data-edge-from="execution_check" data-edge-to="to_tickets" data-edge-label="是" data-edge-key="6" data-edge-id="graph_required" data-composition-points="632.2,995;686.2,995;686.2,1032" d="M 632.2 995 L 686.2 995 L 686.2 1032" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="grilling" data-edge-to="to_spec" data-edge-key="7" data-edge-id="grilling_to_spec" data-composition-points="479.2,456;495.2,456;495.2,722;479.2,722" d="M 479.2 456 L 495.2 456 L 495.2 722 L 479.2 722" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="loop" data-edge-to="delivery" data-edge-key="8" data-edge-id="loop_delivery" data-composition-points="845.2,1032;845.2,952" d="M 845.2 1032 L 845.2 952" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
-        <path data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="9" data-edge-id="needs_grilling" data-composition-points="230,490;230,580;433.2,580;433.2,482" d="M 230 490 L 230 580 L 433.2 580 L 433.2 482" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
+        <path data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求决策未定" data-edge-key="9" data-edge-id="needs_grilling" data-composition-points="230,490;230,580;433.2,580;433.2,482" d="M 230 490 L 230 580 L 433.2 580 L 433.2 482" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径存在 Fog" data-edge-key="10" data-edge-id="needs_wayfinding" data-composition-points="230,422;230,302;553.2,302;553.2,430" d="M 230 422 L 230 302 L 553.2 302 L 553.2 430" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="quick_implement" data-edge-to="delivery" data-edge-key="11" data-edge-id="quick_delivery" data-composition-points="742.2,918;783.2,918" d="M 742.2 918 L 783.2 918" class="a-emphasis" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="execution_check" data-edge-to="quick_implement" data-edge-label="否" data-edge-key="12" data-edge-id="single_task" data-composition-points="553.2,954;553.2,918;630.2,918" d="M 553.2 954 L 553.2 918 L 630.2 918" class="a-default" stroke-width="1.4" marker-end="url(#arrowhead)"/>
@@ -4921,8 +4921,8 @@
         <text data-detail="fine" x="230" y="478" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
-        <g id="node-grilling" data-node-id="grilling" data-node-label="grilling" tabindex="0" role="button" aria-label="聚焦grilling，收敛需求与边界, 需求与探索 › 形成契约" aria-pressed="false" data-node-kind="external" data-node-sublabel="收敛需求与边界" data-node-context="需求与探索 › 形成契约">
-          <title>grilling · 收敛需求与边界 · 需求与探索 › 形成契约</title>
+        <g id="node-grilling" data-node-id="grilling" data-node-label="grilling" tabindex="0" role="button" aria-label="聚焦grilling，分类需求与设计决策, 需求与探索 › 形成契约" aria-pressed="false" data-node-kind="external" data-node-sublabel="分类需求与设计决策" data-node-context="需求与探索 › 形成契约">
+          <title>grilling · 分类需求与设计决策 · 需求与探索 › 形成契约</title>
           <rect x="387.2" y="430" width="92" height="52" rx="6" class="c-mask"/>
           <rect x="387.2" y="430" width="92" height="52" rx="6" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(393.2 436) scale(0.6875)">
@@ -4930,7 +4930,7 @@
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="433.2" y="451" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">grilling</text>
-          <text data-detail="context" x="433.2" y="468" class="t-muted" font-size="8" text-anchor="middle">收敛需求与边界</text>
+          <text data-detail="context" x="433.2" y="468" class="t-muted" font-size="8" text-anchor="middle">分类需求与设计决策</text>
         </g>
 
         <g id="node-wayfinding" data-node-id="wayfinding" data-node-label="wayfinding" tabindex="0" role="button" aria-label="聚焦wayfinding，MAP.md + decisions, 需求与探索 › 形成契约" aria-pressed="false" data-node-kind="external" data-node-sublabel="MAP.md + decisions" data-node-context="需求与探索 › 形成契约">
@@ -4945,15 +4945,15 @@
           <text data-detail="context" x="553.2" y="468" class="t-muted" font-size="7.7" text-anchor="middle">MAP.md + decisions</text>
         </g>
 
-        <g id="node-to_spec" data-node-id="to_spec" data-node-label="to-spec" tabindex="0" role="button" aria-label="聚焦to-spec，原位创建或修订规范, 规范与设计 › 形成契约" aria-pressed="false" data-node-kind="backend" data-node-sublabel="原位创建或修订规范" data-node-tag="OWNER" data-node-context="规范与设计 › 形成契约">
-          <title>to-spec · 原位创建或修订规范 · 规范与设计 › 形成契约 · OWNER</title>
+        <g id="node-to_spec" data-node-id="to_spec" data-node-label="to-spec" tabindex="0" role="button" aria-label="聚焦to-spec，工程需求快照, 规范与设计 › 形成契约" aria-pressed="false" data-node-kind="backend" data-node-sublabel="工程需求快照" data-node-tag="OWNER" data-node-context="规范与设计 › 形成契约">
+          <title>to-spec · 工程需求快照 · 规范与设计 › 形成契约 · OWNER</title>
           <rect x="387.2" y="688" width="92" height="68" rx="6" class="c-mask"/>
           <rect x="387.2" y="688" width="92" height="68" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(393.2 694) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="433.2" y="709" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">to-spec</text>
-          <text data-detail="context" x="433.2" y="726" class="t-muted" font-size="7.7" text-anchor="middle">原位创建或修订规范</text>
+          <text data-detail="context" x="433.2" y="726" class="t-muted" font-size="7.7" text-anchor="middle">工程需求快照</text>
         <text data-detail="fine" x="433.2" y="744" class="t-backend" font-size="7" text-anchor="middle">OWNER</text>
         </g>
 
@@ -4983,15 +4983,15 @@
         <text data-detail="fine" x="686.2" y="744" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
-        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="high-level-design" tabindex="0" role="button" aria-label="聚焦high-level-design，HLD.md（需要时）, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="backend" data-node-sublabel="HLD.md（需要时）" data-node-context="规范与设计 › 选择执行路径">
-          <title>high-level-design · HLD.md（需要时） · 规范与设计 › 选择执行路径</title>
+        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="high-level-design" tabindex="0" role="button" aria-label="聚焦high-level-design，HLD + Design Review, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="backend" data-node-sublabel="HLD + Design Review" data-node-context="规范与设计 › 选择执行路径">
+          <title>high-level-design · HLD + Design Review · 规范与设计 › 选择执行路径</title>
           <rect x="783.2" y="696" width="124" height="52" rx="6" class="c-mask"/>
           <rect x="783.2" y="696" width="124" height="52" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(789.2 702) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="845.2" y="717" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">high-level-design</text>
-          <text data-detail="context" x="845.2" y="734" class="t-muted" font-size="8" text-anchor="middle">HLD.md（需要时）</text>
+          <text data-detail="context" x="845.2" y="734" class="t-muted" font-size="8" text-anchor="middle">HLD + Design Review</text>
         </g>
 
         <g id="node-execution_check" data-node-id="execution_check" data-node-label="需要 execution graph？" tabindex="0" role="button" aria-label="聚焦需要 execution graph？，单一任务或多执行单元, 执行与交付 › 形成契约" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一任务或多执行单元" data-node-tag="DECISION" data-node-context="执行与交付 › 形成契约">
@@ -5083,9 +5083,9 @@
         </g>
 
 
-        <g data-detail="context" data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求或边界未定" data-edge-key="9" data-edge-id="needs_grilling">
+        <g data-detail="context" data-edge-from="scope_check" data-edge-to="grilling" data-edge-label="需求决策未定" data-edge-key="9" data-edge-id="needs_grilling">
           <rect x="293" y="560" width="77.2" height="14" rx="3" class="c-mask"/>
-          <text x="331.6" y="570" class="t-muted" font-size="8" text-anchor="middle">需求或边界未定</text>
+          <text x="331.6" y="570" class="t-muted" font-size="8" text-anchor="middle">需求决策未定</text>
         </g>
         <g data-detail="context" data-edge-from="scope_check" data-edge-to="wayfinding" data-edge-label="技术路径存在 Fog" data-edge-key="10" data-edge-id="needs_wayfinding">
           <rect x="348.20000000000005" y="282" width="86.8" height="14" rx="3" class="c-mask"/>

@@ -9,13 +9,22 @@ Take a confirmed `SPEC.md` and current codebase facts, and form the high-level t
 
 `HLD.md` is the final authority for the delivery's shared technical design. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
 
+## Process
+
+1. Investigate the confirmed SPEC and current codebase.
+2. Create design candidates for the shared technical boundaries.
+3. Review decision ownership and ask the user about choices that affect long-term direction.
+4. Write the confirmed design into `HLD.md`.
+
 ## Authority and bounds
 
-- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and upstream-confirmed constraints.
+- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and upstream-confirmed constraints, including technical constraints that define required behaviour.
 - `HLD.md` derives module duties, shared types, internal Interfaces, dependency direction, data / control flow, state and error semantics, migration, and integration constraints from the SPEC and codebase facts.
 - `tickets/*.json` only derive delivery split and blocking edges. Implementation owns local detailed design the HLD did not constrain.
 - The HLD must not change the SPEC. On conflict, stop. `to-spec` fixes the spec, or this skill fixes the design. Do not pick one and keep implementing.
 - This skill may apply `codebase-design` to a specific Module / Interface / Seam. It does not copy that skill's general rules.
+
+SPEC technical constraints are inputs. Examples include API field semantics, protocol contracts, and backend-defined states. HLD decides how to satisfy them.
 
 ## Design from the codebase that exists
 
@@ -51,6 +60,22 @@ Ticket count is not the test. A single execution unit may still need an HLD; sev
 
 Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. Stop and hand back to `grilling` / `to-spec` only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance. Hand back to `wayfinding` only when a load-bearing technical feasibility is genuinely unknown, limited code investigation or a small check cannot settle it, and the exploration needs to cross sessions.
 
+## Design Review Gate
+
+After investigation and candidate creation, ask the user before selecting among options that affect long-term direction:
+
+- a new public abstraction
+- a new domain model
+- an API or event contract change
+- a data model change
+- a permission model change
+- a long-term architecture direction
+- multiple reasonable long-term designs
+
+For example: `Should reception mode become an extensible abstraction?`
+
+Do not ask about local helper extraction, private methods, file layout, or other implementation details. When the gate is not triggered, choose from repository evidence.
+
 ## Modes
 
 - **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
@@ -61,6 +86,18 @@ When SPEC meaning is unchanged, amend only the affected shared design decisions.
 ## Decision traceability and verification
 
 Every D ID must cite at least one SPEC requirement (R / AC) or an observed codebase fact with path / symbol. Record the decision, reason, and trade-offs. A module name alone is not evidence. Do not create a decision without a traceable basis.
+
+Write confirmed decisions under `## Design Decisions` in `HLD.md`. Each decision must include the template's change kind, reference, related scope, affected modules or callers, and consequences when applicable, in addition to the core fields:
+
+```md
+D1:
+Decision:
+Reason:
+Trade-off:
+Evidence:
+```
+
+Do not create a separate `design-decisions.md`.
 
 HLD owns **Verification Seams**: where technical correctness can be checked, such as a repository integration test or event contract test. Relate each seam to D IDs, technical invariants, and relevant SPEC acceptance; state the check level and expected evidence. SPEC Acceptance Seams remain public observations. `verify` chooses and executes concrete checks against the implementation.
 

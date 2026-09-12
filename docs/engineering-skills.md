@@ -82,9 +82,21 @@ Engineering workflow
 
 ## 需求、设计与交付验收
 
-SPEC 只记录为什么做、做什么、完成标准及有来源的约束；不写类、方法、测试文件或实现步骤。Acceptance Seam 是观察需求完成的公共入口，例如 API 响应、UI 操作或导出文件。
+决策所有权统一如下：
 
-HLD 基于已有代码定义技术方案。每个 D 决策引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
+| 内容 | Owner |
+| --- | --- |
+| 业务行为 | `grilling` + `SPEC` |
+| 技术约束 | `SPEC` |
+| 架构方向 | HLD review |
+| 实现方案 | Agent |
+| 任务拆分 | `to-tickets` |
+
+`grilling` 负责识别并向用户提出需求决策；API contract、字段语义、后端状态和协议限制，只要定义了所需行为，就作为技术约束进入 SPEC。架构边界和长期设计选择留给 HLD review。
+
+SPEC 是工程需求快照，记录为什么做、做什么、范围、行为、业务约束、外部技术约束、兼容约束和完成标准；不写类、模块、内部接口、实现方案、文件改动或测试实现。Acceptance Seam 可以观察用户行为或外部契约行为，例如 API 响应、UI 操作或导出文件。
+
+HLD 基于 SPEC 技术约束和已有代码定义共享技术方案。遇到新公共抽象、领域模型、API/Event contract、数据/权限模型或长期架构方向时，先经过 Design Review Gate；确认后的决定写入 HLD 的 `## Design Decisions`，每个 D 引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
 
 Ticket 使用 `referenced_design_decisions` 引用 HLD，使用 `delivery_acceptance` 描述本次交付如何覆盖 SPEC。它构成执行图，不新增设计或需求，也不规定逐个方法的修改步骤。
 
@@ -96,9 +108,9 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 | 阶段 | 职责与下游 |
 | --- | --- |
-| `grilling` | 确认开放选择并记录结论；调用方依据是否需要正式需求契约，继续 `to-spec` 或在授权范围内进入简单实现。 |
-| `to-spec` | 维护规范性需求；需要共享设计时继续 `high-level-design`，否则判断执行路径。 |
-| `high-level-design` | 维护多处实现共享的技术设计，然后判断执行路径。 |
+| `grilling` | 按需求决策、设计边界 concern、实现细节分类开放选择；需求决策进入 `to-spec`，设计 concern 作为 HLD 输入，实现细节由 Agent 决定。 |
+| `to-spec` | 维护工程需求快照；将需求决策写入 SPEC，将设计 concern 保留为 HLD 输入，然后判断执行路径。 |
+| `high-level-design` | 调查代码、形成设计候选并经过 Design Review Gate；维护多处实现共享的技术设计，然后判断执行路径。 |
 | 执行路径 | 单一范围且无需执行图时使用 `quick-implement`；需要拆分任务或管理依赖时继续 `to-tickets`。 |
 | `to-tickets` | 依据已确认的 SPEC / HLD 拆分任务、校验依赖；已获实现授权时继续 `loop`。 |
 
@@ -119,7 +131,7 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 | 仅有执行状态或验证证据变化 | 执行方（有图时为 `loop`） | 只更新执行记录，不修改 SPEC / HLD。 |
 | 实现发现需求或 HLD 无法成立 | `loop` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
 
-例如 Loop 执行期间新增取消语义：先暂停派发任务，停止仍在写入的 subagents 并保留部分结果；若取消行为尚有开放选择，`grilling` 只确认这些选择；随后由 `to-spec` 修订需求，必要时由 `high-level-design` 修订受影响的设计，再由 `to-tickets` 协调执行图，最后恢复 Loop。
+例如 Loop 执行期间新增取消语义：先暂停派发任务，停止仍在写入的 subagents 并保留部分结果；若取消行为尚有开放选择，`grilling` 只确认需求决策并由 `to-spec` 修订需求；若出现共享设计或长期方向选择，由 `high-level-design` 经过 Design Review Gate 后修订受影响的设计；再由 `to-tickets` 协调执行图，最后恢复 Loop。
 
 **向上只重新打开受影响的决定。** 与本次变化无关的已确认需求和设计继续有效，保留原有 R / AC / D ID；HLD 单独变化不反向修改 SPEC。
 
