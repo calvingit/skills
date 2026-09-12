@@ -9,7 +9,7 @@ Compare old / new SPEC, the current HLD, codebase facts, and existing tickets. C
 - Design change with unchanged requirements updates only the HLD. Do not rewrite the SPEC backwards.
 - When a graph exists, read-only check which tickets cite affected Ds, which implemented behaviour still holds, and what needs amendment, correction, migration, or replacement. Do not edit tickets.
 - Before writing a shared HLD while a graph exists, ask `loop` to stop task dispatch, interrupt workers, preserve partial receipts, and block all active attempts. The current shared-workspace runtime pauses the task, not just the selected tickets.
-- Show the user the design delta and ticket impact. When the design follows confirmed requirements and repo evidence, update the same HLD and continue to `to-tickets` to coordinate the graph. New requirement choices or unresolved feasibility follow the upstream routing rules in SKILL.md.
+- Show the user the design delta and ticket impact, then apply the Design Review Gate in [SKILL.md](../SKILL.md#design-review-gate). If the gate is triggered and the affected design choice is not already confirmed, wait for the user's decision before updating the HLD or continuing to `to-tickets`. When the gate is not triggered or the choice is already confirmed, update the same HLD from confirmed requirements and repo evidence, then continue to `to-tickets` to coordinate the graph. New requirement choices or unresolved feasibility follow the upstream routing rules in SKILL.md.
 
 If implementation finds the HLD cannot hold, the worker must report blocked. It must not quietly change a shared design constraint and continue. After the HLD is amended, resume execution according to actual impact.
 

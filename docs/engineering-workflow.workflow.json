@@ -68,7 +68,7 @@
     { "id": "spec_output", "from": "to_spec", "to": "spec", "variant": "emphasis" },
     { "id": "check_contract", "from": "spec", "to": "contract_check" },
     { "id": "design_required", "from": "contract_check", "to": "high_level_design", "label": "是", "variant": "emphasis" },
-    { "id": "design_to_execution", "from": "high_level_design", "to": "execution_check", "fromSide": "bottom", "toSide": "top", "via": [[845.2, 800], [553.2, 800]] },
+    { "id": "design_to_execution", "from": "high_level_design", "to": "execution_check", "fromSide": "bottom", "toSide": "top" },
     { "id": "design_not_required", "from": "contract_check", "to": "execution_check", "label": "否", "role": "branch" },
     { "id": "single_task", "from": "execution_check", "to": "quick_implement", "label": "否", "role": "branch" },
     { "id": "graph_required", "from": "execution_check", "to": "to_tickets", "label": "是", "variant": "emphasis" },
