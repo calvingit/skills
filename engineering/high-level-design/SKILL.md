@@ -87,15 +87,7 @@ When SPEC meaning is unchanged, amend only the affected shared design decisions.
 
 Every D ID must cite at least one SPEC requirement (R / AC) or an observed codebase fact with path / symbol. Record the decision, reason, and trade-offs. A module name alone is not evidence. Do not create a decision without a traceable basis.
 
-Write confirmed decisions under `## Design Decisions` in `HLD.md`. Each decision must include the template's change kind, reference, related scope, affected modules or callers, and consequences when applicable, in addition to the core fields:
-
-```md
-D1:
-Decision:
-Reason:
-Trade-off:
-Evidence:
-```
+Write confirmed decisions under `## Design Decisions` in `HLD.md` using the exact item shape in [references/hld-template.md](references/hld-template.md). The decision line must use `- **D1** — ...`; do not use `D1:` as the heading form.
 
 Do not create a separate `design-decisions.md`.
 
