@@ -74,7 +74,7 @@ def contract_fingerprint(task_dir: Path, ticket: dict) -> str:
         "id", "title", "covers", "referenced_design_decisions", "what_to_build",
         "constraints", "delivery_acceptance", "dependencies",
     )}
-    # Hash the original semantic keys so v1 -> v2 renaming does not refresh stale evidence.
+    # Hash semantic keys so contract-field renames do not refresh stale evidence.
     contract["design_decisions"] = contract.pop("referenced_design_decisions")
     contract["acceptance_criteria"] = contract.pop("delivery_acceptance")
     return hashlib.sha256((authority_fingerprint(task_dir) + json.dumps(contract, sort_keys=True)).encode()).hexdigest()

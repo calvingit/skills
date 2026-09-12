@@ -67,11 +67,6 @@ def recover_transaction(
             problems = [problem("contract", "invalid_recovery_mode", "Recovery mode must be rollback or commit.")]
             return envelope("recover", ok=False, problems=problems), 1
 
-        # A migration rollback restores the exact v1 bytes, which the v2 reader
-        # intentionally rejects. Do not leave a successful rollback locked forever.
-        if mode == "rollback" and manifest["operation"] == "migrate-v2":
-            shutil.rmtree(transaction)
-            return envelope("recover", ok=True, result={"mode": mode, "migration_required": True}), 0
         _, graph, committed_problems = validated_snapshot(task_dir, allow_transaction=True)
         if committed_problems:
             return envelope("recover", ok=False, graph=graph, problems=committed_problems), 1

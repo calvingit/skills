@@ -86,7 +86,6 @@ Resolve `<to-tickets-skill>` to this installed skill directory, never to the tar
 - `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; initialize empty execution facts.
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Loop stops writers.
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
-- `scripts/migrate-graph`: explicit schema-v1 to v2 migration, preserving IDs, lifecycle, evidence and authority bindings. Never use migration as requirement reconciliation.
 
 `referenced_design_decisions` cites existing HLD decisions; `delivery_acceptance` proves this delivery's coverage of SPEC acceptance. Tickets do not create new design or acceptance meaning. Constraints inherit HLD boundaries, such as using the established persistence path; do not prescribe method edits or implementation recipes.
 

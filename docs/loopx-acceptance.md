@@ -19,4 +19,4 @@ Skill 内的状态脚本只管理 tickets 和交付进度。Agent 的创建、�
 python3 engineering/shared/check.py
 ```
 
-覆盖图状态、需求变更、任意 Markdown 原文存储、最终快照失效、CLI 参数错误、字段迁移和脱离仓库目录的脚本调用。Runtime subagent 行为由实际工作流验证，不用脚本测试代替。
+覆盖图状态、需求变更、任意 Markdown 原文存储、最终快照失效、CLI 参数错误和脱离仓库目录的脚本调用。Runtime subagent 行为由实际工作流验证，不用脚本测试代替。

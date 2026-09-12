@@ -12,7 +12,7 @@ class ScriptCliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             env = dict(os.environ)
             env.pop('PYTHONPATH', None)
-            for skill, names in [('to-tickets', ['create-graph','validate-graph','migrate-graph']), ('loop', ['frontier','graph-query','record-attempt','update-status'])]:
+            for skill, names in [('to-tickets', ['create-graph','validate-graph']), ('loop', ['frontier','graph-query','record-attempt','update-status'])]:
                 for name in names:
                     result = subprocess.run([sys.executable, str(E / skill / 'scripts' / name), '--help'], cwd=directory, env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode, 0, result.stderr)

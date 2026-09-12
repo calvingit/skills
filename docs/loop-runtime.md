@@ -74,4 +74,4 @@ python3 <loop-skill>/scripts/frontier <task-dir>
 
 ## 验证范围
 
-仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI、脱离仓库工作目录的脚本调用与迁移。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
+仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。

@@ -74,7 +74,7 @@ Engineering workflow
 | `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
 | lifecycle/evidence/receipt | `loop` | 当前做到哪里，下一步能做什么？ |
 
-`to-tickets/scripts` 创建、校验、迁移和协调执行图；`loop/scripts` 查询进度、记录 attempt 和状态。两者共享 `engineering/shared/ticket-schema.json` 与图存储实现，无需全局安装 CLI。Loop 是正常执行期间唯一的 graph writer。
+`to-tickets/scripts` 创建、校验和协调执行图；`loop/scripts` 查询进度、记录 attempt 和状态。两者共享 `engineering/shared/ticket-schema.json` 与图存储实现，无需全局安装 CLI。Loop 是正常执行期间唯一的 graph writer。
 
 `grilling` 每轮自动更新任务目录中的 `decisions.md`，记录已确认决定、理由、验收结论和未决问题；组合 `domain-modeling`，在术语或符合 ADR 门槛的决定确认后立即写入。优先复用项目已有 glossary 和 ADR，缺少约定时使用会话目录。`acceptance-draft.md` 仅在需要独立验收草稿时生成，避免重复记录。
 
@@ -100,7 +100,7 @@ HLD 基于 SPEC 技术约束和已有代码定义共享技术方案。遇到新�
 
 Ticket 使用 `referenced_design_decisions` 引用 HLD，使用 `delivery_acceptance` 描述本次交付如何覆盖 SPEC。它构成执行图，不新增设计或需求，也不规定逐个方法的修改步骤。
 
-脚本分工、部署目录和旧图迁移见 [状态脚本说明](./workflow-scripts.md)。这些调整不增加工作流阶段，HLD 和执行图仍按需使用。
+脚本分工和部署目录见 [状态脚本说明](./workflow-scripts.md)。这些调整不增加工作流阶段，HLD 和执行图仍按需使用。
 
 ## 从需求到执行
 

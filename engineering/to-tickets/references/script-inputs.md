@@ -39,15 +39,10 @@ Read [amendment rules](amendment.md) first. Request: `{"reason":"confirmed upstr
 
 Loop must stop writers and block active attempts before reconciliation. Completed contracts are not rewritten. Reconciliation is graph maintenance, not retry or Agent dispatch.
 
-## Validate and migrate
+## Validate
 
 ```bash
 python3 <to-tickets-skill>/scripts/validate-graph <task-dir>
-python3 <to-tickets-skill>/scripts/migrate-graph <task-dir>
-python3 <to-tickets-skill>/scripts/migrate-graph <task-dir> --recover commit
-python3 <to-tickets-skill>/scripts/migrate-graph <task-dir> --recover rollback
 ```
 
-Migration only renames v1 `design_decisions` / `acceptance_criteria` to v2 `referenced_design_decisions` / `delivery_acceptance` and sets `schema_version: 2`. It preserves IDs, dependencies, lifecycle, attempts, evidence and authority binding, including stale bindings. It rejects active attempts, ambiguous/malformed records and unknown versions before writing. Stop writers and block attempts using the previous version before upgrading an active graph. Interrupted graph writes use explicit recovery. Rollback restores the original bytes; a rolled-back v1 graph still needs migration before v2 execution.
-
-A stored final delivery snapshot becomes stale after migration because ticket file bytes changed. Loop must repeat final verification/review before marking that delivery passed. No automatic compatibility reader or global CLI fallback is provided.
+Graph transaction recovery is available through `loop`'s `update-status recover` command.

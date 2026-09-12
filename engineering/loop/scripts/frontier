@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import _bootstrap
-from ticket_graph.command import parser, task_argument, request, run
+from ticket_graph.command import parser, task_argument, run
 from ticket_graph.queries import inspect
 import delivery
 p = parser("Inspect readiness, blockers, attempts and final delivery status.")

@@ -41,4 +41,4 @@ The `delivery-complete` input has `snapshot` (returned by preparation), `evidenc
 
 Whole-delivery preparation/completion use `scripts/update-status delivery-prepare|delivery-complete`; see [finalization](delivery-review.md) for the input and required workflow. Queries use `scripts/frontier` or `scripts/graph-query inspect|list|show`. `list` supports `--phase` and `--readiness`.
 
-`python3 <loop-skill>/scripts/update-status recover <task-dir> commit|rollback` recovers interrupted graph transactions. It does not resume an Agent. Upstream reconciliation and schema migration belong to `to-tickets`, after Loop stops writers.
+`python3 <loop-skill>/scripts/update-status recover <task-dir> commit|rollback` recovers interrupted graph transactions. It does not resume an Agent. Upstream graph reconciliation belongs to `to-tickets`, after Loop stops writers.
