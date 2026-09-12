@@ -1,30 +1,22 @@
 ---
 name: tavily-search
-description: Search the web with LLM-optimized Tavily results.
+description: Use Tavily CLI as Harness's web search tool for current information, articles, news, and sources.
 allowed-tools: Bash(tvly *)
 ---
 
-# tavily search
+# Harness Web Search
 
-Web search returning LLM-optimized results with content snippets and relevance scores.
+Use this Skill when Harness needs current web information. Tavily returns search results with titles, URLs, snippets, and relevance scores.
 
-## Before running any command
+## Setup
 
-If `tvly` is not found on PATH, install it first:
+Check that `tvly` is installed and authenticated before searching. If it is missing, install the CLI and authenticate:
 
 ```bash
 curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
 ```
 
-Do not skip this step or fall back to other tools.
-
-See [tavily-cli](../tavily-cli/SKILL.md) for alternative install methods and auth options.
-
-## When to use
-
-- You need to find information on any topic
-- You don't have a specific URL yet
-- First step in the [workflow](../tavily-cli/SKILL.md): **search** → extract → map → crawl → research
+Use `--json` so Harness receives structured results.
 
 ## Quick start
 
@@ -41,7 +33,7 @@ tvly search "AI news" --time-range week --topic news --json
 # Domain-filtered
 tvly search "SEC filings" --include-domains sec.gov,reuters.com --json
 
-# Include full page content in results
+# Include page content in results when the snippets are insufficient
 tvly search "react hooks tutorial" --include-raw-content --max-results 3 --json
 ```
 
@@ -83,8 +75,3 @@ tvly search "react hooks tutorial" --include-raw-content --max-results 3 --json
 - **Use `--include-domains`** to focus on trusted sources.
 - **Use `--time-range`** for recent information.
 - Read from stdin: `echo "query" | tvly search - --json`
-
-## See also
-
-- [tavily-extract](../tavily-extract/SKILL.md) — extract content from specific URLs
-- [tavily-research](../tavily-research/SKILL.md) — comprehensive multi-source research
