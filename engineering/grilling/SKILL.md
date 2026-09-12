@@ -20,21 +20,20 @@ Finding facts is your job. Investigate available code, documents, and tools befo
 Number questions and keep each focused on the decision, necessary context, and key consequences. Give a recommendation and its reason when supported. Use meaningful options or ask directly; do not force A/B/C. Accept free-form answers and alternatives.
 
 ```markdown
-❓ **Q1** — **<decision>**: <essential context and question>
+❓ **Q1** — **<decision>**
+
+**Context:** <essential context and question>
 
 A. <option and key consequence>
+
 B. <option and key consequence>
+
+C. other: <free-form answer or alternative>
 
 ➡️ <recommendation and main reason>
 
 ---
-
-❓ **Q2** — **<decision>**: <direct question>
-
-➡️ <assessment, when useful>
-
----
-**Reply:** `1A; 2: <answer or alternative>`
+**Reply:** `1A, 2: <answer or alternative>`
 ```
 
 Show the reply shortcut once per round. Keep numbering unique across rounds.
