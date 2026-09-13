@@ -51,7 +51,7 @@ class AgentToolTests(unittest.TestCase):
     def invoke(self, *args: str) -> tuple[int, str]:
         stream = io.StringIO()
         with contextlib.redirect_stdout(stream):
-            code = agent_tool.main(["run", "--provider", "codex", "--workspace", str(self.workspace), "--prompt", "test", *args])
+            code = agent_tool.main(["run", "--cli", "codex", "--workspace", str(self.workspace), "--prompt", "test", *args])
         return code, stream.getvalue()
 
     def test_default_run_has_idle_limit_but_no_total_limit(self) -> None:
@@ -117,7 +117,10 @@ class AgentToolTests(unittest.TestCase):
         events = [json.loads(line) for line in output.splitlines()]
         self.assertEqual(events[0]["event"], "started")
         self.assertTrue(any(event.get("event") == "output" and event["stream"] == "stdout" for event in events))
-        self.assertTrue(any(event.get("event") == "heartbeat" and event["process_alive"] for event in events))
+        heartbeat = next(event for event in events if event.get("event") == "heartbeat" and event["process_alive"])
+        self.assertEqual(heartbeat["cli"], "codex")
+        self.assertIsNone(heartbeat["provider"])
+        self.assertIsNone(heartbeat["model"])
         self.assertEqual(events[-1]["outcome"], "completed")
         self.assertEqual(events[-1]["stdout"], "started\nfinished\n")
 
@@ -206,7 +209,7 @@ class AgentToolTests(unittest.TestCase):
                 )
                 started = time.monotonic()
                 wrapper = subprocess.Popen(
-                    [sys.executable, str(SCRIPT), "run", "--provider", "codex",
+                    [sys.executable, str(SCRIPT), "run", "--cli", "codex",
                      "--workspace", str(self.workspace), "--prompt", "test", "--timeout", "1.5"],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
                 )
@@ -233,6 +236,42 @@ class AgentToolTests(unittest.TestCase):
                         leaderfile.unlink()
                     if pidfile.exists():
                         pidfile.unlink()
+
+    def test_pi_command_separates_cli_provider_and_model(self) -> None:
+        result = agent_tool.command(
+            "pi", "test", workspace=self.workspace,
+            provider="dianxiaomi", model="kimi-k3", session="session-id",
+        )
+        self.assertEqual(result[:9], [
+            "pi", "-p", "--mode", "json", "--approve", "--provider",
+            "dianxiaomi", "--model", "kimi-k3",
+        ])
+
+    def test_kimi_prompt_mode_does_not_use_auto(self) -> None:
+        result = agent_tool.command(
+            "kimi", "test", workspace=self.workspace,
+            provider="dianxiaomi", model="kimi-k3", session=None,
+        )
+        self.assertIn("-p", result)
+        self.assertNotIn("--auto", result)
+
+    def test_model_selection_requires_exact_provider_and_model(self) -> None:
+        available = ([{"provider": "dianxiaomi", "model": "kimi-k3"}], None)
+        with mock.patch.object(agent_tool, "discover_models", return_value=available):
+            self.assertIsNone(agent_tool._validate_selection("pi", "dianxiaomi", "kimi-k3"))
+            self.assertIn("model kimi", agent_tool._validate_selection("pi", "dianxiaomi", "kimi"))
+
+    def test_kimi_model_discovery_discards_credentials(self) -> None:
+        output = json.dumps({
+            "providers": {"dianxiaomi": {"apiKey": "secret"}},
+            "models": {"kimi-k3": {"provider": "dianxiaomi", "model": "kimi-k3"}},
+        })
+        completed = subprocess.CompletedProcess([], 0, stdout=output, stderr="")
+        with mock.patch.object(agent_tool.subprocess, "run", return_value=completed):
+            models, error = agent_tool.discover_models("kimi")
+        self.assertIsNone(error)
+        self.assertEqual(models, [{"provider": "dianxiaomi", "model": "kimi-k3"}])
+        self.assertNotIn("secret", json.dumps(models))
 
 
 if __name__ == "__main__":

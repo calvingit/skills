@@ -19,24 +19,30 @@ import time
 import uuid
 
 
-PROVIDERS = ("claude", "codex", "kimi", "pi", "grok")
+CLIS = ("claude", "codex", "kimi", "pi", "grok")
+MODEL_DISCOVERY_COMMANDS = {
+    "pi": ["pi", "--list-models"],
+    "kimi": ["kimi", "provider", "list", "--json"],
+    "grok": ["grok", "models"],
+}
 DEFAULT_HEARTBEAT_INTERVAL_SECONDS = 30.0
 DEFAULT_IDLE_TIMEOUT_SECONDS = 600.0
 STOP_GRACE_SECONDS = 1.0
 OUTPUT_DRAIN_SECONDS = 1.0
 
 
-def command(provider: str, prompt: str, *, workspace: Path, model: str | None, session: str | None) -> list[str]:
+def command(cli: str, prompt: str, *, workspace: Path, provider: str | None, model: str | None, session: str | None) -> list[str]:
     model_args = ["--model", model] if model else []
-    if provider == "claude":
+    if cli == "claude":
         return ["claude", "-p", "--output-format", "stream-json", "--dangerously-skip-permissions", *model_args, *( ["--resume", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
-    if provider == "codex":
+    if cli == "codex":
         base = ["codex", "exec"] + (["resume", session] if session else ["--cd", str(workspace)])
         return base + model_args + ["--json", "--dangerously-bypass-approvals-and-sandbox", prompt]
-    if provider == "kimi":
-        return ["kimi", "--auto", "--output-format", "stream-json", *model_args, *( ["--session", session] if session else []), "-p", prompt]
-    if provider == "pi":
-        return ["pi", "-p", "--mode", "json", "--approve", *model_args, *( ["--session", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
+    if cli == "kimi":
+        return ["kimi", "--output-format", "stream-json", *model_args, *( ["--session", session] if session else []), "-p", prompt]
+    if cli == "pi":
+        provider_args = ["--provider", provider] if provider else []
+        return ["pi", "-p", "--mode", "json", "--approve", *provider_args, *model_args, *( ["--session", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
     return ["grok", "-p", *model_args, *( ["--resume", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
 
 
@@ -62,12 +68,22 @@ def positive_seconds(value: str) -> float:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="agent-tool", description="统一调用 Claude Code、Codex、Kimi、Pi 或 Grok。")
     sub = parser.add_subparsers(dest="action", required=True)
-    providers = sub.add_parser("providers")
-    providers.set_defaults(func=lambda args: emit({"providers": list(PROVIDERS), "available": [p for p in PROVIDERS if shutil.which(p)]}))
+    clis = sub.add_parser("clis")
+    clis.set_defaults(func=lambda args: emit({"clis": list(CLIS), "available": [cli for cli in CLIS if shutil.which(cli)]}))
+    models = sub.add_parser("models")
+    models.add_argument("--cli", choices=CLIS, required=True)
+    models.add_argument("--provider")
+    models.add_argument("--model")
+    models.set_defaults(func=_models)
     doctor = sub.add_parser("doctor")
-    doctor.set_defaults(func=lambda args: emit({"available": [p for p in PROVIDERS if shutil.which(p)], "missing": [p for p in PROVIDERS if not shutil.which(p)]}))
+    doctor.set_defaults(func=lambda args: emit({
+        "available": [cli for cli in CLIS if shutil.which(cli)],
+        "missing": [cli for cli in CLIS if not shutil.which(cli)],
+        "model_discovery": {cli: cli in MODEL_DISCOVERY_COMMANDS for cli in CLIS},
+    }))
     run = sub.add_parser("run")
-    run.add_argument("--provider", choices=PROVIDERS, required=True)
+    run.add_argument("--cli", choices=CLIS, required=True)
+    run.add_argument("--provider")
     run.add_argument("--model")
     run.add_argument("--session")
     run.add_argument("--workspace", type=Path, default=Path.cwd())
@@ -102,10 +118,13 @@ def main(argv: list[str] | None = None) -> int:
 def _run(args: argparse.Namespace) -> int:
     workspace = args.workspace.resolve()
     if not workspace.is_dir():
-        return emit({"outcome": "blocked", "provider": args.provider, "model": args.model, "reason": f"workspace directory is unavailable: {workspace}"}, events=args.events)
-    executable = shutil.which(args.provider)
+        return emit(_failure(args, f"workspace directory is unavailable: {workspace}"), events=args.events)
+    executable = shutil.which(args.cli)
     if executable is None:
-        return emit({"outcome": "blocked", "provider": args.provider, "model": args.model, "reason": "provider executable is unavailable"}, events=args.events)
+        return emit(_failure(args, "cli executable is unavailable"), events=args.events)
+    validation_error = _validate_selection(args.cli, args.provider, args.model)
+    if validation_error:
+        return emit(_failure(args, validation_error), events=args.events)
 
     started_wall = datetime.now(timezone.utc)
     started = time.monotonic()
@@ -118,15 +137,18 @@ def _run(args: argparse.Namespace) -> int:
     }
     try:
         process = subprocess.Popen(
-            command(args.provider, args.prompt, workspace=workspace, model=args.model, session=args.session),
+            command(args.cli, args.prompt, workspace=workspace, provider=args.provider, model=args.model, session=args.session),
             **process_options,
         )
     except OSError as exc:
-        return emit({"outcome": "failed", "provider": args.provider, "model": args.model, "reason": str(exc)}, events=args.events)
+        result = _failure(args, str(exc))
+        result["outcome"] = "failed"
+        return emit(result, events=args.events)
 
     if args.events:
         emit_event({
             "event": "started",
+            "cli": args.cli,
             "provider": args.provider,
             "model": args.model,
             "heartbeat_mode": "process-observation",
@@ -192,7 +214,9 @@ def _run(args: argparse.Namespace) -> int:
                 heartbeat_count += 1
                 emit_event({
                     "event": "heartbeat",
+                    "cli": args.cli,
                     "provider": args.provider,
+                    "model": args.model,
                     "process_alive": True,
                     "elapsed_seconds": round(now - started, 3),
                     "last_output_age_seconds": round(now - last_output, 3),
@@ -216,6 +240,7 @@ def _run(args: argparse.Namespace) -> int:
     duration = time.monotonic() - started
     result = {
         "outcome": "interrupted" if timeout_reason is not None else ("completed" if returncode == 0 else "failed"),
+        "cli": args.cli,
         "provider": args.provider,
         "model": args.model,
         "exit_code": returncode,
@@ -234,6 +259,71 @@ def _run(args: argparse.Namespace) -> int:
     if timeout_reason is not None:
         result["reason"] = timeout_reason
     return emit(result, events=args.events)
+
+
+def _models(args: argparse.Namespace) -> int:
+    if shutil.which(args.cli) is None:
+        return emit({"outcome": "blocked", "cli": args.cli, "reason": "cli executable is unavailable"})
+    models, error = discover_models(args.cli)
+    if error:
+        return emit({"outcome": "blocked", "cli": args.cli, "reason": error})
+    matches = [item for item in models if (not args.provider or item["provider"] == args.provider) and (not args.model or item["model"] == args.model)]
+    return emit({"outcome": "completed", "cli": args.cli, "provider": args.provider, "model": args.model, "models": matches})
+
+
+def _failure(args: argparse.Namespace, reason: str) -> dict[str, object]:
+    return {"outcome": "blocked", "cli": args.cli, "provider": args.provider, "model": args.model, "reason": reason}
+
+
+def _validate_selection(cli: str, provider: str | None, model: str | None) -> str | None:
+    if provider and cli not in ("pi", "kimi"):
+        return f"cli {cli} does not support provider selection"
+    if not provider and not model:
+        return None
+    models, error = discover_models(cli)
+    if error:
+        return error
+    if provider and not any(item["provider"] == provider for item in models):
+        return f"provider {provider} is unavailable for cli {cli}"
+    if model and not any(item["model"] == model and (not provider or item["provider"] == provider) for item in models):
+        suffix = f" from provider {provider}" if provider else ""
+        return f"model {model}{suffix} is unavailable for cli {cli}"
+    return None
+
+
+def discover_models(cli: str) -> tuple[list[dict[str, str]], str | None]:
+    if cli not in MODEL_DISCOVERY_COMMANDS:
+        return [], f"model discovery is unsupported for cli {cli}"
+    try:
+        result = subprocess.run(MODEL_DISCOVERY_COMMANDS[cli], capture_output=True, text=True, check=False)
+    except OSError as exc:
+        return [], f"model discovery failed for cli {cli}: {exc}"
+    if result.returncode != 0:
+        detail = result.stderr.strip().splitlines()[-1] if result.stderr.strip() else "unknown error"
+        return [], f"model discovery failed for cli {cli}: {detail}"
+    try:
+        if cli == "pi":
+            models = []
+            for line in result.stdout.splitlines()[1:]:
+                columns = line.split()
+                if len(columns) >= 2:
+                    models.append({"provider": columns[0], "model": columns[1]})
+            return models, None
+        if cli == "kimi":
+            data = json.loads(result.stdout)
+            return [
+                {"provider": value["provider"], "model": name}
+                for name, value in data.get("models", {}).items()
+                if isinstance(value, dict) and isinstance(value.get("provider"), str)
+            ], None
+        models = []
+        for line in result.stdout.splitlines():
+            stripped = line.strip()
+            if stripped.startswith(("- ", "* ")):
+                models.append({"provider": "xai", "model": stripped[2:].split(" ", 1)[0]})
+        return models, None
+    except (KeyError, TypeError, json.JSONDecodeError) as exc:
+        return [], f"invalid model list from cli {cli}: {exc}"
 
 
 def _stop_process(process: subprocess.Popen[bytes]) -> None:
