@@ -139,7 +139,9 @@ def lint_secrets(text: str, issues: list[str]) -> None:
     for pattern in SECRET_PATTERNS:
         match = pattern.search(text)
         if match:
-            add_issue(issues, f"Possible unredacted secret near: {match.group(0)[:48]!r}")
+            line = text.count("\n", 0, match.start()) + 1
+            kind = match.group(1) if match.lastindex else "private key"
+            add_issue(issues, f"Possible unredacted {kind} at line {line}; value omitted")
 
 
 def lint_required_sections(text: str, is_html: bool, issues: list[str]) -> None:
@@ -224,7 +226,7 @@ def lint_markdown_stats(text: str, issues: list[str]) -> None:
 
     actual = {severity: 0 for severity in SEVERITIES}
     for match in re.finditer(r"(?mi)^-\s*Severity\s*:\s*(Critical|High|Medium|Low|Info)\b", text):
-        actual[match.group(1)] += 1
+        actual[match.group(1).title()] += 1
 
     for severity, expected_count in expected.items():
         if actual[severity] != expected_count:

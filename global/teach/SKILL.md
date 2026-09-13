@@ -70,7 +70,7 @@ When several lessons share a stylesheet, keep them visually consistent through t
 
 Every lesson should be tied into the mission - the reason that the user is interested in learning about the topic.
 
-If the user is unclear about the mission, or the `MISSION.md` is not populated, your first job should be to question the user on why they want to learn this.
+Use the learning goal and motivation already supplied by the user to populate `MISSION.md`. Ask only when a missing goal would change the lesson; absence of the file alone does not require another interview.
 
 Failing to understand the mission will mean knowledge acquisition is not grounded in real-world goals. Lessons will feel too abstract. You will have no way of judging what the user should do next.
 

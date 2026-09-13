@@ -10,7 +10,7 @@ Each dimension is scored **0.0 – 10.0** — **higher = better**.
 
 | Score | Meaning |
 |-------|---------|
-| **10.0** | **Perfect.** Clean, production-ready. No issues found. |
+| **10.0** | No material issues found in a thoroughly inspected dimension; not proof of overall release readiness. |
 | **0.0** | **Maximum shit mountain.** Completely unmaintainable. Unacceptable risk. |
 | The score reflects **engineering quality and maintainability**, not code style preference. |
 
@@ -69,7 +69,7 @@ Use these descriptions as **guidance**, not rules. The final score is your judgm
 
 ## Overall Score
 
-Average of all 7 dimension scores, rounded to 1 decimal place.
+Average only the assessed dimension scores, rounded to 1 decimal place. If no dimension was assessed, omit the overall score rather than inventing one. A dimension score describes the inspected evidence; it does not certify production readiness.
 
 For focused audit modes (e.g., security-only), only report the relevant dimension score and note that other dimensions were not assessed.
 
@@ -79,7 +79,7 @@ For focused audit modes (e.g., security-only), only report the relevant dimensio
 
 | Score | Grade | Label | Meaning |
 |-------|-------|-------|---------|
-| 9.0 – 10.0 | S | Excellent | Production-ready. Minor nitpicks only. |
+| 9.0 – 10.0 | S | Excellent | No material issues in the assessed dimensions; the conclusion remains limited to inspected evidence. |
 | 7.0 – 8.9 | A | Good | Solid. Some issues but low urgency. |
 | 5.0 – 6.9 | B | Fair | Needs work. Medium risks present. |
 | 3.0 – 4.9 | C | Poor | Significant risks. Should address before release. |

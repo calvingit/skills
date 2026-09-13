@@ -1,6 +1,6 @@
 # Engineering Skills
 
-本目录提供通用工程 Coding 流程，不绑定语言、框架、项目目录或 Agent Runtime。它以证据驱动、职责单一、可组合和渐进式上下文为原则；项目规则、领域术语、ADR、Git 规则和测试约定仍由目标仓库维护。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架、项目目录或 Agent Runtime。它以证据驱动、职责单一、可组合和渐进式上下文为原则；项目规则、领域术语、ADR、Git 规则和测试约定仍由目标仓库维护。
 
 ## 设计原则
 
@@ -27,9 +27,10 @@
 
 | 类型 | Skills | 职责 |
 | --- | --- | --- |
-| Project Setup | `project-setup` | 配置需求权威、项目上下文和协作入口。 |
+| Project Setup | `project-setup`, `improve-agents-md` | 前者维护工程 Profile，后者创建或审校仓库指令并保留 Profile 语义。 |
+| Research and Maintenance | `find-docs`, `tech-research`, `resolving-merge-conflicts` | 查询适用版本文档、形成技术决策依据、处理进行中的 Git 冲突。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
-| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture` | 提供可复用的工程判断和实践。 |
+| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程判断和实践；项目审计负责多维覆盖和综合报告。 |
 | Loop 内部 capability | `implement`, `verify` | 由 Loop 交给当前 Runtime 的 subagents 执行。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
@@ -45,6 +46,23 @@
 | 单一范围、无需执行图 | `quick-implement`；简单改动可直接实现 |
 
 按需叠加 `debug`、`review-architecture`、`codebase-design`、`domain-modeling`、`tdd`、`simplify` 等 discipline。先判断是否真的需要 Skill；简单局部修改、事实查询和低风险机械修改通常直接处理即可。
+
+## 独立调研、审查与维护
+
+这些入口可以独立使用，不新增工程流程阶段，也不要求先运行 `project-setup` 或建立 SPEC / tickets。
+
+| 当前目标 | 入口与职责 |
+| --- | --- |
+| 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
+| 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
+| 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。 |
+| 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。 |
+| 主动寻找架构改进候选 | `improve-codebase-architecture` 是 `review-architecture` 的按需候选模式。 |
+| 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
+| 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
+| 解决进行中的 merge/rebase 冲突 | [resolving-merge-conflicts](../engineering/resolving-merge-conflicts/SKILL.md)，遵守用户已有改动与 Git 授权边界。 |
+
+文档转换、中文润色、术语审校与文档同步位于 `documents/`；会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`。以技能负责的问题分类，不以是否输出 Markdown 分类。
 
 ## 产物和职责
 

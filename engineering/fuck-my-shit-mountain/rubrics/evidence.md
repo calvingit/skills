@@ -9,13 +9,15 @@
 | Runtime behavior | Test fails when input is empty | Strong |
 | Config inspection | `app.config.secret = "hardcoded-dev-key"` | Strong |
 | Dependency audit | Dependency v1.2.3 has CVE-2024-XXXX with public exploit | Strong |
-| Comment indicating risk | `// TODO: this can deadlock under load` | Strong |
+| Comment indicating risk | `// TODO: this can deadlock under load` | Investigation lead; verify the current control flow |
 | Pattern inference | All handlers use `String::from_utf8_unchecked` | Medium |
 | Structural inference | File is 3000 lines with 20 public functions | Medium |
 | Missing pattern | No test file exists for `auth.rs` | Weak |
 | Name-based inference | Function named `doStuff()` suggests unclear responsibility | Weak |
 
 ## Evidence Requirements by Severity
+
+The table describes the minimum supporting material, not sufficient proof by itself. Every reported issue still needs a reachable scenario, actual consequence, and a check of guards or counterevidence. A comment, pattern, or metric alone cannot establish a confirmed defect or its severity.
 
 | Severity | Minimum Evidence |
 |----------|-----------------|
@@ -45,7 +47,7 @@
 
 ## Evidence Format
 
-Every evidence block MUST include:
+Describe the relevant location and behaviour. Presentation is owned by `references/report-format.md`; the following is an optional layout:
 
 ```
 - File: <path with line numbers>
