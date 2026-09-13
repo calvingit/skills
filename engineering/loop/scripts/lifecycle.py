@@ -24,6 +24,7 @@ def apply_start(ticket, request, by_id):
     except ValueError as exc:
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate=copy.deepcopy(ticket); number=candidate["execution"]["attempt_sequence"]+1
+    candidate["execution"].pop("review", None)
     candidate["lifecycle"]["phase"]="in_progress"; candidate["execution"]["attempt_sequence"]=number
     candidate["execution"]["current_attempt"]={"number":number,"baseline":request["baseline"],"existing_changes":request["existing_changes"],"allowed_write_scope":request["allowed_write_scope"]}
     issues=validate_ticket(public_ticket(candidate),candidate["_path"])
@@ -68,6 +69,7 @@ def apply_retry(ticket, request):
         return None, [invalid_field("<request>", ticket["id"], "allowed_write_scope", str(exc))]
     candidate = copy.deepcopy(ticket)
     number = candidate["execution"]["attempt_sequence"] + 1
+    candidate["execution"].pop("review", None)
     invalidated_acceptance = [item["id"] for item in ticket["delivery_acceptance"]]
     for acceptance_id in invalidated_acceptance:
         candidate["execution"]["evidence"].pop(acceptance_id, None)

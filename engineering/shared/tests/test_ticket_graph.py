@@ -509,6 +509,7 @@ class TicketGraphCliTests(unittest.TestCase):
             execution={
                 "attempt_sequence": 1,
                 "evidence": {},
+                "review": "Review from an earlier execution.",
                 "blocker": None,
                 "current_attempt": {
                     "number": 1,
@@ -524,6 +525,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
+        bind_authority(self.task_dir, ticket, "Fixture executed against the current contract.")
         path = self.write_ticket(ticket)
         block_request = self.write_request(
             {
@@ -564,12 +566,26 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(unblock_result.returncode, 0)
         self.assertIsNone(json.loads(path.read_text(encoding="utf-8"))["execution"]["blocker"])
 
+        start_request = self.write_request(
+            {
+                "baseline": {"reference": "snapshot-2", "staged": [], "unstaged": [], "untracked": []},
+                "existing_changes": {"included": [], "excluded": []},
+                "allowed_write_scope": ["delivery.py"],
+            }
+        )
+        start_result, _ = self.run_cli(
+            "start", str(self.task_dir), "T001", "--input", str(start_request)
+        )
+        self.assertEqual(start_result.returncode, 0)
+        self.assertNotIn("review", json.loads(path.read_text(encoding="utf-8"))["execution"])
+
     def test_retry_increments_attempt_without_leaving_in_progress(self) -> None:
         ticket = canonical_ticket(
             lifecycle={"phase": "in_progress"},
             execution={
                 "attempt_sequence": 1,
                 "evidence": {"AC1": {"result": "passed", "summary": "Old attempt evidence."}},
+                "review": "Review for the previous attempt only.",
                 "blocker": None,
                 "current_attempt": {
                     "number": 1,
@@ -600,6 +616,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(stored["lifecycle"]["phase"], "in_progress")
         self.assertEqual(stored["execution"]["attempt_sequence"], 2)
         self.assertEqual(stored["execution"]["evidence"], {})
+        self.assertNotIn("review", stored["execution"])
         self.assertEqual(stored["execution"]["current_attempt"]["number"], 2)
         self.assertEqual(stored["execution"]["reopen_context"]["review_finding"], "AC1 failed verification; implement a correction.")
         self.assertEqual(stored["execution"]["reopen_context"]["invalidated_acceptance"], ["AC1"])
