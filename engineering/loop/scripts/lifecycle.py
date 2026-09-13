@@ -85,9 +85,12 @@ def apply_retry(ticket, request):
     issues = validate_ticket(public_ticket(candidate), candidate["_path"])
     return (None, issues) if issues else (candidate, [])
 
-def completion_problems(request, acceptance_ids):
+def completion_problems(request, acceptance_ids, *, require_review=True):
     """Check recorded facts and the caller's decision, without interpreting review prose."""
-    issues = validate_shape(request, {"evidence", "verification", "review", "approved", "unverified"},
+    fields = {"evidence", "verification", "approved", "unverified"}
+    if require_review or (isinstance(request, dict) and "review" in request):
+        fields.add("review")
+    issues = validate_shape(request, fields,
                             path="<request>", ticket_id=None, field="")
     if issues:
         return issues
@@ -97,7 +100,7 @@ def completion_problems(request, acceptance_ids):
                                     path="<request>", ticket_id=None, field="verification")
     if issues:
         return issues
-    if not non_empty_string(request["review"]):
+    if "review" in request and not non_empty_string(request["review"]):
         return [invalid_field("<request>", None, "review", "Include the original review as a non-empty string.")]
     if (request["approved"] is not True or request["unverified"] != []
             or not request["verification"] or any(item["exit_code"] != 0 for item in request["verification"])):
@@ -119,12 +122,14 @@ def apply_complete(ticket, request):
     if not isinstance(request, dict) or type(request.get("expected_attempt")) is not int or request["expected_attempt"] != ticket["execution"]["attempt_sequence"]:
         return transition_failure(ticket, "stale_attempt", "Complete expected_attempt must match the active attempt.")
     result = {key: value for key, value in request.items() if key != "expected_attempt"}
-    issues = completion_problems(result, [item["id"] for item in ticket["delivery_acceptance"]])
+    issues = completion_problems(result, [item["id"] for item in ticket["delivery_acceptance"]], require_review=False)
     if issues:
         return None, issues
     candidate = copy.deepcopy(ticket)
     candidate["execution"]["evidence"] = request["evidence"]
-    candidate["execution"]["review"] = request["review"]
+    candidate["execution"].pop("review", None)
+    if "review" in request:
+        candidate["execution"]["review"] = request["review"]
     candidate["execution"]["current_attempt"] = None
     candidate["execution"]["blocker"] = None
     candidate["execution"]["reopen_context"] = None

@@ -11,7 +11,7 @@
         "id": "normal-execution",
         "label": "正常执行",
         "focus": ["created", "ready", "in_progress", "done"],
-        "note": "open ticket 的 dependencies 已完成且无 execution blocker 时动态计算为 ready，由 loop 通过 start 派发。"
+        "note": "open ticket 的 dependencies 已完成且无 execution blocker 时动态计算为 ready，由 loop 通过 start 记录执行。"
       },
       {
         "id": "blocking-recovery",
@@ -36,7 +36,7 @@
   "states": [
     { "id": "created", "type": "start", "label": "open", "sublabel": "create-batch 初始 lifecycle", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY" },
     { "id": "ready", "type": "active", "label": "ready（动态）", "sublabel": "dependencies done 且无 blocker", "lane": "main", "col": 1, "step": "02" },
-    { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "Runtime 已派发 subagent", "lane": "main", "col": 2, "step": "03" },
+    { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "Agent 正在执行 ticket", "lane": "main", "col": 2, "step": "03" },
     { "id": "done", "type": "success", "label": "done", "sublabel": "全部 local AC 的 passed evidence 完整", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE" },
     { "id": "blocked", "type": "waiting", "label": "blocked（动态）", "sublabel": "dependency 或 execution blocker", "lane": "waiting", "col": 0, "tag": "WAIT" },
     { "id": "amendment", "type": "external", "label": "reconcile-batch", "sublabel": "同步 execution graph", "lane": "change", "col": 2, "tag": "EVENT" },
@@ -57,7 +57,7 @@
     { "id": "amendment_superseded", "from": "amendment", "to": "superseded", "fromSide": "bottom", "toSide": "top", "route": "straight" }
   ],
   "cards": [
-    { "dot": "emerald", "title": "正常路径", "items": ["open 的动态 ready → in_progress → done 由 loop commands 统一维护", "done 要求全部 local AC 的 passed evidence 完整"] },
+    { "dot": "emerald", "title": "正常路径", "items": ["open 的动态 ready → in_progress → done 由 loop commands 统一维护", "done 表示本地 AC 通过，最终交付需独立验收"] },
     { "dot": "amber", "title": "阻塞规则", "items": ["blocked 是 dependency 或 execution blocker 的动态结果", "解除 execution blocker 后重新计算 readiness，而不是直接恢复执行"] },
     { "dot": "violet", "title": "状态语义", "items": ["done → open 仅表达原 contract 内 review finding", "上游 amendment 通过 reconcile-batch 汇入 superseded", "superseded 保留历史 evidence 与 lineage，但不提供当前验收覆盖"] }
   ]

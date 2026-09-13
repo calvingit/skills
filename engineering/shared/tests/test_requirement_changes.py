@@ -187,6 +187,81 @@ class RequirementChangesTests(unittest.TestCase):
             with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
         self.assertEqual(delivery.status(self.task)['state'], 'pending')
 
+    def test_final_delivery_still_requires_review_after_local_completion(self):
+        self.execute()
+        context = delivery.prepare(self.task, self.workspace)
+        request = self.review_request(context)
+        del request['review']
+        before = (self.task / '.loop/delivery.json').read_bytes()
+        with self.assertRaises(ValueError):
+            delivery.complete(self.task, request)
+        self.assertEqual((self.task / '.loop/delivery.json').read_bytes(), before)
+
+    def test_context_notes_do_not_invalidate_final_delivery(self):
+        self.execute()
+        context = delivery.prepare(self.task, self.workspace)
+        notes = self.task / '.loop/context'
+        notes.mkdir()
+        for name in ('context.md', 'repo-map.md'):
+            path = notes / name
+            for text in ('Initial observed context.', 'Updated observed context.'):
+                path.write_text(text)
+                self.assertEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
+        delivery.complete(self.task, self.review_request(context))
+        (notes / 'context.md').write_text('New execution observation.')
+        self.assertEqual(delivery.status(self.task)['state'], 'passed')
+
+    def test_local_completion_releases_dependency_without_passing_delivery(self):
+        dependent = self.task / 'tickets/T002-dependent.json'
+        dependent.write_text(json.dumps(ticket(id='T002', dependencies=['T001'])))
+        self.execute()
+        stored = json.loads(self.path.read_text())
+        self.assertEqual(stored['lifecycle']['phase'], 'done')
+        self.assertNotIn('review', stored['execution'])
+        self.assertEqual(inspect(self.task)[0]['graph']['frontier'], ['T002'])
+        self.assertEqual(delivery.status(self.task)['state'], 'not_reviewed')
+        start = {'baseline': {'reference': 'HEAD', 'staged': [], 'unstaged': [], 'untracked': []},
+                 'existing_changes': {'included': [], 'excluded': []}, 'allowed_write_scope': ['src.py']}
+        result, code = mutate_ticket('start', self.task, 'T002', start)
+        self.assertEqual(code, 0, result)
+        request = completion()
+        del request['review']
+        result, code = mutate_ticket('complete', self.task, 'T002', {'expected_attempt': 1, **request})
+        self.assertEqual(code, 0, result)
+        self.assertTrue(inspect(self.task)[0]['graph']['delivery_ready'])
+        self.assertEqual(delivery.status(self.task)['state'], 'not_reviewed')
+
+    def test_local_reopen_preserves_unaffected_evidence_and_rejects_old_attempt(self):
+        stored = json.loads(self.path.read_text())
+        stored['delivery_acceptance'].append({'id': 'AC2', 'description': 'Second local check.'})
+        self.path.write_text(json.dumps(stored))
+        attempt = self.start()
+        evidence = {'AC1': {'result': 'passed', 'summary': 'First check.'},
+                    'AC2': {'result': 'passed', 'summary': 'Unaffected second check.'}}
+        request = completion(evidence=evidence)
+        del request['review']
+        result, code = mutate_ticket('complete', self.task, 'T001', {'expected_attempt': attempt, **request})
+        self.assertEqual(code, 0, result)
+        old_context = delivery.prepare(self.task, self.workspace)
+        result, code = mutate_ticket('reopen', self.task, 'T001', {
+            'review_finding': 'Final review found first behavior incorrect.',
+            'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
+        self.assertEqual(code, 0, result)
+        self.assertEqual(json.loads(self.path.read_text())['execution']['evidence'], {'AC2': evidence['AC2']})
+        new_attempt = self.start()
+        self.assertEqual(new_attempt, attempt + 1)
+        before = self.path.read_bytes()
+        result, code = mutate_ticket('complete', self.task, 'T001', {'expected_attempt': attempt, **request})
+        self.assertEqual(code, 1, result)
+        self.assertEqual(self.path.read_bytes(), before)
+        request['evidence']['AC1']['summary'] = 'Corrected first behavior checked again.'
+        result, code = mutate_ticket('complete', self.task, 'T001', {'expected_attempt': new_attempt, **request})
+        self.assertEqual(code, 0, result)
+        with self.assertRaises(ValueError):
+            delivery.complete(self.task, self.review_request(old_context))
+        new_context = delivery.prepare(self.task, self.workspace)
+        self.assertEqual(delivery.complete(self.task, self.review_request(new_context))['state'], 'passed')
+
 
     def test_final_review_expires_after_requirements_or_graph_change(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
@@ -204,7 +279,9 @@ class RequirementChangesTests(unittest.TestCase):
 
     def execute(self):
         attempt = self.start()
-        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion()})
+        request = completion()
+        del request['review']
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **request})
         self.assertEqual(code, 0, result)
         return result
 
@@ -233,10 +310,14 @@ class RequirementChangesTests(unittest.TestCase):
                  {"expected_attempt": attempt, **completion(unverified=["Integration not run"])},
                  {"expected_attempt": attempt, **completion(verification=[{"command": "test", "exit_code": 1, "summary": "Failed"}])}]
         for request in cases:
-            with self.subTest(request=request):
-                result, code = mutate_ticket("complete", self.task, "T001", request)
-                self.assertEqual(code, 1, result)
-                self.assertEqual(self.path.read_bytes(), before)
+            variants = [request]
+            if request['review'].strip():
+                variants.append({key: value for key, value in request.items() if key != 'review'})
+            for variant in variants:
+                with self.subTest(request=variant):
+                    result, code = mutate_ticket("complete", self.task, "T001", variant)
+                    self.assertEqual(code, 1, result)
+                    self.assertEqual(self.path.read_bytes(), before)
 
     def test_requirement_change_blocks_old_attempt_completion(self):
         attempt = self.start()

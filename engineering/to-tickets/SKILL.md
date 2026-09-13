@@ -37,7 +37,7 @@ SPEC is the final authority for scope, acceptance, and upstream-confirmed constr
 
 Prefer independently verifiable end-to-end delivery:
 
-- Each ticket cuts a narrow but **complete** path through every layer the delivery needs — data, interface, UI, tests, docs when they are load-bearing. A completed slice is demoable or verifiable on its own from the user, caller, or acceptance view, and fits in one fresh context.
+- Each ticket cuts a narrow but **complete** path through every layer the delivery needs — data, interface, UI, tests, docs when they are load-bearing. A completed slice is demoable or verifiable on its own from the user, caller, or acceptance view, and is small enough to implement and verify as one coherent unit. Ticket size does not prescribe an Agent lifetime.
 - Tests, verification, and necessary local tidy-up belong on the slice. Do not create a "add all the tests" or "final cleanup" ticket with no independent delivery. A blocking edge exists only when a missing prior result would make this ticket start incorrectly. Tickets with no blockers are the first executable set. Do not invent a linear chain for narrative order, and do not keep cycles.
 
 A shared contract lands on the first end-to-end ticket that actually uses it. Later tickets depend on it only when that contract's absence would make them start incorrectly. Do not default to a horizontal "build all the interfaces / enums first" architecture ticket. Preparatory technical-work tickets exist only for real blockers: schema generation, expand-then-contract, compatibility layers.

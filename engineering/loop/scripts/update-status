@@ -7,7 +7,7 @@ from ticket_graph.contracts import envelope
 import delivery
 from pathlib import Path
 p = parser("Record Loop's state decision or final delivery evidence; never execute an agent.")
-p.add_argument('operation', choices=['block', 'unblock', 'complete', 'reopen', 'recover', 'delivery-prepare', 'delivery-complete'])
+p.add_argument('operation', choices=['block', 'unblock', 'complete', 'reopen', 'recover', 'delivery-prepare', 'delivery-complete'], help='complete records ticket-local acceptance (review optional); delivery-complete requires final independent verification and review')
 task_argument(p)
 p.add_argument('target', nargs='?', help='Ticket ID, or commit/rollback for recover')
 p.add_argument('--input', help='JSON request path or -; see ../references/script-inputs.md')

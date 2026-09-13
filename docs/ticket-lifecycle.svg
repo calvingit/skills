@@ -4882,8 +4882,8 @@
           <text data-detail="context" x="248" y="163" class="t-muted" font-size="7" text-anchor="middle">进入可执行任务集合</text>
         </g>
 
-        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，Runtime 已派发 subagent, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="Runtime 已派发 subagent" data-node-context="执行主路径">
-          <title>in_progress · Runtime 已派发 subagent · 执行主路径</title>
+        <g id="node-in_progress" data-node-id="in_progress" data-node-label="in_progress" tabindex="0" role="button" aria-label="聚焦in_progress，Agent 正在执行 ticket, 执行主路径" aria-pressed="false" data-node-kind="active" data-node-sublabel="Agent 正在执行 ticket" data-node-context="执行主路径">
+          <title>in_progress · Agent 正在执行 ticket · 执行主路径</title>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-mask"/>
           <rect x="343" y="126" width="118" height="62" rx="7" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="active" class="semantic-sigil s-backend" transform="translate(444 132) scale(0.6875)">
@@ -4891,7 +4891,7 @@
           </g>
         <text data-detail="fine" x="353" y="140" class="t-backend" font-size="7" font-weight="700">03</text>
           <text data-node-label="" data-detail-anchor="" x="402" y="147" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">in_progress</text>
-          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">Runtime 已派发 subagent</text>
+          <text data-detail="context" x="402" y="163" class="t-muted" font-size="7" text-anchor="middle">Agent 正在执行 ticket</text>
         </g>
 
         <g id="node-done" data-node-id="done" data-node-label="done" tabindex="0" role="button" aria-label="聚焦done，验收与验证证据完整, 执行主路径" aria-pressed="false" data-node-kind="success" data-node-sublabel="验收与验证证据完整" data-node-tag="COVERAGE" data-node-context="执行主路径">

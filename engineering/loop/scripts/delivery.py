@@ -37,7 +37,7 @@ def _write(path: Path, value: dict) -> None:
 def _snapshot(task_dir: Path, workspace: Path) -> tuple[str, dict]:
     graph, _ = inspect(task_dir)
     if not graph.get('ok') or not graph['graph'].get('delivery_ready'):
-        raise ValueError('All active tickets need current authority and passed delivery before whole-task review.')
+        raise ValueError('All active tickets need current authority and passed local acceptance before whole-task review.')
     artifact_root = task_dir / '.loop'
 
     def contents(root: Path) -> dict:
@@ -113,7 +113,7 @@ def complete(task_dir: Path, request: dict) -> dict:
     if request['snapshot'] != context['snapshot'] or _snapshot(task_dir, Path(context['workspace']))[0] != context['snapshot']:
         raise ValueError('Delivery review is stale; prepare and review the current snapshot.')
     result = {key: value for key, value in request.items() if key != 'snapshot'}
-    problems = completion_problems(result, context['spec_acceptance'])
+    problems = completion_problems(result, context['spec_acceptance'], require_review=True)
     if problems:
         raise ValueError('Delivery not accepted: ' + json.dumps(problems))
     # Recheck after validation, before accepting the receipt. Any subsequent change

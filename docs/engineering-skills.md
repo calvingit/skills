@@ -31,7 +31,7 @@
 | Research and Maintenance | `find-docs`, `tech-research`, `resolving-merge-conflicts` | 查询适用版本文档、形成技术决策依据、处理进行中的 Git 冲突。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程判断和实践；项目审计负责多维覆盖和综合报告。 |
-| Loop 内部 capability | `implement`, `verify` | 由 Loop 交给当前 Runtime 的 subagents 执行。 |
+| Loop 内部 capability | `implement`, `verify` | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -96,7 +96,7 @@ Engineering workflow
 
 `grilling` 每轮自动更新任务目录中的 `decisions.md`，记录已确认决定、理由、验收结论和未决问题；组合 `domain-modeling`，在术语或符合 ADR 门槛的决定确认后立即写入。优先复用项目已有 glossary 和 ADR，缺少约定时使用会话目录。`acceptance-draft.md` 仅在需要独立验收草稿时生成，避免重复记录。
 
-`ACCEPTANCE.md` 是按需使用的独立验收文档；普通任务的验证由 verify 记录，Loop 只聚合任务证据。
+`ACCEPTANCE.md` 是按需使用的独立验收文档；ticket 本地检查由实现者记录，最终独立验证由 verify 记录，Loop 核对证据并决定完成状态。
 
 ## 需求、设计与交付验收
 
@@ -161,11 +161,11 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 ## Ticket 执行
 
-Loop 默认通过当前 Runtime 的 subagents 串行执行 implement → verify → code-review，再阅读结果决定 complete、retry 或 block。不同阶段使用独立上下文。只有任务依赖和写入范围相互独立时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
+Loop 默认由主 Agent 复用任务上下文，连续实现 tickets 并检查每张 ticket 的全部本地 AC，再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。上下文摘要放在任务的 `.loop/context/`，必要时委派探索或专项工作；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
 
 结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；Skill 内的状态脚本只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
 
-执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 subagents，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 完成后，由原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
+执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 subagents，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 本地完成后，主 Agent 执行 simplify 并准备最终快照，再分别调用独立原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
 
 完成一张 ticket 后立即继续下一张。仅在最终交付通过、用户停止，或剩余工作依赖无法取得的外部输入/能力时停止。Runtime 结束后，Skill 不承诺后台自行继续。
 

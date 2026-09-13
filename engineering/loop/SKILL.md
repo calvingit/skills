@@ -1,11 +1,17 @@
 ---
 name: loop
-description: Drive a ticket graph through implementation, verification, and review using the current runtime's subagents.
+description: Orchestrate a ticket graph in a shared task context, with continuous implementation and final independent verification and review.
 ---
 
 # Loop
 
-Own ticket selection, handoff, progress, and completion decisions. Use the current runtime's native subagents for `implement`, `verify`, and `code-review`. Skill-local state scripts only reads and writes ticket state and delivery progress; it does not execute agents. Do not launch external Agent CLIs or build a session, provider, polling, or result-parsing layer. If native subagents are unavailable, report that limitation; do not silently substitute an external CLI or claim independent review.
+Own ticket selection, implementation handoff, progress, and completion decisions. The main Agent normally implements tickets continuously in its existing context. Use the current runtime's native subagents for independent final `verify` and `code-review`, and selectively for exploration, specialist work, or independent parallel tickets. State scripts only read and write ticket state and delivery progress; they do not execute agents. Do not launch external Agent CLIs or build a session manager, provider, polling, or result-parsing layer. If native subagents are unavailable, report the limitation and keep required independent final acceptance incomplete.
+
+## Execution session
+
+A Loop run owns a logical execution session: shared task context, tickets, and delivery evidence. Tickets and correction attempts are units of work inside it, not independent Agent lifetimes. Continue the same Agent context when work shares project knowledge; a new ticket or attempt does not require a new Agent. Runtime owns actual context continuation, handles, waiting, and cancellation; Loop does not create or destroy Runtime sessions.
+
+The main Agent may edit product code while performing `implement`, then use Loop's state commands to record its decisions. Implementers, including the main Agent in that role, do not edit upstream requirements or tickets. Delegated subagents never mutate the graph or Git history.
 
 ## Script entrypoints
 
@@ -22,30 +28,32 @@ Use `python3` plus the resolved script path. These helpers do not choose agents,
 
 1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
 2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `python3 <loop-skill>/scripts/record-attempt start`; for a correction use `scripts/record-attempt retry`. Use `python3 <loop-skill>/scripts/update-status --help` for the current request shape.
-3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify that scope. Subagents do not edit upstream documents, tickets, or Git history. Apply the waiting and recovery rules below to every dispatched role, including finalization.
-4. After implementation stops writing, use a separate native subagent for `verify`. Pass the actual changes and requirements; it runs the necessary checks and returns observed results. Then use a separate native subagent for `code-review`, with the scope, requirements, code, and verification evidence. Do not run review against code that is still changing.
-5. Read their text/Markdown results directly. Preserve the original reports under the task directory's `.loop/` when needed for resume or handoff. No JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required.
-6. Decide the next state and write it through `scripts/update-status`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their expected changes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
+3. Prepare or refresh the task context using [context and delegation](references/context-and-delegation.md). Follow `implement` in the main Agent by default, using the ticket, requirements, baseline/scope, and previous findings. Keep existing context across tickets. Delegate only when cognitive isolation or demonstrably independent work warrants it.
+4. Run the smallest local checks that cover **every** current ticket AC, including necessary development tests. Inspect actual changes and results; minimum verification means sufficient coverage, not fewer acceptance criteria. Per-ticket independent verify/review is not required by default. Honour any explicit user/project requirement for additional independent checks.
+5. Preserve local command evidence and any delegated text/Markdown reports under the task directory's `.loop/` for resume or handoff. Read reports directly; no JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required. Record the executor and coverage so local checks are not presented as independent verification.
+6. Decide and record the ticket state through `scripts/update-status`, refresh the frontier, and continue. `done` means local acceptance passed and releases dependencies; only final delivery acceptance completes the task. Default to serial work in the main Agent. Before explicitly choosing parallel delegation, establish no dependency, expected write overlap, unresolved shared design decision, or shared mutable resource conflict. Use Runtime worktrees only when isolation is needed.
 
 ## State location
 
-`.loop/` belongs to the task execution context: keep it inside the task directory, next to `SPEC.md` and `tickets/`, and never create it at the repository root, where separate tasks would share one state. It stores execution state — current attempts, preserved reports, command logs, delivery inputs — not project-level configuration. On resume, read the current task directory's `.loop/` first.
+`.loop/` belongs to the task execution context: keep it inside the task directory, next to `SPEC.md` and `tickets/`, and never create it at the repository root, where separate tasks would share one state. It stores execution state — current attempts, preserved reports, command logs, delivery inputs, and derived task context under `.loop/context/` — not project-level configuration. On resume, read the current task directory's `.loop/` first.
 
 ## File scope
 
-A ticket's file scope describes expected areas of change. It is guidance for implementation and review, not a hard write restriction: the implement subagent may modify additional files when required to complete the ticket, keeping additional changes related to the ticket objective and avoiding unrelated refactoring. Pass the scope to review as a reference for expected change areas, not as a boundary that turns related out-of-scope edits into defects.
+A ticket's file scope describes expected areas of change. It is guidance for implementation and review, not a hard write restriction: the implementing Agent may modify additional files when required to complete the ticket, keeping additional changes related to the ticket objective and avoiding unrelated refactoring. Pass the scope to review as a reference for expected change areas, not as a boundary that turns related out-of-scope edits into defects.
 
 ## Decide from evidence
 
-- A confirmed defect in the current contract goes back to implement through `scripts/record-attempt retry`, with the original findings as text. Re-run affected verification and review.
+- A confirmed defect in the current contract goes back to implement through `scripts/record-attempt retry`, with the original findings as text. Re-run affected local checks and any required independent acceptance.
 - Requirement/design conflicts go to their owner. Missing access, permissions, dependencies, or evidence needs a specific blocker and release condition. Do not busy-retry unresolved external blockers.
 - An unclear report needs clarification from its author. Do not infer success from silence, wording, headings, or a worker saying it finished. Optional follow-up does not block this change.
-- Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Pass the review string unchanged and your explicit approval to `scripts/update-status complete`; the helper validates recorded facts, not prose meaning.
-- Required independent verification and review must have valid reports for the current code before approval. Local checks do not replace either role unless the user or project explicitly authorises substitution; record that authority, executor, and coverage. While a report is missing, keep the stage incomplete and `approved: false`. Moving the gap from `unverified` into a note cannot authorise completion; `unverified` describes unchecked scope, not every process limitation. Scripts cannot establish report independence.
+- Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Submit the local evidence and explicit approval to `scripts/update-status complete`. Review is optional for tickets: include unchanged original text only if a review actually ran, never a placeholder such as "review deferred". The helper validates recorded facts, not prose meaning.
+- Final delivery requires independent verification and review with valid reports for the current code before approval. Any additional independent ticket checks explicitly required by the user/project also remain mandatory. Local checks do not replace either role unless the user or project explicitly authorises substitution; record that authority, executor, and coverage. While a report is missing, keep the stage incomplete and `approved: false`. Moving the gap from `unverified` into a note cannot authorise completion; `unverified` describes unchecked scope, not every process limitation. Scripts cannot establish report independence.
 
 JSON remains the storage format for ticket state and command input. A review stored in a JSON string is still the original report; do not extract a second finding schema from it. Use a serializer to store multiline text faithfully.
 
 ## Wait and recover
+
+These rules apply to actual delegated executions, not ticket switches in the main Agent.
 
 Native subtasks have **no default total time limit**. Use a **600-second inactivity threshold** from dispatch or the latest qualifying activity, unless the user or project specifies another threshold. New execution messages, tool events/output, or a fresh soft-ping reply renew it; repeated `running` snapshots, old messages, wait expiry, and locally generated heartbeats do not. Renewal shows responsiveness, not effective progress or acceptance. An explicitly configured total budget remains independent and cannot be extended by activity. Command timeouts and native wait windows remain separate.
 
