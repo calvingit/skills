@@ -22,7 +22,7 @@ Use `python3` plus the resolved script path. These helpers do not choose agents,
 
 1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
 2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `python3 <loop-skill>/scripts/record-attempt start`; for a correction use `scripts/record-attempt retry`. Use `python3 <loop-skill>/scripts/update-status --help` for the current request shape.
-3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify that scope. Subagents do not edit upstream documents, tickets, or Git history.
+3. Give a native subagent the `implement` skill, ticket, current requirements, baseline/scope, and previous findings. Let it implement and simplify that scope. Subagents do not edit upstream documents, tickets, or Git history. Apply the waiting and recovery rules below to every dispatched role, including finalization.
 4. After implementation stops writing, use a separate native subagent for `verify`. Pass the actual changes and requirements; it runs the necessary checks and returns observed results. Then use a separate native subagent for `code-review`, with the scope, requirements, code, and verification evidence. Do not run review against code that is still changing.
 5. Read their text/Markdown results directly. Preserve the original reports under the task directory's `.loop/` when needed for resume or handoff. No JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required.
 6. Decide the next state and write it through `scripts/update-status`. Refresh status and continue immediately to the next actionable ticket. Default to serial execution; use parallel tickets only when the runtime supports them and their expected changes and dependencies are demonstrably independent. Use worktrees only when isolation is needed, through the runtime's existing capabilities.
@@ -41,12 +41,21 @@ A ticket's file scope describes expected areas of change. It is guidance for imp
 - Requirement/design conflicts go to their owner. Missing access, permissions, dependencies, or evidence needs a specific blocker and release condition. Do not busy-retry unresolved external blockers.
 - An unclear report needs clarification from its author. Do not infer success from silence, wording, headings, or a worker saying it finished. Optional follow-up does not block this change.
 - Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Pass the review string unchanged and your explicit approval to `scripts/update-status complete`; the helper validates recorded facts, not prose meaning.
+- Required independent verification and review must have valid reports for the current code before approval. Local checks do not replace either role unless the user or project explicitly authorises substitution; record that authority, executor, and coverage. While a report is missing, keep the stage incomplete and `approved: false`. Moving the gap from `unverified` into a note cannot authorise completion; `unverified` describes unchecked scope, not every process limitation. Scripts cannot establish report independence.
 
 JSON remains the storage format for ticket state and command input. A review stored in a JSON string is still the original report; do not extract a second finding schema from it. Use a serializer to store multiline text faithfully.
 
+## Wait and recover
+
+Each native subtask has a default execution budget of **10 minutes (600 seconds)** from dispatch, unless the user or project explicitly sets another budget. Record the handle, role, ticket/attempt or delivery snapshot, and actual start/deadline in the existing `.loop/` execution notes. Distinguish this budget from a single wait window and from a command's own timeout. Use shorter native waits as needed for runtime limits and progress updates; window expiry neither ends the subtask nor resets or shortens its budget. Without reliable elapsed-time evidence, do not claim the budget expired.
+
+Silence, no diff, an unavailable status query, or no matching local process does not prove a stall or unavailable native capability. Continue native waits/status checks; if the runtime reports completion, retrieve that execution's result before redispatching. Ask for the current stage, command, partial results, and blockers when useful, and allow a response. Do not duplicate a verifier's commands in the same environment while it may still be running.
+
+On budget expiry, explicit failure/blockage, cancellation, or interruption, read [waiting and recovery](references/wait-recovery.md) before stopping or taking over. Confirm the old execution and relevant commands have stopped before overlapping work; preserve partial changes and version-bound reports. Recover the affected role without automatically rerunning implementation or relaxing acceptance. Runtime owns handles and cancellation; scripts do not recover Agent sessions.
+
 ## Resume and requirement changes
 
-Runtime owns waiting, interruption, and subagent handles. After interruption, check native task state before starting another writer; preserve partial code and reports. If the old subagent cannot be resumed, start a new one with current state and the recorded attempt. Do not claim an old session was recovered by a script.
+On resume, inspect the recorded native execution before dispatching another role and apply the waiting and recovery rules above.
 
 Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch, interrupt active subagents through the runtime, confirm they stopped writing, preserve partial results, and `scripts/update-status block` their attempts. A graph state change alone does not stop a subagent.
 

@@ -50,6 +50,14 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 `block` 输入为 `blocker`（category、reason、release_condition）和已接受的 `evidence`；类别为 requirement、design、dependency、environment、permission 或 external。`unblock` 需要 `release_evidence`，必须先核实释放条件。`reopen` 需要 `review_finding`、失效的本地 AC 列表 `invalidated_acceptance` 和 `upstream_unchanged: true`，只用于原需求下的缺陷。
 
+## 等待与执行恢复
+
+每次原生子任务默认从派发起计时，执行预算为 **10 分钟（600 秒）**；用户或项目明确指定其他预算时沿用该值。Loop 在任务 `.loop/` 的现有记录中保留角色、句柄、attempt 或交付快照以及实际起止时间。单次等待窗口、命令自身的超时和子任务总预算分别处理：等待可以分成多个短窗口，窗口结束不能触发关闭，也不能重置或缩短总预算。没有可靠计时证据时，不宣称预算已耗尽。
+
+未收到报告、没有 diff、无法查询状态或找不到本地进程，都不足以判定卡死。已完成但结果未取得时，先获取原执行的报告。询问进度应请求当前阶段、命令、部分结果和阻塞原因，并留出响应机会。预算耗尽或确有故障时，按[等待与恢复规则](../engineering/loop/references/wait-recovery.md)停止并恢复对应角色：确认 Agent 和相关命令停止后再接管，保留部分修改，核对迟到报告对应的版本。verifier 活跃时不在同一环境重复运行相同检查。
+
+必需的独立 verify 或 code-review 报告缺失时，阶段保持未完成，不能批准。主 Agent 补测只有在用户或项目明确授权替代时才能用于替代验收，且要保留授权依据、执行者和覆盖范围。`unverified` 记录未检查的范围；把流程缺口移到备注不构成批准依据。脚本检查 `approved` 等事实字段，无法证明报告的独立性。
+
 ## 需求变更与恢复
 
 修改共享需求前，Loop 先停止派发，通过 Runtime 中断 subagents 并确认它们停止写入，保留部分结果，再 block 当前 attempts。脚本改变状态不会终止运行中的 Agent。
@@ -60,7 +68,7 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 ## Final delivery
 
-`all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。Loop 用原生 verify / code-review subagents 完成后，记录其判断：
+`all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。Loop 按 simplify → verify → code-review 的顺序执行；simplify 改动代码或测试后，先重新准备快照，再进行后续验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>
@@ -70,7 +78,7 @@ python3 <loop-skill>/scripts/frontier <task-dir>
 
 最终输入使用上面的 complete 格式，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC。review 仍是原始字符串。
 
-快照记录当前需求、图、Git HEAD、文件内容/模式/链接和子模块代码。`.loop/` 仅放进度和证据，不放产品代码。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效；外部服务变化由 Loop 重新判断证据适用性。
+快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置；最终验收记录不要写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效；外部服务变化由 Loop 重新判断证据适用性。
 
 ## 验证范围
 

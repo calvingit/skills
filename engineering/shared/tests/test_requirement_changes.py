@@ -134,11 +134,55 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'stale')
         with self.assertRaises(ValueError): delivery.complete(self.task, self.review_request(context))
 
+    def test_finalization_reports_and_updated_file_input_preserve_snapshot(self):
+        from graph_cli import invoke_loop
+        self.execute()
+        context = delivery.prepare(self.task, self.workspace)
+        report = self.task / '.loop/final-review.md'
+        request_path = self.task / '.loop/completion-input.json'
+        for text in ('Partial report.', 'Final report with observed evidence.'):
+            report.write_text(text)
+            request_path.write_text(json.dumps({**self.review_request(context), 'review': text}))
+            self.assertEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
+        stream = io.StringIO()
+        with contextlib.redirect_stdout(stream):
+            code = invoke_loop(['delivery-complete', str(self.task), '--input', str(request_path)])
+        self.assertEqual(code, 0, stream.getvalue())
+        self.assertEqual(delivery.status(self.task)['state'], 'passed')
+        self.assertEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
+
+    def test_final_snapshot_detects_added_untracked_changed_and_deleted_products(self):
+        self.execute()
+        added = self.workspace / 'new-test.py'
+        changes = [lambda: added.write_text('assert True\n'),
+                   lambda: added.write_text('assert False\n'),
+                   added.unlink, self.code.unlink]
+        for change in changes:
+            context = delivery.prepare(self.task, self.workspace)
+            change()
+            self.assertNotEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
+            with self.assertRaises(ValueError):
+                delivery.complete(self.task, self.review_request(context))
+
+    def test_final_snapshot_keeps_other_task_artifacts_and_ticket_definitions(self):
+        self.execute()
+        other_report = self.workspace / 'other-task/.loop/report.md'
+        other_report.parent.mkdir(parents=True)
+        context = delivery.prepare(self.task, self.workspace)
+        other_report.write_text('Not this task execution output.')
+        self.assertNotEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
+        context = delivery.prepare(self.task, self.workspace)
+        stored = json.loads(self.path.read_text())
+        stored['delivery_acceptance'][0]['description'] = 'Changed acceptance definition.'
+        self.path.write_text(json.dumps(stored))
+        with self.assertRaises(ValueError):
+            delivery.complete(self.task, self.review_request(context))
+
 
     def test_final_review_rejects_missing_acceptance_and_failed_verification(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
         request = self.review_request(context)
-        for key, value in [('evidence', {}), ('verification', []), ('verification', [{'command': 'check', 'exit_code': 1, 'summary': 'Failed'}]), ('unverified', ['integration'])]:
+        for key, value in [('evidence', {}), ('review', ' '), ('verification', []), ('verification', [{'command': 'check', 'exit_code': 1, 'summary': 'Failed'}]), ('unverified', ['integration'])]:
             invalid = copy.deepcopy(request); invalid[key] = value
             with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
         self.assertEqual(delivery.status(self.task)['state'], 'pending')
