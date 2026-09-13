@@ -242,10 +242,44 @@ class AgentToolTests(unittest.TestCase):
             "pi", "test", workspace=self.workspace,
             provider="dianxiaomi", model="kimi-k3", session="session-id",
         )
-        self.assertEqual(result[:9], [
-            "pi", "-p", "--mode", "json", "--approve", "--provider",
+        self.assertEqual(result[:8], [
+            "pi", "-p", "--mode", "json", "--provider",
             "dianxiaomi", "--model", "kimi-k3",
         ])
+
+    def test_run_preserves_cli_permissions_and_passes_exact_model(self) -> None:
+        for cli in agent_tool.CLIS:
+            with self.subTest(cli=cli):
+                self.provider("printf '%s\\n' \"$@\"\n")
+                if cli != "codex":
+                    (self.bin / "codex").rename(self.bin / cli)
+                args = ["run", "--cli", cli, "--workspace", str(self.workspace),
+                        "--prompt", "review only"]
+                if cli in ("claude", "codex"):
+                    args += ["--model", "exact-user-model"]
+                stream = io.StringIO()
+                with contextlib.redirect_stdout(stream):
+                    agent_tool.main(args)
+                result = json.loads(stream.getvalue())
+                self.assertEqual(result["outcome"], "completed")
+                passed = result["stdout"].splitlines()
+                for forbidden in ("--dangerously-skip-permissions",
+                                  "--dangerously-bypass-approvals-and-sandbox",
+                                  "--approve", "--auto"):
+                    self.assertNotIn(forbidden, passed)
+                if cli in ("claude", "codex"):
+                    self.assertEqual(passed[passed.index("--model") + 1], "exact-user-model")
+
+    def test_cli_model_rejection_is_reported_without_retry(self) -> None:
+        self.provider("printf 'unknown model\\n' >&2\nexit 2\n")
+        _, output = self.invoke("--model", "unknown-user-model")
+        result = json.loads(output)
+        self.assertEqual(result["outcome"], "failed")
+        self.assertEqual(result["exit_code"], 2)
+        self.assertEqual(result["stderr"], "unknown model\n")
+
+    def test_unsupported_provider_is_still_rejected(self) -> None:
+        self.assertIn("does not support provider", agent_tool._validate_selection("claude", "custom", "model"))
 
     def test_kimi_prompt_mode_does_not_use_auto(self) -> None:
         result = agent_tool.command(

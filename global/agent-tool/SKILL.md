@@ -19,7 +19,9 @@ python3 $SKILL_DIR/scripts/agent-tool.py run --cli pi --provider dianxiaomi --mo
 python3 $SKILL_DIR/scripts/agent-tool.py run --cli <claude|codex|kimi|pi|grok> --prompt "..." --events
 ```
 
-`--cli` 指本地 Agent 命令，`--provider` 指模型供应商，`--model` 指精确模型名称。执行前会通过 CLI 的模型列表校验显式指定的 provider/model；当前支持 Pi、Kimi 和 Grok 的模型发现。另有可选参数 `--session`、`--timeout`、`--idle-timeout`、`--heartbeat-interval` 和 `--events`。
+`--cli` 指本地 Agent 命令，`--provider` 指模型供应商，`--model` 指精确模型名称。Pi、Kimi 和 Grok 支持模型发现，执行前按列表校验显式选择；Claude 和 Codex 的模型名原样传给 CLI，由 CLI 验证，不声称已经预先验证。供应商选择仅支持 Pi 和 Kimi。另有可选参数 `--session`、`--timeout`、`--idle-timeout`、`--heartbeat-interval` 和 `--events`。
+
+封装不添加跳过审批、关闭 sandbox 或自动批准操作的参数，权限由 CLI 的现有配置和当前任务授权决定。调用外部 Agent 不扩大其操作授权；启动前核对目标工作区与允许的操作。CLI 在非交互模式下因权限不足而失败时，保留错误并报告，不通过关闭权限检查重试。
 
 - `--idle-timeout` 是无活动超时，默认 600 秒。从启动开始计时，每次实际读到 provider 的 stdout 或 stderr 字节，都重新计时；连续 600 秒没有输出则终止进程。这是静默容忍策略，不代表已经判定模型卡死。
 - 总运行时间默认不限；只有显式设置 `--timeout`，才按指定秒数限制总执行时间。输出不会延长这个上限。

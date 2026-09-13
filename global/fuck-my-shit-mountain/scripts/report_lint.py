@@ -56,10 +56,12 @@ FULL_SECTION_IDS = (
     "dependency-weight",
     "code-consistency",
     "comment-coverage",
+    "concurrency",
 )
 
 MODE_TO_SECTION_IDS = {
     "full": FULL_SECTION_IDS,
+    "incremental": (),  # A comparison scope; pass focused modes for dimension checks.
     **{section_id: (section_id,) for section_id in FULL_SECTION_IDS},
 }
 
@@ -89,6 +91,7 @@ MARKDOWN_SECTION_PATTERNS = {
     "dependency-weight": r"Dependency Weight",
     "code-consistency": r"Code Consistency",
     "comment-coverage": r"Comment Coverage",
+    "concurrency": r"Concurrency",
 }
 
 REQUIRED_FINDING_FIELDS = (
@@ -102,9 +105,7 @@ REQUIRED_FINDING_FIELDS = (
     "Why it matters",
     "Realistic failure scenario",
     "Minimal fix",
-    "Better long-term fix",
     "Regression test suggestion",
-    "Estimated effort",
 )
 
 PLACEHOLDER_PATTERNS = (

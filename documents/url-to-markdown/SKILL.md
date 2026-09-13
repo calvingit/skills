@@ -21,10 +21,10 @@ description: Convert public URLs into local Markdown files.
 ## 处理流程
 
 1. 确认输入 URL 是完整链接，保留原始 `http://` 或 `https://`。
-2. 运行脚本：
+2. 从当前加载的 Skill 路径确定安装目录，将其绝对路径记为 `$SKILL_DIR`，运行脚本；不要假设用户项目包含 `skills/` 目录：
 
 ```bash
-bash skills/url-to-markdown/scripts/fetch_markdown.sh "<URL>" "<输出文件路径>"
+bash "$SKILL_DIR/scripts/fetch_markdown.sh" "<URL>" "<输出文件路径>"
 ```
 
 3. 如果用户没有指定输出路径，可以让脚本自动生成默认文件名。
@@ -32,8 +32,8 @@ bash skills/url-to-markdown/scripts/fetch_markdown.sh "<URL>" "<输出文件路�
    - `https://markdown.new`
    - `https://r.jina.ai`
    - `https://defuddle.md`
-5. 每个服务单次超时为 10 秒。任一服务成功后立刻停止重试。
-6. 成功后检查输出文件确实存在且非空，再继续后续任务。
+5. 每个服务单次超时为 10 秒。脚本跳过空白响应、明显的 HTML 页面和常见错误响应，接受有效候选后停止重试；已有输出文件不会被覆盖。
+6. 读取输出文件，核对标题、来源和正文是否对应目标页面，排除验证码、登录页、限流提示和截断内容。脚本成功只表示通过基础检查，不证明正文完整。未确认正文有效时，不进入总结或改写，也不把错误页当作原文。
 
 ## 输入与输出
 
@@ -55,7 +55,7 @@ bash skills/url-to-markdown/scripts/fetch_markdown.sh "<URL>" "<输出文件路�
 ## 示例
 
 ```bash
-bash skills/url-to-markdown/scripts/fetch_markdown.sh \
+bash "$SKILL_DIR/scripts/fetch_markdown.sh" \
   "https://weekly.tw93.fun/posts/261" \
   "/tmp/post.md"
 ```

@@ -5,8 +5,10 @@
 ## 目录
 
 - `backend/`：后端技术栈规范、生产实践与疑难问题处理。
-- `global/`：通用工具、文档、委托和工作流 Skills。
+- `global/`：通用工具、上下文管理、会话辅助及尚未独立分类的能力。
+- `documents/`：文档与文本的转换、表达审校和事实同步。
 - `engineering/`：通用工程 Coding 流程，不绑定具体框架或项目结构。
+- `docs/`：本仓库的使用说明、协议文档和图示。
 
 ## Backend Skills
 
@@ -21,22 +23,29 @@
 | --- | --- |
 | [`challenge`](./global/challenge/SKILL.md) | 对已有技术判断或方案进行有边界的对抗式审查。 |
 | [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
-| [`document-sync`](./global/document-sync/SKILL.md) | 检查文档与当前实现和规范是否一致，只更新受影响内容。 |
 | [`tech-research`](./global/tech-research/SKILL.md) | 开展基于证据的技术调研，并给出可执行建议。 |
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
-| [`find-docs`](./global/find-docs/SKILL.md) | 查询开发技术、库、SDK 和 CLI 的最新文档。 |
+| [`find-docs`](./global/find-docs/SKILL.md) | 查询库、SDK 和服务在适用版本下的官方文档。 |
 | [`fuck-my-shit-mountain`](./global/fuck-my-shit-mountain/SKILL.md) | 对项目进行证据驱动的全面工程审计。 |
 | [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
-| [`humanizer-zh`](./global/humanizer-zh/SKILL.md) | 清理中文文本中的 AI 味、翻译腔和模板化表达。 |
 | [`improve-agents-md`](./global/improve-agents-md/SKILL.md) | 创建或优化项目 `AGENTS.md`。 |
 | [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
 | [`resolving-merge-conflicts`](./global/resolving-merge-conflicts/SKILL.md) | 调查并解决 Git merge/rebase 冲突。 |
 | [`show-me`](./global/show-me/SKILL.md) | 使用最小必要的图示、代码结构或 HTML 帮助理解。 |
 | [`tavily-search`](./global/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
 | [`teach`](./global/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
-| [`url-to-markdown`](./global/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
 | [`agent-tool`](./global/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
-| [`zh-terminology`](./global/zh-terminology/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
+
+## Documents Skills
+
+以文档或说明性文本本身为处理对象。工程决策、技术资料查询和会话状态管理仍由各自的 Skill 负责。
+
+| Skill | 用途 |
+| --- | --- |
+| [`document-sync`](./documents/document-sync/SKILL.md) | 检查文档与当前实现和规范是否一致，只更新受影响内容。 |
+| [`humanizer-zh`](./documents/humanizer-zh/SKILL.md) | 清理中文文本中的 AI 味、翻译腔和模板化表达。 |
+| [`url-to-markdown`](./documents/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
+| [`zh-terminology`](./documents/zh-terminology/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
 ## Engineering Skills
 

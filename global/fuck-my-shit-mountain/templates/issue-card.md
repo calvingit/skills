@@ -15,5 +15,5 @@
 - Realistic failure scenario: <specific sequence of events that leads to failure>
 - Minimal fix: <smallest code change that removes the risk>
 - Better long-term fix: <architectural improvement if warranted>
-- Regression test suggestion: <specific test that would catch this issue>
-- Estimated effort: <minutes/hours/days>
+- Regression test suggestion: <proportionate verification; reuse existing checks or manual inspection when appropriate>
+- Estimated effort: <optional, only when planning was requested and the scope supports an estimate>

@@ -1,73 +1,11 @@
-# Architecture Audit Prompt
+# Architecture Audit
 
-Use the fuck-my-shit-mountain skill in **architecture mode**.
+Inspect module responsibilities, dependency direction, state ownership, shared contracts, and the cost of realistic changes within the agreed project scope.
 
-Shared setup, coverage, report template, HTML, and lint rules live in `references/report-format.md`; load that reference before producing the report.
+When available, use `review-architecture` for the corresponding judgement standards. Do not start a redesign, interview, or implementation workflow. In a standalone installation, apply the local evidence and coverage rubrics; principles are investigation aids, not independent proof of a defect.
 
-Focus on module boundaries, dependency direction, layering, ownership, and whether the system shape supports safe change.
+Trace representative callers, dependencies, and verification paths. Explain the actual behaviour or change scenario, affected responsibility, concrete consequence, and smallest correction. Check existing guards and accepted tradeoffs before reporting.
 
-## Audit Areas
+File length, parameter counts, style, and missing patterns are search cues only. Do not mandate abstraction, a new interface, or a rewrite without a demonstrated responsibility or maintenance problem. Missing evidence remains a limitation.
 
-### Module Boundaries
-- Modules with unclear ownership or overlapping responsibilities.
-- Domain logic spread across UI, API handlers, database adapters, and scripts.
-- "Utils" or "common" modules that hide unrelated behavior.
-- Public APIs exposing implementation details.
-- Cross-layer imports that bypass intended boundaries.
-
-### Dependency Direction
-- High-level policy depending directly on low-level infrastructure.
-- Circular imports or package cycles.
-- Feature modules depending on unstable internals from other features.
-- Test-only architecture seams leaking into production design.
-- Global singletons used instead of explicit dependencies.
-
-### Data and State Ownership
-- Multiple modules mutating the same state without a clear owner.
-- Ambiguous source of truth for cached/derived data.
-- Shared mutable state crossing async/thread/process boundaries.
-- Persistence models reused as API or UI models where that creates coupling.
-- State transitions implemented in multiple places.
-
-### Boundary Contracts
-- Missing contracts between layers, packages, services, or plugins.
-- Implicit serialization formats or event payloads.
-- Adapters that do validation/business logic inconsistently.
-- Backward compatibility assumptions not documented or enforced.
-- Runtime feature discovery where explicit interfaces would be safer.
-
-### Evolution and Extensibility
-- Adding a feature requires editing many unrelated modules.
-- Extension points are too generic or too rigid.
-- Architecture decisions are encoded only in tribal knowledge.
-- Dead abstractions with one implementation and no realistic second use.
-- Migration paths between old and new architecture are unclear.
-
-## Rules
-
-1. Judge architecture relative to project size and release stage.
-2. Do not recommend rewrites unless local boundary repairs are clearly insufficient.
-3. Cite concrete dependency paths, import cycles, state owners, or change scenarios.
-4. Prefer small moves: introduce an interface, move validation to a boundary, split one module, or invert one dependency.
-5. If a design is simple and works for the scale, do not over-architect it.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Maintainability / Design / Stability
-- Status: Confirmed / Suspected
-- Subtype: ModuleBoundary / DependencyDirection / StateOwnership / BoundaryContract / EvolutionRisk
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Problem:
-- Realistic change scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:
+Report through `references/report-format.md`; keep coverage distinct from findings and merge duplicate causes across dimensions.

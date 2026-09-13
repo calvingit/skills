@@ -1,13 +1,13 @@
 ---
 name: teach
-description: Teach a skill or concept across sessions in this workspace.
+description: Build or continue a course with lessons and learning records across sessions.
 ---
 
-The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
+Use for an explicitly requested ongoing course or to resume an existing learning workspace. A one-off explanation or question does not establish a course or authorise creating learning records.
 
 ## Teaching Workspace
 
-Treat the current directory as a teaching workspace. The state of their learning is captured in this directory in several files:
+Use the learning directory the user named, or resume the existing course directory. Use the current directory only when it is already a teaching workspace or the user explicitly selected it; otherwise establish the course location before writing files. All course-relative paths below resolve within that directory. Create each artifact when it has useful content, not as an empty scaffold:
 
 - `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
 - `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.
@@ -62,9 +62,9 @@ Each lesson should contain a reminder to ask followup questions to the agent. Th
 
 Lessons are built from reusable **components**, stored in `./assets/`: stylesheets, quiz widgets, simulators, diagram helpers — anything a second lesson could reuse.
 
-Reuse is the default, not the exception. Before authoring a lesson, read `./assets/` and build from the components already there. When a lesson needs something new and reusable, write it as a component in `./assets/` and link to it — never inline code a future lesson would duplicate.
+Before authoring a lesson, reuse applicable assets already in `./assets/`. Extract shared styles or widgets when lessons actually share them; do not build a component library for hypothetical future lessons.
 
-A shared stylesheet is the first component every workspace earns: every lesson links it, so the lessons look like one consistent course rather than a pile of one-offs. As the workspace grows, so should the component library.
+When several lessons share a stylesheet, keep them visually consistent through that source.
 
 ## The Mission
 
@@ -105,7 +105,7 @@ For skill acquisition, difficulty is the tool. Effortful retrieval is what build
 
 Each of these should be based on a **feedback loop**, where the user receives feedback on their performance. This feedback loop should be as tight as possible, giving feedback immediately - and ideally automatically.
 
-For quizzes, each answer should be exactly the same number of words (and characters, if possible). Don't give the user any clues about the answer through formatting.
+For quizzes, avoid revealing the answer through formatting or conspicuously different detail; keep choices natural rather than forcing identical word counts.
 
 ## Acquiring Wisdom
 

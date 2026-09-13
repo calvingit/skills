@@ -34,15 +34,15 @@ OUTPUT_DRAIN_SECONDS = 1.0
 def command(cli: str, prompt: str, *, workspace: Path, provider: str | None, model: str | None, session: str | None) -> list[str]:
     model_args = ["--model", model] if model else []
     if cli == "claude":
-        return ["claude", "-p", "--output-format", "stream-json", "--dangerously-skip-permissions", *model_args, *( ["--resume", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
+        return ["claude", "-p", "--output-format", "stream-json", *model_args, *( ["--resume", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
     if cli == "codex":
         base = ["codex", "exec"] + (["resume", session] if session else ["--cd", str(workspace)])
-        return base + model_args + ["--json", "--dangerously-bypass-approvals-and-sandbox", prompt]
+        return base + model_args + ["--json", prompt]
     if cli == "kimi":
         return ["kimi", "--output-format", "stream-json", *model_args, *( ["--session", session] if session else []), "-p", prompt]
     if cli == "pi":
         provider_args = ["--provider", provider] if provider else []
-        return ["pi", "-p", "--mode", "json", "--approve", *provider_args, *model_args, *( ["--session", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
+        return ["pi", "-p", "--mode", "json", *provider_args, *model_args, *( ["--session", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
     return ["grok", "-p", *model_args, *( ["--resume", session] if session else ["--session-id", str(uuid.uuid4())]), prompt]
 
 
@@ -279,6 +279,10 @@ def _validate_selection(cli: str, provider: str | None, model: str | None) -> st
     if provider and cli not in ("pi", "kimi"):
         return f"cli {cli} does not support provider selection"
     if not provider and not model:
+        return None
+    if cli not in MODEL_DISCOVERY_COMMANDS:
+        # These CLIs accept a model name but expose no discovery adapter here.
+        # Let the CLI validate the exact user-supplied name.
         return None
     models, error = discover_models(cli)
     if error:

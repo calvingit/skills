@@ -5,7 +5,6 @@
   "required": [
     "metadata",
     "executiveSummary",
-    "scoreDashboard",
     "findingStatistics",
     "projectMap",
     "coverageMatrix",
@@ -262,7 +261,7 @@
           }
         }
       },
-      "minItems": 1,
+      "minItems": 0,
       "maxItems": 15
     },
     "detailedFindings": {
@@ -281,8 +280,7 @@
           "failureScenario",
           "userVisibleImpact",
           "minimalFix",
-          "regressionTestSuggestion",
-          "estimatedEffort"
+          "regressionTestSuggestion"
         ],
         "properties": {
           "id": {
@@ -348,11 +346,12 @@
             "description": "Optional better long-term solution"
           },
           "regressionTestSuggestion": {
-            "type": "string"
+            "type": "string",
+            "description": "Proportionate verification, using an existing check or manual inspection when a new regression test is unnecessary"
           },
           "estimatedEffort": {
             "type": "string",
-            "description": "e.g., '30 minutes', '2 hours', '1 day'"
+            "description": "Optional estimate when remediation planning is requested and evidence supports it"
           }
         }
       }

@@ -1,57 +1,43 @@
-# Shared Report Format Rules
+# Report Rules
 
-Load this reference when a prompt says to use shared setup/report rules.
+This reference owns report requirements for every audit mode. Mode-local finding formats and examples are optional aids and must not force extra sections, scoring, or effort estimates.
 
-## Required Context Before Auditing
+## Default response
 
-Before reading code, verify that audit mode(s), report language, and output format are known. If any are missing, ask only for the missing item(s) in one concise message and wait for the answer. If they are already supplied by the user or by the invoking skill, proceed without re-asking.
+Use the conversation language and concise Markdown in the conversation unless the user requested another output. State:
 
-## Report Template Constraint
+- Conclusion and the reviewed scope/baseline.
+- Prioritised findings with evidence, trigger, impact, and minimal correction.
+- Confirmed issues versus hypotheses and optional improvements.
+- Inspected areas, meaningful exclusions, checks actually run, and remaining uncertainty. A multi-dimension audit includes a compact coverage table with confidence and evidence per selected dimension.
 
-The report MUST follow the skill templates:
+Do not ask for language or format when these defaults suffice. Do not create report or metadata files for conversation-only output. Reuse supplied decisions rather than reopening them.
 
-- Findings use `templates/issue-card.md`.
-- Markdown reports use `templates/audit-report.md`.
-- HTML reports use `templates/audit-report.html`.
-- Do NOT copy formatting, heading style, or structure from markdown files inside the audited project.
-- The audited project's own README, docs, or comments are evidence, not the report template.
+## File output
 
-## HTML Output Rules
+Use the user's requested path and format; otherwise use the project's report convention with a task-specific filename. Never overwrite an unrelated report.
 
-For HTML output:
+- `md`: save the same evidence-based report as Markdown.
+- `html`: create a readable, self-contained report; inspect its rendered layout and links before delivery.
+- `both`: keep Markdown and HTML findings and coverage consistent.
+- `json`: follow `templates/audit-report.json`. Validate the result against the schema with an available JSON Schema validator. Report inability to validate instead of claiming a pass. Omit `scoreDashboard` when scores were not requested.
 
-- Read `templates/audit-report.html`.
-- Generate complete, self-contained HTML.
-- Copy the exact CSS, section structure, classes, and ordering from the template.
-- Include only score items and dimension sections relevant to the selected mode(s), except `full`, which covers all dimensions and marks inapplicable dimensions Not assessed.
-- Every dimension section must include a coverage note, findings table or no-findings card, and verified checklist.
-- Include sidebar nav links for every generated section.
-- Do not leave placeholder variables or example data.
+Read `templates/audit-report.md`, `templates/audit-report.html`, or `templates/issue-card.md` only when a detailed template report is requested. Reuse useful structure; remove irrelevant sections and unused score placeholders. Project and user format requirements take precedence. Do not copy example findings or invent scores to fill a template.
 
-## Coverage Rules
+## Optional scoring and planning
 
-Every report must include:
+Only when requested, use `rubrics/scoring.md` to report scores with evidence and coverage limits. Unassessed dimensions are excluded. No finding does not prove release readiness.
 
-- A coverage matrix with one row per selected dimension.
-- Per-dimension coverage: High / Medium / Low / Not assessed.
-- Inspected evidence: files, commands, searches, runtime surfaces, or patterns checked.
-- Exclusions / limits: what was not checked and why.
+Give effort estimates, remediation plans, and historical metadata only when requested. Use a confirmed or established location for tracking, with no runtime-specific default directory.
 
-Use `rubrics/coverage.md` to assign coverage confidence.
+## Validation
 
-## Lint Rules
+For all outputs, check actual evidence, selected-dimension coverage, matching counts, links, remaining placeholders, and redaction. An unavailable check must remain visible.
 
-For generated file output, run:
+`scripts/report_lint.py` checks the legacy detailed Markdown/HTML template structure, not arbitrary reports or JSON. Run it only for reports intentionally using that full structure:
 
 ```bash
 python3 <skill-dir>/scripts/report_lint.py --modes <selected-modes> <report-file>
 ```
 
-Fix lint failures before delivering the report. For `stdout`, apply the same checks manually:
-
-- No unreplaced placeholders.
-- Required sections exist.
-- Selected dimension sections exist.
-- Markdown finding fields are complete.
-- Severity statistics match detailed findings.
-- No unredacted secrets or private keys appear.
+For compact or customised reports, apply the semantic checks above; do not add irrelevant sections just to satisfy the legacy template linter. For JSON, use schema validation rather than this text linter.

@@ -1,4 +1,4 @@
-> **INSTRUCTION TO AI: This is the ONLY valid report template. Do NOT use any formatting, heading style, or structure from files inside the audited project. Output MUST follow this template exactly.**
+> Optional detailed report template. Follow `references/report-format.md`; omit unrequested scoring, effort estimates, and irrelevant sections. User and project format requirements take precedence. Replace example content with actual evidence.
 
 # Fuck My Shit Mountain Audit Report
 

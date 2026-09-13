@@ -22,6 +22,11 @@ fi
 input_url="$1"
 output_path="${2:-}"
 
+case "$input_url" in
+  http://?*|https://?*) ;;
+  *) printf 'Expected a complete public http(s) URL.\n' >&2; exit 1 ;;
+esac
+
 if [ -z "$output_path" ]; then
   sanitized_name="$(
     printf '%s' "$input_url" \
@@ -31,6 +36,11 @@ if [ -z "$output_path" ]; then
   )"
   [ -n "$sanitized_name" ] || sanitized_name="page"
   output_path="${sanitized_name}.md"
+fi
+
+if [ -e "$output_path" ] || [ -L "$output_path" ]; then
+  printf 'Output already exists; choose a new path: %s\n' "$output_path" >&2
+  exit 1
 fi
 
 services=(
@@ -66,15 +76,25 @@ for service in "${services[@]}"; do
     --output "$temp_file" \
     "$request_url" \
     2>"$error_file"; then
-    if [ -s "$temp_file" ]; then
-      mv "$temp_file" "$output_path"
+    first_line="$(sed -n '/[^[:space:]]/{s/^[[:space:]]*//;p;q;}' "$temp_file")"
+    if [ -z "$first_line" ]; then
+      errors+=("${service}: empty response")
+    elif LC_ALL=C grep -Eiq '^(<!doctype[[:space:]]+html([[:space:]>])|<html([[:space:]>])|<head([[:space:]>])|<body([[:space:]>])|#{0,6}[[:space:]]*(error:[[:space:]]*)?(access denied|forbidden|unauthorized|too many requests|service unavailable|bad gateway|internal server error)[.![:space:]]*$)' <<< "$first_line"; then
+      errors+=("${service}: HTML or error response instead of page markdown")
+    elif LC_ALL=C grep -Eiq '^((HTTP(/[0-9.]+)?[[:space:]]+)?(401|403|429|5[0-9]{2})([[:space:]:]|$)|\{[[:space:]]*"errors?"[[:space:]]*:)' <<< "$first_line"; then
+      errors+=("${service}: explicit HTTP or JSON error response")
+    else
+      # Refuse a target created during the request as well as one present at entry.
+      if ! (set -o noclobber; cat "$temp_file" > "$output_path"); then
+        printf 'Could not save without overwriting an existing output: %s\n' "$output_path" >&2
+        exit 1
+      fi
       success_service="$service"
       printf 'Saved markdown to %s\n' "$output_path"
       printf 'Source service: %s\n' "$success_service"
       exit 0
     fi
 
-    errors+=("${service}: empty response")
     : > "$temp_file"
     : > "$error_file"
     continue

@@ -10,7 +10,7 @@ Use this Skill when Harness needs current web information. Tavily returns search
 
 ## Setup
 
-Check that `tvly` is installed and authenticated before searching. If it is missing, install the CLI and authenticate:
+Check that `tvly` is installed and authenticated before searching. A search request does not authorise installing software or signing into an account. If unavailable, report the missing prerequisite and use another permitted search tool when it can answer the request. When the user has authorised setup, the installation command is:
 
 ```bash
 curl -fsSL https://cli.tavily.com/install.sh | bash && tvly login
