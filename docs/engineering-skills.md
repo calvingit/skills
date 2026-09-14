@@ -31,7 +31,7 @@
 | Research and Maintenance | `find-docs`, `tech-research`, `resolving-merge-conflicts` | 查询适用版本文档、形成技术决策依据、处理进行中的 Git 冲突。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程判断和实践；项目审计负责多维覆盖和综合报告。 |
-| Loop 内部 capability | `implement`, `verify` | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
+| Loop 内部 capability | `implement`, [`verify`](./verify.md) | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
