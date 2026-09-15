@@ -35,9 +35,9 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 
 ## Close-out
 
-1. Run `simplify` when the current diff has a clear complexity problem or the user asks; otherwise skip and say so.
+1. Spawn a dedicated sub-agent to run `simplify` in Review mode against the implemented scope. The main agent must consume that report. Record `no_change` when no evidence-backed simplification candidate exists. If candidates are found, modify them only when the user has explicitly authorized simplification; otherwise report them without changing code.
 2. Run targeted verification and the project's applicable delivery gates per [references/verification-and-review.md](references/verification-and-review.md).
-3. Using the same reference, run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. After review findings are fixed, re-run affected verification and review.
+3. Spawn a separate dedicated sub-agent to run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. The main agent must consume its actual Markdown report; a self-check, test pass, or reading the skill documentation does not count as the review. After review findings are fixed, re-run affected verification and review in a sub-agent again.
 4. Declare done only when every applicable Acceptance Criterion has observable evidence, required verification and review passed, and no unresolved high-risk issue remains.
 5. Commit only with explicit user authorisation. Do not push on your own. The commit contains only this task's changes.
 
