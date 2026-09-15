@@ -28,7 +28,7 @@
 | 类型 | Skills | 职责 |
 | --- | --- | --- |
 | Project Setup | `project-setup`, `improve-agents-md` | 前者维护工程 Profile，后者创建或审校仓库指令并保留 Profile 语义。 |
-| Research and Maintenance | `find-docs`, `tech-research`, `resolving-merge-conflicts` | 查询适用版本文档、形成技术决策依据、处理进行中的 Git 冲突。 |
+| Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程判断和实践；项目审计负责多维覆盖和综合报告。 |
 | Loop 内部 capability | `implement`, [`verify`](./verify.md) | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
@@ -60,7 +60,6 @@
 | 主动寻找架构改进候选 | `improve-codebase-architecture` 是 `review-architecture` 的按需候选模式。 |
 | 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
-| 解决进行中的 merge/rebase 冲突 | [resolving-merge-conflicts](../engineering/resolving-merge-conflicts/SKILL.md)，遵守用户已有改动与 Git 授权边界。 |
 
 文档转换、中文润色、术语审校与文档同步位于 `documents/`；会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`。以技能负责的问题分类，不以是否输出 Markdown 分类。
 
