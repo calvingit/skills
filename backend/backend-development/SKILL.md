@@ -12,6 +12,9 @@ Use the repository as the primary source of truth. Prefer the architecture,
 conventions, abstractions, and infrastructure already in use unless they prevent
 the requirement from being implemented correctly.
 
+Do not add a reliability or scalability mechanism without identifying the
+concrete failure mode, invariant, or operational constraint it addresses.
+
 ## Understand the existing path
 
 Before changing code, inspect the relevant execution path far enough to
@@ -41,8 +44,9 @@ At external and service boundaries:
 - avoid leaking internal implementation details through errors;
 - keep transport-specific concerns at the boundary when the existing
   architecture separates them from domain logic;
-- preserve backward compatibility unless the requirement explicitly changes the
-  contract.
+- preserve compatibility when required by an external contract, explicit
+  requirement, or established project policy. Do not add compatibility shims
+  for obsolete internal behavior without evidence they are still needed.
 
 For write operations, consider duplicate requests and retries when they can
 cause repeated side effects. Add idempotency only where duplicate execution is
@@ -131,10 +135,9 @@ Consider:
 - how failed work is retried or surfaced;
 - whether consumers can safely resume after interruption.
 
-Assume duplicate delivery is possible unless the infrastructure explicitly
-guarantees otherwise.
-
-Prefer idempotent consumers for operations that may be retried.
+Determine delivery and retry semantics from the actual infrastructure and
+configuration. When duplicate execution is possible and side effects matter,
+ensure processing is safe to repeat.
 
 Do not introduce asynchronous processing when a synchronous path already meets
 the requirement and operational constraints.
