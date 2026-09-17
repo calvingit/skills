@@ -31,7 +31,7 @@
 | Project Setup | `project-setup`, `improve-agents-md` | 前者维护工程 Profile，后者创建或审校仓库指令并保留 Profile 语义。 |
 | Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
-| Engineering Discipline | `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程判断和实践；项目审计负责多维覆盖和综合报告。 |
+| Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
 | Loop 内部 capability | `implement`, [`verify`](./verify.md) | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
@@ -56,6 +56,8 @@
 | --- | --- |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
+| 理解当前代码、数据或控制流如何运行 | [how](../engineering/how/SKILL.md)；只解释当前事实，不判断目标设计。 |
+| 追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
 | 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
 | 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
 | 主动寻找架构改进候选 | `improve-codebase-architecture` 是 `review-architecture` 的按需候选模式。 |
