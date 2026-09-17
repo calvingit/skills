@@ -17,6 +17,7 @@
 - 保留原版的核心机制、关键术语和交互节奏；改动前先核对原文，记录来源与适配理由。
 - 适配集中在项目约定、文档位置、必要的技能组合及 Runtime 能力差异。不把下游流程说明塞进每个 Skill。
 - 新增限制必须对应明确需求或已观察到的问题。通用常识、重复要求、分类教学和假设性防护不进入正文。
+- 对重复出现且可确定性判断的问题，先考虑能否通过 script、schema、lint、test、validation 或 metadata 编码约束。结构化约束能够更可靠、更低成本地防止问题时，不要继续往 SKILL.md 叠加提示词。只有需要上下文判断、权衡或跨 Runtime 通用解释的规则才保留为 prose。不要为了消除一次偶发输出就引入新的工具或自动化机制。
 - 通过组合复用已有规则，不复制另一 Skill 的细节。精简时也不能静默删掉已确认的能力，例如自动记录 decisions、术语对齐和 ADR。
 - 优先修正有问题的局部；不要因一次输出不理想反复重写整体流程，也不以行数作为质量指标。
 - 声称效果改善前，用相同任务、模型和上下文比较关键遗漏、无效追问、用户纠正及阅读负担。静态检查只能证明格式与规则一致，不能证明实际效果更好。
@@ -55,8 +56,8 @@
 | --- | --- |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
-| 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。 |
-| 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。 |
+| 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
+| 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
 | 主动寻找架构改进候选 | `improve-codebase-architecture` 是 `review-architecture` 的按需候选模式。 |
 | 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
@@ -113,7 +114,7 @@ Engineering workflow
 
 SPEC 是工程需求快照，记录为什么做、做什么、范围、行为、业务约束、外部技术约束、兼容约束和完成标准；不写类、模块、内部接口、实现方案、文件改动或测试实现。Acceptance Seam 可以观察用户行为或外部契约行为，例如 API 响应、UI 操作或导出文件。
 
-HLD 基于 SPEC 技术约束和已有代码定义共享技术方案。遇到新公共抽象、领域模型、API/Event contract、数据/权限模型或长期架构方向时，先经过 Design Review Gate；确认后的决定写入 HLD 的 `## Design Decisions`，每个 D 引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
+HLD 基于 SPEC 技术约束和已有代码定义共享技术方案。遇到新公共抽象、领域模型、API/Event contract、数据/权限模型或长期架构方向时，先经过 Design Review Gate；确认后的决定写入 HLD 的 `## Design Decisions`，每个 D 引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。新增或改变 shared Interface、callback convention 或跨模块入口时，冻结前先用 1–2 个代表性 production caller（已有或即将接入的真实调用方，不是测试或演示）的调用形态检查接口；实现阶段出现重复的同源设计摩擦时，应回到 HLD Amendment，而不是持续增加 local workaround。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
 
 Ticket 使用 `referenced_design_decisions` 引用 HLD，使用 `delivery_acceptance` 描述本次交付如何覆盖 SPEC。它构成执行图，不新增设计或需求，也不规定逐个方法的修改步骤。
 

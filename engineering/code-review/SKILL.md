@@ -29,11 +29,21 @@ Do not repeat formatter, linter, or type-checker output as manual findings. Do n
 
 Before reporting a finding, check the relevant guards, callers, and tests for evidence that disproves it. A finding needs a reachable scenario, a location, and a material consequence. Separate confirmed defects from unanswered questions; omit speculative risks and style preferences.
 
+When a change is safe only if a non-obvious invariant holds, name that invariant and verify it directly when practical. Follow the relevant callers, guards, state transitions, or executable evidence far enough to establish whether the bad case is reachable. Do not treat “looks safe” as proof. Do not turn every small change into a broad blast-radius audit; apply this when the invariant is material to the change's safety.
+
 Current-scope requirement violations and defects introduced or worsened by this change require fixes. Existing unrelated problems and optional improvements belong in follow-up and do not block this change. Merge duplicate symptoms of the same cause and rank findings by impact, not by review category.
 
 Use P0 for immediate severe widespread harm, P1 for serious impact requiring prompt correction, P2 for a contained actionable defect, and P3 for a useful optional improvement. Severity and whether a finding blocks this change are separate decisions; a P2 correctness defect can require a fix.
 
 Contradictory requirements need clarification by their owner. Missing access or evidence needs an explicit limitation, not a fabricated defect or a pass. Required verification failures must remain visible. Review does not replace execution of required tests or grant permission to commit or deploy.
+
+## Independent escalation
+
+Default to one independent reviewer. Do not spawn extra reviewers because the task is large, the diff is long, or the change “feels important”. A `quick-implement` or `loop` request for one independent review does not itself warrant a panel.
+
+Consider escalation only when the change is high-impact — including safety, data-integrity, or permission stakes — and a single review still leaves independent, under-evidenced judgements, or when the user explicitly asks for an independent panel. Low confidence, a large diff, or residual uncertainty alone is not enough. If escalating, use 2–3 native independent reviewers on the same scope, baseline, requirement sources, and evidence. Reviewers must reach conclusions independently and must not read each other's reports first. Do not default to four or more reviewers, hard-code a model provider, launch an external Agent CLI, or add a review-result parser. If native independent subagents are unavailable, report that limitation and keep a single-reviewer report; do not substitute an external CLI.
+
+The lead synthesises one report in the existing Markdown contract. Agreement between reviewers increases confidence but does not establish truth. Resolve disagreement against code, requirements, tests, and observable evidence rather than by vote.
 
 ## Report
 

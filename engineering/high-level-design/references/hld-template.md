@@ -38,6 +38,7 @@ Keep only sections that apply. Do not invent content to fill the template:
   - Reference: <existing path / symbol or None>
   - Related: <SPEC R / AC and/or observed code fact with path / symbol>
   - Affected: <Module or callers>
+  - Caller usage: <1–2 representative production call shapes; only when the decision defines or changes a shared Interface, callback convention, or cross-module entry point>
   - Reason: <why>
   - Trade-offs: <costs, limitations, and rejected alternatives when relevant>
   - Evidence: <SPEC R / AC or observed code fact with path / symbol>
@@ -83,7 +84,7 @@ Keep only sections that apply. Do not invent content to fill the template:
 - None
 ```
 
-Do not enumerate every class, file, or method by default. Write a name or signature only when several callers will share it, it carries a real interface contract, or the user / project explicitly constrained it. Do not pre-build an Interface that has no real caller yet.
+Do not enumerate every class, file, or method by default. Write a name or signature only when several callers will share it, it carries a real interface contract, or the user / project explicitly constrained it. Do not pre-build an Interface that has no intended real caller. Omit `Caller usage` unless the decision defines or changes a shared Interface, callback convention, or cross-module entry point. The sketch is 1–2 production call shapes from existing or soon-to-connect real callers, not tests, demos, private helpers, or control-flow recipes. Production references need not already exist before the contract lands.
 
 `New` / `Replace` must explain why the existing reference cannot satisfy the SPEC. Do not introduce a new architecture school, a parallel abstraction system, infrastructure rebuild, or cleanup unrelated to this delivery just for theoretical consistency.
 
@@ -92,6 +93,6 @@ Do not enumerate every class, file, or method by default. Write a name or signat
 - Every design decision has a stable D ID, a change kind, an R / AC or observed code-fact reference, a reason, and trade-offs.
 - The plan prefers reuse or extension of what exists. Every `New` / `Replace` has necessity and a migration bound.
 - Two implementers who do not share an implementation context would still make the same choice on shared types, Interface semantics, ownership, dependency direction, and integration order from SPEC, HLD, and their own tickets alone.
-- Private helpers, local classes, algorithms, and file layout remain in local implementation space.
+- Private helpers, local classes, algorithms, and file layout remain in local implementation space. When a decision defines or changes a shared Interface, callback convention, or cross-module entry point, record caller usage before locking the contract; do not invent usage for local-only decisions.
 - Existing architecture problems were not silently expanded into this task's refactor.
 - There is no untreated SPEC conflict the user must decide.

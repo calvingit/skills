@@ -46,6 +46,8 @@ Investigate in two bounded stages:
 
 Stop once the evidence is enough to lock design several implementations must share. Do not keep expanding to claim a whole-repo understanding.
 
+When adding or materially changing a shared Interface, callback convention, or cross-module entry point, sketch how one or two representative production callers should use it before locking the contract. Those callers are existing or soon-to-connect real call sites, not tests or demos. Derive the Interface from caller-visible intent, inputs, outputs, failure and lifecycle semantics. Do not treat the sketch as an implementation recipe, and do not specify private helpers or local control flow. Do not pre-build an Interface with no intended real caller; a call-shape sketch for callers that will attach is allowed and does not require production references before the contract lands.
+
 ## When an HLD is required
 
 Read the full SPEC, applicable agent instructions, architecture / domain docs, ADRs, related code, and call chains first. An HLD is required if any of these hold:
@@ -82,6 +84,8 @@ Do not ask about local helper extraction, private methods, file layout, or other
 - **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
 When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, send only the affected execution impact to `to-tickets`.
+
+Repeated, structurally similar implementation friction against a shared decision is an amendment signal, not a reason to keep adding local exceptions. See [amendment.md](references/amendment.md). One local edge case is not enough.
 
 ## Decision traceability and verification
 

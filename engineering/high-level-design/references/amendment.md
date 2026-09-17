@@ -13,4 +13,8 @@ Compare old / new SPEC, the current HLD, codebase facts, and existing tickets. C
 
 If implementation finds the HLD cannot hold, the worker must report blocked. It must not quietly change a shared design constraint and continue. After the HLD is amended, resume execution according to actual impact.
 
+Treat repeated, structurally similar implementation friction as evidence that a shared design decision may be invalid rather than as a reason to keep adding local exceptions. Signals include repeated workarounds across callers or implementations, callers depending on hidden implementation protocol, recurring type escape hatches, multiple deviations from the same D decision, or a small Interface that keeps expanding to cover ordinary cases.
+
+One local edge case or one implementation friction is not enough. Confirm the pattern and its shared-design cause before amending the HLD. Isolated caller-specific edges remain local implementation.
+
 Section structure, writing rules, and done-when: [hld-template.md](hld-template.md).
