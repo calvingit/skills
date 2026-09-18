@@ -1,6 +1,6 @@
 ---
 name: why
-description: Investigate why a current design, constraint, or workaround exists using available historical evidence. Keep confirmed facts, supported inferences, hypotheses, and unknowns distinct.
+description: Use only when manually invoked by the user to investigate why a current design, constraint, or workaround exists using available historical evidence. Keep confirmed facts, supported inferences, hypotheses, and unknowns distinct.
 ---
 
 # Why
@@ -30,17 +30,6 @@ Do not search every possible source by default. Do not treat a commit message,
 current test, or present-day convention as a complete explanation without
 supporting evidence. Stop when additional history would not materially change
 the conclusion.
-
-## Boundaries
-
-- Why a current failure occurs: `debug`.
-- How current code executes: `how`.
-- Whether the current architecture is healthy: `review-architecture`.
-- How a known Module, Interface, or Seam should change: `codebase-design`.
-
-For example, “Why is the retry limit five?” is `why`; “Why does retry now loop
-forever?” is `debug`. Report a limitation if the available evidence cannot
-answer the historical question.
 
 ## Output
 

@@ -1,6 +1,6 @@
 ---
 name: bro
-description: Restate the entire previous response in plain language with less jargon.
+description: Use only when manually invoked by the user to restate the entire previous response in plain language with less jargon.
 ---
 
 # Bro

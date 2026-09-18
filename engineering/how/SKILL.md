@@ -1,6 +1,6 @@
 ---
 name: how
-description: Explain how current code works by tracing relevant production paths. Do not investigate historical rationale, diagnose a fault, or recommend a target design.
+description: Use only when manually invoked by the user to explain how current code works by tracing relevant production paths. Do not investigate historical rationale, diagnose a fault, or recommend a target design.
 ---
 
 # How
@@ -27,17 +27,6 @@ Explain the smallest coherent model that helps the reader navigate or change the
 system. Use a flow, a short example, or an ownership map when it clarifies the
 answer. Do not inspect the whole repository merely to make the explanation feel
 complete.
-
-## Boundaries
-
-- Historical reason, original constraint, or design lineage: `why`.
-- A current failure's cause: `debug`.
-- How a known Module, Interface, or Seam should be shaped: `codebase-design`.
-- Whether existing architecture is sound: `review-architecture`.
-
-When the question crosses a boundary, explain the current ownership first, then
-name the appropriate next skill. Do not silently switch into redesign,
-architecture review, or implementation.
 
 ## Output
 
