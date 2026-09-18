@@ -18,6 +18,8 @@
 | [`java-coding-guidelines`](./backend/java-coding-guidelines/SKILL.md) | Java 编写、修改和审查规范。 |
 | [`mysql-best-practices`](./backend/mysql-best-practices/SKILL.md) | MySQL 生产问题诊断和高风险数据库变更审查。 |
 
+`backend-development` 按改动边界加载检查项，外部写入结果与重试、运行生命周期与资源限制的细节按需读取。Java Skill 负责编码规约，MySQL Skill 负责数据库现场和变更风险；实现、验证与审查流程仍由 Engineering Skills 负责。维护时可使用[后端 Skills 行为评估场景](./docs/backend-skills-evaluation.md)。
+
 ## Global Skills
 
 | Skill | 用途 |

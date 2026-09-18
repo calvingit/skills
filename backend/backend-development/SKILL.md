@@ -15,6 +15,21 @@ the requirement from being implemented correctly.
 Do not add a reliability or scalability mechanism without identifying the
 concrete failure mode, invariant, or operational constraint it addresses.
 
+## Select relevant checks
+
+Apply the sections touched by this change, not a full backend audit. Read-only
+queries usually need authorization, query-cost, and result-limit checks; state
+writes need invariants, concurrency, and atomicity checks. Expand investigation
+only when the affected path or unexplained evidence requires it.
+
+- External writes with retries or uncertain outcomes: read
+  [operation outcomes and retries](references/operation-outcomes-and-retries.md).
+- Workers, long-running requests, cancellation, shutdown, or capacity changes:
+  read [lifecycle and resource limits](references/lifecycle-and-resource-limits.md).
+
+These checks complement the caller's implementation or review workflow; they do
+not create a separate planning, scheduling, or acceptance process.
+
 ## Understand the existing path
 
 Before changing code, inspect the relevant execution path far enough to
@@ -97,6 +112,18 @@ For schema changes, consider both application versions and existing data during
 deployment. Avoid changes that require all instances to switch versions at the
 same instant unless the deployment model guarantees it.
 
+For backfills or data repairs, establish bounded batches, resumable progress,
+and how concurrent business writes are preserved. A checkpoint must not skip
+uncommitted work; repeating a batch must not corrupt or duplicate results.
+Verify the affected records and remaining work, not just the script's exit code.
+
+Application rollback does not undo data changes. Check whether the old version
+can read data written by the new version. Remove an old field or read/write path
+only after evidence shows required callers, jobs, and supported rollback versions
+no longer depend on it. Use the database's actual version and operational rules
+for DDL, locking, replication, and load; these application checks do not replace
+database-specific change review.
+
 ## External systems
 
 Treat network and external service calls as unreliable.
@@ -112,6 +139,10 @@ For each relevant integration, consider:
 - behavior when the dependency is unavailable.
 
 Do not retry failures blindly.
+
+Distinguish confirmed success, confirmed failure, and unknown outcome. A timeout
+or lost response does not establish that an external write failed. Identify the
+same business operation and how its outcome can be recovered before retrying it.
 
 Retry only when the operation is safe to repeat or has an explicit idempotency
 mechanism, and when the failure is plausibly transient.
