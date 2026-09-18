@@ -23,7 +23,7 @@
 | Skill | 用途 |
 | --- | --- |
 | [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
-| [`bro`](./global/bro/SKILL.md) | 用更少术语重新表达上一条完整回复。 |
+| [`bro`](./global/bro/SKILL.md) | 仅限用户手动调用，用更少术语重新表达上一条完整回复。 |
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
 | [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
 | [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
@@ -53,7 +53,7 @@ Engineering Skills 包含工程流程、可组合的判断方法，以及调研�
 
 其他文档：
 
-- [Loopx Runtime 与 Backend Contract](./docs/loop-runtime.md)
+- [Loop 与 Runtime 的职责](./docs/loop-runtime.md)
 - [状态脚本](./docs/workflow-scripts.md)
 - [状态脚本验收协议](./docs/loopx-acceptance.md)
 - [Engineering Acceptance 协议](./docs/engineering-acceptance.md)

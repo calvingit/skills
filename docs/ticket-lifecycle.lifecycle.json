@@ -23,7 +23,7 @@
         "id": "contract-change",
         "label": "契约变化",
         "focus": ["created", "ready", "blocked", "in_progress", "done", "amendment", "superseded"],
-        "note": "上游 amendment 通过 reconcile-batch 使原 ticket 退出当前 graph，但保留历史 evidence 与 lineage。"
+        "note": "上游 amendment 通过 reconcile-batch 协调受影响的 ticket；未受影响的契约和证据可经 retain_contract 保留，原交付契约被替换时才 supersede。"
       }
     ]
   },
@@ -39,7 +39,7 @@
     { "id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "Agent 正在执行 ticket", "lane": "main", "col": 2, "step": "03" },
     { "id": "done", "type": "success", "label": "done", "sublabel": "全部 local AC 的 passed evidence 完整", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE" },
     { "id": "blocked", "type": "waiting", "label": "blocked（动态）", "sublabel": "dependency 或 execution blocker", "lane": "waiting", "col": 0, "tag": "WAIT" },
-    { "id": "amendment", "type": "external", "label": "reconcile-batch", "sublabel": "同步 execution graph", "lane": "change", "col": 2, "tag": "EVENT" },
+    { "id": "amendment", "type": "external", "label": "reconcile-batch", "sublabel": "原契约被替换时", "lane": "change", "col": 2, "tag": "EVENT" },
     { "id": "superseded", "type": "neutral", "label": "superseded", "sublabel": "原 contract 不再适用", "lane": "terminal", "col": 2, "tag": "HISTORY" }
   ],
   "transitions": [
@@ -59,6 +59,6 @@
   "cards": [
     { "dot": "emerald", "title": "正常路径", "items": ["open 的动态 ready → in_progress → done 由 loop commands 统一维护", "done 表示本地 AC 通过，最终交付需独立验收"] },
     { "dot": "amber", "title": "阻塞规则", "items": ["blocked 是 dependency 或 execution blocker 的动态结果", "解除 execution blocker 后重新计算 readiness，而不是直接恢复执行"] },
-    { "dot": "violet", "title": "状态语义", "items": ["done → open 仅表达原 contract 内 review finding", "上游 amendment 通过 reconcile-batch 汇入 superseded", "superseded 保留历史 evidence 与 lineage，但不提供当前验收覆盖"] }
+    { "dot": "violet", "title": "状态语义", "items": ["done → open 仅表达原 contract 内 review finding", "仅原交付契约被替换时转入 superseded；未受影响的契约经核对后保留", "superseded 保留历史 evidence 与 lineage，但不提供当前验收覆盖"] }
   ]
 }
