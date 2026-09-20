@@ -10,6 +10,18 @@
 - 证据优先，代码、SPEC、测试、运行结果和 review evidence 高于模型自报。
 - 状态分离，Runtime 管理会话上下文；Engineering Skills 管理规范、执行图、交付进度和 evidence。
 
+## 工程原则与项目上下文
+
+用户级 `AGENTS.md` 可以维护跨项目原则：Ubiquitous Language、Tracer Bullet / Vertical Slice、Deep Modules / Information Hiding、Evidence-Based Completion 和 Minimum Necessary Complexity。原则用于指导判断，不要求所有任务使用完整流程，也不新增 Skill。
+
+[`project-setup`](../engineering/project-setup/SKILL.md) 将这些原则连接到项目事实：复用 Profile 中的 `domain_glossary`、`architecture_authorities`、`project_context` 等入口，按需增加 `verification_instructions`，并在已有项目规则不足时补充简短的 `Engineering Context`。项目指令应能独立使用，不依赖每位使用者安装相同的用户级规则。
+
+- 术语来源解释概念，需求来源规定预期行为，架构文档和适用 ADR 记录设计决定，代码反映当前行为。这些来源不构成统一的优先级链；存在实质冲突时先澄清受影响的内容，保留有契约依据的外部或遗留名称。
+- `verification_instructions` 只指向仓库内已有的验证说明，具体命令、前置条件、平台覆盖和人工检查要求由该说明维护。字段缺失或为 `auto` 时继续动态发现，不强制补文档，也不改变 verify 的结果状态或 Loop 的完成条件。
+- GUI 验收分别考虑行为、视觉参考和交互体验。行为 E2E 通过不证明视觉或体验符合要求，静态截图也不证明动态交互；只报告证据实际覆盖的范围，明确未验证项。
+
+Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原则或路径，也不记录当前任务状态和验证结果。这一配置变更只建立上下文入口；实际效果仍需在真实任务中验证。
+
 ## 上游适配与维护规范
 
 对于源自 Matt Pocock 的 Skill，以上游原版为基础，只添加 Engineering Skills 确有需要的适配。自行设计的 Skill 不强行套用上游结构。
