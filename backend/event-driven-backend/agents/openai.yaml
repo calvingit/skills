@@ -1,0 +1,4 @@
+interface:
+  display_name: "事件与后台任务"
+  short_description: "审查消息、Webhook 和后台任务的投递、重放及业务副作用"
+  default_prompt: "使用 $event-driven-backend 分析当前异步流程在投递、消费和恢复时的行为，依据实际配置和业务结果提出可验证的方案。"

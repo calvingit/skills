@@ -1,0 +1,4 @@
+interface:
+  display_name: "Redis 工程实践"
+  short_description: "审查 Redis 缓存与协调逻辑，诊断运行问题并评估变更风险"
+  default_prompt: "使用 $redis-best-practices 分析当前 Redis 实现或运行问题，根据实际版本和证据，提出改动最小的方案及验证方式。"

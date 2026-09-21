@@ -10,7 +10,7 @@ AI 可以同时修改产品代码、测试、fixture、mock、snapshot 和测试
 tests passed != acceptance satisfied
 ```
 
-单元测试仍然有价值，但在 AI Coding 里，它更准确的定位是快速反馈信号和回归约束，而不是正确性的自动证明。TDD 的 red-green-refactor 是实现方法，不是 verify 的验收标准，是否 test-first 也不改变最终的独立验收要求。
+单元测试仍然有价值，但在 AI Coding 里，它更准确的定位是快速反馈信号和回归约束，而不是正确性的自动证明。本仓库 TDD 的 red → green 纵向切片循环是实现方法，不是 verify 的验收标准，是否 test-first 也不改变最终的独立验收要求。
 
 真正需要隔离的是“成功标准”而不只是 Agent 进程：
 
@@ -55,7 +55,7 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 `verify` 只报告 verdict 和 evidence，后续状态由 `loop` 决定，不能把三种结论压成简单的成功/失败二值。
 
 - `FAIL` 是当前已确认约定（confirmed contract）的已验证缺陷。Loop 保留原始发现和执行证据（execution evidence），交给 implement 走修正尝试（correction attempt），修复后重跑受影响的本地检查（local checks）和独立 verify。其他测试全绿不能覆盖它，相关代码、需求、执行图或环境变化后也不能复用旧报告。
-- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录发布条件（release condition），方法不足就换其他只读证据，契约问题交回需求负责方（requirement owner）。不能直接把它丢给 implementor 修代码，也不能完成交付。
+- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据，契约问题交回需求负责方（requirement owner）。不能直接把它丢给 implementor 修代码，也不能完成交付。
 - 如果 verifier 的预期行为与已确认需求不一致，应解决验证依据（verification basis）/ 约定冲突，而不是修改实现去迎合错误期望。
 
 因此，以下情况都不能视为通过：

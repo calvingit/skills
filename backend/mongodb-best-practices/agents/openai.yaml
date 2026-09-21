@@ -1,0 +1,4 @@
+interface:
+  display_name: "MongoDB 工程实践"
+  short_description: "审查 MongoDB 模型、查询与并发行为，诊断运行问题和变更风险"
+  default_prompt: "使用 $mongodb-best-practices 分析当前 MongoDB 实现或运行问题，核对数据如何读写以及现场证据，提出改进建议和验证方式。"

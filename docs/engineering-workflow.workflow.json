@@ -22,7 +22,7 @@
         "id": "delivery-path",
         "label": "执行交付",
         "focus": ["execution_check", "quick_implement", "to_tickets", "loop", "delivery"],
-        "note": "单一任务直接实现；需要 execution graph 时拆票并统一执行。"
+        "note": "单一范围使用 quick-implement，收尾包含独立简化审查与代码审查；需要 execution graph 时拆票并统一执行。"
       }
     ]
   },
@@ -49,7 +49,7 @@
     { "id": "contract_check", "lane": "design", "col": 4, "type": "security", "label": "跨局部技术契约？", "sublabel": "按契约范围判断", "tag": "DECISION", "width": 118 },
     { "id": "high_level_design", "lane": "design", "col": 5, "type": "backend", "label": "high-level-design", "sublabel": "HLD + Design Review", "width": 124 },
     { "id": "execution_check", "lane": "execution", "col": 3, "type": "security", "label": "需要 execution graph？", "sublabel": "单一任务或多执行单元", "tag": "DECISION", "width": 158 },
-    { "id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "单次实现与验证", "width": 112, "yOffset": -70 },
+    { "id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "实现、验证与独立审查", "width": 112, "yOffset": -70 },
     { "id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.json", "yOffset": 70 },
     { "id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop", "sublabel": "scheduling · evidence · review", "width": 160, "yOffset": 70 },
     { "id": "delivery", "lane": "execution", "col": 5, "type": "cloud", "label": "verified delivery", "sublabel": "实现、验证与审查完成", "tag": "DONE", "width": 124, "yOffset": -70 }

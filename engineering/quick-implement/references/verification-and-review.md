@@ -10,7 +10,7 @@ Run verification for the current scope through the project's existing entries. R
 
 ## Review
 
-After verification, use `code-review` against the implemented scope. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After review findings are fixed, re-run affected verification and review.
+After verification, spawn a dedicated `code-review` sub-agent, separate from the `simplify` Review sub-agent, against the implemented scope. Consume its actual Markdown report; a main-agent self-check does not satisfy this gate. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After review findings are fixed, re-run affected verification and spawn a sub-agent for review again.
 
 The review receipt follows code-review's [report guidance](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
 
@@ -40,7 +40,9 @@ The review receipt follows code-review's [report guidance](../../code-review/ref
 
 ### Simplification
 
-- completed | no_change | blocked
+- Mode: Review (dedicated sub-agent)
+- Result: completed | no_change | blocked
+- Findings and any explicitly authorized changes: <report or None>
 
 ### Review
 

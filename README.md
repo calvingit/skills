@@ -15,15 +15,21 @@
 | Skill | 用途 |
 | --- | --- |
 | [`backend-development`](./backend/backend-development/SKILL.md) | 后端 API、服务、持久化、集成和后台处理的工程实践。 |
+| [`api-contracts`](./backend/api-contracts/SKILL.md) | API 与事件 Schema 的契约一致性、兼容性和演进验证。 |
+| [`event-driven-backend`](./backend/event-driven-backend/SKILL.md) | 消息、Webhook 与后台任务的投递、消费、重放和副作用检查。 |
 | [`java-coding-guidelines`](./backend/java-coding-guidelines/SKILL.md) | Java 编写、修改和审查规范。 |
 | [`mysql-best-practices`](./backend/mysql-best-practices/SKILL.md) | MySQL 生产问题诊断和高风险数据库变更审查。 |
+| [`redis-best-practices`](./backend/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
+| [`mongodb-best-practices`](./backend/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
+
+`backend-development` 按改动边界加载检查项，外部写入结果与重试、运行生命周期与资源限制的细节按需读取。`api-contracts` 统一检查 API 与事件 Schema 兼容性，`event-driven-backend` 负责异步投递与副作用生命周期。Java Skill 负责编码规约，MySQL、Redis 和 MongoDB Skills 负责各自数据库的机制、现场和变更风险；实现、验证与审查流程仍由 Engineering Skills 负责。维护时可使用[后端 Skills 行为评估场景](./docs/backend-skills-evaluation.md)。
 
 ## Global Skills
 
 | Skill | 用途 |
 | --- | --- |
 | [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
-| [`bro`](./global/bro/SKILL.md) | 用更少术语重新表达上一条完整回复。 |
+| [`bro`](./global/bro/SKILL.md) | 仅限用户手动调用，用更少术语重新表达上一条完整回复。 |
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
 | [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
 | [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
@@ -53,7 +59,7 @@ Engineering Skills 包含工程流程、可组合的判断方法，以及调研�
 
 其他文档：
 
-- [Loopx Runtime 与 Backend Contract](./docs/loop-runtime.md)
+- [Loop 与 Runtime 的职责](./docs/loop-runtime.md)
 - [状态脚本](./docs/workflow-scripts.md)
 - [状态脚本验收协议](./docs/loopx-acceptance.md)
 - [Engineering Acceptance 协议](./docs/engineering-acceptance.md)

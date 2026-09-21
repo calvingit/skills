@@ -1,0 +1,4 @@
+interface:
+  display_name: "API 契约与演进"
+  short_description: "审查 API 与事件 Schema 的契约一致性、兼容演进和验证证据"
+  default_prompt: "使用 $api-contracts 审查这次接口或事件契约变更，检查受支持调用方的版本组合是否兼容、生成产物是否同步，并核对验证证据。"

@@ -4920,8 +4920,8 @@
         <text data-detail="fine" x="402" y="325" class="t-cloud" font-size="7" text-anchor="middle">WAIT</text>
         </g>
 
-        <g id="node-amendment" data-node-id="amendment" data-node-label="SPEC/HLD 修订" tabindex="0" role="button" aria-label="聚焦SPEC/HLD 修订，同步任务执行图, 上游规范变化" aria-pressed="false" data-node-kind="external" data-node-sublabel="同步任务执行图" data-node-tag="EVENT" data-node-context="上游规范变化">
-          <title>SPEC/HLD 修订 · 同步任务执行图 · 上游规范变化 · EVENT</title>
+        <g id="node-amendment" data-node-id="amendment" data-node-label="SPEC/HLD 修订" tabindex="0" role="button" aria-label="聚焦SPEC/HLD 修订，原契约被替换时, 上游规范变化" aria-pressed="false" data-node-kind="external" data-node-sublabel="原契约被替换时" data-node-tag="EVENT" data-node-context="上游规范变化">
+          <title>SPEC/HLD 修订 · 原契约被替换时 · 上游规范变化 · EVENT</title>
           <rect x="647" y="278" width="126" height="58" rx="7" class="c-mask"/>
           <rect x="647" y="278" width="126" height="58" rx="7" class="c-external" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="external" class="semantic-sigil s-external" transform="translate(756 284) scale(0.6875)">
@@ -4929,7 +4929,7 @@
             <path d="M8 2.5h5.5V8M13.5 2.5 7.5 8.5"/>
           </g>
           <text data-node-label="" data-detail-anchor="" x="710" y="299" class="t-primary" font-size="10" font-weight="600" text-anchor="middle">SPEC/HLD 修订</text>
-          <text data-detail="context" x="710" y="315" class="t-muted" font-size="7" text-anchor="middle">同步任务执行图</text>
+          <text data-detail="context" x="710" y="315" class="t-muted" font-size="7" text-anchor="middle">原契约被替换时</text>
         <text data-detail="fine" x="710" y="325" class="t-muted" font-size="7" text-anchor="middle">EVENT</text>
         </g>
 

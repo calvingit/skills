@@ -10,6 +10,18 @@
 - 证据优先，代码、SPEC、测试、运行结果和 review evidence 高于模型自报。
 - 状态分离，Runtime 管理会话上下文；Engineering Skills 管理规范、执行图、交付进度和 evidence。
 
+## 工程原则与项目上下文
+
+用户级 `AGENTS.md` 可以维护跨项目原则：Ubiquitous Language、Tracer Bullet / Vertical Slice、Deep Modules / Information Hiding、Evidence-Based Completion 和 Minimum Necessary Complexity。原则用于指导判断，不要求所有任务使用完整流程，也不新增 Skill。
+
+[`project-setup`](../engineering/project-setup/SKILL.md) 将这些原则连接到项目事实：复用 Profile 中的 `domain_glossary`、`architecture_authorities`、`project_context` 等入口，按需增加 `verification_instructions`，并在已有项目规则不足时补充简短的 `Engineering Context`。项目指令应能独立使用，不依赖每位使用者安装相同的用户级规则。
+
+- 术语来源解释概念，需求来源规定预期行为，架构文档和适用 ADR 记录设计决定，代码反映当前行为。这些来源不构成统一的优先级链；存在实质冲突时先澄清受影响的内容，保留有契约依据的外部或遗留名称。
+- `verification_instructions` 只指向仓库内已有的验证说明，具体命令、前置条件、平台覆盖和人工检查要求由该说明维护。字段缺失或为 `auto` 时继续动态发现，不强制补文档，也不改变 verify 的结果状态或 Loop 的完成条件。
+- GUI 验收分别考虑行为、视觉参考和交互体验。行为 E2E 通过不证明视觉或体验符合要求，静态截图也不证明动态交互；只报告证据实际覆盖的范围，明确未验证项。
+
+Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原则或路径，也不记录当前任务状态和验证结果。这一配置变更只建立上下文入口；实际效果仍需在真实任务中验证。
+
 ## 上游适配与维护规范
 
 对于源自 Matt Pocock 的 Skill，以上游原版为基础，只添加 Engineering Skills 确有需要的适配。自行设计的 Skill 不强行套用上游结构。
@@ -32,7 +44,7 @@
 | Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
-| Loop 内部 capability | `implement`, [`verify`](./verify.md) | 主 Agent 默认连续 implement 并做本地检查；最终 verify 使用独立原生 subagent。 |
+| 执行与验收 capability | `implement`, [`verify`](./verify.md) | Loop 主 Agent 默认连续 implement 并做本地检查；verify 在独立只读上下文中验收，Loop 最终验收使用原生 subagent。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -56,8 +68,8 @@
 | --- | --- |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
-| 理解当前代码、数据或控制流如何运行 | [how](../engineering/how/SKILL.md)；只解释当前事实，不判断目标设计。 |
-| 追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
+| 用户手动调用，理解当前代码、数据或控制流如何运行 | [how](../engineering/how/SKILL.md)；只解释当前事实，不判断目标设计。 |
+| 用户手动调用，追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
 | 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
 | 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
 | 主动寻找架构改进候选 | 使用 `review-architecture` 的候选发现规则；仅用户明确要求时扫描改进机会。 |
@@ -135,6 +147,8 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 | `to-tickets` | 依据已确认的 SPEC / HLD 拆分任务、校验依赖；已获实现授权时继续 `loop`。 |
 
 跨阶段路由由调用方依据本流程处理；独立的 grilling 不承担下游 Skill 的调度说明。普通交接不需要用户再次输入下一个 Skill 名称。普通拆票由 `to-tickets` 判断粒度和真实阻塞依赖；若拆分暴露未确定的产品、范围、优先级、发布、兼容、验收或共享设计选择，则交还对应上游 Skill，不能把它写成任务假设。
+
+`quick-implement` 收尾时分别委派专用 subagent 执行 `simplify` Review 和 `code-review`，主 Agent 读取实际报告并完成验证；简化候选只有在用户明确授权后才修改。Loop 的最终验收职责见下方“Ticket 执行”。
 
 是否进入实现遵循用户当前授权：只要求规划时，在所需规划产物完成后停止；已授权实现时，继续进入 `quick-implement` 或 `loop`。连续交接不会自动授予提交、推送或分支操作权限。
 
