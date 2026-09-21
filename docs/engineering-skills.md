@@ -60,7 +60,7 @@
 | 追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
 | 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
 | 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
-| 主动寻找架构改进候选 | `improve-codebase-architecture` 是 `review-architecture` 的按需候选模式。 |
+| 主动寻找架构改进候选 | 使用 `review-architecture` 的候选发现规则；仅用户明确要求时扫描改进机会。 |
 | 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 

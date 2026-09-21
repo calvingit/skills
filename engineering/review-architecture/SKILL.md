@@ -1,6 +1,6 @@
 ---
 name: review-architecture
-description: Read-only review of whether existing architecture matches project constraints and technical standards.
+description: Read-only review of whether existing architecture matches project constraints and technical standards, with explicit candidate discovery when the user asks where architecture investment is worthwhile.
 ---
 
 # Review Architecture
@@ -10,6 +10,12 @@ Read-only architecture review of an existing codebase or a named subsystem. Judg
 This skill answers **WHETHER the current architecture is sound, where it isn't, why, and what that costs.** It does not design the target architecture, and it does not implement a refactor.
 
 `codebase-design` answers **HOW** a confirmed Module / Interface / Seam should be shaped once a finding needs a change.
+
+When the user explicitly asks where the architecture is most worth improving,
+read [candidate-mode.md](references/candidate-mode.md). An ordinary review may
+report an improvement opportunity, but must not expand into a repository-wide
+candidate search. Candidate discovery ends with a shortlist and user selection;
+it does not start `grilling`, HLD, ticket splitting, or implementation.
 
 ## Basis
 
@@ -33,7 +39,7 @@ When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Localit
 
 ## Workflow
 
-Default: is the current architecture sound? Load `../improve-codebase-architecture/SKILL.md` only when the user explicitly wants refactor candidates. That mode does not add a new delivery stage.
+Default: is the current architecture sound? Load [candidate-mode.md](references/candidate-mode.md) only when the user explicitly wants architecture improvement candidates. That mode does not add a new delivery stage.
 
 ### 1. Define scope and review question
 
@@ -98,7 +104,8 @@ When nothing holds, say **no findings**. Do not invent architecture debt to comp
 
 ### 6. Report and stop
 
-Write a Markdown architecture review from `references/report-template.md`. The report must make clear:
+For an ordinary architecture review, write a Markdown report from
+`references/report-template.md`. The report must make clear:
 
 - scope / coverage / uncovered range
 - current architecture and applicable authorities
