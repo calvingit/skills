@@ -24,4 +24,6 @@
 
 ## 证据
 
+项目本地验证 Skill 或已有说明负责具体执行方法，由 `verification-setup` 按需创建或维护；SPEC / ACCEPTANCE 继续定义预期行为。全局 `verify` 读取项目入口并独立判断证据，harness 的一次 smoke 通过不代表当前任务验收通过。
+
 ticket 的本地检查由实现者记录实际命令、退出码、摘要和未验证范围；`Loop` 不重复执行命令。ticket 完成由本地 AC 证据和明确批准决定，review 原文可选；最终交付仍需独立 `verify`、`code-review` 和完整 SPEC AC 证据。

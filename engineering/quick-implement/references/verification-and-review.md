@@ -6,7 +6,7 @@ During implementation, keep running this slice's targeted tests and related type
 
 Reuse results that are still valid on the current code. Do not re-run a check already covered by the standard gate. Re-run only after a later edit, a failure, or a new risk. When a full test, build, or end-to-end check is unavailable or clearly out of proportion, record why, substitute evidence, unverified scope, and risk.
 
-Run verification for the current scope through the project's existing entries. Record exit code and key output for every command actually run. A tool succeeding proves only that gate. It does not automatically prove the requirement is complete.
+Run verification for the current scope through the task's project verification entry, `verification_instructions` when configured, or existing local verification skills/docs/scripts. Setup is not a prerequisite; use existing checks and report any capability gap. Follow documented isolation, evidence and cleanup rules. Record exit code and key output for every command actually run. A tool succeeding proves only that gate. It does not automatically prove the requirement is complete.
 
 ## Review
 

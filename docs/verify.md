@@ -28,6 +28,19 @@ PASS / FAIL / NOT VERIFIED
 
 Acceptance Criteria 定义预期行为（expected behaviour），不能从实现、现有测试或实现者自报（implementor self-report）反向推导需求。独立子 Agent 只有在依据和证据都独立时，才有验收价值。
 
+## 项目验证方法与独立判断
+
+| 职责 | 负责方 |
+| --- | --- |
+| 扫描仓库、创建或刷新项目验证方法 | [`verification-setup`](./verification-setup.md) |
+| 提供具体启动、驱动、观察、隔离和清理步骤 | 项目本地验证 Skill 或已有说明 |
+| 按当前 AC 选择足够的检查、判断证据可信度 | 全局 `verify` |
+| 判断实现质量、设计及维护风险 | `code-review` |
+
+`verify` 按当前任务指定入口、Profile 的 `verification_instructions`、仓库已有本地 Skill / 文档 / 脚本 / CI 的顺序发现方法。没有 Profile 或字段为 `auto` 时继续动态发现；没有本地 Skill，也可以使用已有检查，不要求先运行 setup。入口失效时检查实际命令并报告缺口，验证者不在只读验收中修建 harness。
+
+多端项目按当前 AC 选择相关入口；跨端流程需要覆盖实际跨端路径。验证方法按能证明的行为、运行成本和环境条件选择，不强制 L0–L4 分层，也不按框架名称自动选择工具。项目已有的必需门禁仍需执行。一条 smoke 路径通过，只能证明这条路径在当前环境中可执行。
+
 ## 验收依据与证据
 
 `ACCEPTANCE.md` 是按需建立的独立验收协议，不是 `verify` 的前置条件。日常任务没有这个文件时，`verify` 直接以 `SPEC.md` 中已确认、可单独判定的 AC 和验收边界（Acceptance Seam）为权威。
@@ -44,6 +57,10 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 
 如果现有检查无法直接证明某条 AC，验证者应优先寻找最小的独立可观察检查（observable check），而不是修改仓库测试或新增生产 API 来制造通过结果。没有安全、合理的验证方式时，返回 `NOT VERIFIED`。
 
+GUI 证据必须分别说明行为、视觉参考和交互体验的覆盖。行为 E2E 通过不能证明视觉或 UX 验收；截图不能单独证明交互时序；mock 外部响应不能证明真实服务集成。
+
+报告应保留候选 revision 和相关未提交改动、工作目录、环境、实际命令或工具动作、退出码、关键结果和证据路径。门禁未能直接证明 AC 时单独报告其结果，不把门禁成功映射成所有 AC 通过。
+
 ## 三种结论
 
 - `PASS`：有足够的可观察证据（observable evidence）证明该 AC 满足。
@@ -55,7 +72,7 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 `verify` 只报告 verdict 和 evidence，后续状态由 `loop` 决定，不能把三种结论压成简单的成功/失败二值。
 
 - `FAIL` 是当前已确认约定（confirmed contract）的已验证缺陷。Loop 保留原始发现和执行证据（execution evidence），交给 implement 走修正尝试（correction attempt），修复后重跑受影响的本地检查（local checks）和独立 verify。其他测试全绿不能覆盖它，相关代码、需求、执行图或环境变化后也不能复用旧报告。
-- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据，契约问题交回需求负责方（requirement owner）。不能直接把它丢给 implementor 修代码，也不能完成交付。
+- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据；确需创建或修复 harness 时，由调用方将工作交给 `verification-setup`，完成后重新验证。契约问题交回需求负责方（requirement owner）。不能直接把它丢给 implementor 修代码，也不能完成交付。
 - 如果 verifier 的预期行为与已确认需求不一致，应解决验证依据（verification basis）/ 约定冲突，而不是修改实现去迎合错误期望。
 
 因此，以下情况都不能视为通过：
@@ -82,4 +99,4 @@ loop
   根据证据决定重试、阻塞、约定路由或完成
 ```
 
-`verify` 不修复代码，不改需求、ticket、Git 历史或外部业务状态（external business state），也不修改仓库测试，不调度 Agent，不改变执行图。执行规则见 [`engineering/verify/SKILL.md`](../engineering/verify/SKILL.md)。
+`verify` 不修复代码，不改需求、ticket、Git 历史或真实业务状态，也不修改仓库测试，不调度 Agent，不改变执行图。只读约束允许在调用方授权的隔离资源中创建测试数据、缓存和证据；按项目说明清理本次运行拥有的进程与状态，失败后也要清理，并确认清理后证据仍可读取。清理失败须报告。本地验证步骤不会扩大调用方权限。执行规则见 [`engineering/verify/SKILL.md`](../engineering/verify/SKILL.md)。

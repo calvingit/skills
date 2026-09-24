@@ -1,7 +1,7 @@
 interface:
   display_name: "Verify"
-  short_description: "Verify ticket Acceptance Criteria in an independent read-only context"
-  default_prompt: "Use $verify to independently check each Acceptance Criterion against observable behaviour in the given implementation snapshot. Treat existing tests as evidence rather than the acceptance oracle, and return evidence that can be rechecked."
+  short_description: "Judge acceptance using project guidance and credible evidence"
+  default_prompt: "Use $verify to discover project verification guidance, independently check each confirmed Acceptance Criterion against the current candidate, and report PASS, FAIL or NOT VERIFIED with observable evidence."
 
 policy:
   allow_implicit_invocation: false

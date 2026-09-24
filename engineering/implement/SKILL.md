@@ -9,6 +9,6 @@ Use the ticket, requirements, baseline, and write scope supplied by the caller. 
 
 Do not expand into unrelated cleanup. Do not edit SPEC, ACCEPTANCE, HLD, tickets, or Git history, or schedule sibling tasks. Report a requirement or scope conflict rather than resolving it through unauthorised edits.
 
-Run necessary development tests and local acceptance checks, and report their actual commands, results, and coverage. These checks may support ticket-local completion; final independent verification belongs to `verify`.
+Use the project verification entry (`verification_instructions` when configured, otherwise existing local skills/docs/scripts) to select necessary development tests and local acceptance checks. Report their actual commands, results, and coverage. Missing guidance does not block use of existing checks; report capability gaps to the caller without treating setup as a prerequisite. These checks may support ticket-local completion; final independent verification belongs to `verify`.
 
 Return a concise text/Markdown account of the changes, simplification, checks, and unresolved issues, identifying the ticket and attempt when supplied. No capability schema or JSON envelope is required. Do not fabricate verification evidence or fill in commands another agent has not run.

@@ -17,8 +17,10 @@
 [`project-setup`](../engineering/project-setup/SKILL.md) 将这些原则连接到项目事实：复用 Profile 中的 `domain_glossary`、`architecture_authorities`、`project_context` 等入口，按需增加 `verification_instructions`，并在已有项目规则不足时补充简短的 `Engineering Context`。项目指令应能独立使用，不依赖每位使用者安装相同的用户级规则。
 
 - 术语来源解释概念，需求来源规定预期行为，架构文档和适用 ADR 记录设计决定，代码反映当前行为。这些来源不构成统一的优先级链；存在实质冲突时先澄清受影响的内容，保留有契约依据的外部或遗留名称。
-- `verification_instructions` 只指向仓库内已有的验证说明，具体命令、前置条件、平台覆盖和人工检查要求由该说明维护。字段缺失或为 `auto` 时继续动态发现，不强制补文档，也不改变 verify 的结果状态或 Loop 的完成条件。
+- `verification_instructions` 指向仓库内的验证说明、项目本地验证 Skill 或多端索引，具体命令、前置条件、平台覆盖和人工检查要求由该入口维护。字段缺失或为 `auto` 时继续动态发现，不强制补文档，也不改变 verify 的结果状态或 Loop 的完成条件。
 - GUI 验收分别考虑行为、视觉参考和交互体验。行为 E2E 通过不证明视觉或体验符合要求，静态截图也不证明动态交互；只报告证据实际覆盖的范围，明确未验证项。
+
+需要建立或维护项目验证方法时，使用 [`verification-setup`](./verification-setup.md)：扫描仓库、复用现有工具、生成或更新本地验证 Skill，并实际跑通所覆盖的执行方法。`project-setup` 只维护入口；全局 `verify` 继续独立判断 AC 与证据，不内置各技术栈的验证策略。
 
 Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原则或路径，也不记录当前任务状态和验证结果。这一配置变更只建立上下文入口；实际效果仍需在真实任务中验证。
 
@@ -40,7 +42,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 
 | 类型 | Skills | 职责 |
 | --- | --- | --- |
-| Project Setup | `project-setup`, `improve-agents-md` | 前者维护工程 Profile，后者创建或审校仓库指令并保留 Profile 语义。 |
+| Project Setup | `project-setup`, `verification-setup`, `improve-agents-md` | 分别维护工程 Profile、项目验证方法、仓库指令；按需使用，不构成必经阶段。 |
 | Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
@@ -66,6 +68,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 
 | 当前目标 | 入口与职责 |
 | --- | --- |
+| 创建或维护项目验证方法、执行步骤和证据说明 | [verification-setup](./verification-setup.md)；复用已有工具，生成或刷新本地 Skill，并记录实际试运行覆盖。 |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
 | 用户手动调用，理解当前代码、数据或控制流如何运行 | [how](../engineering/how/SKILL.md)；只解释当前事实，不判断目标设计。 |
@@ -98,6 +101,7 @@ Engineering workflow
 
 | 产物 | 维护者 | 回答的问题 |
 | --- | --- | --- |
+| 项目本地验证 Skill / 多端索引 | `verification-setup` | 这个项目如何运行验证、保留证据和清理测试状态？ |
 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
 | 会话文档（项目内 `task_contract` 任务目录） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
 | `SPEC.md` | `to-spec` | 需要持久化时，要构建什么、范围是什么？ |
@@ -170,6 +174,8 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 **向上只重新打开受影响的决定。** 与本次变化无关的已确认需求和设计继续有效，保留原有 R / AC / D ID；HLD 单独变化不反向修改 SPEC。
 
 **向下只传播实际影响。** 未受影响的 ticket 保留 ID、生命周期和仍然有效的证据，但必须核对其在新依据下仍然适用，不能只凭 ID 未变就沿用。新增行为使用 amendment ticket；原交付约定被替换时使用 `superseded` 加 replacement / correction。需求变化本身不能简单把历史 `done` 改回 `open`；`reopen` 仅用于依据未变、但原 ticket 没有满足原交付约定的缺陷。
+
+项目验证方法由 `verification-setup` 按需建立，供实现阶段本地检查和最终独立 verify 共用；它不增加下图中的必经交付阶段。
 
 工作流图：
 

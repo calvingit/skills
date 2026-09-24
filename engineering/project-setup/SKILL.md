@@ -49,7 +49,7 @@ Read-only first:
 
 - Applicable `AGENTS.md`, README, CONTRIBUTING, and deeper instructions.
 - Existing task / spec, project context, glossary, architecture, ADR, and archive layout.
-- Verification guidance, scripts, CI, and test configuration; for GUI projects, existing design references, screenshot / interaction checks, platform coverage, and manual review needs. Distinguish declared capabilities from checks actually run.
+- Existing project-local verification skills or indexes, verification guidance, scripts, CI, and test configuration; for GUI projects, existing design references, screenshot / interaction checks, platform coverage, and manual review needs. Distinguish declared capabilities from checks actually run.
 - Whether PRDs, requirement docs, or other requirement authority live in the repo, in an already-integrated external tool, or only as user-supplied snapshots.
 - Git remote, existing issue-tracker instructions, `.scratch/`, or other collaboration convention.
 - Whether a `triage` skill is available, and whether the repo already has matching labels.
@@ -130,7 +130,7 @@ Include only guidance grounded in this project's detected conventions and confir
 - **Architecture:** point to the relevant boundaries and applicable decisions through `architecture_authorities` / `project_context`. Record project-specific constraints only. Do not invent layers, mandate abstractions, or turn setup into an architecture redesign.
 - **Verification:** use `verification_instructions` to locate existing guidance and choose checks appropriate to each acceptance criterion. Keep commands and prerequisites in that source; CI or scripts show available checks, not successful execution. For GUI work, distinguish observable behaviour, visual conformance to an agreed reference, and subjective interaction quality. A passing behavioural E2E check does not establish visual or UX acceptance; screenshots alone do not establish timing or interaction behaviour. State what each check actually supports and what remains unverified or requires human judgement.
 
-`verification_instructions` is an optional navigation entry, not a new completion policy or evidence status. Missing or `auto` means discover existing guidance; it does not require a new document or disable verification. Consumers follow the applicable project instructions without needing a new Profile parser. Keep current commands, screenshots, test results, and task-specific review decisions out of the Profile and this stable context. If guidance is missing, report the gap; create a long-lived guide only when explicitly requested.
+`verification_instructions` is an optional navigation entry, not a new completion policy or evidence status. Missing or `auto` means discover existing guidance; it does not require a new document or disable verification. Consumers follow the applicable project instructions without needing a new Profile parser. Keep current commands, screenshots, test results, and task-specific review decisions out of the Profile and this stable context. An entry may point to a project-local verification skill or a multi-surface index. If guidance is missing or stale, report the gap and recommend `verification-setup` to create or refresh and exercise the project harness. Do not generate the harness inside project-setup; continue to that skill when the caller has authorised this work. Setup remains optional for ordinary verification.
 
 ## Write safely
 

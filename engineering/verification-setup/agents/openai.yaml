@@ -1,0 +1,7 @@
+interface:
+  display_name: "Verification Setup"
+  short_description: "Create and refresh project verification harnesses"
+  default_prompt: "Use $verification-setup to inspect this repository, reuse its verification tools, and create or refresh a project-local verification skill with observed smoke-run evidence."
+
+policy:
+  allow_implicit_invocation: false
