@@ -64,6 +64,8 @@ Engineering Skills 包含工程流程、可组合的判断方法，以及调研�
 - [状态脚本验收协议](./docs/loopx-acceptance.md)
 - [Engineering Acceptance 协议](./docs/engineering-acceptance.md)
 - [项目验证配置与维护](./docs/verification-setup.md)
+- [实现、测试与验收的组织](./docs/engineering-skills.md#实现测试与验收的组织)
+- [测试专项审计](./engineering/test-audit/SKILL.md)
 - [独立 Verify 说明](./docs/verify.md)
 - [Engineering workflow 图示](./docs/engineering-workflow.html)
 - [Ticket lifecycle 图示](./docs/ticket-lifecycle.html)

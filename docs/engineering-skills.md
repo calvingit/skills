@@ -5,7 +5,7 @@
 ## 设计原则
 
 - 通用优先，不把项目实现细节写进通用 Skill。
-- 单一职责，每个 Skill 只拥有一种工程问题或执行职责。
+- 主要职责明确，每个 Skill 有自己的判断目标和停止点；可以围绕不同目标检查同一份代码或测试。
 - 可组合，workflow 调用 discipline，但不复制其规则。
 - 证据优先，代码、SPEC、测试、运行结果和 review evidence 高于模型自报。
 - 状态分离，Runtime 管理会话上下文；Engineering Skills 管理规范、执行图、交付进度和 evidence。
@@ -45,7 +45,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 | Project Setup | `project-setup`, `verification-setup`, `improve-agents-md` | 分别维护工程 Profile、项目验证方法、仓库指令；按需使用，不构成必经阶段。 |
 | Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
-| Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
+| Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `test-audit`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
 | 执行与验收 capability | `implement`, [`verify`](./verify.md) | Loop 主 Agent 默认连续 implement 并做本地检查；verify 在独立只读上下文中验收，Loop 最终验收使用原生 subagent。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
@@ -60,7 +60,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 | 需要多个可独立领取的执行单元 | `to-tickets` → `loop` |
 | 单一范围、无需执行图 | `quick-implement`；简单改动可直接实现 |
 
-按需叠加 `debug`、`review-architecture`、`codebase-design`、`domain-modeling`、`tdd`、`simplify` 等 discipline。先判断是否真的需要 Skill；简单局部修改、事实查询和低风险机械修改通常直接处理即可。
+按需叠加 `debug`、`review-architecture`、`codebase-design`、`domain-modeling`、`tdd`、`test-audit`、`simplify` 等 discipline。先判断是否真的需要 Skill；简单局部修改、事实查询和低风险机械修改通常直接处理即可。
 
 ## 独立调研、审查与维护
 
@@ -75,11 +75,35 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 | 用户手动调用，追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
 | 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
 | 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
+| 专项检查测试有效性、重复保护或维护成本 | [test-audit](../engineering/test-audit/SKILL.md)；默认只读，明确要求清理时才修改，不增加固定验收关卡。 |
 | 主动寻找架构改进候选 | 使用 `review-architecture` 的候选发现规则；仅用户明确要求时扫描改进机会。 |
 | 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
 文档转换、中文润色、术语审校与文档同步位于 `documents/`；会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`。以技能负责的问题分类，不以是否输出 Markdown 分类。
+
+## 实现、测试与验收的组织
+
+按“项目准备、交付主线、按需方法”组织，不新增目录层级或路由 Skill：
+
+| 层次 | Skill | 主要责任与停止点 |
+| --- | --- | --- |
+| 项目准备 | `project-setup` | 维护稳定约束与入口，不编写具体测试策略或执行脚本。 |
+| 项目准备 | `verification-setup` | 建立和试运行项目验证方法，说明可用能力与限制，不宣告任务通过。 |
+| 交付主线 | `implement` | 实现当前行为、补必要测试并自检，报告实际结果和缺口。 |
+| 交付主线 | `verify` | 逐条判断 AC 的证据是否可信且充分，输出 `PASS / FAIL / NOT VERIFIED`。 |
+| 交付主线 | `code-review` | 找出改动中的具体缺陷、回归风险与不必要复杂度，不代替验收结论。 |
+| 按需方法 | `tdd` | 在实现中采用 Red → Green → Refactor 小步循环，不与 implement 构成互斥分支。 |
+| 按需方法 | `test-audit` | 审计指定测试的独立依据、实际执行路径、独有保护和维护成本。 |
+| 编排 | `loop` | 选择任务、处理反馈、核对完成条件和维护状态，复用各 Skill 的判断规则。 |
+
+这些是职责关系，不要求每个小任务都完整执行所有步骤或新建 Agent。Loop 继续逐 ticket 做本地验收、在最终交付时独立 verify / code-review；`quick-implement` 保留自己的收尾规则。
+
+项目验证方法说明“有哪些能力”，实现者和验证者各自选择当前风险需要的检查。`verify` 必须审查支撑当前 AC 的证据，不能等 test-audit 来保证可信度；`code-review` 也可报告改动中的具体测试缺陷。只有需要系统审计测试有效性或维护价值时，才使用 test-audit。删除或合并测试前，说明保留的保护与可能失去的独有证据，不能只凭数量、行数或覆盖率判断。
+
+缺失或不充分的仓库测试交给 implement 做限定范围的补充；验证步骤失效交给 verification-setup；环境或权限不可用则记录阻塞解除条件。修复后重验受影响的结论。即使产品代码未变，修改测试、fixture、snapshot 或验证配置也需要重新判断依赖它们的证据。
+
+TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)适配，保留行为测试与逐步反馈。2026-09-26 核对上游后，按本仓库已确认的职责调整：取消逐个测试边界的重复确认，技术测试边界不写入 SPEC；允许 Green 后按需做局部重构；判断预期值的独立依据，不把字面量视为天然可信，也不把公式视为天然无效。较大设计变更仍交回调用方处理。这些调整不替代真实项目中的长期效果评估。
 
 ## 产物和职责
 

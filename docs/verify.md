@@ -10,7 +10,7 @@ AI 可以同时修改产品代码、测试、fixture、mock、snapshot 和测试
 tests passed != acceptance satisfied
 ```
 
-单元测试仍然有价值，但在 AI Coding 里，它更准确的定位是快速反馈信号和回归约束，而不是正确性的自动证明。本仓库 TDD 的 red → green 纵向切片循环是实现方法，不是 verify 的验收标准，是否 test-first 也不改变最终的独立验收要求。
+单元测试仍然有价值，但在 AI Coding 里，它更准确的定位是快速反馈信号和回归约束，而不是正确性的自动证明。本仓库 TDD 的 red → green → refactor 小步循环是实现方法，不是 verify 的验收标准，是否 test-first 也不改变最终的独立验收要求。
 
 真正需要隔离的是“成功标准”而不只是 Agent 进程：
 
@@ -36,6 +36,7 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 | 提供具体启动、驱动、观察、隔离和清理步骤 | 项目本地验证 Skill 或已有说明 |
 | 按当前 AC 选择足够的检查、判断证据可信度 | 全局 `verify` |
 | 判断实现质量、设计及维护风险 | `code-review` |
+| 按需审计指定测试的有效性、独有保护和维护成本 | `test-audit` |
 
 `verify` 按当前任务指定入口、Profile 的 `verification_instructions`、仓库已有本地 Skill / 文档 / 脚本 / CI 的顺序发现方法。没有 Profile 或字段为 `auto` 时继续动态发现；没有本地 Skill，也可以使用已有检查，不要求先运行 setup。入口失效时检查实际命令并报告缺口，验证者不在只读验收中修建 harness。
 
@@ -55,6 +56,8 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 
 这些都是 evidence，不是 oracle。验证者必须确认每项 evidence 确实覆盖对应 AC，不能只看命令退出码为 0。测试、fixture、mock、snapshot、golden、CI/测试配置的修改本身不违规，但必须检查是否削弱、跳过、放宽了验证条件，或按实现重写了验证逻辑。这个检查只判断 evidence 是否仍可信，不评价架构、命名、可维护性或实现风格；后者属于 `code-review`。
 
+`verify` 不能把当前 AC 的证据可信度判断委托给 test-audit，也不必等待专项审计。`test-audit` 面向指定测试范围的保留、合并、重写或删除判断；它不认证所有 AC，也不自动成为交付关卡。已有测试同样需要按证据风险检查，不限于本次修改的测试。
+
 如果现有检查无法直接证明某条 AC，验证者应优先寻找最小的独立可观察检查（observable check），而不是修改仓库测试或新增生产 API 来制造通过结果。没有安全、合理的验证方式时，返回 `NOT VERIFIED`。
 
 GUI 证据必须分别说明行为、视觉参考和交互体验的覆盖。行为 E2E 通过不能证明视觉或 UX 验收；截图不能单独证明交互时序；mock 外部响应不能证明真实服务集成。
@@ -72,7 +75,7 @@ GUI 证据必须分别说明行为、视觉参考和交互体验的覆盖。行�
 `verify` 只报告 verdict 和 evidence，后续状态由 `loop` 决定，不能把三种结论压成简单的成功/失败二值。
 
 - `FAIL` 是当前已确认约定（confirmed contract）的已验证缺陷。Loop 保留原始发现和执行证据（execution evidence），交给 implement 走修正尝试（correction attempt），修复后重跑受影响的本地检查（local checks）和独立 verify。其他测试全绿不能覆盖它，相关代码、需求、执行图或环境变化后也不能复用旧报告。
-- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据；确需创建或修复 harness 时，由调用方将工作交给 `verification-setup`，完成后重新验证。契约问题交回需求负责方（requirement owner）。不能直接把它丢给 implementor 修代码，也不能完成交付。
+- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据；确需创建或修复 harness 时，由调用方将工作交给 `verification-setup`，完成后重新验证。契约问题交回需求负责方（requirement owner）。缺少必要仓库测试时，交给 implement 做限定范围的测试补充，再重新验证；不能据此直接认定产品代码有缺陷，也不能完成交付。
 - 如果 verifier 的预期行为与已确认需求不一致，应解决验证依据（verification basis）/ 约定冲突，而不是修改实现去迎合错误期望。
 
 因此，以下情况都不能视为通过：

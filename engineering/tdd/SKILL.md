@@ -1,110 +1,44 @@
 ---
 name: tdd
-description: Test-driven development with a red-green loop. Use when building a feature or fixing a bug test-first, or when the work should move in vertical slices.
+description: Drive a feature or bug fix through small test-first behaviour cycles with red, green, and scoped refactoring.
 ---
 
 # Test-Driven Development
 
-TDD is the red → green loop. The point is not more tests. It is independent, observable feedback that proves each slice moved the behaviour.
+Use TDD as an implementation method: choose one confirmed behaviour, observe a meaningful failing test, implement it, and improve the touched design while keeping tests green. Clear business rules and regression fixes can benefit as much as uncertain interface design. TDD does not replace the caller's delivery or acceptance responsibilities.
 
-Every section applies on every cycle — consult them before and during the loop, not after.
+## Establish the behaviour and boundary
 
-## Preconditions
+Read the confirmed requirements, relevant project vocabulary, applicable design decisions, and existing verification guidance. Identify:
 
-Do not start until all three exist:
+- The behaviour and an independent basis for the expected result: a requirement, public contract, domain rule, or worked example.
+- The production interface through which a caller observes it, and any external dependencies that need a test double.
+- The smallest sufficient test level and what it cannot establish.
 
-1. Expected behaviour that can be judged from outside.
-2. An independent source for the expected value — a confirmed literal, spec / acceptance criteria, public contract, authoritative docs, or a worked example.
-3. A production Seam that can observe that behaviour stably.
+Reuse existing decisions and interfaces; do not ask the user to reconfirm routine test choices. For new behaviour, a proposed interface grounded in real caller needs is enough to start; it need not already be implemented. Resolve consequential requirement or shared-design conflicts through the caller before dependent work. Keep technical test boundaries in applicable design or test guidance, not in SPEC as implementation details.
 
-If any is missing, do not invent a test. Unclear behaviour goes back to `grilling`. If the Seam or Interface itself is the wrong shape, consult `codebase-design`.
+Prefer public behaviour over private structure. Do not widen production APIs or add registries, setters, wrappers, or dependency layers solely to make a test convenient. Consult `codebase-design` when a real interface design problem needs its vocabulary; it is not a mandatory stage.
 
-## What a good test is
+## Write useful tests
 
-Tests verify behaviour through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "user can checkout with valid cart" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.
+Protect a confirmed contract, domain rule, meaningful failure mode, or known regression. Choose checks that exercise the relevant production path and survive internal refactoring. Read [tests.md](tests.md) for examples and [mocking.md](mocking.md) when using test doubles.
 
-Prefer:
+Keep the expected result independent of the implementation under test. Copying its algorithm can reproduce the same mistake; replacing that algorithm with a literal does not establish independence. A formula, property, or reference implementation can be valid when independently justified. Ask what plausible contract violation the test would detect, not how many lines it covers.
 
-- Results a user or caller can actually observe.
-- Real production construction and public entry points.
-- The same Interface / Seam / Adapter the production path uses.
-- An expected value computed independently of the code under test.
+Avoid bulk test-first work that commits to speculative interfaces before feedback. Choose one behaviour at a time; a TDD cycle need not be a complete delivery slice. When integration feasibility is the risk, first exercise the narrowest real end-to-end path rather than relying on isolated green tests.
 
-Avoid:
+## Red → Green → Refactor
 
-- Private methods, internal fields, or call order that are not the contract.
-- Production APIs added for tests: `forTest`, noops, mutable callbacks, delay parameters, or leaked internals.
-- Bypassing the interface via a database, internal logs, or "the source contains this string", unless that *is* the public contract.
+1. **Pick one behaviour.** Define its observable expectation and check whether existing tests already protect it.
+2. **Red.** Write the smallest useful failing test. Run it and confirm failure comes from the target behaviour being missing or wrong, not a broken fixture, environment, or unrelated syntax error. If it is already green, investigate before claiming a red step or adding redundant coverage.
+3. **Green.** Implement the simplest correct behaviour needed for this cycle without speculative features.
+4. **Refactor when useful.** Remove duplication or unnecessary complexity exposed in the touched code. Keep behaviour unchanged and rerun the test and the smallest affected regression set. No mandatory extraction, abstraction, or separate refactoring pass is required for each cycle.
+5. **Continue.** Select the next confirmed behaviour using the feedback. Shared-design changes or unrelated cleanup exceed this cycle; return them to the caller.
 
-See [tests.md](tests.md) for examples and [mocking.md](mocking.md) for mocking.
+For a bug fix, reuse an available minimised reproduction and diagnosis, turn it into a regression test, and rerun the original reproduction after the fix. If the cause is still unknown, investigate it (using `debug` when useful) before choosing a speculative fix.
 
-## Anti-patterns
+## Stop and report
 
-- **Implementation-coupled** — mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behaviour hasn't changed.
-- **Tautological** — the assertion recomputes the expected value the way the code does (`expect(add(a, b)).toBe(a + b)`, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.
-- **Horizontal slicing** — writing all tests first, then all implementation. Bulk tests verify *imagined* behaviour: you test the *shape* of things rather than user-facing behaviour, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in **vertical slices** instead — one test → one implementation → repeat, each test a **tracer bullet** that responds to what the last cycle taught you.
+Report the behaviours covered, expected-result sources, actual red/green commands and observations, scoped refactoring, and remaining gaps. If a check could not run, say so; do not claim a completed TDD cycle. Never weaken expectations to obtain green.
 
-```text
-one behaviour → one red test → minimal green implementation → next behaviour
-```
-
-## Seams — where tests go
-
-A **Seam** is a variation point where behaviour can be changed without editing the code at that point. Tests should normally enter through the production public Interface at that Seam, never through private internals.
-
-**Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam.
-
-Write down:
-
-- The public behaviour under observation.
-- Which production Seam the test enters.
-- Which external boundaries can stay real, and which need a stable stand-in.
-- What this cycle will *not* test.
-
-The Seam belongs on a real Module's Interface, satisfied by an Adapter when needed. If the only way to test is to add a production Interface, consult `codebase-design` before widening the Interface for testability.
-
-A Seam already recorded in `SPEC.md` and confirmed with the user can be reused without asking again. Changing the public interface, acceptance coverage, trust boundary, or confirmed test contract requires stating the new Seam, coverage, and trade-off, then getting confirmation.
-
-When the shape of that interface is itself in question — how deep the module is, where the seam belongs, what the interface should expose — consult `codebase-design`. It is a reference, not a session to run.
-
-## Rules of the loop
-
-Each slice, in this order:
-
-1. **Pick one behaviour** — the smallest independently observable slice that still has user value.
-2. **Red** — write the failing test. Confirm it fails because the target behaviour is missing or wrong, not because of fixtures, environment, or syntax.
-3. **Green** — only enough production code to pass this test. Don't anticipate later slices.
-4. **Verify** — re-run this test and the smallest existing set it can affect.
-5. **Next slice** — choose from what this cycle taught you, not from a pre-written test inventory.
-
-**Red before green.** Don't add speculative features.
-**One slice at a time.** One seam, one test, one minimal implementation per cycle.
-**Refactoring is not part of the loop.** After a coherent set of slices, hand structural contraction to `simplify` or the implementation flow's review / simplification gate, then re-run verification. Don't fold refactor into every red → green cycle.
-
-## Test doubles
-
-In this order:
-
-1. Real, fast, deterministic dependencies.
-2. Official fakes / emulators / in-memory Adapters the project already owns.
-3. The smallest test double at a real external boundary.
-
-Don't mock your own internal Modules to make a test more "unit". Mocks isolate real external uncertainty; they do not copy the implementation's call graph.
-
-## Bug fixes
-
-`debug` already owns the bug feedback loop, the minimised repro, and root-cause confirmation. In TDD, turn that minimised repro into a regression test: red first, then the smallest root-cause fix, then re-run the original repro. Do not re-run a separate diagnosis inside `tdd`.
-
-## Done when
-
-- Every new test names the external behaviour it checks and the independent expected source.
-- Every new behaviour went through a confirmed red → green.
-- Tests enter through a production public Seam and do not leak internals for testability.
-- No obvious tautological, implementation-coupled, or horizontal-slicing tests.
-- Related existing verification still passes; anything unverified is recorded.
-
-## Boundaries
-
-- No mandated test framework, directory, coverage percentage, or mocking library.
-- Not every task is TDD. If a valuable tight loop cannot be built, use the target repo's existing verification instead.
-- Passing tests are not the only evidence the requirement is done. Completeness still goes through `code-review` and the task's acceptance.
+When a useful, affordable test-first loop cannot be built, report the limitation and continue with the caller's appropriate verification method. Do not force TDD on every task, manufacture production hooks, or create a coverage target. Passing these tests supports only their exercised behaviours; required independent verification and review still apply.

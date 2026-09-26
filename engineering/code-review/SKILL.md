@@ -23,6 +23,8 @@ Prioritise the questions that require judgement:
 - **Design and complexity:** Does the change fit existing boundaries and conventions? Report unnecessary compatibility paths, speculative abstractions, or test-only indirection only when their concrete maintenance cost is evident. Prefer the smallest correction; do not prescribe patterns or broad refactors.
 - **Evidence:** Do tests assert the intended observable behaviour and cover the risky changed paths? Passing commands do not prove the requirements are right or the tests meaningful. Separate evidence actually inspected from claims and unverified scope.
 
+Report concrete test defects within the change as normal findings; a systematic test-value cleanup belongs to an explicitly scoped `test-audit`, not an automatic extra review stage. Review findings do not replace per-criterion acceptance verdicts.
+
 Do not repeat formatter, linter, or type-checker output as manual findings. Do not demand more tests, abstractions, compatibility, or defensive code without a specific failure or maintenance problem. Follow neighbouring code only to resolve a concrete concern; no mandatory whole-repository exploration.
 
 ## Decide what matters

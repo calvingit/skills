@@ -29,7 +29,7 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 ## Implementation loop
 
 - For each delivery slice, lock externally observable behaviour and a real production Seam, then write the smallest implementation.
-- When the work fits test-first, expected behaviour is independently decidable, and a stable Seam exists, use `tdd`'s red → green vertical-slice loop.
+- When the work fits test-first, expected behaviour is independently decidable, and a stable Seam exists, use `tdd`'s red → green → refactor behaviour cycles within implementation.
 - When TDD does not fit, use the smallest sufficient feedback loop the target repo already has. Do not invent production interfaces for tests.
 - Run this slice's targeted tests and related typechecks as you go. Do not leave all feedback until the end.
 

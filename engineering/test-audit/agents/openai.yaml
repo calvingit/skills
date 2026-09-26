@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Audit"
+  short_description: "Audit test effectiveness and maintenance value"
+  default_prompt: "Use $test-audit to inspect the requested tests against confirmed contracts and report justified keep, merge, rewrite, or remove recommendations."

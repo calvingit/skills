@@ -1,23 +1,9 @@
-# When to Mock
+# When to Use Test Doubles
 
-Prefer real, fast, deterministic dependencies. Mock at **system boundaries** only — a third-party API, an uncontrolled network, time, or randomness. For databases and filesystems, prefer the project's existing test database, emulator, or in-memory Adapter.
+Prefer real, fast, deterministic dependencies, then existing project fakes, emulators or test adapters. Use a small test double where an external service, time, randomness, or a costly dependency prevents useful feedback.
 
-Don't mock:
+Choose isolation based on the behaviour and risk under test. Mocking an internal collaborator is a warning when it copies the implementation's call graph or hides the behaviour being claimed; ownership alone does not determine whether a double is valid. State which boundary remains unverified and use a real integration check when that boundary matters to acceptance.
 
-- Your own classes/modules
-- Internal collaborators
-- Anything you control
+Use responses grounded in the dependency's contract, including relevant failures. A mock configured to return success cannot establish that the real integration works. Do not mock the target behaviour itself.
 
-A test double should satisfy a confirmed Interface and return a result independent of the implementation under test. Don't use a mock to copy the current Implementation's call graph.
-
-## Designing for Mockability
-
-At system boundaries, inject a concrete adapter behind a stable Interface. Prefer one entry per real operation. Don't expose a generic fetcher that needs conditional logic inside the mock.
-
-**1. Use dependency injection**
-
-Pass external dependencies in rather than creating them internally.
-
-**2. Prefer SDK-style interfaces over generic fetchers**
-
-Create specific functions for each external operation instead of one generic function with conditional logic. Each mock then returns one specific shape, with no conditional logic in test setup.
+Reuse existing construction and dependency injection points. Add or change an interface only when real production callers or a concrete design need justify it; do not impose SDK wrappers, public setters or a new dependency-injection layer for testing alone.
