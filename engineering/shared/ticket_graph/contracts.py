@@ -216,8 +216,8 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
 
     if not validate_string_list(ticket["referenced_design_decisions"], pattern=DESIGN_ID_RE):
         problems.append(invalid_field(path, ticket_id, "referenced_design_decisions", "referenced_design_decisions must contain unique D IDs."))
-    if not validate_string_list(ticket["constraints"], require_items=True):
-        problems.append(invalid_field(path, ticket_id, "constraints", "constraints must contain non-empty unique strings."))
+    if not validate_string_list(ticket["constraints"]):
+        problems.append(invalid_field(path, ticket_id, "constraints", "constraints must be an array of non-empty unique strings."))
     if not validate_string_list(ticket["dependencies"], pattern=TICKET_ID_RE):
         problems.append(invalid_field(path, ticket_id, "dependencies", "dependencies must contain unique ticket IDs."))
     acceptance = ticket["delivery_acceptance"]

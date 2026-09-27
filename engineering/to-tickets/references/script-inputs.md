@@ -21,7 +21,7 @@ Use Python 3.10+ on macOS/Linux. Resolve script paths from the installed skill, 
 }
 ```
 
-D references may be empty when HLD is not required. Candidate dependencies name other candidate keys. Scripts allocate immutable IDs and initialize lifecycle/execution; callers do not supply either. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
+D references may be empty when HLD is not required. `constraints` may be `[]` when the ticket has no specific constraint; entries, when present, must be non-empty and unique. Candidate dependencies name other candidate keys. Scripts allocate immutable IDs and initialize lifecycle/execution; callers do not supply either. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
 
 ## Reconcile
 

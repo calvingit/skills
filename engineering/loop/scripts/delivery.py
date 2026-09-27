@@ -113,7 +113,7 @@ def complete(task_dir: Path, request: dict) -> dict:
     if request['snapshot'] != context['snapshot'] or _snapshot(task_dir, Path(context['workspace']))[0] != context['snapshot']:
         raise ValueError('Delivery review is stale; prepare and review the current snapshot.')
     result = {key: value for key, value in request.items() if key != 'snapshot'}
-    problems = completion_problems(result, context['spec_acceptance'], require_review=True)
+    problems = completion_problems(result, context['spec_acceptance'], final_delivery=True)
     if problems:
         raise ValueError('Delivery not accepted: ' + json.dumps(problems))
     # Recheck after validation, before accepting the receipt. Any subsequent change

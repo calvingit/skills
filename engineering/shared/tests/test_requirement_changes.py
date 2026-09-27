@@ -24,6 +24,13 @@ def completion(**overrides):
             "approved": True, "unverified": [], **overrides}
 
 
+def ticket_completion(**overrides):
+    return {"evidence": {"AC1": {"result": "passed", "summary": "Observed expected result in test log."}},
+            "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
+            "review": "经检查，当前范围没有需要修复的问题。\n\n可选建议：后续改善命名。",
+            **overrides}
+
+
 class RequirementChangesTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -185,6 +192,9 @@ class RequirementChangesTests(unittest.TestCase):
         for key, value in [('evidence', {}), ('review', ' '), ('verification', []), ('verification', [{'command': 'check', 'exit_code': 1, 'summary': 'Failed'}]), ('unverified', ['integration'])]:
             invalid = copy.deepcopy(request); invalid[key] = value
             with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
+        for key in ('approved', 'unverified'):
+            invalid = copy.deepcopy(request); del invalid[key]
+            with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
         self.assertEqual(delivery.status(self.task)['state'], 'pending')
 
     def test_final_delivery_still_requires_review_after_local_completion(self):
@@ -224,7 +234,7 @@ class RequirementChangesTests(unittest.TestCase):
                  'existing_changes': {'included': [], 'excluded': []}, 'allowed_write_scope': ['src.py']}
         result, code = mutate_ticket('start', self.task, 'T002', start)
         self.assertEqual(code, 0, result)
-        request = completion()
+        request = ticket_completion()
         del request['review']
         result, code = mutate_ticket('complete', self.task, 'T002', {'expected_attempt': 1, **request})
         self.assertEqual(code, 0, result)
@@ -238,7 +248,7 @@ class RequirementChangesTests(unittest.TestCase):
         attempt = self.start()
         evidence = {'AC1': {'result': 'passed', 'summary': 'First check.'},
                     'AC2': {'result': 'passed', 'summary': 'Unaffected second check.'}}
-        request = completion(evidence=evidence)
+        request = ticket_completion(evidence=evidence)
         del request['review']
         result, code = mutate_ticket('complete', self.task, 'T001', {'expected_attempt': attempt, **request})
         self.assertEqual(code, 0, result)
@@ -279,7 +289,7 @@ class RequirementChangesTests(unittest.TestCase):
 
     def execute(self):
         attempt = self.start()
-        request = completion()
+        request = ticket_completion()
         del request['review']
         result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **request})
         self.assertEqual(code, 0, result)
@@ -291,7 +301,7 @@ class RequirementChangesTests(unittest.TestCase):
     def test_completion_preserves_arbitrary_markdown_verbatim(self):
         attempt = self.start()
         text = "# 人工审查\n符合需求。\n\n```text\nPASS 只是示例，不是解析指令\n```\n"
-        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion(review=text)})
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **ticket_completion(review=text)})
         self.assertEqual(code, 0, result)
         self.assertEqual(json.loads(self.path.read_text())["execution"]["review"], text)
         context = delivery.prepare(self.task, self.workspace)
@@ -299,16 +309,15 @@ class RequirementChangesTests(unittest.TestCase):
         stored = json.loads((self.task / ".loop/delivery.json").read_text())
         self.assertEqual(stored["receipt"]["review"], text)
 
-    def test_completion_rejects_stale_attempt_and_unapproved_result(self):
+    def test_ticket_completion_rejects_stale_attempt_and_invalid_evidence(self):
         attempt = self.start()
         before = self.path.read_bytes()
-        cases = [{"expected_attempt": attempt + 1, **completion()},
-                 {"expected_attempt": attempt, **completion(approved=False)},
-                 {"expected_attempt": attempt, **completion(approved="true")},
-                 {"expected_attempt": attempt, **completion(review=" ")},
-                 {"expected_attempt": attempt, **completion(evidence={})},
-                 {"expected_attempt": attempt, **completion(unverified=["Integration not run"])},
-                 {"expected_attempt": attempt, **completion(verification=[{"command": "test", "exit_code": 1, "summary": "Failed"}])}]
+        cases = [{"expected_attempt": attempt + 1, **ticket_completion()},
+                 {"expected_attempt": attempt, **ticket_completion(review=" ")},
+                 {"expected_attempt": attempt, **ticket_completion(evidence={})},
+                 {"expected_attempt": attempt, **ticket_completion(verification=[{"command": "test", "exit_code": 1, "summary": "Failed"}])},
+                 {"expected_attempt": attempt, **ticket_completion(approved=True)},
+                 {"expected_attempt": attempt, **ticket_completion(unverified=[])}]
         for request in cases:
             variants = [request]
             if request['review'].strip():
@@ -322,7 +331,7 @@ class RequirementChangesTests(unittest.TestCase):
     def test_requirement_change_blocks_old_attempt_completion(self):
         attempt = self.start()
         self.change()
-        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **completion()})
+        result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **ticket_completion()})
         self.assertEqual(code, 1)
         self.assertEqual(result["problems"][0]["code"], "upstream_changed")
 

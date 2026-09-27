@@ -87,10 +87,12 @@ def apply_retry(ticket, request):
     issues = validate_ticket(public_ticket(candidate), candidate["_path"])
     return (None, issues) if issues else (candidate, [])
 
-def completion_problems(request, acceptance_ids, *, require_review=True):
-    """Check recorded facts and the caller's decision, without interpreting review prose."""
-    fields = {"evidence", "verification", "approved", "unverified"}
-    if require_review or (isinstance(request, dict) and "review" in request):
+def completion_problems(request, acceptance_ids, *, final_delivery=False):
+    """Check recorded facts and, for final delivery, explicit approval without interpreting prose."""
+    fields = {"evidence", "verification"}
+    if final_delivery:
+        fields.update({"approved", "unverified", "review"})
+    elif isinstance(request, dict) and "review" in request:
         fields.add("review")
     issues = validate_shape(request, fields,
                             path="<request>", ticket_id=None, field="")
@@ -104,9 +106,10 @@ def completion_problems(request, acceptance_ids, *, require_review=True):
         return issues
     if "review" in request and not non_empty_string(request["review"]):
         return [invalid_field("<request>", None, "review", "Include the original review as a non-empty string.")]
-    if (request["approved"] is not True or request["unverified"] != []
-            or not request["verification"] or any(item["exit_code"] != 0 for item in request["verification"])):
-        return [problem("transition", "completion_gate_failed", "Completion requires caller approval, successful verification, and no unverified scope.")]
+    if not request["verification"] or any(item["exit_code"] != 0 for item in request["verification"]):
+        return [problem("transition", "completion_gate_failed", "Completion requires successful verification.")]
+    if final_delivery and (request["approved"] is not True or request["unverified"] != []):
+        return [problem("transition", "completion_gate_failed", "Final delivery requires caller approval and no unverified scope.")]
     if set(request["evidence"]) != set(acceptance_ids):
         return [problem("transition", "done_without_acceptance_evidence", "Evidence must cover exactly the current acceptance IDs.")]
     for entry in request["evidence"].values():
@@ -124,7 +127,7 @@ def apply_complete(ticket, request):
     if not isinstance(request, dict) or type(request.get("expected_attempt")) is not int or request["expected_attempt"] != ticket["execution"]["attempt_sequence"]:
         return transition_failure(ticket, "stale_attempt", "Complete expected_attempt must match the active attempt.")
     result = {key: value for key, value in request.items() if key != "expected_attempt"}
-    issues = completion_problems(result, [item["id"] for item in ticket["delivery_acceptance"]], require_review=False)
+    issues = completion_problems(result, [item["id"] for item in ticket["delivery_acceptance"]])
     if issues:
         return None, issues
     candidate = copy.deepcopy(ticket)

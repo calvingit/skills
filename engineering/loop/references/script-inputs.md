@@ -17,7 +17,7 @@ python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <req
 | `retry` | start fields plus `expected_attempt` (current number), `findings` (original report string) |
 | `block` | `blocker` (`category`, `reason`, `release_condition`), `evidence` (local AC ID → result/summary) |
 | `unblock` | `release_evidence` (Loop-confirmed explanation) |
-| `complete` | `expected_attempt`, `evidence`, `verification`, `approved`, `unverified`; optional `review` (actual original report) |
+| `complete` | `expected_attempt`, `evidence`, `verification`; optional `review` (actual original report) |
 | `reopen` | `review_finding`, `invalidated_acceptance` (local AC ID array), `upstream_unchanged: true` |
 
 `retry` belongs to `record-attempt`; other state mutations belong to `update-status`. Example complete request:
@@ -26,13 +26,11 @@ python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <req
 {
   "expected_attempt": 1,
   "evidence": {"AC1": {"result": "passed", "summary": "Observed required API result."}},
-  "verification": [{"command": "project test command", "exit_code": 0, "summary": "Required checks passed."}],
-  "approved": true,
-  "unverified": []
+  "verification": [{"command": "project test command", "exit_code": 0, "summary": "Required checks passed."}]
 }
 ```
 
-Ticket completion records local acceptance and releases dependencies; it does not pass final delivery. Evidence must cover every current `delivery_acceptance` ID. Optional review must be a nonempty original report from an actual review, never a placeholder for deferred final review. Existing requests containing an actual review remain valid. Supply real results, not these illustrative strings. Blocker kinds and other stored fields use the [shared schema](../../shared/ticket-schema.json).
+Ticket completion is Loop's approval of local acceptance and releases dependencies; it does not pass final delivery. Call it only after confirming no unresolved blockers or required unverified scope. Evidence must cover every current `delivery_acceptance` ID. Optional review must be a nonempty original report from an actual review, never a placeholder for deferred final review. Supply real results, not these illustrative strings. Blocker kinds and other stored fields use the [shared schema](../../shared/ticket-schema.json).
 
 ## Delivery and recovery
 

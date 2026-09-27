@@ -229,6 +229,22 @@ class TicketGraphCliTests(unittest.TestCase):
                 self.assertFalse(payload["ok"])
                 self.assertIn(expected_code, {item["code"] for item in payload["problems"]})
 
+    def test_constraints_may_be_empty_but_entries_must_be_nonempty_and_unique(self) -> None:
+        schema = json.loads((SCHEMAS / "ticket-schema.json").read_text(encoding="utf-8"))
+        ticket = canonical_ticket(constraints=[])
+        self.assertEqual(schema_errors(ticket, schema, schema), [])
+        self.write_ticket(ticket)
+        result, payload = self.run_cli("inspect", str(self.task_dir))
+        self.assertEqual(result.returncode, 0)
+        self.assertTrue(payload["ok"])
+
+        for constraints in ([""], ["Repeat", "Repeat"]):
+            with self.subTest(constraints=constraints):
+                self.write_ticket(canonical_ticket(constraints=constraints))
+                result, payload = self.run_cli("inspect", str(self.task_dir))
+                self.assertEqual(result.returncode, 1)
+                self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
+
     def test_public_schemas_define_closed_v1_contracts(self) -> None:
         ticket_schema = json.loads((SCHEMAS / "ticket-schema.json").read_text(encoding="utf-8"))
 
@@ -752,8 +768,7 @@ class TicketGraphCliTests(unittest.TestCase):
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "First verified."}},
                 "verification": verification,
-                "expected_attempt": 1, "review": "检查完成，无需修改。", "approved": True,
-                "unverified": [],
+                "expected_attempt": 1, "review": "检查完成，无需修改。",
             }
         )
         before = path.read_bytes()
@@ -776,8 +791,7 @@ class TicketGraphCliTests(unittest.TestCase):
                     "AC2": {"result": "passed", "summary": "Second verified."},
                 },
                 "verification": verification,
-                "expected_attempt": 1, "review": "检查完成，无需修改。", "approved": True,
-                "unverified": [],
+                "expected_attempt": 1, "review": "检查完成，无需修改。",
             }
         )
         complete_result, _ = self.run_cli(
@@ -804,7 +818,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(set(reopened["execution"]["evidence"]), {"AC1"})
         self.assertEqual(reopened["execution"]["reopen_context"]["invalidated_acceptance"], ["AC2"])
 
-    def test_complete_rejects_failed_reviews_or_unverified_scope(self) -> None:
+    def test_complete_rejects_nonzero_verification(self) -> None:
         ticket = canonical_ticket(
             lifecycle={"phase": "in_progress"},
             execution={
@@ -825,9 +839,8 @@ class TicketGraphCliTests(unittest.TestCase):
         request = self.write_request(
             {
                 "evidence": {"AC1": {"result": "passed", "summary": "Verified."}},
-                "verification": [{"command": "test", "exit_code": 0, "summary": "Passed."}],
-                "expected_attempt": 1, "review": "存在未修复问题。", "approved": False,
-                "unverified": ["A required edge case."],
+                "verification": [{"command": "test", "exit_code": 1, "summary": "Failed."}],
+                "expected_attempt": 1,
             }
         )
         before = path.read_bytes()
@@ -850,7 +863,7 @@ class TicketGraphCliTests(unittest.TestCase):
                         "covers": {"requirements": ["R1"], "spec_acceptance": ["AC1"]},
                         "referenced_design_decisions": ["D1"],
                         "what_to_build": "Deliver the foundation.",
-                        "constraints": ["Preserve the contract."],
+                        "constraints": [],
                         "delivery_acceptance": [
                             {"id": "AC1", "description": "Foundation is observable."}
                         ],
@@ -886,6 +899,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual([path.name.split("-", 1)[0] for path in files], ["T001", "T002"])
         stored = [json.loads(path.read_text(encoding="utf-8")) for path in files]
         self.assertEqual(stored[0]["lifecycle"]["phase"], "open")
+        self.assertEqual(stored[0]["constraints"], [])
         self.assertEqual(stored[1]["dependencies"], ["T001"])
         self.assertEqual(payload["graph"]["frontier"], ["T001"])
 
@@ -932,7 +946,7 @@ class TicketGraphCliTests(unittest.TestCase):
                             "covers": {"requirements": ["R1"], "spec_acceptance": ["AC1"]},
                             "referenced_design_decisions": ["D1"],
                             "what_to_build": "Replace the original delivery.",
-                            "constraints": ["Preserve the confirmed behavior."],
+                            "constraints": [],
                             "delivery_acceptance": [
                                 {"id": "AC1", "description": "Replacement is observable."}
                             ],

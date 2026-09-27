@@ -87,7 +87,7 @@ Resolve `<to-tickets-skill>` to this installed skill directory, never to the tar
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Loop stops writers.
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
 
-`referenced_design_decisions` cites existing HLD decisions; `delivery_acceptance` proves this delivery's coverage of SPEC acceptance. Tickets do not create new design or acceptance meaning. Constraints inherit HLD boundaries, such as using the established persistence path; do not prescribe method edits or implementation recipes.
+`referenced_design_decisions` cites existing HLD decisions; `delivery_acceptance` proves this delivery's coverage of SPEC acceptance. Tickets do not create new design or acceptance meaning. Constraints inherit applicable HLD boundaries, such as using the established persistence path; use `constraints: []` when this ticket has no specific constraint, rather than adding filler. Do not prescribe method edits or implementation recipes.
 
 ## Handoff
 

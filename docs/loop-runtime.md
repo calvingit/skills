@@ -9,7 +9,7 @@ Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagen
 | implement / verify / code-review | 实现及本地检查、最终独立验证、最终独立审查；返回可读文本或 Markdown |
 | skill 内状态脚本 | 图查询、依赖与需求绑定检查、状态写入、事务恢复、最终交付快照 |
 
-审查结果直接作为字符串使用。Loop 根据内容作判断；脚本不解析标题、严重性或通过措辞。JSON 仍用于确定的状态字段和命令输入，这不要求 subagent 返回 JSON。`approved` 是 Loop 对已读证据的明确判断，不是从报告中自动提取的结果。
+审查结果直接作为字符串使用。Loop 根据内容作判断；脚本不解析标题、严重性或通过措辞。JSON 仍用于确定的状态字段和命令输入，这不要求 subagent 返回 JSON。ticket 的 `complete` 命令表达 Loop 对本地验收的批准；最终交付的 `approved` 是 Loop 对独立报告与证据的明确判断，不是从报告中自动提取的结果。
 
 ## 执行上下文与委派
 
@@ -47,13 +47,11 @@ Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagen
 {
   "expected_attempt": 1,
   "evidence": {"AC1": {"result": "passed", "summary": "<observed result and evidence source>"}},
-  "verification": [{"command": "<actual command>", "exit_code": 0, "summary": "<actual output>"}],
-  "approved": true,
-  "unverified": []
+  "verification": [{"command": "<actual command>", "exit_code": 0, "summary": "<actual output>"}]
 }
 ```
 
-Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要求当前 attempt、全部本地 AC 的有效证据、实际成功的本地验证记录、明确批准和空 unverified；不检查报告语言或格式。ticket 的 review 可选；实际执行过审查时提交非空原文并保存到 `execution.review`，不填写“延后审查”等占位文本。已有包含真实 review 的请求仍可使用，重开时移除失效的当前审查。完整报告、命令日志和输入可保存在 `.loop/` 供交接。脚本无法判断文字中是否仍有阻断问题，也无法证明命令确实运行过，这些由 Loop 对原始证据负责。
+Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要求当前 attempt、全部本地 AC 的有效证据和实际成功的本地验证记录；调用 `complete` 即表示 Loop 已确认没有未解决的阻断问题或必需的未验证范围。脚本不检查报告语言或格式。ticket 的 review 可选；实际执行过审查时提交非空原文并保存到 `execution.review`，不填写“延后审查”等占位文本。重开时移除失效的当前审查。完整报告、命令日志和输入可保存在 `.loop/` 供交接。脚本无法判断文字中是否仍有阻断问题，也无法证明命令确实运行过，这些由 Loop 对原始证据负责。
 
 `block` 输入为 `blocker`（category、reason、release_condition）和已接受的 `evidence`；类别为 requirement、design、dependency、environment、permission 或 external。`unblock` 需要 `release_evidence`，必须先核实释放条件。`reopen` 需要 `review_finding`、失效的本地 AC 列表 `invalidated_acceptance` 和 `upstream_unchanged: true`，只用于原需求下的缺陷。
 
@@ -81,7 +79,7 @@ python3 <loop-skill>/scripts/update-status delivery-complete <task-dir> --input 
 python3 <loop-skill>/scripts/frontier <task-dir>
 ```
 
-最终输入使用上面的 complete 格式，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC。最终输入必须额外提供 `review`，内容是独立审查的原始字符串；ticket review 可选不会降低这个要求。
+最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是独立审查的原始字符串；ticket review 可选不会降低这个要求。
 
 快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置；最终验收记录不要写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效；外部服务变化由 Loop 重新判断证据适用性。
 
