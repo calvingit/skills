@@ -3,7 +3,7 @@ name: improve-agents-md
 description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。
 ---
 
-# 优化 AGENTS.md
+# Improve AGENTS.md
 
 把 `AGENTS.md` 写成供 Coding Agent 执行任务的简明指南，而不是仓库百科。保留经过验证的项目规则，删去会削弱指令效果的无关内容。
 

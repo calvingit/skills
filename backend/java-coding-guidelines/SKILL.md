@@ -3,7 +3,7 @@ name: java-coding-guidelines
 description: "编写、修改或审查 Java 代码时，按项目约定和《Java 开发手册（黄山版）》检查编码规约。"
 ---
 
-# Java 编码规约
+# Java Coding Guidelines
 
 用于 Java 代码实现与审查。Agent 应根据任务主题加载《Java 开发手册（黄山版）》的相关章节，避免整本手册长期占用上下文。
 

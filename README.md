@@ -47,7 +47,7 @@
 | [`document-sync`](./documents/document-sync/SKILL.md) | 检查文档与当前实现和规范是否一致，只更新受影响内容。 |
 | [`humanizer-zh`](./documents/humanizer-zh/SKILL.md) | 清理中文文本中的 AI 味、翻译腔和模板化表达。 |
 | [`url-to-markdown`](./documents/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
-| [`zh-terminology`](./documents/zh-terminology/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
+| [`terminology-zh`](./documents/terminology-zh/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
 ## Engineering Skills
 

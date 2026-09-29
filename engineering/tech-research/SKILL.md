@@ -3,7 +3,7 @@ name: tech-research
 description: "开展基于证据的技术调研，并给出可执行建议。"
 ---
 
-# 技术调研
+# Tech Research
 
 用于探索技术方案和开展技术选型。先查清事实、约束和方案差异，再给出判断。
 

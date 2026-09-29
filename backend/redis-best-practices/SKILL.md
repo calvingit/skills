@@ -3,7 +3,7 @@ name: redis-best-practices
 description: "设计或审查 Redis 的数据访问、缓存与协调逻辑，诊断延迟、内存和故障恢复问题，并评估高风险变更。"
 ---
 
-# Redis 工程实践
+# Redis Best Practices
 
 先确定 Redis 在当前系统中承担缓存、会话、计数、消息还是协调职责，再检查数据丢失、重复执行、过期或服务不可用时的行为是否符合业务约定。不默认增加缓存、锁或消息基础设施。
 

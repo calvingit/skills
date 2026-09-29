@@ -3,7 +3,7 @@ name: mysql-best-practices
 description: "诊断 MySQL 生产问题，并审查高风险数据库变更。"
 ---
 
-# MySQL 生产实践
+# MySQL Best Practices
 
 用于分析 MySQL 生产问题和数据库变更。先收集证据并区分根因，再给出影响小、可验证、可回退的处置方案，不套用固定阈值或口诀。
 

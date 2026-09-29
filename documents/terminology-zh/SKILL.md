@@ -1,9 +1,9 @@
 ---
-name: zh-terminology
+name: terminology-zh
 description: 审校中文技术文档、产品文案和 Skill 中的术语，识别英语硬翻译，并按语境改成准确、自然且一致的中文；适用于术语本地化、译名统一，以及同步检查 Markdown、HTML、SVG 等载体。
 ---
 
-# 中文术语审校
+# Terminology Zh
 
 把英文概念转换成中国技术团队能够自然理解的表达。翻译概念在当前语境中的作用，不机械对应英文词形。
 

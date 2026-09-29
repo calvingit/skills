@@ -3,7 +3,7 @@ name: mongodb-best-practices
 description: "设计或审查 MongoDB 文档模型、查询索引和并发更新，诊断连接与性能问题，并评估数据迁移和运行变更风险。"
 ---
 
-# MongoDB 工程实践
+# MongoDB Best Practices
 
 根据真实访问模式、数据规模和一致性要求判断设计，先取证再优化。不把关系模型直接改写为文档，也不默认嵌入全部数据、增加索引、使用事务或分片。
 

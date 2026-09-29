@@ -3,7 +3,7 @@ name: context-audit
 description: "审查 Agent 上下文中的重复、冲突、过时内容和职责错位。"
 ---
 
-# 上下文审查
+# Context Audit
 
 审查 Agent 实际会使用的上下文，减少冲突、重复和不必要的长期上下文，并让长期有效的规则由合适的位置维护。
 
