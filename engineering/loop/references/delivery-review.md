@@ -2,7 +2,7 @@
 
 Read when the graph reports `delivery_ready: true`. Historical completed tickets do not prove the final implementation meets the latest requirements.
 
-1. The main Agent runs `simplify` on the complete change set after all tickets pass local acceptance and records its conclusion. Remove only unnecessary complexity in the current scope; do not expand product requirements. No conclusion does not mean no simplification was needed.
+1. Dispatch a dedicated native `simplify` subagent on the complete change set after all tickets pass local acceptance and record its conclusion. Remove only unnecessary complexity in the current scope; do not expand product requirements. No conclusion does not mean no simplification was needed.
 2. After simplification stops writing, run `python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>` to record the current requirement, graph, and code snapshot under `.loop/delivery.json` before independent verification and review.
 3. Use a native `verify` subagent to check every current SPEC AC, including cross-ticket integration. Reuse prior evidence only when its meaning, code, dependencies, and environment remain applicable. Ticket-local AC IDs are not automatically SPEC AC IDs.
 4. Use a separate native `code-review` subagent on the complete final change set and evidence, including interactions and regressions from amendments. Read its Markdown directly. Do not ask for a schema or translate its findings into fields.

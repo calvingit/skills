@@ -9,7 +9,7 @@ Reuse existing knowledge and inspect actual files where needed. Refresh the note
 
 ## Choosing an executor
 
-Continue ordinary implementation serially in the main Agent. Use an Explorer for a bounded unknown area, or a Specialist when domain-specific reasoning benefits from isolation. An isolated task need not run concurrently. Final verification and review use separate independent Agents as described in [finalization](delivery-review.md).
+Dispatch every implementation and correction attempt to a Runtime-native worker. Reuse one worker context serially when the task benefits from continuity; use a new worker when isolation or a fresh perspective matters. Use an Explorer for a bounded unknown area, or a Specialist when domain-specific reasoning benefits from isolation. An isolated task need not run concurrently. Final simplify, verification, and review use separate dedicated Agents as described in [finalization](delivery-review.md).
 
 Parallel delegation requires an explicit Loop decision supported by no dependency, expected write overlap, unresolved shared design decision, or conflict over mutable resources such as a test database or generated output. Independent tickets can still run serially. If newly discovered overlap invalidates the decision, stop overlapping writes through Runtime and re-plan ownership before continuing. Runtime worktrees isolate files, not unresolved contracts or shared external resources.
 

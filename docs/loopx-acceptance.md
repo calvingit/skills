@@ -28,8 +28,9 @@ python3 engineering/shared/check.py
 
 | 场景 | 预期 |
 | --- | --- |
-| 共享模块的连续 tickets | 主 Agent 复用上下文；每张 ticket 记录独立 attempt 和全部本地 AC 证据，不逐票创建三种 Agent。 |
-| 真正独立的 tickets | 默认仍可串行；明确并行前检查依赖、写入区域、共享设计决策及可变资源，记录依据。 |
+| 共享模块的连续 tickets | Loop Manager 将 tickets 委派给 native worker；可复用同一 worker 上下文；每张 ticket 记录独立 attempt 和全部本地 AC 证据。 |
+| 真正独立的 tickets | 默认可串行委派；明确并行前检查依赖、写入区域、共享设计决策及可变资源，记录依据。 |
+| Runtime 没有原生 subagent | 保持 Loop 未完成并报告阻塞，不回退到 Manager 自行实现。 |
 | 最终审查发现已完成 ticket 的缺陷 | 按图约束 reopen 或创建修正 ticket，保留无关证据；修正后更新快照并重跑受影响验收。 |
 | 连续等待窗口结束；reviewer 没有 diff；状态未知 | 依无活动阈值核实状态并继续等待或查询，不提前关闭或重复派发，不推断通道故障。 |
 | 窗口结束，尚未完成且没有新进度，Runtime 为 running 或未知 | 先查状态，消息能力可用且本次执行未询问过时发送一次不中断工作的进度询问。 |

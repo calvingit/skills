@@ -46,7 +46,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 | Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
 | Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
 | Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `test-audit`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
-| 执行与验收 capability | `implement`, [`verify`](./verify.md) | Loop 主 Agent 默认连续 implement 并做本地检查；verify 在独立只读上下文中验收，Loop 最终验收使用原生 subagent。 |
+| 执行与验收 capability | `implement`, [`verify`](./verify.md) | `quick-implement` 在当前会话完成单一范围；Loop 将每张 ticket 委派给原生 worker，verify 在独立只读上下文中验收。 |
 | Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
 
 ## 选择入口
@@ -97,7 +97,7 @@ Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原�
 | 按需方法 | `test-audit` | 审计指定测试的独立依据、实际执行路径、独有保护和维护成本。 |
 | 编排 | `loop` | 选择任务、处理反馈、核对完成条件和维护状态，复用各 Skill 的判断规则。 |
 
-这些是职责关系，不要求每个小任务都完整执行所有步骤或新建 Agent。Loop 继续逐 ticket 做本地验收、在最终交付时独立 verify / code-review；`quick-implement` 保留自己的收尾规则。
+这些是职责关系，不要求每个小任务都完整执行所有步骤。单一范围走 `quick-implement`；进入 Loop 后，每张 ticket 都必须由原生 worker 执行，最终交付继续独立 verify / code-review；`quick-implement` 保留自己的收尾规则。
 
 项目验证方法说明“有哪些能力”，实现者和验证者各自选择当前风险需要的检查。`verify` 必须审查支撑当前 AC 的证据，不能等 test-audit 来保证可信度；`code-review` 也可报告改动中的具体测试缺陷。只有需要系统审计测试有效性或维护价值时，才使用 test-audit。删除或合并测试前，说明保留的保护与可能失去的独有证据，不能只凭数量、行数或覆盖率判断。
 
@@ -207,11 +207,11 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 ## Ticket 执行
 
-Loop 默认由主 Agent 复用任务上下文，连续实现 tickets 并检查每张 ticket 的全部本地 AC，再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。上下文摘要放在任务的 `.loop/context/`，必要时委派探索或专项工作；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
+Loop Manager 复用任务上下文并将每张 ticket 委派给原生 worker；worker 执行实现、修正和本地检查，Manager 再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。上下文摘要放在任务的 `.loop/context/`，必要时委派 Explorer 或 Specialist；worker 可串行或并行运行，仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
 
 结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；Skill 内的状态脚本只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
 
-执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 subagents，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 本地完成后，主 Agent 执行 simplify 并准备最终快照，再分别调用独立原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
+执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 workers，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 本地完成后，Loop 委派 simplify worker 并准备最终快照，再分别调用独立原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
 
 完成一张 ticket 后立即继续下一张。仅在最终交付通过、用户停止，或剩余工作依赖无法取得的外部输入/能力时停止。Runtime 结束后，Skill 不承诺后台自行继续。
 

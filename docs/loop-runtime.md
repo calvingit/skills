@@ -1,10 +1,10 @@
 # Loop 与 Runtime 的职责
 
-Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagents、等待、中断和会话恢复。Skill 内的状态脚本仅辅助维护 tickets 和交付进度，不启动外部 Agent CLI，也不管理 provider、进程、会话、heartbeat 或结果解析。
+Loop 是由当前 Agent 作为 Manager 执行的多 Agent 工作流 Skill。当前 Runtime 提供 subagents、等待、中断和会话恢复。Skill 内的状态脚本仅辅助维护 tickets 和交付进度，不启动外部 Agent CLI，也不管理 provider、进程、会话、heartbeat 或结果解析。
 
 | 部件 | 职责 |
 | --- | --- |
-| Loop | 准备任务上下文、连续实现、选择委派、判断 ticket 完成和最终交付 |
+| Loop Manager | 准备任务上下文、派发 worker、判断 ticket 完成和最终交付 |
 | Runtime | 创建、等待、中断和恢复原生 subagents |
 | implement / verify / code-review | 实现及本地检查、最终独立验证、最终独立审查；返回可读文本或 Markdown |
 | skill 内状态脚本 | 图查询、依赖与需求绑定检查、状态写入、事务恢复、最终交付快照 |
@@ -13,11 +13,11 @@ Loop 是由当前 Agent 执行的工作流 Skill。当前 Runtime 提供 subagen
 
 ## 执行上下文与委派
 
-一次 Loop run 是逻辑上的 execution session。主 Agent 默认在同一上下文中连续实现 tickets；ticket 和 attempt 不等于 Agent 生命周期，切换 ticket 或进入修正 attempt 不要求重建 Agent。主 Agent 在实现角色中修改产品代码，在编排角色中通过状态命令修改图；subagent 不修改上游需求、tickets 或 Git 历史。
+一次 Loop run 是逻辑上的 execution session。Manager 负责连续编排 tickets，所有实现和修正 attempt 都由 Runtime 原生 worker 执行；worker 上下文可按连续性需要复用或更换。Manager 通过状态命令修改图，worker 修改产品代码但不修改上游需求、tickets 或 Git 历史。
 
-初次定向探索后，主 Agent 在任务目录的 `.loop/context/context.md` 保存相关架构、模式、约束、风险和带来源的决策摘要，在 `repo-map.md` 保存相关模块、调用关系及入口。后续工作受影响时更新；恢复或委派时先读相关摘要，再核对实际文件。摘要不替代代码、SPEC/HLD 和 ticket，不另建决策或变更文件台账。
+初次定向探索后，Manager 在任务目录的 `.loop/context/context.md` 保存相关架构、模式、约束、风险和带来源的决策摘要，在 `repo-map.md` 保存相关模块、调用关系及入口。后续工作受影响时更新；恢复或委派时先读相关摘要，再核对实际文件。摘要不替代代码、SPEC/HLD 和 ticket，不另建决策或变更文件台账。
 
-普通实现串行复用主 Agent。未知领域可委派 Explorer，专项问题可委派 Specialist；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行。执行提示和依据留在 `.loop` 执行笔记，不扩展 ticket schema，不建立 Agent 池。具体规则及性能观察见[上下文与委派](../engineering/loop/references/context-and-delegation.md)。
+普通实现也必须委派给 Runtime 原生 worker，可串行复用同一 worker 上下文。未知领域可委派 Explorer，专项问题可委派 Specialist；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行。执行提示和依据留在 `.loop` 执行笔记，不扩展 ticket schema，不建立 Agent 池。具体规则及性能观察见[上下文与委派](../engineering/loop/references/context-and-delegation.md)。
 
 ## State commands
 
@@ -57,7 +57,7 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 ## 等待与执行恢复
 
-等待规则仅用于实际委派的执行，不用于主 Agent 切换 ticket。原生子任务默认没有总时限；使用 600 秒无活动阈值，明确设置的总预算独立计算。新执行消息、工具事件或新 soft-ping 回复可以更新活动时间；重复 running 状态、旧消息和等待窗口结束不能续期。每次执行最多一次不中断工作的 soft ping，无回复不证明卡死。到达阈值先核实状态和正在运行的命令，再按[等待与恢复规则](../engineering/loop/references/wait-recovery.md)处理，不自动终止或重复派发。
+等待规则仅用于实际委派的执行，不用于 Manager 切换 ticket。原生子任务默认没有总时限；使用 600 秒无活动阈值，明确设置的总预算独立计算。新执行消息、工具事件或新 soft-ping 回复可以更新活动时间；重复 running 状态、旧消息和等待窗口结束不能续期。每次执行最多一次不中断工作的 soft ping，无回复不证明卡死。到达阈值先核实状态和正在运行的命令，再按[等待与恢复规则](../engineering/loop/references/wait-recovery.md)处理，不自动终止或重复派发。
 
 确认原执行与相关命令停止后才接管，保留部分修改；迟到报告始终绑定原 handle、attempt 或交付快照。Runtime 负责停止和恢复 Agent，脚本不恢复会话。最终独立 verify 或 code-review 报告缺失时保持未完成；只有明确授权的替代才可改变执行者，并保留授权和覆盖证据。ticket 的默认本地检查无需独立角色，不得将其声称为独立验证。
 
@@ -71,7 +71,7 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 ## Final delivery
 
-`all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。主 Agent 执行 simplify 后准备最终快照，再分别调用独立 verify 和 code-review；代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，再更新快照和受影响的验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
+`all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。Loop Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review；代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，再更新快照和受影响的验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>

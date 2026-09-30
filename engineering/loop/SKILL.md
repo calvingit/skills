@@ -1,17 +1,17 @@
 ---
 name: loop
-description: Orchestrate a ticket graph in a shared task context, with continuous implementation and final independent verification and review.
+description: Orchestrate a ticket graph through native multi-agent workers, with independent verification and review.
 ---
 
 # Loop
 
-Own ticket selection, implementation handoff, progress, and completion decisions. The main Agent normally implements tickets continuously in its existing context. Use the current runtime's native subagents for independent final `verify` and `code-review`, and selectively for exploration, specialist work, or independent parallel tickets. State scripts only read and write ticket state and delivery progress; they do not execute agents. Do not launch external Agent CLIs or build a session manager, provider, polling, or result-parsing layer. If native subagents are unavailable, report the limitation and keep required independent final acceptance incomplete.
+Own ticket selection, worker dispatch, progress, and completion decisions. Loop is the multi-agent execution path: the Manager (the main Agent) does not implement tickets or edit product code. Every implementation and correction attempt is assigned to a Runtime-native worker subagent; final `simplify`, `verify`, and `code-review` also run in dedicated subagents. State scripts only read and write ticket state and delivery progress; they do not execute agents. Do not launch external Agent CLIs or build a session manager, provider, polling, or result-parsing layer. If native subagents are unavailable, report the limitation and keep Loop incomplete; never fall back to Manager implementation.
 
 ## Execution session
 
-A Loop run owns a logical execution session: shared task context, tickets, and delivery evidence. Tickets and correction attempts are units of work inside it, not independent Agent lifetimes. Continue the same Agent context when work shares project knowledge; a new ticket or attempt does not require a new Agent. Runtime owns actual context continuation, handles, waiting, and cancellation; Loop does not create or destroy Runtime sessions.
+A Loop run owns a logical execution session: shared task context, tickets, and delivery evidence. The Manager coordinates delegated worker executions; tickets and correction attempts must have a Runtime-native worker, while a worker context may be reused when the task benefits from continuity. Runtime owns actual context continuation, handles, waiting, and cancellation; Loop does not create or destroy Runtime sessions.
 
-The main Agent may edit product code while performing `implement`, then use Loop's state commands to record its decisions. Implementers, including the main Agent in that role, do not edit upstream requirements or tickets. Delegated subagents never mutate the graph or Git history.
+The Manager prepares worker context and records decisions through Loop's state commands. Worker subagents may edit product code while performing `implement`, but do not edit upstream requirements, tickets, or Git history. The Manager and delegated workers never mutate the graph from inside implementation; Loop remains the graph writer.
 
 ## Script entrypoints
 
@@ -28,10 +28,10 @@ Use `python3` plus the resolved script path. These helpers do not choose agents,
 
 1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
 2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `python3 <loop-skill>/scripts/record-attempt start`; for a correction use `scripts/record-attempt retry`. Use `python3 <loop-skill>/scripts/update-status --help` for the current request shape.
-3. Prepare or refresh the task context using [context and delegation](references/context-and-delegation.md). Follow `implement` in the main Agent by default, using the ticket, requirements, baseline/scope, and previous findings. Keep existing context across tickets. Delegate only when cognitive isolation or demonstrably independent work warrants it.
+3. Prepare or refresh the task context using [context and delegation](references/context-and-delegation.md). Dispatch `implement` or a correction attempt to a native worker with the ticket, requirements, baseline/scope, and previous findings. Keep or replace the worker context according to the task's continuity needs; do not implement the ticket in the Manager.
 4. Resolve project verification guidance from the task, `verification_instructions` when configured, or existing local skills/docs/scripts. Run the smallest local checks that cover **every** current ticket AC, including necessary development tests and applicable mandatory gates. Inspect actual changes and results; minimum verification means sufficient coverage, not fewer acceptance criteria. Per-ticket independent verify/review is not required by default. Honour any explicit user/project requirement for additional independent checks.
 5. Preserve local command evidence and any delegated text/Markdown reports under the task directory's `.loop/` for resume or handoff. Read reports directly; no JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required. Record the executor and coverage so local checks are not presented as independent verification.
-6. Decide and record the ticket state through `scripts/update-status`. A successful ticket mutation returns the graph computed after the write; use it to continue without routinely calling `frontier` again. Check the response for problems, and re-query if the graph is invalid, the result is unclear, or later changes may have made it stale. `done` means local acceptance passed and releases dependencies; only final delivery acceptance completes the task. Default to serial work in the main Agent. Before explicitly choosing parallel delegation, establish no dependency, expected write overlap, unresolved shared design decision, or shared mutable resource conflict. Use Runtime worktrees only when isolation is needed.
+6. Decide and record the ticket state through `scripts/update-status`. A successful ticket mutation returns the graph computed after the write; use it to continue without routinely calling `frontier` again. Check the response for problems, and re-query if the graph is invalid, the result is unclear, or later changes may have made it stale. `done` means local acceptance passed and releases dependencies; only final delivery acceptance completes the task. Worker executions may be serial or parallel. Before choosing parallel delegation, establish no dependency, expected write overlap, unresolved shared design decision, or shared mutable resource conflict. Use Runtime worktrees only when isolation is needed.
 
 Use `tdd` within implementation when useful. Request `test-audit` only for concrete test-effectiveness or maintenance concerns, not for every ticket or solely because the test diff is large. Return its findings through the existing correction flow; it does not replace local checks, independent verify, or code-review. Reassess affected evidence after changes to tests, fixtures, snapshots or verification configuration even when product code is unchanged.
 
@@ -56,7 +56,7 @@ JSON remains the storage format for ticket state and command input. A review sto
 
 ## Wait and recover
 
-These rules apply to actual delegated executions, not ticket switches in the main Agent.
+These rules apply to every delegated worker, not ticket switches in the Manager.
 
 Native subtasks have **no default total time limit**. Use a **600-second inactivity threshold** from dispatch or the latest qualifying activity, unless the user or project specifies another threshold. New execution messages, tool events/output, or a fresh soft-ping reply renew it; repeated `running` snapshots, old messages, wait expiry, and locally generated heartbeats do not. Renewal shows responsiveness, not effective progress or acceptance. An explicitly configured total budget remains independent and cannot be extended by activity. Command timeouts and native wait windows remain separate.
 
@@ -78,6 +78,6 @@ Route unsettled requirement choices to `grilling` first, normative requirement c
 
 One completed ticket, an empty ready list, or `delivery_ready` is not a stopping condition. If tickets remain, resolve actionable retries/blockers and continue. When `delivery_ready` is true, perform [Finalization](references/delivery-review.md) in the same execution.
 
-Stop only when final delivery is passed, the user stops the task, or remaining progress requires unavailable external input/capability. Explain the concrete blocker. The skill directs continued work while the runtime is active; it does not promise autonomous execution after that runtime stops.
+Stop only when final delivery is passed, the user stops the task, or remaining progress requires unavailable external input/capability, including a missing native worker. Explain the concrete blocker. The skill directs continued work while the runtime is active; it does not promise autonomous execution after that runtime stops.
 
 Commit only when explicitly authorised. A later code, contract, graph, or Git HEAD change invalidates the recorded final snapshot.
