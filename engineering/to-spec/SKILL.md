@@ -26,7 +26,7 @@ Technical constraints are allowed when they define required behaviour, including
 
 ## Entry
 
-Resolve requirement sources in this order: what the user named this turn → the applicable Profile's `requirement_authority` → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
+Resolve requirement sources in this order: what the user named this turn → `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
 
 Stop and hand back to `grilling` when requirements, external behaviour, business bounds, permissions, public contracts, or acceptance still have open choices that would change the plan.
 
@@ -59,7 +59,7 @@ When consuming grilling outputs:
 
 Collect the conversation, user docs, finished decisions, and requirement authority. Keep only explicit facts, constraints, terms, trade-offs, and Out of scope. Do not grow scope to fill a template.
 
-Task directory: what the user named this turn → the applicable `AGENTS.md` `Engineering Skills Profile` → the repo's existing task-doc convention. Missing Profile does not block. Ask only when write location or requirement meaning is still undetermined.
+Task directory: what the user named this turn → the applicable linked Profile's `task_contract` → the repo's existing task-doc convention. Missing Profile does not block. Ask only when write location or requirement meaning is still undetermined.
 
 ### 2. Investigate the codebase
 

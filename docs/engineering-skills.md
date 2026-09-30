@@ -22,7 +22,15 @@
 
 需要建立或维护项目验证方法时，使用 [`verification-setup`](./verification-setup.md)：扫描仓库、复用现有工具、生成或更新本地验证 Skill，并实际跑通所覆盖的执行方法。`project-setup` 只维护入口；全局 `verify` 继续独立判断 AC 与证据，不内置各技术栈的验证策略。
 
-Setup 保留已有 Profile 的未知字段和已确认值，不重复写入原则或路径，也不记录当前任务状态和验证结果。这一配置变更只建立上下文入口；实际效果仍需在真实任务中验证。
+Profile 默认独立保存为 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口和按需读取条件。文件中的 Settings 保存现有配置字段，Verification 章节摘要说明验证范围、方法入口、前置条件和限制；命令、完整功能映射与运行结果仍在对应验证方法和任务记录中。消费者先读相关章节，再加载当前任务需要的引用，普通修改无需预读全部文档。
+
+Setup 保留已有 Profile 的未知字段和已确认值；旧内嵌块在获准迁移前保持可读，迁移后移除旧块，不维护两份有效配置。字段语义、读取与迁移规则统一见[Profile 约定](../engineering/project-setup/references/profile.md)。缺少 Profile 或字段为 `auto` 时继续发现；显式入口失效或冲突须报告。这一配置变更只建立上下文入口；实际加载和长期效果仍需真实任务验证。
+
+## 职责边界与收敛
+
+当前收敛期暂停新增全局 Skill。先复用已有 Skill、项目 Profile、工具或本地验证方法；只有真实任务证明现有职责无法承接时，再单独讨论能力缺口。不新增通用路由、Runtime 或编排层。
+
+按 Scope、Decision、Evidence 三个边界维护职责：能处理和修改什么、可以独立决定什么、结论需要什么证据。完整审计与各 Skill 的停止点见[职责与边界](./engineering-responsibilities.md)。这些边界用于澄清所有权，不要求每个 Skill 重复一套章节或强制文件白名单。
 
 ## 上游适配与维护规范
 
@@ -125,6 +133,7 @@ Engineering workflow
 
 | 产物 | 维护者 | 回答的问题 |
 | --- | --- | --- |
+| `.agents/engineering-profile.md` | `project-setup`；验证摘要由 `verification-setup` 更新 | 项目稳定工程入口在哪里，各验证方法能支持什么判断？ |
 | 项目本地验证 Skill / 多端索引 | `verification-setup` | 这个项目如何运行验证、保留证据和清理测试状态？ |
 | `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
 | 会话文档（项目内 `task_contract` 任务目录） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
@@ -207,7 +216,7 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 ## Ticket 执行
 
-Loop Manager 复用任务上下文并将每张 ticket 委派给原生 worker；worker 执行实现、修正和本地检查，Manager 再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。上下文摘要放在任务的 `.loop/context/`，必要时委派 Explorer 或 Specialist；worker 可串行或并行运行，仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
+Loop Manager 复用任务上下文并将每张 ticket 委派给原生 worker；worker 执行实现、修正和本地检查，Manager 再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。优先复用现有来源和上下文，仅在交接需要时写简短摘要到任务的 `.loop/`，不要求固定的 context 文件对或耗时台账。worker 默认串行运行；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
 
 结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；Skill 内的状态脚本只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
 

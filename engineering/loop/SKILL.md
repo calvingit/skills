@@ -1,83 +1,53 @@
 ---
 name: loop
-description: Orchestrate a ticket graph through native multi-agent workers, with independent verification and review.
+description: Advance a confirmed ticket graph through implementation, evidence inspection, and state transitions using native workers.
 ---
 
 # Loop
 
-Own ticket selection, worker dispatch, progress, and completion decisions. Loop is the multi-agent execution path: the Manager (the main Agent) does not implement tickets or edit product code. Every implementation and correction attempt is assigned to a Runtime-native worker subagent; final `simplify`, `verify`, and `code-review` also run in dedicated subagents. State scripts only read and write ticket state and delivery progress; they do not execute agents. Do not launch external Agent CLIs or build a session manager, provider, polling, or result-parsing layer. If native subagents are unavailable, report the limitation and keep Loop incomplete; never fall back to Manager implementation.
+Select work, invoke the responsible skill, inspect its result, and record the resulting task state. The Manager owns these decisions; Runtime owns worker creation, waiting, cancellation, and session continuation. State scripts record graph and delivery facts, never launch agents or interpret reports.
 
-## Execution session
-
-A Loop run owns a logical execution session: shared task context, tickets, and delivery evidence. The Manager coordinates delegated worker executions; tickets and correction attempts must have a Runtime-native worker, while a worker context may be reused when the task benefits from continuity. Runtime owns actual context continuation, handles, waiting, and cancellation; Loop does not create or destroy Runtime sessions.
-
-The Manager prepares worker context and records decisions through Loop's state commands. Worker subagents may edit product code while performing `implement`, but do not edit upstream requirements, tickets, or Git history. The Manager and delegated workers never mutate the graph from inside implementation; Loop remains the graph writer.
-
-## Script entrypoints
-
-Resolve `<loop-skill>` to this installed skill directory. Scripts require Python 3.10+ on macOS/Linux and sibling `engineering/shared/`; no global CLI or Agent-specific SDK is needed. Read [script inputs](references/script-inputs.md) when recording state.
-
-- `scripts/frontier <task-dir>`: readiness, blockers, current attempts and final delivery status.
-- `scripts/graph-query inspect|list|show ...`: read-only graph queries.
-- `scripts/record-attempt start|retry ...`: record a new/correction attempt.
-- `scripts/update-status block|unblock|complete|reopen|recover|delivery-prepare|delivery-complete ...`: persist Loop's decisions and recover interrupted transactions.
-
-Use `python3` plus the resolved script path. These helpers do not choose agents, execute tools, interpret reviews, or make completion decisions.
+Loop's existing execution contract uses Runtime-native workers for implementation and corrections; the Manager does not edit product code. Final simplification, verification, and review use dedicated workers. If the required native capability is unavailable, report the blocker and leave delivery incomplete. Do not substitute an external Agent CLI.
 
 ## Execute
 
-1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, optional ACCEPTANCE/HLD, and the relevant tickets. Resolve stale requirements before dispatch. Missing optional documents add no prerequisites.
-2. Resume an in-progress ticket before selecting a ready one. Establish the baseline, pre-existing edits, the ticket's file scope (recorded as `allowed_write_scope`), acceptance criteria, and current attempt. For a new attempt use `python3 <loop-skill>/scripts/record-attempt start`; for a correction use `scripts/record-attempt retry`. Use `python3 <loop-skill>/scripts/update-status --help` for the current request shape.
-3. Prepare or refresh the task context using [context and delegation](references/context-and-delegation.md). Dispatch `implement` or a correction attempt to a native worker with the ticket, requirements, baseline/scope, and previous findings. Keep or replace the worker context according to the task's continuity needs; do not implement the ticket in the Manager.
-4. Resolve project verification guidance from the task, `verification_instructions` when configured, or existing local skills/docs/scripts. Run the smallest local checks that cover **every** current ticket AC, including necessary development tests and applicable mandatory gates. Inspect actual changes and results; minimum verification means sufficient coverage, not fewer acceptance criteria. Per-ticket independent verify/review is not required by default. Honour any explicit user/project requirement for additional independent checks.
-5. Preserve local command evidence and any delegated text/Markdown reports under the task directory's `.loop/` for resume or handoff. Read reports directly; no JSON response envelope, fixed headings, severity parser, or Markdown-to-JSON conversion is required. Record the executor and coverage so local checks are not presented as independent verification.
-6. Decide and record the ticket state through `scripts/update-status`. A successful ticket mutation returns the graph computed after the write; use it to continue without routinely calling `frontier` again. Check the response for problems, and re-query if the graph is invalid, the result is unclear, or later changes may have made it stale. `done` means local acceptance passed and releases dependencies; only final delivery acceptance completes the task. Worker executions may be serial or parallel. Before choosing parallel delegation, establish no dependency, expected write overlap, unresolved shared design decision, or shared mutable resource conflict. Use Runtime worktrees only when isolation is needed.
-
-Use `tdd` within implementation when useful. Request `test-audit` only for concrete test-effectiveness or maintenance concerns, not for every ticket or solely because the test diff is large. Return its findings through the existing correction flow; it does not replace local checks, independent verify, or code-review. Reassess affected evidence after changes to tests, fixtures, snapshots or verification configuration even when product code is unchanged.
-
-## State location
-
-`.loop/` belongs to the task execution context: keep it inside the task directory, next to `SPEC.md` and `tickets/`, and never create it at the repository root, where separate tasks would share one state. It stores execution state — current attempts, preserved reports, command logs, delivery inputs, and derived task context under `.loop/context/` — not project-level configuration. On resume, read the current task directory's `.loop/` first.
-
-## File scope
-
-A ticket's file scope describes expected areas of change. It is guidance for implementation and review, not a hard write restriction: the implementing Agent may modify additional files when required to complete the ticket, keeping additional changes related to the ticket objective and avoiding unrelated refactoring. Pass the scope to review as a reference for expected change areas, not as a boundary that turns related out-of-scope edits into defects.
+1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, applicable ACCEPTANCE/HLD, relevant tickets, and existing execution records. Confirm requirements are current and check any recorded native execution before dispatching replacement work. Missing optional documents add no prerequisites.
+2. Resume an in-progress ticket before choosing a ready one. Establish its baseline, pre-existing edits, current attempt, expected change areas, and delivery AC. Use `scripts/record-attempt start` for a new attempt or `retry` for a scoped correction. Read [script inputs](references/script-inputs.md) when writing state.
+3. Invoke `implement` through a native worker with the ticket, authoritative inputs, baseline/scope, verification entry, permitted resources, and previous findings. Preserve useful continuity; read [delegation inputs](references/context-and-delegation.md) when needed. Run workers serially unless an explicit parallel decision establishes independent contracts, writes, and mutable resources.
+4. Inspect actual changes and the worker's local acceptance evidence for every ticket AC and applicable project gate. `implement` owns development checks; request missing checks or corrections rather than duplicating its test strategy. Per-ticket independent verify/review is optional unless required by the user or project. Record the executor so local checks are not labelled independent verification.
+5. Read text/Markdown reports directly and decide whether to complete, correct, block, or route a contract change. Preserve original reports and command evidence under the task's `.loop/`. Do not infer success from silence or a completion claim; scripts cannot judge prose or report independence.
+6. Record the decision through `scripts/update-status`. A successful mutation returns the updated graph; continue from it and query again only when it is unclear or stale. Ticket `done` releases dependencies; it does not pass final delivery. Continue until final delivery passes, the user stops work, or progress requires unavailable external input/capability.
 
 ## Decide from evidence
 
-- A `verify` `FAIL` is a defect only when the verifier actually observed behaviour conflicting with the current confirmed contract. Preserve the original finding and execution evidence, pass them to implement through `scripts/record-attempt retry`, re-run affected local checks, and run required independent verification again. Other green tests do not override it; after code, requirements, graph, or relevant environment changes, do not reuse the old report.
-- A `verify` `NOT VERIFIED` is insufficient evidence, not a product defect and not a pass. Classify whether the gap is an environment, permission, dependency, or external blocker (record a release condition), an inadequate verification method (try another minimal read-only check; if harness creation or repair is needed, route it to `verification-setup` under the caller's authority and re-verify afterward), or an incomplete/conflicting requirement (route to its owner). When the gap is a missing or inadequate repository test, route a scoped test change to implement without presuming a product defect, then re-verify. Do not send an evidence gap directly to implement for product-code repair or busy-retry an unresolved external blocker.
-- Requirement/design conflicts go to their owner. A verifier using the wrong expected behaviour is a contract problem, not a reason to modify implementation to satisfy it.
-- An unclear report needs clarification from its author. Do not infer success from silence, wording, headings, or a worker saying it finished. Optional follow-up does not block this change.
-- Complete only after inspecting the changed scope, verifying every current AC, and confirming no unresolved blockers or required unverified scope. Calling `scripts/update-status complete` is Loop's approval of the ticket; submit the local evidence and verification record with it. Review is optional for tickets: include unchanged original text only if a review actually ran, never a placeholder such as "review deferred". The helper validates recorded facts, not prose meaning.
-- Final delivery requires independent verification and review with valid reports for the current code before approval. Any additional independent ticket checks explicitly required by the user/project also remain mandatory. Local checks do not replace either role unless the user or project explicitly authorises substitution; record that authority, executor, and coverage. While a report is missing, keep the stage incomplete and `approved: false`. Moving the gap from `unverified` into a note cannot authorise completion; `unverified` describes unchecked scope, not every process limitation. Scripts cannot establish report independence. For required Acceptance Criteria, only `PASS` establishes verification completion; any `FAIL` or `NOT VERIFIED` keeps delivery incomplete until correction, contract resolution, or the evidence gap/blocker is resolved. Do not collapse these verdicts into a binary success/failure result.
+Use `verify`'s [verdict definitions](../verify/SKILL.md#verdicts). Preserve findings and their evidence source; other green checks do not override a required failure or evidence gap.
 
-JSON remains the storage format for ticket state and command input. A review stored in a JSON string is still the original report; do not extract a second finding schema from it. Use a serializer to store multiline text faithfully.
+| Result / conflict | Next action |
+| --- | --- |
+| Observed defect against an unchanged contract | Send the finding to `implement`, record a correction attempt, and recheck affected evidence. Use `reopen` for a completed ticket only when graph rules permit it; otherwise request a corrective ticket. |
+| Environment, permission, dependency, or external gap | Record a blocker with its release condition; resume only after confirming release evidence. Do not repeatedly retry an unresolved blocker. |
+| Inadequate verification method | Try a sufficient existing read-only method; route required harness work to `verification-setup` or missing repository-test work to `implement`, within caller authority. A gap alone does not prove a product defect. |
+| Requirement or shared-design conflict | Return it to the owning upstream skill; do not modify product code to satisfy an unconfirmed or incorrect expectation. |
+| Missing or unclear required report | Retrieve or clarify the original result; keep the required stage incomplete. |
 
-## Wait and recover
+Complete a ticket only when every current delivery AC has sufficient local evidence and no required gap or unresolved blocker remains. Final delivery requires `PASS` for every current SPEC AC, independent verification and review for the current candidate, and no required unresolved scope. An explicitly authorised substitution must record authority, executor, and coverage; local checks alone do not satisfy independent gates.
 
-These rules apply to every delegated worker, not ticket switches in the Manager.
+Changes to code, requirements, tests, fixtures, snapshots, verification configuration, graph, or relevant environment require reassessing affected evidence. Do not reuse a report for a candidate it did not establish.
 
-Native subtasks have **no default total time limit**. Use a **600-second inactivity threshold** from dispatch or the latest qualifying activity, unless the user or project specifies another threshold. New execution messages, tool events/output, or a fresh soft-ping reply renew it; repeated `running` snapshots, old messages, wait expiry, and locally generated heartbeats do not. Renewal shows responsiveness, not effective progress or acceptance. An explicitly configured total budget remains independent and cannot be extended by activity. Command timeouts and native wait windows remain separate.
+## State and execution boundaries
 
-Keep the handle, role, ticket/attempt or delivery snapshot, dispatch time, latest activity evidence/time, inactivity deadline, and any explicit total deadline in existing `.loop/` execution notes. Preserve these on resume; rereading old evidence must not renew a deadline. Read [waiting and recovery](references/wait-recovery.md) for activity evidence and threshold handling. Without reliable timing evidence, do not claim expiry.
+Resolve `<loop-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; record attempts with `scripts/record-attempt`; record state/delivery with `scripts/update-status`. `recover` repairs a graph transaction, not an Agent session.
 
-After a wait window ends, check native state and retrieve completed results. If unfinished with no new activity, use at most one non-interrupting soft ping per execution, including across context recovery; read [the inquiry procedure](references/wait-recovery.md#one-progress-inquiry-per-execution) before sending. A missing reply or unavailable query does not prove a stall. At the inactivity threshold, verify state and any known running command before orderly recovery; do not immediately kill or restart a role because it has been quiet. Explicit total-budget expiry, failure/blockage, cancellation, or interruption use the same recovery procedure.
+Keep `.loop/` in the task directory next to SPEC and tickets. It contains attempts, reports, command logs, and delivery inputs; it is not project configuration or a place for product code/tests. Use existing source links and brief handoff notes when needed, without mandatory context files, timing ledgers, Agent pools, heartbeat services, or another execution state machine.
 
-Confirm the old execution and relevant commands have stopped before overlapping work. Preserve partial changes and version-bound reports; recover the affected role without automatically rerunning implementation or relaxing acceptance. Runtime owns handles and cancellation; scripts do not recover Agent sessions.
+A ticket's `allowed_write_scope` records expected change areas, not sandbox permission. Related changes needed to complete the ticket may extend those areas within caller authority; report them for review. Unrelated changes remain outside scope.
 
-## Resume and requirement changes
+Use Runtime's native lifecycle and configured limits. A wait returning without a result does not prove failure or stopped execution. On interruption, preserve partial work and bind reports to their original attempt/candidate. Confirm prior writers and relevant commands have stopped before starting overlapping work; if this cannot be established, report the blocker. Do not invent inactivity thresholds or reconstruct Runtime sessions.
 
-On resume, inspect the recorded native execution before dispatching another role and apply the waiting and recovery rules above.
+## Requirement changes and final delivery
 
-Before changing shared SPEC/HLD/ACCEPTANCE or reconciling tickets, stop dispatch, interrupt active subagents through the runtime, confirm they stopped writing, preserve partial results, and `scripts/update-status block` their attempts. A graph state change alone does not stop a subagent.
+Before changing shared requirements/design or reconciling tickets, pause dispatch, stop active writers through Runtime, confirm they stopped, preserve partial results, and block affected attempts. Changing graph state alone does not stop a worker.
 
-Route unsettled requirement choices to `grilling` first, normative requirement changes to `to-spec`, shared design changes to `high-level-design`, and graph-only amendments to `to-tickets`. Do not inject changed requirements into an old attempt. Keep historical done records; retain only confirmed unaffected contracts/evidence. Changed behaviour needs correction/replacement tickets. Use `reopen` for defects against an unchanged confirmed contract.
+Route unsettled choices to `grilling`, normative requirements to `to-spec`, shared design to `high-level-design`, and graph-only changes to `to-tickets`. Keep unaffected contracts/evidence and historical done records; changed behaviour needs amendment/correction tickets rather than reopening an old contract.
 
-## Continue through delivery
-
-One completed ticket, an empty ready list, or `delivery_ready` is not a stopping condition. If tickets remain, resolve actionable retries/blockers and continue. When `delivery_ready` is true, perform [Finalization](references/delivery-review.md) in the same execution.
-
-Stop only when final delivery is passed, the user stops the task, or remaining progress requires unavailable external input/capability, including a missing native worker. Explain the concrete blocker. The skill directs continued work while the runtime is active; it does not promise autonomous execution after that runtime stops.
-
-Commit only when explicitly authorised. A later code, contract, graph, or Git HEAD change invalidates the recorded final snapshot.
+When `delivery_ready` is true, continue with [finalization](references/delivery-review.md) in the same run. Report completion only when `frontier` shows `delivery_review.state: passed`. Runtime ending does not promise background continuation. Commit or push only when explicitly authorised.

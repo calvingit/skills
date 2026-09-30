@@ -15,9 +15,9 @@ Loop 是由当前 Agent 作为 Manager 执行的多 Agent 工作流 Skill。当�
 
 一次 Loop run 是逻辑上的 execution session。Manager 负责连续编排 tickets，所有实现和修正 attempt 都由 Runtime 原生 worker 执行；worker 上下文可按连续性需要复用或更换。Manager 通过状态命令修改图，worker 修改产品代码但不修改上游需求、tickets 或 Git 历史。
 
-初次定向探索后，Manager 在任务目录的 `.loop/context/context.md` 保存相关架构、模式、约束、风险和带来源的决策摘要，在 `repo-map.md` 保存相关模块、调用关系及入口。后续工作受影响时更新；恢复或委派时先读相关摘要，再核对实际文件。摘要不替代代码、SPEC/HLD 和 ticket，不另建决策或变更文件台账。
+交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文；必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC/HLD 和 ticket。
 
-普通实现也必须委派给 Runtime 原生 worker，可串行复用同一 worker 上下文。未知领域可委派 Explorer，专项问题可委派 Specialist；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行。执行提示和依据留在 `.loop` 执行笔记，不扩展 ticket schema，不建立 Agent 池。具体规则及性能观察见[上下文与委派](../engineering/loop/references/context-and-delegation.md)。
+普通实现必须委派给 Runtime 原生 worker，默认串行，并按实际能力复用上下文。并行需要先确认契约、写入和可变资源独立；Runtime worktree 不会消除共享服务或设计冲突。交接输入见[委派说明](../engineering/loop/references/context-and-delegation.md)。
 
 ## State commands
 
@@ -57,9 +57,9 @@ Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要
 
 ## 等待与执行恢复
 
-等待规则仅用于实际委派的执行，不用于 Manager 切换 ticket。原生子任务默认没有总时限；使用 600 秒无活动阈值，明确设置的总预算独立计算。新执行消息、工具事件或新 soft-ping 回复可以更新活动时间；重复 running 状态、旧消息和等待窗口结束不能续期。每次执行最多一次不中断工作的 soft ping，无回复不证明卡死。到达阈值先核实状态和正在运行的命令，再按[等待与恢复规则](../engineering/loop/references/wait-recovery.md)处理，不自动终止或重复派发。
+创建、等待、取消、超时和会话恢复遵循 Runtime 能力及调用方配置；Loop 不设置默认无活动时限，不维护 soft-ping 次数或活动时间台账。等待窗口结束只表示尚未取得结果，不能据此认定失败或停止。
 
-确认原执行与相关命令停止后才接管，保留部分修改；迟到报告始终绑定原 handle、attempt 或交付快照。Runtime 负责停止和恢复 Agent，脚本不恢复会话。最终独立 verify 或 code-review 报告缺失时保持未完成；只有明确授权的替代才可改变执行者，并保留授权和覆盖证据。ticket 的默认本地检查无需独立角色，不得将其声称为独立验证。
+恢复执行前检查原生执行状态，确认旧 writer 和相关命令停止后才开始重叠工作，保留部分修改。结果绑定其原 attempt 和候选版本，迟到报告不能覆盖不适用的新结论；无法确认停止时报告阻塞。最终独立 verify 或 code-review 报告缺失时保持未完成，只有明确授权的替代才可改变执行者，并保留授权和覆盖证据。ticket 的本地检查不得声称为独立验证。
 
 ## 需求变更与恢复
 

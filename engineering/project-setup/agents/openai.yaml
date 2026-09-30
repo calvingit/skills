@@ -1,7 +1,7 @@
 interface:
   display_name: "Project Setup"
   short_description: "Detect and persist workflow, requirement-authority, domain-doc, and collaboration entries"
-  default_prompt: "Use $project-setup to detect this project and configure an Engineering Skills Profile that includes the requirement-authority entry."
+  default_prompt: "Use $project-setup to detect this project and configure a separate Engineering Skills Profile with requirement and verification entries, linked for on-demand reading from AGENTS.md."
 
 policy:
   allow_implicit_invocation: false

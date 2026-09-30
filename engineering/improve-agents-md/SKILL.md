@@ -27,7 +27,7 @@ description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。
 6. 验证路径、命令、优先级，以及最终文件与仓库事实是否一致。
 7. 说明修改内容、已验证项和无法验证的部分。
 
-`Engineering Skills Profile` 的字段语义和确认流程由 `project-setup` 维护。保留它的标记、未知字段及已确认值；发现冲突时报告，不把优化文档解释成重建或重新配置 Profile 的授权。`context-audit` 负责跨上下文的职责审查，本 Skill 聚焦仓库指令文件。
+`Engineering Skills Profile` 由 `project-setup` 维护，默认独立保存在 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口和按需读取条件。遵循[配置读取与迁移约定](../project-setup/references/profile.md)，保留已有入口和配置；旧内嵌块在获准迁移前保持可读。优化指令不自动授权迁移、重建或重新配置 Profile；冲突须报告。`context-audit` 负责跨上下文的职责审查，本 Skill 聚焦仓库指令文件。
 
 ## 内容标准
 

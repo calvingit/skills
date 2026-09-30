@@ -5,20 +5,28 @@ description: Verify confirmed acceptance criteria using project verification gui
 
 # Verify
 
-Judge the current implementation against confirmed Acceptance Criteria (AC). Requirements define expected behaviour; the project verification harness supplies execution knowledge; `code-review` judges implementation quality and design.
+Independently judge the current candidate against confirmed Acceptance Criteria (AC). Requirements define expectations; project guidance supplies execution methods; `code-review` judges change risks and implementation quality.
 
-1. Read the caller's scope, baseline, confirmed requirements, AC and relevant changes. Derive expectations from those contracts, never from implementation, existing tests or an implementer's report. Do not invent requirements or expand scope.
-2. Locate project guidance from the current task, then `verification_instructions` in the applicable Engineering Skills Profile, then existing local verification skills, docs, scripts and CI. Missing or `auto` means discover dynamically. For multiple surfaces, follow the relevant entries and cross-surface paths. If guidance is stale or absent, inspect actual commands and use a safe existing method; report any gap for `verification-setup` without creating or repairing the harness in this read-only role.
-3. Independently select and run the least costly sufficient checks for every AC and the project's applicable mandatory gates. Confirm that each check actually exercises the behaviour it supports; a harness command or smoke pass is evidence, not an acceptance oracle. When needed, use a minimal runtime probe or isolated temporary test in caller-permitted scratch space (`<task-dir>/.loop/tmp/` for Loop tasks). Do not edit product code or repository tests to enable verification.
-4. Inspect the tests, fixtures, snapshots, mocks and verification configuration supporting the current AC, including relevant changes, only as far as evidence credibility requires. Weakened, skipped, implementation-derived or otherwise invalidated checks are insufficient even when green. State mocked boundaries, bypassed paths, platform limits and visual/UX gaps; behavioural success does not establish visual or interaction quality. Do not defer this credibility judgement to a separate audit. A broader test-value audit may be requested through the caller using `test-audit`; broader maintainability and regression review belong to `code-review`.
-5. Report each AC as `PASS`, `FAIL` or `NOT VERIFIED` with the requirement source, observation and coverage limit.
+## Verify the candidate
 
-`PASS` requires sufficient observable evidence. `FAIL` requires observed behaviour conflicting with the confirmed criterion. `NOT VERIFIED` means evidence is insufficient, including unavailable environment, permissions or dependencies; environment failure is not product failure. Report mandatory gate outcomes separately when they do not establish an AC. Keep unresolved gaps and what would enable verification explicit. Never claim an unexecuted check passed or infer all mapped features work from one smoke run.
+1. Read the caller's scope, baseline, candidate revision and relevant working-tree changes, requirements, and every applicable AC. Derive expectations from confirmed contracts, not implementation, existing tests, or an implementer's report. Missing or conflicting expectations are a contract gap, not permission to invent them.
+2. Locate methods from the task, then the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)), then existing local skills, guides, scripts, and CI. Missing / `auto` permits discovery; a broken explicit entry is a reported configuration gap. Follow relevant surfaces and actual cross-surface journeys; do not create or repair the harness here.
+3. Select and independently run the least costly sufficient checks for every AC and applicable mandatory gate. Confirm each check exercises the behaviour it supports. Reuse still-valid observations only with their candidate, environment, executor, and coverage established; implementation self-checks are not independent verification. A minimal probe or isolated temporary test may be created in caller-permitted scratch space, but do not edit product code or repository tests.
+4. Inspect supporting tests, fixtures, snapshots, mocks, and verification configuration only far enough to judge evidence credibility. Weakened, skipped, implementation-derived, or otherwise invalidated checks are insufficient even when green. State mocked/bypassed boundaries, platform limits, and visual/interaction gaps. Judge this credibility here; a separate `test-audit` is not a prerequisite or substitute.
+5. Report a verdict for every AC, with its requirement source, actual observation, and coverage limit. Record applicable gate outcomes separately when they do not establish an AC. Keep failures and gaps visible in the conclusion.
 
-## Report
+## Verdicts
 
-Return readable Markdown. Start with the verified scope, candidate revision and relevant working-tree changes, then list every AC with its verdict and supporting evidence. Make any `FAIL` or `NOT VERIFIED` visible in the conclusion; for `NOT VERIFIED`, name what would allow verification. Record the environment, actual commands or tool actions, working directories, exit codes where available, key results and retained artifact paths. Identify ticket/attempt when supplied. No JSON response schema is required.
+- `PASS`: sufficient observable evidence establishes the criterion.
+- `FAIL`: observed behaviour conflicts with the confirmed criterion.
+- `NOT VERIFIED`: evidence is insufficient, including unavailable environment, permissions, dependencies, or a missing contract basis. Environment failure is not product failure.
 
-Remain read-only with respect to code, repository tests, requirements, tickets, Git history and live business state. Execution may create isolated test state, caches and evidence only in caller-permitted resources. Follow the harness's isolation and cleanup instructions, remove only run-owned resources, and preserve evidence after cleanup, including failed runs. Report cleanup failures. A project recipe does not expand the caller's permissions.
+A smoke pass supports only the exercised path. Behavioural E2E does not establish visual conformance or interaction quality; screenshots do not establish interaction timing; mocked responses do not establish real provider integration. Never claim an unexecuted check passed.
 
-Reading code or an implementation report does not replace observable execution when behaviour can be exercised. Verify does not repair, schedule agents or change the graph. Report missing capabilities and recheck the updated candidate after they are resolved.
+## Report and boundaries
+
+Return readable Markdown with the verified scope/candidate, per-AC verdicts, mandatory gates, actual commands or tool actions, working directories, environment, exit codes where available, key results, and retained evidence paths. Identify ticket/attempt when supplied. For each gap, state what would enable verification; a JSON response schema is unnecessary.
+
+Remain read-only toward product code, repository tests, requirements, tickets, Git history, and live business state. Execution may create isolated test state, caches, and evidence only in caller-permitted resources. Follow project isolation/cleanup instructions, clean up only run-owned resources even after failure, preserve evidence, and report cleanup failures. Project recipes do not expand permissions.
+
+Stop at the evidence judgement. Return contract conflicts, capability gaps, and defects to the caller; do not repair, schedule agents, or change task state. Recheck affected evidence after the candidate or relevant verification conditions change.

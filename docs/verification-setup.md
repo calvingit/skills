@@ -6,8 +6,8 @@
 
 | 入口 | 职责 |
 | --- | --- |
-| `project-setup` | 发现并维护 `verification_instructions` 等稳定入口，缺少验证方法时建议使用 `verification-setup`。 |
-| `verification-setup` | 调查运行条件、可驱动接口、观察方式和隔离能力，维护项目验证方法。 |
+| `project-setup` | 维护独立工程 Profile 与 `AGENTS.md` 按需入口；发现稳定验证入口，缺方法时建议使用 `verification-setup`。 |
+| `verification-setup` | 维护并试运行项目验证方法；获准时同步 Profile 的 Verification 摘要和 `verification_instructions`。 |
 | 项目本地验证 Skill | 提供具体的检查选择、准备、运行、证据保留与清理步骤。 |
 | `verify` | 独立地逐条判断 AC，返回 `PASS / FAIL / NOT VERIFIED`。 |
 | `loop` | 消费结果，决定修正、阻塞或完成；验证缺口不直接当成产品缺陷。 |
@@ -20,7 +20,9 @@
 - 更新现有方法：`使用 verification-setup 更新 API 的验证入口，检查启动命令和测试数据隔离方式，保留现有 Web 验证方法。`
 - 多端项目：`检查 mobile、web 和 api 的验证入口，以及登录流程跨端的证据缺口。只在执行方法不同的地方拆分 Skill。`
 
-默认位置是 `.agents/skills/verify-<surface>/`，已有项目约定优先。一个执行方法共用的项目通常只需要一个 Skill；多端有不同运行或隔离方法时可以分别维护，并用一个索引说明各入口和跨端流程。`verification_instructions` 指向单个 Skill 或这个索引，不再增加一组 Profile 字段。
+默认位置是 `.agents/skills/verify-<surface>/`，已有项目约定优先。一个执行方法共用的项目通常只需要一个 Skill；多端有不同运行或隔离方法时可以分别维护，并用一个索引说明各入口和跨端流程。`verification_instructions` 指向单个 Skill 或这个索引，不增加另一套命令配置。
+
+工程 Profile 默认位于 `.agents/engineering-profile.md`，由 `AGENTS.md` 按需引用。Verification 章节只摘要相关端、验证方法入口、前置条件与限制，不重复具体命令、完整功能映射或当前运行结果。`project-setup` 发现入口；`verification-setup` 用实际试运行记录更新能力说明。已有方法尚未运行时明确为声明能力，不能写成全部可用。格式及迁移规则见[Profile 约定](../engineering/project-setup/references/profile.md)。没有 Profile 时可复用现有指令中的简短链接，不为了验证强制生成完整配置。
 
 ## 生成什么
 

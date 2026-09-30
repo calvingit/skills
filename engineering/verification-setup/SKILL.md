@@ -9,7 +9,7 @@ Discover how this repository can establish observable behaviour, then create or 
 
 ## Discover before designing
 
-1. Read applicable instructions, Git status, project/domain docs, manifests, scripts, CI, test configuration, and relevant tests. Resolve the entry from the current task, then `verification_instructions` in the applicable Engineering Skills Profile, then repository conventions. A missing Profile or `auto` does not block discovery.
+1. Read applicable instructions, Git status, project/domain docs, manifests, scripts, CI, test configuration, and relevant tests. Resolve the entry from the current task, then `verification_instructions` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)), then repository conventions. A missing Profile or `auto` does not block discovery.
 2. Identify relevant surfaces (UI, API, CLI, library, device), how to build/start them, how to drive them, what results and side effects can be observed, and how to isolate and clean up a run. Inspect versions, auth/seed needs, ports, devices and shared resources where applicable. Distinguish declared commands from checks actually executed.
 3. Reuse existing harnesses and guides. Match each needed behaviour to a sufficient method; a framework name alone does not justify installing a tool. Separate behaviour, visual conformance and interaction quality. Ask only about unavailable facts or consequential choices that repository evidence cannot settle.
 
@@ -25,7 +25,7 @@ Record a small feature map inline, or in referenced feature files when it improv
 
 Keep writes within local verification skills, necessary helpers and their navigation links. Do not repair product code or rewrite assertions, fixtures, snapshots or baselines to hide a failed run. When a missing tool or test capability requires dependency, CI or product changes, describe the smallest gap and handle it as separate implementation work under the caller's authority. Do not silently install a preferred framework.
 
-Keep `verification_instructions` as the single Profile entry. Point it at the local skill or multi-surface index when this navigation change is authorised; preserve other fields and confirmed entries. Without a Profile, a short link in existing project instructions is enough; do not create a full Profile just for this skill. Respect scoped instructions and preserve unrelated edits.
+Keep `verification_instructions` as the single verification navigation setting. When authorised, update it in the linked separate Profile and refresh its Verification summary with covered surfaces, recipe entries, prerequisites, and limits. Link authoritative recipes rather than copying commands or feature maps; label unexercised methods as declared capability. Preserve other fields and confirmed entries. Without a Profile, a short link in existing project instructions is enough; do not create a full Profile just for this skill. Respect scoped instructions and preserve unrelated edits.
 
 ## Prove the instructions
 

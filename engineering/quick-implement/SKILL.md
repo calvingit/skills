@@ -22,7 +22,7 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 ## Investigate and plan
 
 1. Record `HEAD`, staged / unstaged / untracked state, and a baseline. Protect existing edits.
-2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. If applicable `AGENTS.md` has an `Engineering Skills Profile`, treat it as the project entry index; otherwise keep discovering what is already there.
+2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant entries from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)); otherwise keep discovering what is already there.
 3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Apply `codebase-design` or local detailed design only to module internals, private helpers, file layout, and algorithms inside the local implementation space.
 4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and hand back to `grilling` / `wayfinding` / `to-spec`. Technical design several implementations share → `high-level-design`.
 

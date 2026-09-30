@@ -59,6 +59,8 @@ Engineering Skills 包含工程流程、可组合的判断方法，以及调研�
 
 其他文档：
 
+- [Engineering Skills 职责与边界](./docs/engineering-responsibilities.md)
+- [独立项目 Profile 约定](./engineering/project-setup/references/profile.md)
 - [Loop 与 Runtime 的职责](./docs/loop-runtime.md)
 - [状态脚本](./docs/workflow-scripts.md)
 - [状态脚本验收协议](./docs/loopx-acceptance.md)

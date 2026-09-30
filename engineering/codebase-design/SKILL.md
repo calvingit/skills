@@ -13,7 +13,7 @@ The aim is leverage for callers, locality for maintainers, and testability for e
 
 ## Glossary
 
-Use these terms exactly — don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point. The target project need not use the same file or type names; every skill must share this meaning.
+Use these meanings within Module / Interface / Seam design discussions. Preserve the project's established domain terms and external contract names; clarify mappings when needed rather than renaming components, services, or APIs to match this glossary. These are analysis terms, not a replacement for the project's domain model.
 
 **Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service.
 

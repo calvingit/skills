@@ -35,7 +35,7 @@ When the user names this flow and the destination is clear, enter directly. When
 
 Default to local working docs. Prefer the task directory the user named this turn, then the project's existing task-doc convention.
 
-Read the Profile's `requirement_authority` only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user or `grilling`. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
+Read `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user or `grilling`. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
 
 If the location would change project structure and is still unclear, ask. This flow creates only:
 

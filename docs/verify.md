@@ -38,7 +38,7 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 | 判断实现质量、设计及维护风险 | `code-review` |
 | 按需审计指定测试的有效性、独有保护和维护成本 | `test-audit` |
 
-`verify` 按当前任务指定入口、Profile 的 `verification_instructions`、仓库已有本地 Skill / 文档 / 脚本 / CI 的顺序发现方法。没有 Profile 或字段为 `auto` 时继续动态发现；没有本地 Skill，也可以使用已有检查，不要求先运行 setup。入口失效时检查实际命令并报告缺口，验证者不在只读验收中修建 harness。
+`verify` 按当前任务指定入口、`AGENTS.md` 所链接 Profile 的相关验证章节和 `verification_instructions`、仓库已有本地 Skill / 文档 / 脚本 / CI 的顺序发现方法。没有 Profile 或字段为 `auto` 时继续动态发现；没有本地 Skill，也可以使用已有检查，不要求先运行 setup。入口失效时检查实际命令并报告缺口及实际采用的替代方法，不能把动态发现写成配置已生效；验证者不在只读验收中修建 harness。按需读取规则见[Profile 约定](../engineering/project-setup/references/profile.md)。
 
 多端项目按当前 AC 选择相关入口；跨端流程需要覆盖实际跨端路径。验证方法按能证明的行为、运行成本和环境条件选择，不强制 L0–L4 分层，也不按框架名称自动选择工具。项目已有的必需门禁仍需执行。一条 smoke 路径通过，只能证明这条路径在当前环境中可执行。
 
@@ -74,9 +74,7 @@ GUI 证据必须分别说明行为、视觉参考和交互体验的覆盖。行�
 
 `verify` 只报告 verdict 和 evidence，后续状态由 `loop` 决定，不能把三种结论压成简单的成功/失败二值。
 
-- `FAIL` 是当前已确认约定（confirmed contract）的已验证缺陷。Loop 保留原始发现和执行证据（execution evidence），交给 implement 走修正尝试（correction attempt），修复后重跑受影响的本地检查（local checks）和独立 verify。其他测试全绿不能覆盖它，相关代码、需求、执行图或环境变化后也不能复用旧报告。
-- `NOT VERIFIED` 是验证缺口（verification gap）。Loop 先区分环境/权限/依赖阻塞、验证方法不足和需求/规范问题：环境类问题记录阻塞解除条件（release condition），方法不足就换其他只读证据；确需创建或修复 harness 时，由调用方将工作交给 `verification-setup`，完成后重新验证。契约问题交回需求负责方（requirement owner）。缺少必要仓库测试时，交给 implement 做限定范围的测试补充，再重新验证；不能据此直接认定产品代码有缺陷，也不能完成交付。
-- 如果 verifier 的预期行为与已确认需求不一致，应解决验证依据（verification basis）/ 约定冲突，而不是修改实现去迎合错误期望。
+缺陷交给实现方修正，证据不足先分辨环境阻塞、方法缺口或契约冲突；错误预期不能成为修改产品行为的理由。具体状态处理统一由 [Loop 的证据决策](../engineering/loop/SKILL.md#decide-from-evidence)维护，verify 不复制另一套重试或路由协议。
 
 因此，以下情况都不能视为通过：
 
