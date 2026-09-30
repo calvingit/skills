@@ -1,11 +1,11 @@
 ---
 name: quick-implement
-description: Implement, verify, and review a single confirmed scope in one fresh context, under SPEC/HLD constraints when those files exist. No execution graph.
+description: Implement a single confirmed scope in the main agent, then delegate simplification, verification, and review. No execution graph.
 ---
 
 # Quick Implement
 
-Finish one confirmed, single-scope goal inside one fresh context. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
+Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
 Quick means no execution graph. It does not mean skipping high-level design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
 
@@ -36,8 +36,8 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 ## Close-out
 
 1. Spawn a dedicated sub-agent to run `simplify` in Review mode against the implemented scope. The main agent must consume that report. Record `no_change` when no evidence-backed simplification candidate exists. If candidates are found, modify them only when the user has explicitly authorized simplification; otherwise report them without changing code.
-2. Run targeted verification and the project's applicable delivery gates per [references/verification-and-review.md](references/verification-and-review.md).
-3. Spawn a separate dedicated sub-agent to run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. The main agent must consume its actual Markdown report; a self-check, test pass, or reading the skill documentation does not count as the review. After review findings are fixed, re-run affected verification and review in a sub-agent again.
+2. Spawn a separate dedicated native sub-agent to run `verify` against every applicable confirmed Acceptance Criterion and the project's delivery gates per [references/verification-and-review.md](references/verification-and-review.md). The main agent must consume its per-criterion report; its own targeted checks do not count as independent acceptance.
+3. Spawn another dedicated native sub-agent to run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. The main agent must consume its actual Markdown report; a self-check, test pass, or reading the skill documentation does not count as the review. After required fixes, re-run affected verification and review in separate sub-agents.
 4. Declare done only when every applicable Acceptance Criterion has observable evidence, required verification and review passed, and no unresolved high-risk issue remains.
 5. Commit only with explicit user authorisation. Do not push on your own. The commit contains only this task's changes.
 

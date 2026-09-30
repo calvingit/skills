@@ -26,7 +26,7 @@ SPEC / confirmed AC
 PASS / FAIL / NOT VERIFIED
 ```
 
-Acceptance Criteria 定义预期行为（expected behaviour），不能从实现、现有测试或实现者自报（implementor self-report）反向推导需求。独立子 Agent 只有在依据和证据都独立时，才有验收价值。
+Acceptance Criteria 定义预期行为（expected behaviour），不能从实现、现有测试或实现者自报（implementor self-report）反向推导需求。验收要依据独立来源和可观察证据。
 
 ## 项目验证方法与独立判断
 

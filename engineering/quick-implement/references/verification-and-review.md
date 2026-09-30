@@ -2,15 +2,17 @@
 
 ## Verification
 
-During implementation, keep running this slice's targeted tests and related typechecks. At close-out, collect verification that directly proves Acceptance Criteria, plus the project's existing checks for the affected range. If the repo defines a standard PR, CI, or full gate, run that gate. Gates the project explicitly requires stay.
+During implementation, the main agent runs this slice's targeted tests and related typechecks. At close-out, dispatch a dedicated native `verify` sub-agent, separate from `simplify` and `code-review`, to check every applicable confirmed Acceptance Criterion and the project's existing delivery gates for the affected range, including any required standard PR, CI, or full gate. Pass the baseline, pre-existing edits, confirmed requirements and AC, implemented scope, and local check records. The main agent reads its per-criterion `PASS`, `FAIL`, or `NOT VERIFIED` report before deciding completion.
 
 Reuse results that are still valid on the current code. Do not re-run a check already covered by the standard gate. Re-run only after a later edit, a failure, or a new risk. When a full test, build, or end-to-end check is unavailable or clearly out of proportion, record why, substitute evidence, unverified scope, and risk.
 
-Run verification for the current scope through the task's project verification entry, `verification_instructions` when configured, or existing local verification skills/docs/scripts. Setup is not a prerequisite; use existing checks and report any capability gap. Follow documented isolation, evidence and cleanup rules. Record exit code and key output for every command actually run. A tool succeeding proves only that gate. It does not automatically prove the requirement is complete.
+The `verify` sub-agent follows the task's project verification entry, `verification_instructions` when configured, or existing local verification skills/docs/scripts. Setup is not a prerequisite; use existing checks and report any capability gap. Follow documented isolation, evidence and cleanup rules. Record exit code and key output for every command actually run. A tool succeeding proves only that gate. It does not automatically prove the requirement is complete.
 
 ## Review
 
-After verification, spawn a dedicated `code-review` sub-agent, separate from the `simplify` Review sub-agent, against the implemented scope. Consume its actual Markdown report; a main-agent self-check does not satisfy this gate. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification receipt, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After review findings are fixed, re-run affected verification and spawn a sub-agent for review again.
+After verification, spawn a dedicated native `code-review` sub-agent, separate from the `simplify` and `verify` sub-agents, against the implemented scope. Consume its actual Markdown report; a main-agent self-check does not satisfy this gate. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification and verification reports, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. Review returns its normal readable Markdown report. After required fixes, re-run affected verification and review in separate sub-agents.
+
+Use one reviewer by default. Only for high-impact changes with unresolved, under-evidenced judgements, or an explicit user request for a panel, may the caller dispatch 2–3 independent reviewers on the same scope and synthesize their findings against the evidence.
 
 The review receipt follows code-review's [report guidance](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
 
@@ -36,6 +38,7 @@ The review receipt follows code-review's [report guidance](../../code-review/ref
 
 ### Verification
 
+- <AC>: PASS | FAIL | NOT VERIFIED — <independent observation and coverage limit>
 - `<command>` — exit <code> — <key result>
 
 ### Simplification

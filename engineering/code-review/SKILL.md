@@ -11,7 +11,7 @@ Review whether the change solves the intended problem without breaking existing 
 
 Use the user's requested commit, branch, working tree, or paths. Pin the baseline and distinguish pre-existing edits. For a branch comparison use its merge base; for a single commit inspect that commit's patch, not a three-dot comparison against HEAD. Include staged, unstaged, and relevant untracked files in a working-tree review. An invalid ref, unreadable scope, or empty diff is a limitation, not a successful review.
 
-Read the request and applicable repository rules, then follow the changed behaviour through callers, dependencies, public types, configuration, and tests. Use supplied requirements, acceptance criteria, and task-level design when available. No ticket, SPEC, HLD, receipt, or separate acceptance document is required for standalone use. Without a requirement source, review demonstrable defects and state that requirement completeness was not assessed; do not invent intent.
+Read the request and applicable repository rules, then follow the changed behaviour through callers, dependencies, public types, configuration, and tests. Use supplied requirements, acceptance criteria, and task-level design when available. Without a requirement source, review demonstrable defects and state that requirement completeness was not assessed; do not invent intent.
 
 ## What to review
 
@@ -39,14 +39,6 @@ Use P0 for immediate severe widespread harm, P1 for serious impact requiring pro
 
 Contradictory requirements need clarification by their owner. Missing access or evidence needs an explicit limitation, not a fabricated defect or a pass. Required verification failures must remain visible. Review does not replace execution of required tests or grant permission to commit or deploy.
 
-## Independent escalation
-
-Default to one independent reviewer. Do not spawn extra reviewers because the task is large, the diff is long, or the change “feels important”. A `quick-implement` or `loop` request for one independent review does not itself warrant a panel.
-
-Consider escalation only when the change is high-impact — including safety, data-integrity, or permission stakes — and a single review still leaves independent, under-evidenced judgements, or when the user explicitly asks for an independent panel. Low confidence, a large diff, or residual uncertainty alone is not enough. If escalating, use 2–3 native independent reviewers on the same scope, baseline, requirement sources, and evidence. Reviewers must reach conclusions independently and must not read each other's reports first. Do not default to four or more reviewers, hard-code a model provider, launch an external Agent CLI, or add a review-result parser. If native independent subagents are unavailable, report that limitation and keep a single-reviewer report; do not substitute an external CLI.
-
-The lead synthesises one report in the existing Markdown contract. Agreement between reviewers increases confidence but does not establish truth. Resolve disagreement against code, requirements, tests, and observable evidence rather than by vote.
-
 ## Report
 
-Always return readable Markdown in the user's language, including when invoked by another workflow. Use [the report format](references/output-contract.md): conclusion, scope, prioritised findings, follow-up, requirement gaps, unverified scope, and evidence. Keep explanations concise but sufficient for a human to act. Do not return JSON or require the reader to understand an orchestrator's schema.
+Always return readable Markdown in the user's language. Use [the report format](references/output-contract.md): conclusion, scope, prioritised findings, follow-up, requirement gaps, unverified scope, and evidence. Keep explanations concise but sufficient for a human to act. Do not return JSON.

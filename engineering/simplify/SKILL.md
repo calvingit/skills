@@ -31,6 +31,8 @@ Read `references/candidates.md` when generating candidates. Read `references/inv
 
 ## Output
 
-For review, report meaningful candidates with evidence and expected maintenance reduction.
+Return readable Markdown with the inspected scope and baseline. Lead with a clear result: candidates found, `no_change`, or `blocked`. Use `blocked` when missing evidence prevents a safe judgement; name the gap rather than reporting `no_change`.
 
-For modification, report what was removed or merged, validation performed, and anything intentionally kept because evidence was insufficient.
+For Review, give each meaningful candidate's location, caller/contract evidence, proposed removal or merge, expected maintenance reduction, and any remaining uncertainty. State that no code was changed.
+
+For Modify, report what was removed or merged, validation performed and its result, and anything kept because evidence was insufficient. If nothing changed, distinguish no safe candidate from blocked investigation.

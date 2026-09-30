@@ -176,7 +176,7 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 
 跨阶段路由由调用方依据本流程处理；独立的 grilling 不承担下游 Skill 的调度说明。普通交接不需要用户再次输入下一个 Skill 名称。普通拆票由 `to-tickets` 判断粒度和真实阻塞依赖；若拆分暴露未确定的产品、范围、优先级、发布、兼容、验收或共享设计选择，则交还对应上游 Skill，不能把它写成任务假设。
 
-`quick-implement` 收尾时分别委派专用 subagent 执行 `simplify` Review 和 `code-review`，主 Agent 读取实际报告并完成验证；简化候选只有在用户明确授权后才修改。Loop 的最终验收职责见下方“Ticket 执行”。
+`quick-implement` 由主 Agent 实现单一任务，收尾时分别委派专用 subagent 执行 `simplify` Review、`verify` 和 `code-review`，主 Agent 读取实际报告；简化候选只有在用户明确授权后才修改。Loop 的最终验收职责见下方“Ticket 执行”。
 
 是否进入实现遵循用户当前授权：只要求规划时，在所需规划产物完成后停止；已授权实现时，继续进入 `quick-implement` 或 `loop`。连续交接不会自动授予提交、推送或分支操作权限。
 
