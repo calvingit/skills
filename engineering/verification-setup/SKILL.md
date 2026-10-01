@@ -17,6 +17,8 @@ See [usage examples and design source](references/usage.md) when establishing an
 
 Scope setup to the requested surfaces. For a monorepo, include relevant shared dependencies and cross-surface journeys; do not assume one repository is one app. Reuse the domain glossary within its scope. Requirements define expected behaviour; source and tests reveal current capabilities, not new acceptance requirements.
 
+When setup is requested for a delivery, read its [Task Contract](../shared/task-contract.md) and relate current AC/source references to sufficient methods before implementation. Keep missing observations and unavailable prerequisites visible. This task mapping is a derived handoff, not stable Profile content or permission to redefine acceptance; broad project setup without a current task needs no invented AC.
+
 ## Create or refresh
 
 Use the repository's local skill convention; default to `.agents/skills/verify-<surface>/`. Update an existing equivalent in place rather than creating a competing entry. Use one skill when the run/drive/isolation recipe is shared; split only when surfaces need distinct recipes. For multiple skills, reuse or create one concise navigation entry mapping surfaces and cross-surface journeys to their guidance, without duplicating commands.

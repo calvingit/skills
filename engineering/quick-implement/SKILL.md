@@ -11,7 +11,7 @@ Quick means no execution graph. It does not mean skipping high-level design chec
 
 ## Entry
 
-Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context.
+Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Use the [workflow policy](../shared/workflow-policy.md) to assess uncertainty, blast radius and verification difficulty; confirm the whole scope can finish reliably in the current context.
 
 - Unclear goal, scope, or result → `grilling` / `wayfinding`. Call `to-spec` only when the requirement needs to be persisted, shared, or versioned.
 - No HLD, but shared types, Interfaces, state / error semantics, dependency direction, or integration choices span modules, callers, or implementation tasks → `high-level-design`.
@@ -24,6 +24,7 @@ Confirm goal, scope, and a decidable result. Read and obey `SPEC.md`, a separate
 1. Record `HEAD`, staged / unstaged / untracked state, and a baseline. Protect existing edits.
 2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant entries from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)); otherwise keep discovering what is already there.
 3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Apply `codebase-design` or local detailed design only to module internals, private helpers, file layout, and algorithms inside the local implementation space.
+   Before implementing, relate each AC to a sufficient project method, prerequisites and coverage limits. Reuse existing guidance; route necessary method/test capability work within authority and keep uncovered criteria visible. No separate evidence-plan file is required.
 4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and hand back to `grilling` / `wayfinding` / `to-spec`. Technical design several implementations share → `high-level-design`.
 
 ## Implementation loop

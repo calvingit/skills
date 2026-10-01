@@ -59,6 +59,8 @@ When consuming grilling outputs:
 
 Collect the conversation, user docs, finished decisions, and requirement authority. Keep only explicit facts, constraints, terms, trade-offs, and Out of scope. Do not grow scope to fill a template.
 
+Resolve the [Task Contract](../shared/task-contract.md) through these sources. Persist requirement-owned goal, scope, AC and confirmed task boundaries in the existing SPEC sections; link applicable authority and evidence rules instead of creating another contract file or copying project policy. Shared design and concrete verification methods keep their existing owners.
+
 Task directory: what the user named this turn → the applicable linked Profile's `task_contract` → the repo's existing task-doc convention. Missing Profile does not block. Ask only when write location or requirement meaning is still undetermined.
 
 ### 2. Investigate the codebase
@@ -108,7 +110,7 @@ After consistency holds, write into the task directory. Report acceptance seams,
 
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
-After the SPEC is confirmed, judge two paths separately. Ticket count is not a substitute for the design judgement:
+After the SPEC is confirmed, apply the [workflow policy](../shared/workflow-policy.md) to uncertainty, blast radius and verification difficulty, then judge two paths separately. Identify known observation methods or gaps before implementation; do not put test recipes in SPEC. Ticket count is not a substitute for the design judgement:
 
 1. **High-level design**: call `high-level-design` first when shared types, Interfaces, state or error semantics, dependency direction, migration, or integration constraints span modules, callers, or implementation tasks. Otherwise record `hld_not_required` and why.
 2. **Execution**: `quick-implement` when the scope is single and needs no execution graph; `to-tickets` then `loop` when several implementation tasks, dependencies, or unified scheduling are needed.

@@ -65,6 +65,12 @@ No parser or new configuration schema is required. Existing keys retain their me
 - `triage` is optional and disabled unless enabled by the caller. Omit `labels` when disabled; ask about labels only when triage is available or explicitly requested. Existing label defaults are `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`.
 - Missing fields are valid. `auto` means discovery, not capability disabled. Do not rewrite a partial Profile to match the field reference.
 
+## Task conventions and boundaries
+
+The shared [Task Contract](../../shared/task-contract.md) is a logical model; `task_contract.root` and `directory_pattern` only locate persisted task documents. A task can stay in the conversation when no persistence or graph is needed.
+
+When the project has confirmed stable task conventions, link their owning sources from relevant Profile prose: where requirements/AC and design are maintained, how derived tickets reference them, and which project evidence/recovery rules apply. Reuse existing instructions and guides; do not add mandatory YAML fields or copy a second ownership/permission table. Universal restrictions and mandatory gates remain directly visible in applicable instructions. Keep per-task scope, actual authorization, current AC, evidence plans and execution results in their task sources, not the Profile.
+
 ## AGENTS.md entry
 
 Use the actual Profile path; links in nested instructions must resolve from that file. For root `AGENTS.md`:

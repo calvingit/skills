@@ -2,6 +2,8 @@
 
 Read when invoking a worker or handing work across contexts. Pass the bounded ticket/question, current attempt or delivery candidate, authoritative source links, baseline, existing edits, expected change areas, resolved verification entry, permitted test resources, and evidence location. Include prior findings for corrections; do not copy all repository docs or prescribe verify's conclusions.
 
+Carry relevant decision, authority, evidence and recovery bounds from the [Task Contract](../../shared/task-contract.md#handoff-inheritance-and-change). Keep upstream references and narrower role restrictions distinguishable. A summary or ticket cannot grant operations the caller lacks; missing optional documents do not require a new contract artifact.
+
 Reuse available task knowledge and source links. Write a brief derived note under the task's `.loop/` only when needed for handoff; compare it with current sources on resume. Notes are navigation, not requirements or acceptance evidence. Runtime owns context continuation and compaction; no fixed context-file pair or telemetry ledger is required.
 
 Invoke native implementation workers serially by default, preserving continuity where useful. New contexts are useful for independence or isolation, not automatically for every ticket. Final roles remain separate as specified in [finalization](delivery-review.md).

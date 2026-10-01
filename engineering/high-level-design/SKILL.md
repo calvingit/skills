@@ -9,6 +9,8 @@ Take a confirmed `SPEC.md` and current codebase facts, and form the high-level t
 
 `HLD.md` is the final authority for the delivery's shared technical design. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
 
+Consume the requirement-owned [Task Contract](../shared/task-contract.md); inherit goal, scope, AC and authority by reference. HLD owns the derived shared design and its verification seams, not another acceptance or permission definition. Apply the [workflow policy](../shared/workflow-policy.md) independently of task size or ticket count.
+
 ## Process
 
 1. Investigate the confirmed SPEC and current codebase.

@@ -7,6 +7,8 @@ description: Verify confirmed acceptance criteria using project verification gui
 
 Independently judge the current candidate against confirmed Acceptance Criteria (AC). Requirements define expectations; project guidance supplies execution methods; `code-review` judges change risks and implementation quality.
 
+Consume the [Task Contract](../shared/task-contract.md), including source references, evidence requirements and permitted resources. A pre-implementation evidence plan is navigation, not a verdict: independently check its sufficiency and current applicability without changing acceptance or authority.
+
 For the rationale behind independent evidence, see [evidence.md](references/evidence.md).
 
 ## Verify the candidate

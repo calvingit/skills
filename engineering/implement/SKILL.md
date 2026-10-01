@@ -7,6 +7,8 @@ description: "Implement one ticket's delivery behaviour within its agreed write 
 
 Use the ticket, requirements, baseline, and write scope supplied by the caller. Implement the simplest correct design, including necessary simplification of complexity this change creates or makes obsolete. Remove unnecessary compatibility, fallback, indirection, duplication, and temporary scaffolding introduced by this change; preserve old behaviour only for a confirmed requirement.
 
+Consume the caller's resolved [Task Contract](../shared/task-contract.md#handoff-inheritance-and-change) and current source references. Ticket delivery and role permissions narrow the upstream task; they do not expand its scope or authority. Before changing code, identify sufficient existing checks for the delivery AC, prerequisites and gaps; report gaps without inventing expectations or waiving completion conditions.
+
 Do not expand into unrelated cleanup. Do not edit SPEC, ACCEPTANCE, HLD, tickets, or Git history, or schedule sibling tasks. Report a requirement or scope conflict rather than resolving it through unauthorised edits.
 
 Before adding tests, identify the changed behaviour or concrete regression risk, check existing protection, and choose the least costly sufficient level. Add or update tests only where needed; a new function or branch does not by itself require a new test. Derive expectations from confirmed contracts or independent examples, not copied implementation logic. Avoid production hooks or extra abstractions solely for test convenience. Use `tdd` when a useful test-first feedback loop fits; it is a method within implementation, not a separate delivery route or mandatory step.

@@ -9,6 +9,14 @@ Use these responsibilities to write the local skill, not as a required CLI or sc
 - Describe available checks by what they prove, prerequisites and relative cost. Include focused selection where supported, plus mandatory project gates. Choose the least costly sufficient evidence; a quick check cannot substitute for an uncovered behaviour or required gate.
 - State unsupported platforms, features and evidence types. Existing configuration is declared capability until exercised; a smoke run covers only its recorded path and environment.
 
+For a current delivery, map each confirmed AC/source reference to the public observation, selected method, prerequisites, required evidence and remaining gap before implementation. Use a session note or existing task record; the reusable feature map below locates capabilities, not task completion. A method can support several criteria, but a gate or smoke check must not silently stand in for uncovered criteria.
+
+## Capability freshness
+
+Distinguish a documented method, a method exercised on a recorded path/environment, and evidence accepted for a current candidate. These are different claims, not a new persisted status schema. Link run receipts rather than putting PASS/FAIL history in the Profile.
+
+Recheck relevant methods after changes to public entry points, commands, dependencies, fixtures, permissions, platform or isolation/cleanup assumptions. Refresh only affected recipes and navigation; unaffected methods remain usable. A stale configured entry is a reported gap even if discovery finds another method. Task evidence is reassessed by its consumer after candidate or environment changes; setup does not certify it.
+
 ## Prepare and doctor
 
 Give exact setup/start actions, supported versions, required environment-variable names (never secret values), test data/auth preparation, readiness conditions, and a bounded readiness wait with a diagnostic on failure. Prefer existing project commands and tools. Explain how to confirm the right instance/build, resource ownership, and prerequisites before driving it. Do not use a healthy unrelated process as readiness evidence.

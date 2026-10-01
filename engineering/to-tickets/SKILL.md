@@ -31,6 +31,8 @@ Cite existing acceptance meaning. Derive delivery acceptance targets from the ci
 
 SPEC is the final authority for scope, acceptance, and upstream-confirmed constraints. HLD, when present, is the final authority for design constraints several implementations share. Tickets are the derived execution graph for claiming and collaboration. On conflict, hand back to the owner of that artifact. Tickets must not silently change upstream meaning.
 
+Follow [Task Contract inheritance](../shared/task-contract.md#handoff-inheritance-and-change) using the existing ticket fields. A slice may narrow scope/constraints, never grant extra authority or replace an upstream AC. Do not copy a full contract into each ticket or add another state/configuration format. Confirm each slice has an identifiable observation method or a visible capability gap before execution; method details remain in project guidance or the handoff.
+
 `to-tickets` does not read or interpret the Profile's `requirement_authority`, an external PRD, or new requirements from chat. Those inputs must already be written and confirmed into the SPEC by `to-spec`. Do not write chat-level technical preferences onto tickets. Design decisions that affect several implementations must enter the HLD first.
 
 ## Split rules
