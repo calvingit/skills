@@ -1,193 +1,71 @@
 # Engineering Skills
 
-本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架、项目目录或 Agent Runtime。它以证据驱动、职责单一、可组合和渐进式上下文为原则；项目规则、领域术语、ADR、Git 规则和测试约定仍由目标仓库维护。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)。
 
 ## 设计原则
 
-- 通用优先，不把项目实现细节写进通用 Skill。
-- 主要职责明确，每个 Skill 有自己的判断目标和停止点；可以围绕不同目标检查同一份代码或测试。
-- 可组合，workflow 调用 discipline，但不复制其规则。
-- 证据优先，代码、SPEC、测试、运行结果和 review evidence 高于模型自报。
-- 状态分离，Runtime 管理会话上下文；Engineering Skills 管理规范、执行图、交付进度和 evidence。
-
-## 工程原则与项目上下文
-
-用户级 `AGENTS.md` 可以维护跨项目原则：Ubiquitous Language、Tracer Bullet / Vertical Slice、Deep Modules / Information Hiding、Evidence-Based Completion 和 Minimum Necessary Complexity。原则用于指导判断，不要求所有任务使用完整流程，也不新增 Skill。
-
-[`project-setup`](../engineering/project-setup/SKILL.md) 将这些原则连接到项目事实：复用 Profile 中的 `domain_glossary`、`architecture_authorities`、`project_context` 等入口，按需增加 `verification_instructions`，并在已有项目规则不足时补充简短的 `Engineering Context`。项目指令应能独立使用，不依赖每位使用者安装相同的用户级规则。
-
-- 术语来源解释概念，需求来源规定预期行为，架构文档和适用 ADR 记录设计决定，代码反映当前行为。这些来源不构成统一的优先级链；存在实质冲突时先澄清受影响的内容，保留有契约依据的外部或遗留名称。
-- `verification_instructions` 指向仓库内的验证说明、项目本地验证 Skill 或多端索引，具体命令、前置条件、平台覆盖和人工检查要求由该入口维护。字段缺失或为 `auto` 时继续动态发现，不强制补文档，也不改变 verify 的结果状态或 Loop 的完成条件。
-- GUI 验收分别考虑行为、视觉参考和交互体验。行为 E2E 通过不证明视觉或体验符合要求，静态截图也不证明动态交互；只报告证据实际覆盖的范围，明确未验证项。
-
-需要建立或维护项目验证方法时，使用 [`verification-setup`](./verification-setup.md)：扫描仓库、复用现有工具、生成或更新本地验证 Skill，并实际跑通所覆盖的执行方法。`project-setup` 只维护入口；全局 `verify` 继续独立判断 AC 与证据，不内置各技术栈的验证策略。
-
-Profile 默认独立保存为 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口和按需读取条件。文件中的 Settings 保存现有配置字段，Verification 章节摘要说明验证范围、方法入口、前置条件和限制；命令、完整功能映射与运行结果仍在对应验证方法和任务记录中。消费者先读相关章节，再加载当前任务需要的引用，普通修改无需预读全部文档。
-
-Setup 保留已有 Profile 的未知字段和已确认值；旧内嵌块在获准迁移前保持可读，迁移后移除旧块，不维护两份有效配置。字段语义、读取与迁移规则统一见[Profile 约定](../engineering/project-setup/references/profile.md)。缺少 Profile 或字段为 `auto` 时继续发现；显式入口失效或冲突须报告。这一配置变更只建立上下文入口；实际加载和长期效果仍需真实任务验证。
-
-## 职责边界与收敛
-
-当前收敛期暂停新增全局 Skill。先复用已有 Skill、项目 Profile、工具或本地验证方法；只有真实任务证明现有职责无法承接时，再单独讨论能力缺口。不新增通用路由、Runtime 或编排层。
-
-按 Scope、Decision、Evidence 三个边界维护职责：能处理和修改什么、可以独立决定什么、结论需要什么证据。完整审计与各 Skill 的停止点见[职责与边界](./engineering-responsibilities.md)。这些边界用于澄清所有权，不要求每个 Skill 重复一套章节或强制文件白名单。
-
-## 上游适配与维护规范
-
-对于源自 Matt Pocock 的 Skill，以上游原版为基础，只添加 Engineering Skills 确有需要的适配。自行设计的 Skill 不强行套用上游结构。
-
-- 保留原版的核心机制、关键术语和交互节奏；改动前先核对原文，记录来源与适配理由。
-- 适配集中在项目约定、文档位置、必要的技能组合及 Runtime 能力差异。不把下游流程说明塞进每个 Skill。
-- 新增限制必须对应明确需求或已观察到的问题。通用常识、重复要求、分类教学和假设性防护不进入正文。
-- 对重复出现且可确定性判断的问题，先考虑能否通过 script、schema、lint、test、validation 或 metadata 编码约束。结构化约束能够更可靠、更低成本地防止问题时，不要继续往 SKILL.md 叠加提示词。只有需要上下文判断、权衡或跨 Runtime 通用解释的规则才保留为 prose。不要为了消除一次偶发输出就引入新的工具或自动化机制。
-- 通过组合复用已有规则，不复制另一 Skill 的细节。精简时也不能静默删掉已确认的能力，例如自动记录 decisions、术语对齐和 ADR。
-- 优先修正有问题的局部；不要因一次输出不理想反复重写整体流程，也不以行数作为质量指标。
-- 声称效果改善前，用相同任务、模型和上下文比较关键遗漏、无效追问、用户纠正及阅读负担。静态检查只能证明格式与规则一致，不能证明实际效果更好。
-
-当前 grilling 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)，保留 design tree、frontier 和 round，以及每轮批量提出整个 frontier 的机制。本地适配包括紧凑的快捷回复格式、通用事实调查、项目内决策记录，以及与 domain-modeling 组合写入术语和 ADR。尚未完成行为对比验证。
-
-## 类型
-
-| 类型 | Skills | 职责 |
-| --- | --- | --- |
-| Project Setup | `project-setup`, `verification-setup`, `improve-agents-md` | 分别维护工程 Profile、项目验证方法、仓库指令；按需使用，不构成必经阶段。 |
-| Research and Maintenance | `find-docs`, `tech-research` | 查询适用版本文档、形成技术决策依据。 |
-| Workflow | `grilling`, `wayfinding`, `to-spec`, `high-level-design`, `to-tickets`, `quick-implement` | 按需收敛决策、规格化、概要设计、拆票和实现。 |
-| Engineering Discipline | `how`, `why`, `tdd`, `codebase-design`, `domain-modeling`, `code-review`, `test-audit`, `debug`, `simplify`, `review-architecture`, `challenge`, `fuck-my-shit-mountain` | 提供可复用的工程理解、判断和实践；项目审计负责多维覆盖和综合报告。 |
-| 执行与验收 capability | `implement`, [`verify`](./verify.md) | `quick-implement` 在当前会话完成单一范围；Loop 将每张 ticket 委派给原生 worker，verify 在独立只读上下文中验收。 |
-| Execution Protocol | `loop` | 消费 ticket graph，调度工作单元，聚合 evidence 并执行完成门。 |
+- 通用优先，项目实现细节、领域术语、ADR、Git 规则和测试约定由目标仓库维护。
+- 每个 Skill 有明确的判断目标和停止点，可以围绕不同目标检查同一份代码或测试。
+- 通过组合复用规则，不复制另一 Skill 的执行细节。
+- 以确认需求、代码、实际观察和独立报告为依据，不把自报或命令成功当成完成证明。
+- Runtime 管理会话与 worker 生命周期，Engineering Skills 管理需求、设计、执行图和交付判断。
 
 ## 选择入口
 
+分别判断需求与技术路径的不确定性、对调用方和共享资源的影响范围，以及取得充分证据的验证难度。不按代码行数或“小、中、大”标签决定流程。完整规则见[按风险选择流程](../engineering/shared/workflow-policy.md)。
+
 | 当前状态 | 入口 |
 | --- | --- |
-| 需求、边界或验收未收敛 | `grilling` |
-| 技术路径存在跨会话迷雾 | `wayfinding` |
-| 需求已收敛且需要持久化规范 | `to-spec` |
-| 多个 Module 或实现任务需要共享设计约束 | `high-level-design` |
-| 需要多个可独立领取的执行单元 | `to-tickets` → `loop` |
-| 单一范围、无需执行图 | `quick-implement`；简单改动可直接实现 |
+| 需求、边界或验收未收敛 | [grilling](../engineering/grilling/SKILL.md) |
+| 技术路径存在需要跨会话调查的迷雾 | [wayfinding](../engineering/wayfinding/SKILL.md) |
+| 需求已收敛且需要持久化规范 | [to-spec](../engineering/to-spec/SKILL.md) |
+| 多个模块、调用方或实现任务需要共享设计约束 | [high-level-design](../engineering/high-level-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
+| 需要多个执行单元、依赖或统一调度 | [to-tickets](../engineering/to-tickets/SKILL.md) → [loop](../engineering/loop/SKILL.md) |
+| 单一范围、无需执行图 | [quick-implement](../engineering/quick-implement/SKILL.md)，简单局部修改可以直接处理。 |
+| 当前验收缺少充分、可重复的验证方法 | 先查找已有方法，再按需使用 [verification-setup](../engineering/verification-setup/SKILL.md)。 |
 
-按需叠加 `debug`、`review-architecture`、`codebase-design`、`domain-modeling`、`tdd`、`test-audit`、`simplify` 等 discipline。先判断是否真的需要 Skill；简单局部修改、事实查询和低风险机械修改通常直接处理即可。
+各入口按需组合，不构成必经阶段。实现前以已确认的 AC 明确观察方法、前置条件和覆盖限制，会话中的简要说明或已有任务记录即可。安全且不受影响的工作可以继续，证据缺口不能写成通过。契约的来源、继承和授权规则见[任务契约](../engineering/shared/task-contract.md)。
 
-## 独立调研、审查与维护
+各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，共享设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
 
-这些入口可以独立使用，不新增工程流程阶段，也不要求先运行 `project-setup` 或建立 SPEC / tickets。
+## 项目准备
 
-| 当前目标 | 入口与职责 |
-| --- | --- |
-| 创建或维护项目验证方法、执行步骤和证据说明 | [verification-setup](./verification-setup.md)；复用已有工具，生成或刷新本地 Skill，并记录实际试运行覆盖。 |
-| 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
-| 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
-| 用户手动调用，理解当前代码、数据或控制流如何运行 | [how](../engineering/how/SKILL.md)；只解释当前事实，不判断目标设计。 |
-| 用户手动调用，追查当前设计、限制或兼容规则为何形成 | [why](../engineering/why/SKILL.md)；基于历史证据区分事实、推断和未知。 |
-| 检验已有技术判断是否站得住 | [challenge](../engineering/challenge/SKILL.md)；未决需求访谈仍由 `grilling` 负责。默认单 reviewer；高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
-| 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式。`code-review` 对支撑安全性的非显然 invariant 做证据检查；高影响且判断仍显著不确定时，可按需升级为独立多 reviewer，默认仍是单 reviewer。 |
-| 专项检查测试有效性、重复保护或维护成本 | [test-audit](../engineering/test-audit/SKILL.md)；默认只读，明确要求清理时才修改，不增加固定验收关卡。 |
-| 主动寻找架构改进候选 | 使用 `review-architecture` 的候选发现规则；仅用户明确要求时扫描改进机会。 |
-| 明确要求多维项目审计 | [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略；覆盖与报告要求由它维护，判断标准复用已有审查技能。 |
-| 创建或审校项目 Agent 指令 | [improve-agents-md](../engineering/improve-agents-md/SKILL.md)；`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
+[project-setup](../engineering/project-setup/SKILL.md) 把工程原则连接到项目事实，维护稳定约束和按需读取入口。用户级原则可以包含 Ubiquitous Language、Tracer Bullet / Vertical Slice、Deep Modules / Information Hiding、Evidence-Based Completion 和 Minimum Necessary Complexity，项目指令仍应能独立使用。
 
-文档转换、中文润色、术语审校与文档同步位于 `documents/`；会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`。以技能负责的问题分类，不以是否输出 Markdown 分类。
+Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链接和读取条件。Profile 定位项目知识与验证方法，不保存当前任务契约或运行结果，未知字段、已确认设置和旧配置迁移按[Profile 约定](../engineering/project-setup/references/profile.md)处理。缺少 Profile 或字段为 `auto` 时继续发现，显式入口失效或冲突须报告。
+
+[verification-setup](../engineering/verification-setup/SKILL.md) 复用仓库工具，创建或刷新项目本地验证方法并实际试运行，[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
 
 ## 实现、测试与验收的组织
 
-按“项目准备、交付主线、按需方法”组织，不新增目录层级或路由 Skill：
-
-| 层次 | Skill | 主要责任与停止点 |
-| --- | --- | --- |
-| 项目准备 | `project-setup` | 维护稳定约束与入口，不编写具体测试策略或执行脚本。 |
-| 项目准备 | `verification-setup` | 建立和试运行项目验证方法，说明可用能力与限制，不宣告任务通过。 |
-| 交付主线 | `implement` | 实现当前行为、补必要测试并自检，报告实际结果和缺口。 |
-| 交付主线 | `verify` | 逐条判断 AC 的证据是否可信且充分，输出 `PASS / FAIL / NOT VERIFIED`。 |
-| 交付主线 | `code-review` | 找出改动中的具体缺陷、回归风险与不必要复杂度，不代替验收结论。 |
-| 按需方法 | `tdd` | 在实现中采用 Red → Green → Refactor 小步循环，不与 implement 构成互斥分支。 |
-| 按需方法 | `test-audit` | 审计指定测试的独立依据、实际执行路径、独有保护和维护成本。 |
-| 编排 | `loop` | 选择任务、处理反馈、核对完成条件和维护状态，复用各 Skill 的判断规则。 |
-
-这些是职责关系，不要求每个小任务都完整执行所有步骤。单一范围走 `quick-implement`；进入 Loop 后，每张 ticket 都必须由原生 worker 执行，最终交付继续独立 verify / code-review；`quick-implement` 保留自己的收尾规则。
-
-项目验证方法说明“有哪些能力”，实现者和验证者各自选择当前风险需要的检查。`verify` 必须审查支撑当前 AC 的证据，不能等 test-audit 来保证可信度；`code-review` 也可报告改动中的具体测试缺陷。只有需要系统审计测试有效性或维护价值时，才使用 test-audit。删除或合并测试前，说明保留的保护与可能失去的独有证据，不能只凭数量、行数或覆盖率判断。
-
-缺失或不充分的仓库测试交给 implement 做限定范围的补充；验证步骤失效交给 verification-setup；环境或权限不可用则记录阻塞解除条件。修复后重验受影响的结论。即使产品代码未变，修改测试、fixture、snapshot 或验证配置也需要重新判断依赖它们的证据。
-
-TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)适配，保留行为测试与逐步反馈。2026-09-26 核对上游后，按本仓库已确认的职责调整：取消逐个测试边界的重复确认，技术测试边界不写入 SPEC；允许 Green 后按需做局部重构；判断预期值的独立依据，不把字面量视为天然可信，也不把公式视为天然无效。较大设计变更仍交回调用方处理。这些调整不替代真实项目中的长期效果评估。
-
-## 产物和职责
-
-```text
-Runtime
-    └── conversation / session / context recovery
-
-Engineering workflow
-    SPEC.md
-       └── ACCEPTANCE.md (when needed)
-       │
-    HLD.md (when required)
-       │
-    tickets/*.json (when collaboration is needed)
-       │
-      loop (when tickets exist)
-       └── frontier / lifecycle / evidence / completion gate
-```
-
-| 产物 | 维护者 | 回答的问题 |
-| --- | --- | --- |
-| `.agents/engineering-profile.md` | `project-setup`；验证摘要由 `verification-setup` 更新 | 项目稳定工程入口在哪里，各验证方法能支持什么判断？ |
-| 项目本地验证 Skill / 多端索引 | `verification-setup` | 这个项目如何运行验证、保留证据和清理测试状态？ |
-| `MAP.md` + `decisions/` | `wayfinding` | 路线不清楚时，哪些决策必须先解决？ |
-| 会话文档（项目内 `task_contract` 任务目录） | `grilling` | 访谈确认了哪些决策、术语和 ADR，哪些尚未落盘？ |
-| `SPEC.md` | `to-spec` | 需要持久化时，要构建什么、范围是什么？ |
-| `ACCEPTANCE.md`（按需） | `to-spec` | 复杂或共享验收协议如何独立版本化？ |
-| `HLD.md` | `high-level-design` | 多处实现共享哪些职责、接口和集成约束？ |
-| `tickets/*.json` | `to-tickets` | 工作如何拆分，哪些任务真正阻塞？ |
-| lifecycle/evidence/receipt | `loop` | 当前做到哪里，下一步能做什么？ |
-
-`to-tickets/scripts` 创建、校验和协调执行图；`loop/scripts` 查询进度、记录 attempt 和状态。两者共享 `engineering/shared/ticket-schema.json` 与图存储实现，无需全局安装 CLI。Loop 是正常执行期间唯一的 graph writer。
-
-`grilling` 每轮自动更新任务目录中的 `decisions.md`，记录已确认决定、理由、验收结论和未决问题；组合 `domain-modeling`，在术语或符合 ADR 门槛的决定确认后立即写入。优先复用项目已有 glossary 和 ADR，缺少约定时使用会话目录。`acceptance-draft.md` 仅在需要独立验收草稿时生成，避免重复记录。
-
-`ACCEPTANCE.md` 是按需使用的独立验收文档；ticket 本地检查由实现者记录，最终独立验证由 verify 记录，Loop 核对证据并决定完成状态。
-
-## 需求、设计与交付验收
-
-决策所有权统一如下：
-
-| 内容 | Owner |
+| 能力 | 主要责任 |
 | --- | --- |
-| 业务行为 | `grilling` + `SPEC` |
-| 技术约束 | `SPEC` |
-| 架构方向 | HLD review |
-| 实现方案 | Agent |
-| 任务拆分 | `to-tickets` |
+| [implement](../engineering/implement/SKILL.md) | 实现当前行为、补必要测试与局部简化，报告实际自检结果和缺口。 |
+| [tdd](../engineering/tdd/SKILL.md) | 在实现中采用 Red → Green → Refactor 小步循环。 |
+| [verify](../engineering/verify/SKILL.md) | 独立逐条判断 AC 与证据，输出 PASS / FAIL / NOT VERIFIED。 |
+| [code-review](../engineering/code-review/SKILL.md) | 检查具体缺陷、回归风险和无必要复杂度。 |
+| [test-audit](../engineering/test-audit/SKILL.md) | 按需系统审计指定测试的有效性、独有保护和维护成本。 |
+| [loop](../engineering/loop/SKILL.md) | 派发 ticket、处理反馈、维护状态并判断最终交付。 |
 
-`grilling` 负责识别并向用户提出需求决策；API contract、字段语义、后端状态和协议限制，只要定义了所需行为，就作为技术约束进入 SPEC。架构边界和长期设计选择留给 HLD review。
+项目验证方法提供执行能力，需求定义预期行为，实现者和验证者选择足够的检查。验证方法试运行成功、本地测试通过和任务验收通过分别有不同的证据要求，独立验收的理由见 [Verify 证据说明](../engineering/verify/references/evidence.md)。GUI 行为、视觉符合性和交互体验须分别有对应证据。
 
-SPEC 是工程需求快照，记录为什么做、做什么、范围、行为、业务约束、外部技术约束、兼容约束和完成标准；不写类、模块、内部接口、实现方案、文件改动或测试实现。Acceptance Seam 可以观察用户行为或外部契约行为，例如 API 响应、UI 操作或导出文件。
+`verify` 自己判断当前 AC 的证据可信度，`test-audit` 不替代这项责任，也不自动成为交付门。缺失的仓库测试交给实现方，失效的验证方法交给 verification-setup，环境或权限存在缺口时，说明解除条件。修复后即使产品代码未变，也要重新判断受影响的证据。
 
-HLD 基于 SPEC 技术约束和已有代码定义共享技术方案。遇到新公共抽象、领域模型、API/Event contract、数据/权限模型或长期架构方向时，先经过 Design Review Gate；确认后的决定写入 HLD 的 `## Design Decisions`，每个 D 引用 SPEC R / AC 或具体代码事实，并说明理由和取舍。新增或改变 shared Interface、callback convention 或跨模块入口时，冻结前先用 1–2 个代表性 production caller（已有或即将接入的真实调用方，不是测试或演示）的调用形态检查接口；实现阶段出现重复的同源设计摩擦时，应回到 HLD Amendment，而不是持续增加 local workaround。Verification Seam 是检验技术方案的边界，例如 repository 集成测试或事件契约测试。HLD 可以记录技术集成顺序，但不拆 ticket。
+单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Loop 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。状态命令、部署要求及 Runtime 边界见 [Loop 说明](loop-runtime.md)。
 
-Ticket 使用 `referenced_design_decisions` 引用 HLD，使用 `delivery_acceptance` 描述本次交付如何覆盖 SPEC。它构成执行图，不新增设计或需求，也不规定逐个方法的修改步骤。
+## 产物入口
 
-脚本分工和部署目录见 [状态脚本说明](./workflow-scripts.md)。这些调整不增加工作流阶段，HLD 和执行图仍按需使用。
+简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](engineering-responsibilities.md#事实与产物归属)。
 
-## 从需求到执行
-
-Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认。每个 Skill 完成自己的职责后，如果当前需求依据和代码事实足以确定下一阶段，就直接继续；只有新的用户决策、缺失的需求依据、无法确认的关键技术路径或额外授权才暂停。
-
-| 阶段 | 职责与下游 |
+| 产物 | 入口 |
 | --- | --- |
-| `grilling` | 按需求决策、设计边界 concern、实现细节分类开放选择；需求决策进入 `to-spec`，设计 concern 作为 HLD 输入，实现细节由 Agent 决定。 |
-| `to-spec` | 维护工程需求快照；将需求决策写入 SPEC，将设计 concern 保留为 HLD 输入，然后判断执行路径。 |
-| `high-level-design` | 调查代码、形成设计候选并经过 Design Review Gate；维护多处实现共享的技术设计，然后判断执行路径。 |
-| 执行路径 | 单一范围且无需执行图时使用 `quick-implement`；需要拆分任务或管理依赖时继续 `to-tickets`。 |
-| `to-tickets` | 依据已确认的 SPEC / HLD 拆分任务、校验依赖；已获实现授权时继续 `loop`。 |
-
-跨阶段路由由调用方依据本流程处理；独立的 grilling 不承担下游 Skill 的调度说明。普通交接不需要用户再次输入下一个 Skill 名称。普通拆票由 `to-tickets` 判断粒度和真实阻塞依赖；若拆分暴露未确定的产品、范围、优先级、发布、兼容、验收或共享设计选择，则交还对应上游 Skill，不能把它写成任务假设。
-
-`quick-implement` 由主 Agent 实现单一任务，收尾时分别委派专用 subagent 执行 `simplify` Review、`verify` 和 `code-review`，主 Agent 读取实际报告；简化候选只有在用户明确授权后才修改。Loop 的最终验收职责见下方“Ticket 执行”。
-
-是否进入实现遵循用户当前授权：只要求规划时，在所需规划产物完成后停止；已授权实现时，继续进入 `quick-implement` 或 `loop`。连续交接不会自动授予提交、推送或分支操作权限。
+| `MAP.md` 与探索决策 | [wayfinding](../engineering/wayfinding/SKILL.md) |
+| 访谈 `decisions.md`、术语与 ADR | [grilling](../engineering/grilling/SKILL.md) 组合 [domain-modeling](../engineering/domain-modeling/SKILL.md) |
+| `SPEC.md` | [to-spec](../engineering/to-spec/SKILL.md) |
+| 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../engineering/to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
+| 共享技术设计 `HLD.md` | [high-level-design](../engineering/high-level-design/SKILL.md) |
+| `tickets/*.json` 契约与依赖 | [to-tickets](../engineering/to-tickets/SKILL.md) |
+| attempt、已接受证据与最终交付记录 | [loop](../engineering/loop/SKILL.md) |
 
 ## 需求和设计变更
 
@@ -202,37 +80,32 @@ Engineering Skills 按职责拆分，但阶段边界不需要逐一人工确认�
 | 仅有执行状态或验证证据变化 | 执行方（有图时为 `loop`） | 只更新执行记录，不修改 SPEC / HLD。 |
 | 实现发现需求或 HLD 无法成立 | `loop` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
 
-例如 Loop 执行期间新增取消语义：先暂停派发任务，停止仍在写入的 subagents 并保留部分结果；若取消行为尚有开放选择，`grilling` 只确认需求决策并由 `to-spec` 修订需求；若出现共享设计或长期方向选择，由 `high-level-design` 经过 Design Review Gate 后修订受影响的设计；再由 `to-tickets` 协调执行图，最后恢复 Loop。
+只同步受影响的下游，并核对保留的契约和证据在新依据下仍然适用。需求变化通过协调或修正交付处理，保留历史 done。`reopen` 仅用于原依据未变而原交付未满足的缺陷。执行中的写入方须先由 Runtime 停止，再修订上游和协调图。
 
-**向上只重新打开受影响的决定。** 与本次变化无关的已确认需求和设计继续有效，保留原有 R / AC / D ID；HLD 单独变化不反向修改 SPEC。
+## 独立调研、审查与维护
 
-**向下只传播实际影响。** 未受影响的 ticket 保留 ID、生命周期和仍然有效的证据，但必须核对其在新依据下仍然适用，不能只凭 ID 未变就沿用。新增行为使用 amendment ticket；原交付约定被替换时使用 `superseded` 加 replacement / correction。需求变化本身不能简单把历史 `done` 改回 `open`；`reopen` 仅用于依据未变、但原 ticket 没有满足原交付约定的缺陷。
+这些入口可以独立使用，不新增工程流程阶段，也不要求先运行 `project-setup` 或建立 SPEC / tickets。
 
-项目验证方法由 `verification-setup` 按需建立，供实现阶段本地检查和最终独立 verify 共用；它不增加下图中的必经交付阶段。
+| 当前目标 | 入口与职责 |
+| --- | --- |
+| 创建或维护项目验证方法、执行步骤和证据说明 | 使用 [verification-setup](../engineering/verification-setup/SKILL.md) 复用已有工具，生成或刷新本地 Skill，并记录实际试运行覆盖。 |
+| 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
+| 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
+| 用户手动调用，理解当前代码、数据或控制流如何运行 | 使用 [how](../engineering/how/SKILL.md) 解释当前事实，不判断目标设计。 |
+| 用户手动调用，追查当前设计、限制或兼容规则为何形成 | 使用 [why](../engineering/why/SKILL.md)，基于历史证据区分事实、推断和未知。 |
+| 检验已有技术判断是否站得住 | 使用 [challenge](../engineering/challenge/SKILL.md)，未决需求访谈仍由 `grilling` 负责。默认使用单 reviewer，高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
+| 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式，`code-review` 对支撑安全性的非显然 invariant 做证据检查。默认使用单 reviewer，高影响且判断仍显著不确定时，可按需升级为独立多 reviewer。 |
+| 专项检查测试有效性、重复保护或维护成本 | 使用 [test-audit](../engineering/test-audit/SKILL.md)，默认只读，明确要求清理时才修改，不增加固定验收关卡。 |
+| 主动寻找架构改进候选 | 使用 `review-architecture` 的候选发现规则，仅在用户明确要求时扫描改进机会。 |
+| 明确要求多维项目审计 | 使用 [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略，由它维护覆盖与报告要求，判断标准复用已有审查技能。 |
+| 创建或审校项目 Agent 指令 | 使用 [improve-agents-md](../engineering/improve-agents-md/SKILL.md)，`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
-工作流图：
+文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
 
-[![Engineering Skills 工作流](./engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/engineering-workflow.html)
+## 图示与仓库维护
 
-## Ticket 执行
+[![Engineering Skills 工作流](diagrams/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/engineering-workflow.html)
 
-Loop Manager 复用任务上下文并将每张 ticket 委派给原生 worker；worker 执行实现、修正和本地检查，Manager 再决定 complete、retry 或 block。ticket done 放行依赖，不代表最终交付通过。优先复用现有来源和上下文，仅在交接需要时写简短摘要到任务的 `.loop/`，不要求固定的 context 文件对或耗时台账。worker 默认串行运行；仅明确选择并行且无依赖、预计写入重叠、未解决的共享设计决策或共享可变资源冲突时才并行，确需隔离时使用 Runtime 已有的 worktree 能力。
+[![本地 Ticket 生命周期](diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
 
-结果直接使用文本或 Markdown。Loop 保留原文、核对证据并决定下一步；Skill 内的状态脚本只记录 tickets、attempt、已确认的验收证据和交付状态，不解析审查报告，也不启动或管理 Agent。没有原生 subagents 时应说明限制，不静默改用外部 CLI。
-
-执行期间发现需求或共享设计变化时，Loop 先停止派发任务和仍在写入的 workers，再把变化交还对应上游 Skill。上游修订完成并由 `to-tickets` 更新执行图后再恢复执行。历史 done 和证据按“需求和设计变更”规则处理。全部 tickets 本地完成后，Loop 委派 simplify worker 并准备最终快照，再分别调用独立原生 verify / code-review 执行整体验收；脚本只校验当前快照和调用方提交的状态记录。
-
-完成一张 ticket 后立即继续下一张。仅在最终交付通过、用户停止，或剩余工作依赖无法取得的外部输入/能力时停止。Runtime 结束后，Skill 不承诺后台自行继续。
-
-状态命令、输入与边界见 [Loop 与 Runtime 的职责](./loop-runtime.md)；可执行检查见 [状态脚本验收协议](./loopx-acceptance.md)。
-
-Ticket 生命周期图：
-
-[![本地 Ticket 生命周期](./ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/ticket-lifecycle.html)
-
-## 使用规则
-
-- 先读取用户要求、目标仓库指令、SPEC / HLD、相关代码和测试。
-- 下游 Skill 不静默改写上游产物。
-- 不自动 commit、push、建分支或改写历史。
-- 具体执行规则以各目录中的 `SKILL.md` 为准。
+维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。

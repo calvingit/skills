@@ -1082,8 +1082,8 @@ class TicketGraphCliTests(unittest.TestCase):
             REPOSITORY / "engineering" / "loop" / "SKILL.md",
             REPOSITORY / "engineering" / "to-tickets" / "SKILL.md",
             REPOSITORY / "engineering" / "shared" / "ticket-schema.json",
-            REPOSITORY / "docs" / "ticket-lifecycle.lifecycle.json",
-            REPOSITORY / "docs" / "engineering-workflow.workflow.json",
+            REPOSITORY / "docs" / "diagrams" / "ticket-lifecycle.lifecycle.json",
+            REPOSITORY / "docs" / "diagrams" / "engineering-workflow.workflow.json",
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 

@@ -7,6 +7,8 @@ description: Create or refresh project-local verification skills from repository
 
 Discover how this repository can establish observable behaviour, then create or refresh its project verification harness: the existing tools, execution recipes, and evidence guidance exposed through a local skill. Keep project-specific knowledge here; `verify` judges evidence against confirmed Acceptance Criteria (AC).
 
+See [usage examples and design source](references/usage.md) when establishing an entry or planning an incremental refresh.
+
 ## Discover before designing
 
 1. Read applicable instructions, Git status, project/domain docs, manifests, scripts, CI, test configuration, and relevant tests. Resolve the entry from the current task, then `verification_instructions` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)), then repository conventions. A missing Profile or `auto` does not block discovery.

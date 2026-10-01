@@ -20,7 +20,17 @@ python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <req
 | `complete` | `expected_attempt`, `evidence`, `verification`; optional `review` (actual original report) |
 | `reopen` | `review_finding`, `invalidated_acceptance` (local AC ID array), `upstream_unchanged: true` |
 
-`retry` belongs to `record-attempt`; other state mutations belong to `update-status`. Example complete request:
+`retry` belongs to `record-attempt`; other state mutations belong to `update-status`. Example start request:
+
+```json
+{
+  "baseline": {"reference": "<actual commit or recorded baseline>", "staged": [], "unstaged": [], "untracked": []},
+  "existing_changes": {"included": [], "excluded": []},
+  "allowed_write_scope": ["src/"]
+}
+```
+
+Loop must inspect the actual baseline, paths and existing changes; empty arrays in this example are not workspace facts. Example complete request:
 
 ```json
 {

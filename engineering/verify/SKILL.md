@@ -7,6 +7,8 @@ description: Verify confirmed acceptance criteria using project verification gui
 
 Independently judge the current candidate against confirmed Acceptance Criteria (AC). Requirements define expectations; project guidance supplies execution methods; `code-review` judges change risks and implementation quality.
 
+For the rationale behind independent evidence, see [evidence.md](references/evidence.md).
+
 ## Verify the candidate
 
 1. Read the caller's scope, baseline, candidate revision and relevant working-tree changes, requirements, and every applicable AC. Derive expectations from confirmed contracts, not implementation, existing tests, or an implementer's report. Missing or conflicting expectations are a contract gap, not permission to invent them.

@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "diagram_type": "lifecycle",
+  "meta": {
+    "title": "本地 Ticket 生命周期",
+    "locale": "zh-CN",
+    "quality_profile": "showcase",
+    "viewBox": [
+      980,
+      864
+    ],
+    "views": [
+      {
+        "id": "normal-execution",
+        "label": "正常执行",
+        "focus": [
+          "created",
+          "ready",
+          "in_progress",
+          "done"
+        ],
+        "note": "open 的依赖已完成且无 execution blocker 时动态计算为 ready，start 记录当前 attempt，complete 需全部本地 AC 证据、成功检查和 Loop 批准。"
+      },
+      {
+        "id": "blocking-recovery",
+        "label": "阻塞与恢复",
+        "focus": [
+          "created",
+          "blocked",
+          "ready",
+          "in_progress"
+        ],
+        "note": "blocked 是 open 的动态 readiness，unblock 只移除 execution blocker，依赖未就绪时仍为 blocked，执行是否运行或停止由 Runtime 确认。"
+      },
+      {
+        "id": "contract-change",
+        "label": "契约变化",
+        "focus": [
+          "created",
+          "ready",
+          "blocked",
+          "in_progress",
+          "done",
+          "amendment",
+          "superseded"
+        ],
+        "note": "上游修订通过 reconcile-batch 协调受影响的契约，核对后可用 retain_contract 保留未受影响的契约和证据，只有原交付契约被替换时才转为 superseded。"
+      }
+    ]
+  },
+  "lanes": [
+    {"id": "main", "label": "执行主路径"},
+    {"id": "waiting", "label": "阻塞与恢复"},
+    {"id": "change", "label": "上游契约变化"},
+    {"id": "terminal", "label": "历史状态"}
+  ],
+  "states": [
+    {"id": "created", "type": "start", "label": "open", "sublabel": "create-batch 初始 lifecycle", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY"},
+    {"id": "ready", "type": "active", "label": "ready（动态）", "sublabel": "依赖完成且无 blocker", "lane": "main", "col": 1, "step": "02"},
+    {"id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "当前 attempt 已开始", "lane": "main", "col": 2, "step": "03"},
+    {"id": "done", "type": "success", "label": "done", "sublabel": "本地 AC、成功检查与批准", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE"},
+    {"id": "blocked", "type": "waiting", "label": "blocked（动态）", "sublabel": "依赖未完成或 blocker", "lane": "waiting", "col": 0, "tag": "WAIT"},
+    {"id": "amendment", "type": "external", "label": "reconcile-batch", "sublabel": "协调受影响的契约", "lane": "change", "col": 2, "tag": "EVENT"},
+    {"id": "superseded", "type": "neutral", "label": "superseded", "sublabel": "原交付契约被替换", "lane": "terminal", "col": 2, "tag": "HISTORY"}
+  ],
+  "transitions": [
+    {"id": "created_ready", "from": "created", "to": "ready", "label": "动态 ready", "labelAt": [171, 112]},
+    {"id": "created_blocked", "from": "created", "to": "blocked", "variant": "security", "fromSide": "bottom", "toSide": "top", "via": [[94, 224], [402, 224]]},
+    {"id": "blocked_ready", "from": "blocked", "to": "ready", "label": "依赖就绪后重算", "variant": "emphasis", "fromSide": "left", "toSide": "bottom", "via": [[300, 307], [300, 228], [248, 228]], "labelAt": [330, 244]},
+    {"id": "ready_progress", "from": "ready", "to": "in_progress", "label": "start", "labelAt": [325, 112]},
+    {"id": "progress_done", "from": "in_progress", "to": "done", "label": "complete", "variant": "emphasis", "labelAt": [479, 112]},
+    {"id": "progress_blocked", "from": "in_progress", "to": "blocked", "label": "block → open", "variant": "security", "fromSide": "bottom", "toSide": "top", "route": "straight", "labelAt": [390, 215]},
+    {"id": "done_ready", "from": "done", "to": "created", "label": "reopen → open", "fromSide": "top", "toSide": "top", "route": "top-channel", "channelY": 62, "labelAt": [325, 74]},
+    {"id": "ready_amendment", "from": "ready", "to": "amendment", "fromSide": "top", "toSide": "top", "via": [[248, 38], [710, 38], [710, 380]], "variant": "dashed"},
+    {"id": "blocked_amendment", "from": "blocked", "to": "amendment", "fromSide": "bottom", "toSide": "bottom", "via": [[402, 380], [710, 380]], "variant": "dashed"},
+    {"id": "progress_amendment", "from": "in_progress", "to": "amendment", "label": "确认停止并保留结果", "fromSide": "right", "toSide": "left", "via": [[480, 157], [480, 250], [620, 250], [620, 307]], "variant": "security", "labelAt": [550, 240]},
+    {"id": "done_amendment", "from": "done", "to": "amendment", "fromSide": "bottom", "toSide": "top", "via": [[556, 210], [710, 210]], "variant": "dashed"},
+    {"id": "amendment_superseded", "from": "amendment", "to": "superseded", "fromSide": "bottom", "toSide": "top", "route": "straight", "label": "仅原契约被替换", "labelAt": [777, 412]}
+  ],
+  "cards": [
+    {"dot": "emerald", "title": "正常路径", "items": ["Loop 记录 open → in_progress → done，ready / blocked 由当前依赖和 execution blocker 计算", "complete 需当前 attempt、全部本地 AC 证据、成功检查和 Loop 批准，实际 ticket review 原文可选"]},
+    {"dot": "amber", "title": "阻塞与 Runtime", "items": ["unblock 后重新计算 readiness，依赖未完成时仍为 blocked", "in_progress 是已记录的执行状态，worker 是否运行、停止或可恢复由 Runtime 确认", "确认旧 writer 和相关命令停止后才开始重叠工作，图状态变化不会停止 worker"]},
+    {"dot": "violet", "title": "契约协调", "items": ["reconcile-batch 是协调操作，不是持久化生命周期状态", "经核对未受影响的契约和证据可用 retain_contract 保留，原契约被替换时才 superseded", "superseded 保留历史证据与 lineage，但不提供当前验收覆盖"]},
+    {"dot": "cyan", "title": "重开边界", "items": ["reopen 只用于上游含义未变而原交付未满足的缺陷，并受图约束", "reopen 后先回到 open，再计算 readiness，不能把需求变化改成重开", "图不允许重开时，由 to-tickets 安排修正交付，保留无关结果"]},
+    {"dot": "emerald", "title": "最终交付", "items": ["ticket done 只放行依赖，delivery_ready 表示可开始整体验收", "最终交付：专用 simplify → 有效候选快照 → 独立 verify / code-review → Loop 批准", "当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成"]}
+  ]
+}

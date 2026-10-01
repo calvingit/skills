@@ -8,7 +8,7 @@
 - `global/`：跨领域的 Agent 工具、上下文管理、会话辅助与持续学习。
 - `documents/`：文档与文本的转换、表达审校和事实同步。
 - `engineering/`：软件项目的调研、需求、设计、实现、验证、审查与维护，不绑定具体框架。
-- `docs/`：本仓库的使用说明、协议文档和图示。
+- `docs/`：使用总览、跨 Skill 职责、Loop 说明与成套图示，执行参考资料由所属 Skill 维护。
 
 ## Backend Skills
 
@@ -22,7 +22,7 @@
 | [`redis-best-practices`](./backend/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
 | [`mongodb-best-practices`](./backend/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
 
-`backend-development` 按改动边界加载检查项，外部写入结果与重试、运行生命周期与资源限制的细节按需读取。`api-contracts` 统一检查 API 与事件 Schema 兼容性，`event-driven-backend` 负责异步投递与副作用生命周期。Java Skill 负责编码规约，MySQL、Redis 和 MongoDB Skills 负责各自数据库的机制、现场和变更风险；实现、验证与审查流程仍由 Engineering Skills 负责。维护时可使用[后端 Skills 行为评估场景](./docs/backend-skills-evaluation.md)。
+`backend-development` 按改动边界加载检查项，外部写入结果与重试、运行生命周期与资源限制的细节按需读取。`api-contracts` 统一检查 API 与事件 Schema 兼容性，`event-driven-backend` 负责异步投递与副作用生命周期。Java Skill 负责编码规约，MySQL、Redis 和 MongoDB Skills 负责各自数据库的机制、现场和变更风险，实现、验证与审查流程仍由 Engineering Skills 负责。后端 Skill 的维护评估入口见[本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)。
 
 ## Global Skills
 
@@ -51,25 +51,11 @@
 
 ## Engineering Skills
 
-Engineering Skills 包含工程流程、可组合的判断方法，以及调研和维护工具。目录归类不代表必经阶段；独立调研、审查或冲突处理不要求先建立 SPEC 或 ticket。
+Engineering Skills 提供按需组合的调研、需求、设计、实现、验证与审查能力，目录归类不代表必经阶段，独立任务无需先建立 SPEC 或 ticket。
 
+- [使用总览与选择入口](./docs/engineering-skills.md)：按当前目标选择能力，查找项目准备、交付与图示入口。
+- [职责与产物归属](./docs/engineering-responsibilities.md)：维护跨 Skill 边界、权威来源与适配规范。
+- [Loop 与 Runtime](./docs/loop-runtime.md)：理解 ticket 执行、状态脚本部署和最终交付。
+- [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)：按改动选择静态检查、状态协议回归和行为评估。
 
-具体见**[Engineering Skills 详情](./docs/engineering-skills.md)**，里面包含完整的类型划分、选择指南、产物职责、Loop 执行约束和 ticket 生命周期。
-
-
-其他文档：
-
-- [Engineering Skills 职责与边界](./docs/engineering-responsibilities.md)
-- [独立项目 Profile 约定](./engineering/project-setup/references/profile.md)
-- [Loop 与 Runtime 的职责](./docs/loop-runtime.md)
-- [状态脚本](./docs/workflow-scripts.md)
-- [状态脚本验收协议](./docs/loopx-acceptance.md)
-- [Engineering Acceptance 协议](./docs/engineering-acceptance.md)
-- [项目验证配置与维护](./docs/verification-setup.md)
-- [实现、测试与验收的组织](./docs/engineering-skills.md#实现测试与验收的组织)
-- [测试专项审计](./engineering/test-audit/SKILL.md)
-- [独立 Verify 说明](./docs/verify.md)
-- [Engineering workflow 图示](./docs/engineering-workflow.html)
-- [Ticket lifecycle 图示](./docs/ticket-lifecycle.html)
-
-按需读取目标 Skill 目录，具体执行规则以其中的 `SKILL.md` 为准。
+按需读取目标 Skill，具体执行规则以其 `SKILL.md` 和参考资料为准。

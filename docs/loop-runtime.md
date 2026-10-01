@@ -6,72 +6,66 @@ Loop 是由当前 Agent 作为 Manager 执行的多 Agent 工作流 Skill。当�
 | --- | --- |
 | Loop Manager | 准备任务上下文、派发 worker、判断 ticket 完成和最终交付 |
 | Runtime | 创建、等待、中断和恢复原生 subagents |
-| implement / verify / code-review | 实现及本地检查、最终独立验证、最终独立审查；返回可读文本或 Markdown |
+| implement / verify / code-review | 分别负责实现及本地检查、最终独立验证和最终独立审查，返回可读文本或 Markdown |
 | skill 内状态脚本 | 图查询、依赖与需求绑定检查、状态写入、事务恢复、最终交付快照 |
 
-审查结果直接作为字符串使用。Loop 根据内容作判断；脚本不解析标题、严重性或通过措辞。JSON 仍用于确定的状态字段和命令输入，这不要求 subagent 返回 JSON。ticket 的 `complete` 命令表达 Loop 对本地验收的批准；最终交付的 `approved` 是 Loop 对独立报告与证据的明确判断，不是从报告中自动提取的结果。
+Loop 直接读取审查结果字符串并根据内容作判断，脚本不解析标题、严重性或通过措辞。JSON 仍用于确定的状态字段和命令输入，这不要求 subagent 返回 JSON。ticket 的 `complete` 命令表达 Loop 对本地验收的批准，最终交付的 `approved` 是 Loop 对独立报告与证据的明确判断，不是从报告中自动提取的结果。
 
 ## 执行上下文与委派
 
-一次 Loop run 是逻辑上的 execution session。Manager 负责连续编排 tickets，所有实现和修正 attempt 都由 Runtime 原生 worker 执行；worker 上下文可按连续性需要复用或更换。Manager 通过状态命令修改图，worker 修改产品代码但不修改上游需求、tickets 或 Git 历史。
+一次 Loop run 是逻辑上的 execution session。Manager 负责连续编排 tickets，所有实现和修正 attempt 都由 Runtime 原生 worker 执行，worker 上下文可按连续性需要复用或更换。Manager 通过状态命令修改图，worker 修改产品代码但不修改上游需求、tickets 或 Git 历史。
 
-交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文；必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC/HLD 和 ticket。
+交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文，必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC/HLD 和 ticket。
 
-普通实现必须委派给 Runtime 原生 worker，默认串行，并按实际能力复用上下文。并行需要先确认契约、写入和可变资源独立；Runtime worktree 不会消除共享服务或设计冲突。交接输入见[委派说明](../engineering/loop/references/context-and-delegation.md)。
+普通实现必须委派给 Runtime 原生 worker，默认串行，并按实际能力复用上下文。并行需要先确认契约、写入和可变资源独立，Runtime worktree 不会消除共享服务或设计冲突。交接输入见[委派说明](../engineering/loop/references/context-and-delegation.md)。
 
-## State commands
+## 状态脚本与部署
 
-将 `<loop-skill>` 替换为已安装 skill 的绝对路径；目录依赖见[状态脚本说明](./workflow-scripts.md)。从目标仓库根目录运行，`<task-dir>` 包含 SPEC 和 `tickets/*.json`。可选 ACCEPTANCE/HLD 不作为额外前置要求。
+| 目录 | 职责 |
+| --- | --- |
+| `engineering/to-tickets/scripts/` | 创建、校验及按上游变更协调执行图 |
+| `engineering/loop/scripts/` | 查询可执行任务、记录 attempt、状态流转和最终交付快照 |
+| `engineering/shared/` | 唯一 ticket schema、图校验、文件锁、事务与恢复 |
 
-- `python3 <loop-skill>/scripts/frontier <task-dir>`：查询图状态和最终交付状态。
-- `python3 <loop-skill>/scripts/graph-query show <task-dir> <ticket-id>`：读取任务、当前 attempt 和已记录证据。
-- `python3 <loop-skill>/scripts/update-status --help`：查看状态命令参数；写操作用 `--input <path|->` 接收 JSON。
+使用 Python 3.10+，当前文件锁实现支持 macOS/Linux。没有第三方 Python 包、Codex 或 Claude Code 依赖，最终代码快照检查需要 Git。安装或复制相关 skill 时须保留兄弟目录 `shared/`，仅复制单个 SKILL.md 不足以运行脚本。脚本通过自身位置加载共享代码，调用时不要求当前目录位于 Skills 仓库。
 
-正常状态流转是 open → in_progress → done；ready、blocked 是计算结果。`superseded` 由需求协调产生。Loop 在执行期间拥有状态写权限；subagents 不写票据。`done` 表示本地全部 AC 已验证并放行依赖，不代表最终交付通过。
+从本仓库根目录调用的例子：
 
-`start` 输入：
-
-```json
-{
-  "baseline": {"reference": "<actual commit or recorded baseline>", "staged": [], "unstaged": [], "untracked": []},
-  "existing_changes": {"included": [], "excluded": []},
-  "allowed_write_scope": ["src/"]
-}
+```bash
+python3 engineering/to-tickets/scripts/create-graph create-batch /path/to/task --input /path/to/request.json
+python3 engineering/to-tickets/scripts/validate-graph /path/to/task
+python3 engineering/loop/scripts/frontier /path/to/task
+python3 engineering/loop/scripts/record-attempt start /path/to/task T001 --input /path/to/start.json
+python3 engineering/loop/scripts/update-status complete /path/to/task T001 --input /path/to/complete.json
 ```
 
-路径与既有改动必须由 Loop 实际检查，不能把示例空列表当成事实。`retry` 使用相同字段，另加 `expected_attempt` 和 `findings`（原始问题文本），原子校验 attempt 并递增编号。原始基线和排除的用户改动仍须保留供后续审查。
+输入定义见 [建图与协调](../engineering/to-tickets/references/script-inputs.md)、[执行状态](../engineering/loop/references/script-inputs.md)。
 
-`complete` 输入：
+`.loop/` 仍位于任务目录，与 `SPEC.md`、`tickets/` 同级。现有图锁和临时事务目录也按任务隔离。脚本不建立项目级共享运行状态。
 
-```json
-{
-  "expected_attempt": 1,
-  "evidence": {"AC1": {"result": "passed", "summary": "<observed result and evidence source>"}},
-  "verification": [{"command": "<actual command>", "exit_code": 0, "summary": "<actual output>"}]
-}
-```
+将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.json`，可选 ACCEPTANCE / HLD 不作为额外前置要求。`record-attempt` 处理 start / retry，`update-status` 处理完成、阻塞、重开、事务恢复和最终交付。各输入的必需字段与示例由上面的参考资料维护。
 
-Loop 用 JSON 序列化器保存多行字符串，避免手工转义。脚本要求当前 attempt、全部本地 AC 的有效证据和实际成功的本地验证记录；调用 `complete` 即表示 Loop 已确认没有未解决的阻断问题或必需的未验证范围。脚本不检查报告语言或格式。ticket 的 review 可选；实际执行过审查时提交非空原文并保存到 `execution.review`，不填写“延后审查”等占位文本。重开时移除失效的当前审查。完整报告、命令日志和输入可保存在 `.loop/` 供交接。脚本无法判断文字中是否仍有阻断问题，也无法证明命令确实运行过，这些由 Loop 对原始证据负责。
+正常状态流转是 open → in_progress → done，ready / blocked 是计算结果，`superseded` 由需求协调产生。Loop 在执行期间写图，worker 不写票据。ticket complete 表示 Loop 已确认全部本地 AC 有充分证据、本地检查实际成功，且没有未解决的阻断问题或必需的未验证范围，实际 review 原文可选。ticket done 不代表最终交付通过。
 
-`block` 输入为 `blocker`（category、reason、release_condition）和已接受的 `evidence`；类别为 requirement、design、dependency、environment、permission 或 external。`unblock` 需要 `release_evidence`，必须先核实释放条件。`reopen` 需要 `review_finding`、失效的本地 AC 列表 `invalidated_acceptance` 和 `upstream_unchanged: true`，只用于原需求下的缺陷。
+本地检查由实现者记录实际命令、退出码、摘要和未验证范围，Loop 核对原始证据并决定状态，不重复执行 worker 的命令。状态脚本不能证明命令确实运行过或文字中没有阻断问题，真实性由 Loop 判断。
 
 ## 等待与执行恢复
 
-创建、等待、取消、超时和会话恢复遵循 Runtime 能力及调用方配置；Loop 不设置默认无活动时限，不维护 soft-ping 次数或活动时间台账。等待窗口结束只表示尚未取得结果，不能据此认定失败或停止。
+创建、等待、取消、超时和会话恢复遵循 Runtime 能力及调用方配置，Loop 不设置默认无活动时限，不维护 soft-ping 次数或活动时间台账。等待窗口结束只表示尚未取得结果，不能据此认定失败或停止。
 
-恢复执行前检查原生执行状态，确认旧 writer 和相关命令停止后才开始重叠工作，保留部分修改。结果绑定其原 attempt 和候选版本，迟到报告不能覆盖不适用的新结论；无法确认停止时报告阻塞。最终独立 verify 或 code-review 报告缺失时保持未完成，只有明确授权的替代才可改变执行者，并保留授权和覆盖证据。ticket 的本地检查不得声称为独立验证。
+恢复执行前检查原生执行状态，确认旧 writer 和相关命令停止后才开始重叠工作，保留部分修改。结果绑定其原 attempt 和候选版本，迟到报告不能覆盖不适用的新结论，无法确认停止时报告阻塞。最终独立 verify 或 code-review 报告缺失时保持未完成，只有明确授权的替代才可改变执行者，并保留授权和覆盖证据。ticket 的本地检查不得声称为独立验证。
 
 ## 需求变更与恢复
 
 修改共享需求前，Loop 先停止派发，通过 Runtime 中断 subagents 并确认它们停止写入，保留部分结果，再 block 当前 attempts。脚本改变状态不会终止运行中的 Agent。
 
-需求、设计、图分别由 to-spec、high-level-design、to-tickets 更新。`stale_authority` 表示旧证据需要影响分析；保留历史 done。仅对确认未受影响的契约及证据使用 `retain_contract`；变更行为通过修正/替换 tickets 表达，不以 reopen 冒充需求修订。
+需求、设计、图分别由 to-spec、high-level-design、to-tickets 更新。`stale_authority` 表示旧证据需要影响分析，历史 done 仍保留。仅对确认未受影响的契约及证据使用 `retain_contract`，变更行为通过修正/替换 tickets 表达，不以 reopen 冒充需求修订。
 
 脚本保留图校验、锁、事务和 `scripts/update-status recover`，拒绝过期 attempt、未知 AC、非法依赖或未协调的需求。Runtime 中断后，Loop 根据原生任务状态和记录继续，不通过脚本重建 Agent 会话。
 
-## Final delivery
+## 最终交付
 
-`all_active_done` 是历史状态；`delivery_ready` 表示可以开始整体验收。Loop Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review；代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，再更新快照和受影响的验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
+`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Loop Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，再更新快照和受影响的验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>
@@ -79,10 +73,12 @@ python3 <loop-skill>/scripts/update-status delivery-complete <task-dir> --input 
 python3 <loop-skill>/scripts/frontier <task-dir>
 ```
 
-最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是独立审查的原始字符串；ticket review 可选不会降低这个要求。
+最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是独立审查的原始字符串，ticket review 可选也不会降低这个要求。
 
-快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置；最终验收记录不要写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效；外部服务变化由 Loop 重新判断证据适用性。
+快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置，也不要将最终验收记录写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效，外部服务变化由 Loop 重新判断证据适用性。
 
-## 验证范围
+## 仓库验证
 
 仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
+
+状态脚本的验收边界与 Loop 回放场景由本仓库的[本地验证方法](../.agents/skills/verify-engineering/SKILL.md)按需引用。Runtime 行为需真实工作流证据。
