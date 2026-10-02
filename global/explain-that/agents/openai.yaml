@@ -1,0 +1,4 @@
+interface:
+  display_name: "重新解释"
+  short_description: "解释指定的术语、句子或判断，也可用更少术语重述上一条完整回复"
+  default_prompt: "使用 $explain-that，把上一条回复重新解释得更容易理解。"

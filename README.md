@@ -29,8 +29,7 @@
 | Skill | 用途 |
 | --- | --- |
 | [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
-| [`bro`](./global/bro/SKILL.md) | 仅限用户手动调用，用更少术语重新表达上一条完整回复。 |
-| [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
+| [`explain-that`](./global/explain-that/SKILL.md) | 解释指定的局部内容，或用更少术语重述上一条完整回复。 |
 | [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
 | [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
 | [`show-me`](./global/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
