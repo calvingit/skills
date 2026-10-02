@@ -33,7 +33,7 @@
 | [`explain-that`](./global/explain-that/SKILL.md) | 重新解释未理解的回复内容。 |
 | [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
 | [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
-| [`show-me`](./global/show-me/SKILL.md) | 使用最小必要的图示、代码结构或 HTML 帮助理解。 |
+| [`show-me`](./global/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
 | [`tavily-search`](./global/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
 | [`teach`](./global/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
 | [`agent-tool`](./global/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
