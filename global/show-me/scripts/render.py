@@ -67,11 +67,22 @@ def render(draft):
     sections = draft.get('sections')
     if not isinstance(sections, list) or not sections:
         raise ValueError('sections: expected a nonempty array')
+    presentation = draft.get('presentation', {})
+    if not isinstance(presentation, dict):
+        raise ValueError('presentation: expected an object')
+    unknown = set(presentation) - {'toc', 'numbers', 'cards'}
+    if unknown:
+        raise ValueError(f'presentation: unknown fields {sorted(unknown)}')
+    options = {'toc': len(sections) > 1, 'numbers': True, 'cards': True}
+    for key, value in presentation.items():
+        if type(value) is not bool:
+            raise ValueError(f'presentation.{key}: expected a boolean')
+        options[key] = value
     panels, links = [], []
     for i, section in enumerate(sections, 1):
         if not isinstance(section, dict):
             raise ValueError('section: expected an object')
-        title = text(section.get('title'), 'section.title')
+        title = text(section.get('title', ''), 'section.title')
         blocks = section.get('blocks')
         if not isinstance(blocks, list) or not blocks:
             raise ValueError('section.blocks: expected a nonempty array')
@@ -83,8 +94,12 @@ def render(draft):
         if any(b.get('type') == 'callout' for b in blocks if isinstance(b, dict)):
             classes += ' verdict'
         body = ''.join(block_html(b) for b in blocks)
-        panels.append(f'<section class="{classes}" id="{ident}"><div class="panel-head"><span class="number">{i:02}</span><h2>{title}</h2></div><div class="panel-body">{body}</div></section>')
-        links.append(f'<a href="#{ident}">{i:02} {title}</a>')
+        number = f'<span class="number">{i:02}</span>' if options['numbers'] else ''
+        heading = f'<div class="panel-head">{number}<h2>{title}</h2></div>' if title else ''
+        panels.append(f'<section class="{classes}" id="{ident}">{heading}<div class="panel-body">{body}</div></section>')
+        if title:
+            label = f'{i:02} {title}' if options['numbers'] else title
+            links.append(f'<a href="#{ident}">{label}</a>')
     status = text(draft.get('status', ''), 'status')
     script = draft.get('script', '')
     if not isinstance(script, str):
@@ -94,12 +109,15 @@ def render(draft):
     source = json.dumps(draft, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     replacements = {
         'LAYOUT': layout, 'TITLE': text(draft.get('title'), 'title'),
+        'TOC_ENABLED': str(options['toc'] and bool(links)).lower(),
+        'CARDS': str(options['cards']).lower(),
         'SUBTITLE': text(draft.get('subtitle', ''), 'subtitle'),
         'SUMMARY': text(draft.get('summary', ''), 'summary'),
         'STATUS': f'<span class="status">{status}</span>' if status else '',
         'SHEET_PRESSED': str(layout == 'sheet').lower(),
         'DOC_PRESSED': str(layout == 'doc').lower(),
-        'TOC': ''.join(links), 'PANELS': ''.join(panels), 'SOURCE': source,
+        'TOC': '<nav class="toc" aria-label="章节导航">' + ''.join(links) + '</nav>' if options['toc'] and links else '',
+        'PANELS': ''.join(panels), 'SOURCE': source,
         'CUSTOM_SCRIPT': f'<script>\n{script}\n</script>' if script else '',
     }
     template = Path(__file__).resolve().parent.parent / 'references' / 'explanation.html'

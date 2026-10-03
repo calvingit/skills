@@ -2,6 +2,8 @@
 
 仅在已经选择 HTML 输出后读取。本模板借鉴 `answer-me-with-html` 的双版式、按信息形状选组件和内容／渲染分离思路，不依赖其 CLI 或自定义 Markdown 语法。
 
+先判断模板是否适合表达目标。常规总览、顺序讲解和对比可以使用；空间布局、连续叙事、交互探索或特殊视觉结构需要不同页面组织时，直接写定制 HTML，不要求先试模板。不为节省输出而牺牲理解，也不用 `html` 块硬套外层布局。
+
 ## 使用
 
 需要 Python 3.10+，仅使用标准库，无需安装包。将 `<show-me-dir>` 替换为本 Skill 的实际目录，从当前任务目录运行：
@@ -17,7 +19,21 @@ python3 <show-me-dir>/scripts/render.py content.json -o explanation.html
 - `sheet`：默认总览。适合架构概览、方案对比和阶段总结；用 `span` 给重要图示或表格更大空间。
 - `doc`：顺序讲解，桌面提供章节导航。适合原理、调用链和设计依据。
 
-同一页面可以切换版式，内容与顺序保持一致。手机端按源稿顺序单栏阅读，不固定面板数量，也不为填满网格补写内容。
+同一页面可以切换版式，内容与顺序保持一致。手机端按源稿顺序单栏阅读，不固定面板数量，也不为填满网格补写内容。结论、流程、对比不是必选章节，不能因为有组件就补造内容。
+
+导航、编号和面板边框可以通过 `presentation` 关闭。短说明可只使用一个无标题正文区，避免切成卡片：
+
+```json
+{
+  "title": "缓存复用的条件",
+  "layout": "doc",
+  "presentation": {"toc": false, "numbers": false, "cards": false},
+  "sections": [{"blocks": [{"type": "text", "paragraphs": [
+    "内容未变化时可以跳过重复写入，但缓存仍须有效才能复用。",
+    "缓存无效则重新计算；内容变化则写入并使旧缓存失效。这是拟议规则，尚未实现。"
+  ]}]}]
+}
+```
 
 ## 最小稿件
 
@@ -51,7 +67,9 @@ python3 <show-me-dir>/scripts/render.py content.json -o explanation.html
 
 ## 字段与组件
 
-页面必填 `title`、非空 `sections`。`summary`、`subtitle`、`status` 可省略，`layout` 默认为 `sheet`。每节必填 `title` 和非空 `blocks`，`span` 为 1（默认）、2 或 3（整行）。一节可以组合多个块。
+页面必填 `title`、非空 `sections`。`summary`、`subtitle`、`status` 可省略，`layout` 默认为 `sheet`。每节必填非空 `blocks`，`title` 可省略，未命名的节不生成标题或导航项。`span` 为 1（默认）、2 或 3（整行）。一节可以组合多个块。
+
+`presentation` 可省略，支持布尔字段 `toc`、`numbers`、`cards`。默认多节有标题内容生成导航，单节不生成；编号与卡片样式默认开启。`toc: false` 同时移除导航占位列，`numbers: false` 移除标题和导航中的编号，`cards: false` 移除面板背景与边框，保留表格结构和结论强调。字段控制排版，不限制内容的含义、数量或顺序。
 
 | type | 字段 | 用途 |
 | --- | --- | --- |
