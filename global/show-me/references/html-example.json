@@ -1,0 +1,104 @@
+{
+  "title": "内容没变，为什么还要重新保存？",
+  "summary": "先比较内容，再决定是否写入。缓存只有在仍然有效时才能复用，内容不变并不足以证明缓存可用。",
+  "status": "拟议方案 · 尚未实现",
+  "subtitle": "缓存保存方案 · 概念示例",
+  "layout": "sheet",
+  "sections": [
+    {
+      "title": "核心判断",
+      "span": 1,
+      "blocks": [
+        {
+          "type": "callout",
+          "paragraphs": [
+            "内容未变化时，可以跳过重复写入。",
+            "缓存是否可复用，需要单独判断。",
+            "这两项检查回答不同问题：是否需要保存，以及已有结果是否仍可使用。"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "保存流程",
+      "span": 2,
+      "blocks": [
+        {
+          "type": "diagram",
+          "svg": "<svg viewBox=\"0 0 650 410\" role=\"img\" aria-labelledby=\"flow-title\"><title id=\"flow-title\">内容变化时写入并使旧缓存失效；内容不变时检查缓存有效性，有效则复用，无效则重新计算。</title><defs><marker id=\"arrow\" markerWidth=\"7\" markerHeight=\"7\" refX=\"6\" refY=\"3.5\" orient=\"auto\"><path d=\"M0 0L7 3.5L0 7Z\" fill=\"#738168\"/></marker></defs><g fill=\"none\" stroke=\"#738168\" stroke-width=\"1.5\" marker-end=\"url(#arrow)\"><path d=\"M325 55V84\"/><path d=\"M390 130H505V204\"/><path d=\"M260 130H150V184\"/><path d=\"M100 226H65V307\"/><path d=\"M200 226H255V307\"/><path d=\"M505 247V304\"/></g><g fill=\"#fffef8\" stroke=\"#a8b397\" stroke-width=\"1.2\"><rect x=\"252\" y=\"15\" width=\"146\" height=\"40\" rx=\"7\"/><path d=\"M325 84L390 130L325 176L260 130Z\"/><path d=\"M150 184L210 226L150 268L90 226Z\"/><rect x=\"423\" y=\"204\" width=\"164\" height=\"43\" rx=\"7\"/><rect x=\"10\" y=\"307\" width=\"110\" height=\"43\" rx=\"7\" fill=\"#eef1e4\"/><rect x=\"195\" y=\"307\" width=\"120\" height=\"43\" rx=\"7\"/><rect x=\"423\" y=\"304\" width=\"164\" height=\"43\" rx=\"7\"/></g><g fill=\"#333d2c\" font-size=\"15\" text-anchor=\"middle\" dominant-baseline=\"middle\"><text x=\"325\" y=\"35\">保存请求</text><text x=\"325\" y=\"130\">内容变化？</text><text x=\"150\" y=\"226\">缓存有效？</text><text x=\"505\" y=\"225\">写入新内容</text><text x=\"65\" y=\"328\">复用缓存</text><text x=\"255\" y=\"328\">重新计算</text><text x=\"505\" y=\"325\">旧缓存失效</text><text x=\"438\" y=\"115\" fill=\"#646b60\">是</text><text x=\"211\" y=\"115\" fill=\"#646b60\">否</text><text x=\"64\" y=\"253\" fill=\"#646b60\">是</text><text x=\"251\" y=\"253\" fill=\"#646b60\">否</text></g></svg>",
+          "caption": "概念流程：未包含并发、持久化失败与外部依赖变化。"
+        }
+      ]
+    },
+    {
+      "title": "条件与动作",
+      "span": 2,
+      "blocks": [
+        {
+          "type": "table",
+          "headers": [
+            "内容",
+            "缓存",
+            "动作"
+          ],
+          "rows": [
+            [
+              "未变化",
+              "有效",
+              "跳过写入，复用结果"
+            ],
+            [
+              "未变化",
+              "无效",
+              "跳过写入，重新计算"
+            ],
+            [
+              "已变化",
+              "任意",
+              "写入，使旧缓存失效"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "title": "代价与边界",
+      "span": 1,
+      "blocks": [
+        {
+          "type": "list",
+          "items": [
+            "比较内容本身也有成本。",
+            "缓存可能因时间或外部依赖变化而失效。",
+            "大内容是否值得先比较，需要实测。"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "切换条件，观察动作",
+      "span": 2,
+      "blocks": [
+        {
+          "type": "html",
+          "html": "<div class=\"checks\"><label><input type=\"checkbox\" id=\"changed\">内容已经变化</label><label><input type=\"checkbox\" id=\"valid\" checked>缓存仍然有效</label></div><div class=\"result\" aria-live=\"polite\" aria-atomic=\"true\"><strong id=\"result-title\">跳过写入，复用缓存</strong><p id=\"result-detail\">内容未变化，且缓存有效，可使用已有结果。</p></div><p class=\"small\" style=\"margin-top:12px\">交互仅模拟本页规则，不读写真实数据。</p>"
+        }
+      ]
+    },
+    {
+      "title": "验证状态",
+      "span": 1,
+      "blocks": [
+        {
+          "type": "text",
+          "paragraphs": [
+            "这是版式与交互示例，没有接入真实保存逻辑。",
+            "解释性图示不能证明实现正确。实际项目仍需验证缓存有效性、写入失败和并发行为。",
+            "数据：无业务统计数据。来源：本页明确列出的示例假设。"
+          ]
+        }
+      ]
+    }
+  ],
+  "script": "function decideAction(changed,valid){\n if(changed)return {title:'写入新内容，使旧缓存失效',detail:'内容已经变化，当前缓存不能继续代表新内容。'};\n if(valid)return {title:'跳过写入，复用缓存',detail:'内容未变化，且缓存有效，可使用已有结果。'};\n return {title:'跳过写入，重新计算',detail:'内容未变化，但缓存已无效，不能继续复用。'};\n}\nconst changed=document.getElementById('changed'),valid=document.getElementById('valid');\nfunction updateResult(){const result=decideAction(changed.checked,valid.checked);document.getElementById('result-title').textContent=result.title;document.getElementById('result-detail').textContent=result.detail;}\nchanged.addEventListener('change',updateResult);valid.addEventListener('change',updateResult);\n"
+}
