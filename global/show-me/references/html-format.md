@@ -2,7 +2,7 @@
 
 仅在已经选择 HTML 输出后读取。本模板借鉴 `answer-me-with-html` 的双版式、按信息形状选组件和内容／渲染分离思路，不依赖其 CLI 或自定义 Markdown 语法。
 
-先判断模板是否适合表达目标。常规总览、顺序讲解和对比可以使用；空间布局、连续叙事、交互探索或特殊视觉结构需要不同页面组织时，直接写定制 HTML，不要求先试模板。不为节省输出而牺牲理解，也不用 `html` 块硬套外层布局。
+模板适合常规总览、顺序讲解和对比。空间布局、连续叙事、交互探索或特殊视觉结构需要不同页面组织时，直接写定制 HTML，无需先试模板，也不用 `html` 块硬套外层布局。
 
 ## 使用
 
@@ -74,7 +74,7 @@ python3 <show-me-dir>/scripts/render.py content.json -o explanation.html
 | type | 字段 | 用途 |
 | --- | --- | --- |
 | `text` | `paragraphs: string[]` | 连续解释，按需补充条件和限制 |
-| `callout` | `paragraphs: string[]` | 强调结论，该节获得强调边框 |
+| `callout` | `paragraphs: string[]` | 突出该块首段，所在节获得强调边框；不改变其他正文的强调样式 |
 | `list` | `items: string[]` | 独立并列项 |
 | `table` | `headers: string[]`、`rows: string[][]` | 精确比较，每行列数必须相同 |
 | `diagram` | `svg: string`、可选 `caption` | 已由工具生成的内联 SVG |
@@ -91,4 +91,4 @@ python3 <show-me-dir>/scripts/render.py \
   <show-me-dir>/references/html-example.json -o cache-explanation.html
 ```
 
-它是概念示例，缓存收益、并发和真实持久化尚未验证。布局、主题及模型推理速度没有统一改善保证。输出后检查桌面／手机显示、表格与图示、版式切换、复制源稿及相关交互；无法执行的检查明确报告未验证。渲染成功只证明脚本生成了文件。
+它是概念示例，缓存收益、并发和真实持久化尚未验证。除 Skill 的通用交付检查外，使用模板时还应检查版式切换和源稿复制。渲染成功只证明脚本生成了文件。

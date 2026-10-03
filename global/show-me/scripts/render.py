@@ -26,7 +26,8 @@ def block_html(block):
     kind = block.get('type')
     if kind in ('text', 'callout'):
         lines = strings(block.get('paragraphs', []), 'paragraphs')
-        return ''.join(f'<p>{text(line, "paragraph")}</p>' for line in lines)
+        body = ''.join(f'<p>{text(line, "paragraph")}</p>' for line in lines)
+        return f'<div class="callout">{body}</div>' if kind == 'callout' else body
     if kind == 'list':
         items = strings(block.get('items', []), 'items')
         return '<ul>' + ''.join(f'<li>{text(x, "item")}</li>' for x in items) + '</ul>'
