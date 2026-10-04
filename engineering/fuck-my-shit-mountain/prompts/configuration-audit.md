@@ -56,24 +56,3 @@ Focus on configuration correctness, validation, environment separation, feature 
 3. Do not complain about simple config files in small projects unless the simplicity hides real risk.
 4. Validate docs against actual config parsing code.
 5. For each issue, include the exact config key/value path and the failure mode.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security / Stability / Release / Maintainability
-- Status: Confirmed / Suspected
-- Subtype: SchemaValidation / UnsafeDefault / EnvironmentSeparation / SecretConfig / FeatureFlag / ConfigDocs
-- Affected area:
-- Evidence:
-  - File:
-  - Config key / source:
-  - Relevant behavior:
-- Problem:
-- Realistic failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

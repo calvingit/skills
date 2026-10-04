@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on whether the system preserves correct, durable, and recoverable data under failures, retries, concurrency, and upgrades.
 
+Name the invariant at risk and the failure window that can violate it.
+
 ## Audit Areas
 
 ### Transaction Boundaries
@@ -57,25 +59,3 @@ Focus on whether the system preserves correct, durable, and recoverable data und
 3. Treat data loss/corruption on normal operation as Critical.
 4. Distinguish performance denormalization from unsafe duplication; denormalization is acceptable if reconciliation exists.
 5. For each issue, include a regression test that simulates failure, retry, or concurrency when practical.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Stability / Release / Testing
-- Status: Confirmed / Suspected
-- Subtype: TransactionBoundary / Idempotency / ConcurrencyConsistency / MigrationSafety / InvariantValidation / BackupRestore / Reconciliation
-- Affected area:
-- Invariant at risk:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Problem:
-- Realistic failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

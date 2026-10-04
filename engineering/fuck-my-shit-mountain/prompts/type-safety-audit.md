@@ -50,26 +50,3 @@ Focus on whether the type system is providing real safety guarantees or is being
 2. Every type assertion must be provably correct in all code paths.
 3. If the language supports sum types / enums / ADTs, prefer them over `null` + boolean flags.
 4. External input must have a validation boundary — typed is not the same as validated.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security / Stability / Design
-- Status: Confirmed / Suspected
-- Subtype: UnsafeBlock / TypeAssertion / InputBoundary / OutputLeak / BooleanTrap / StringlyTyped / ErrorType
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Type:
-  - Relevant behavior:
-- Problem:
-- Why it weakens safety guarantees:
-- Realistic failure scenario:
-- Minimal fix (tighter type):
-- Better long-term fix:
-- Regression test suggestion:
-- Estimated effort:

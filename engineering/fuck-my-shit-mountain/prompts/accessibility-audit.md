@@ -50,24 +50,3 @@ Focus on whether browser/client UI workflows remain usable, understandable, and 
 3. Prefer semantic HTML and small component fixes over adding heavy UI libraries.
 4. When practical, verify with browser inspection, keyboard flow, or accessibility tree evidence.
 5. Include a regression test suggestion using the project's UI test stack when available.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Testing / Maintainability / Design
-- Status: Confirmed / Suspected
-- Subtype: SemanticStructure / KeyboardFocus / ResponsiveVisual / ErrorState / LoadingState / UXStateCorrectness
-- Affected workflow:
-- Evidence:
-  - File:
-  - Component / View:
-  - Relevant behavior:
-- Problem:
-- User-visible failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

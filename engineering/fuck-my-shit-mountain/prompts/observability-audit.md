@@ -57,25 +57,3 @@ Focus on whether operators can understand, debug, and recover the system under r
 3. Prefer low-overhead instrumentation at boundaries: requests, jobs, external calls, persistence, and critical state transitions.
 4. Treat logging sensitive data as a security finding as well as an observability problem.
 5. For each issue, include the signal that should exist and where it should be emitted.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Stability / Release / Security
-- Status: Confirmed / Suspected
-- Subtype: Logging / Metrics / Tracing / HealthCheck / Alerting / Runbook / Debuggability
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Missing or unsafe signal:
-- Why this matters:
-- Realistic failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

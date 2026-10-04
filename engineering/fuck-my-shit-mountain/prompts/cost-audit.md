@@ -48,23 +48,3 @@ Focus on realistic cost risks from compute, storage, network, queues, background
 3. Prefer caps, quotas, caching, deduplication, retention, and observability over premature optimization.
 4. Treat cost controls as reliability controls when runaway cost can cause throttling or service shutdown.
 5. For LLM/model costs, include token/request/concurrency boundaries where visible.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Performance / Release / Stability
-- Status: Confirmed / Suspected
-- Subtype: UnboundedWork / ExternalApiCost / LLMCost / InfrastructureSizing / ObservabilityCost / CostVisibility
-- Cost driver:
-- Evidence:
-  - File:
-  - Function / Module / config:
-  - Relevant behavior:
-- Realistic cost scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

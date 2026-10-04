@@ -36,11 +36,15 @@ Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC
 
 ## Close-out
 
-1. Spawn a dedicated sub-agent to run `simplify` in Review mode against the implemented scope. The main agent must consume that report. Record `no_change` when no evidence-backed simplification candidate exists. If candidates are found, modify them only when the user has explicitly authorized simplification; otherwise report them without changing code.
-2. Spawn a separate dedicated native sub-agent to run `verify` against every applicable confirmed Acceptance Criterion and the project's delivery gates per [references/verification-and-review.md](references/verification-and-review.md). The main agent must consume its per-criterion report; its own targeted checks do not count as independent acceptance.
-3. Spawn another dedicated native sub-agent to run `code-review` against the implemented scope, with project standards, SPEC, and applicable HLD as the basis. The main agent must consume its actual Markdown report; a self-check, test pass, or reading the skill documentation does not count as the review. After required fixes, re-run affected verification and review in separate sub-agents.
-4. Declare done only when every applicable Acceptance Criterion has observable evidence, required verification and review passed, and no unresolved high-risk issue remains.
-5. Commit only with explicit user authorisation. Do not push on your own. The commit contains only this task's changes.
+Follow [close-out and receipt details](references/verification-and-review.md):
+
+1. Use a dedicated `simplify` sub-agent in Review mode and consume its findings.
+2. Use a separate native `verify` sub-agent for every applicable AC and project gate.
+3. Use another native `code-review` sub-agent for the implemented scope; consume
+   the actual report and rerun affected independent checks after required fixes.
+4. Declare done only with sufficient AC evidence, passed required verification
+   and review, and no unresolved high-risk issue. Commit only with explicit
+   authorization, containing this task's changes; do not push on your own.
 
 ## Boundaries
 

@@ -23,11 +23,11 @@ When a project inventory would help choose applicable dimensions, run `python3 <
 
 This skill owns project coverage and the combined report. When available, use the existing engineering review standards for overlapping dimensions: `code-review` for changes, `review-architecture` for architecture soundness, and the review mode of `simplify` for unnecessary complexity. Read their guidance without automatically starting another workflow or modifying code. Local target design belongs to `codebase-design` only when requested.
 
-For standalone installations, the local evidence, severity, confidence, and coverage rubrics remain sufficient. Missing sibling skills do not block auditing. Focused prompts add investigation surfaces, not a second set of evidence thresholds or mandatory output fields.
+For standalone installations, the local evidence, severity, confidence, and coverage rubrics remain sufficient. Missing sibling skills do not block auditing. Focused prompts own investigation surfaces; rubrics own finding thresholds and the report reference owns output.
 
 1. Read only selected prompts from the table below; `full` identifies the focused dimensions to examine.
 2. Read `rubrics/evidence.md`, `rubrics/severity.md`, `rubrics/confidence.md`, and `rubrics/coverage.md` for findings and coverage. Project requirements and actual impact take precedence over generic principles or metric thresholds.
-3. Read [report rules](references/report-format.md) before reporting. Prompt-local finding formats are investigation aids; this shared reference owns output requirements.
+3. Read [report rules](references/report-format.md) before reporting.
 4. Read `rubrics/principles.md` only for a concrete design concern, `rubrics/scoring.md` only when scores are requested, and `references/tooling.md` when local tools would improve evidence. Examples are optional calibration, never sources of project findings.
 
 ## Audit method

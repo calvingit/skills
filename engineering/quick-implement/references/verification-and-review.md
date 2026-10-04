@@ -1,5 +1,13 @@
 # Verification and Review
 
+## Simplification
+
+Before verification, dispatch a dedicated `simplify` sub-agent in Review mode on
+the implemented scope and consume its report. Record `no_change` when it finds no
+supported candidate. Apply candidates only when the user explicitly authorized
+simplification; otherwise report them. This role is separate from verification
+and review. Prepare the final candidate after any authorized edits.
+
 ## Verification
 
 During implementation, the main agent runs this slice's targeted tests and related typechecks. At close-out, dispatch a dedicated native `verify` sub-agent, separate from `simplify` and `code-review`, to check every applicable confirmed Acceptance Criterion and the project's existing delivery gates for the affected range, including any required standard PR, CI, or full gate. Pass the baseline, pre-existing edits, confirmed requirements and AC, implemented scope, and local check records. The main agent reads its per-criterion `PASS`, `FAIL`, or `NOT VERIFIED` report before deciding completion.
@@ -14,7 +22,7 @@ After verification, spawn a dedicated native `code-review` sub-agent, separate f
 
 Use one reviewer by default. Only for high-impact changes with unresolved, under-evidenced judgements, or an explicit user request for a panel, may the caller dispatch 2–3 independent reviewers on the same scope and synthesize their findings against the evidence.
 
-The review receipt follows code-review's [report guidance](../../code-review/references/output-contract.md). Do not keep a second review taxonomy.
+Use code-review's [report guidance](../../code-review/references/output-contract.md) and reference or retain its original report; the receipt does not define another review taxonomy.
 
 ## Receipt
 
@@ -49,7 +57,7 @@ The review receipt follows code-review's [report guidance](../../code-review/ref
 
 ### Review
 
-<Paste the conclusion, findings, requirement gaps, unverified scope, and evidence from the canonical Markdown review report>
+<Original Markdown review report or its retained path, with conclusion and unresolved findings>
 
 ### Unverified
 

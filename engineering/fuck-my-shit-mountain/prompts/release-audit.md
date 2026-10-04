@@ -75,24 +75,3 @@ Focus on whether this project can be safely released, installed, upgraded, and r
 
 1. **Be exhaustively systematic.** Check in-scope CI steps, release scripts, environment requirements, config files, packaging, rollback, and deployment evidence. Follow the skill's coverage strategy and document exclusions honestly.
 2. **Do not be a yes-man.** Report release risks even if the user says "we've never had a problem." Past success does not guarantee future safety.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Release
-- Status: Confirmed / Suspected
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Release risk:
-- User impact:
-- Minimal fix:
-- Better release process:
-- Validation step:
-- Estimated effort:

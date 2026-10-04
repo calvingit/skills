@@ -11,22 +11,17 @@ Take a confirmed `SPEC.md` and current codebase facts, and form the high-level t
 
 Consume the requirement-owned [Task Contract](../shared/task-contract.md); inherit goal, scope, AC and authority by reference. HLD owns the derived shared design and its verification seams, not another acceptance or permission definition. Apply the [workflow policy](../shared/workflow-policy.md) independently of task size or ticket count.
 
-## Process
-
-1. Investigate the confirmed SPEC and current codebase.
-2. Create design candidates for the shared technical boundaries.
-3. Review decision ownership and ask the user about choices that affect long-term direction.
-4. Write the confirmed design into `HLD.md`.
-
 ## Authority and bounds
 
-- `SPEC.md` owns requirements, external behaviour, acceptance, business bounds, and upstream-confirmed constraints, including technical constraints that define required behaviour.
-- `HLD.md` derives module duties, shared types, internal Interfaces, dependency direction, data / control flow, state and error semantics, migration, and integration constraints from the SPEC and codebase facts.
-- `tickets/*.json` only derive delivery split and blocking edges. Implementation owns local detailed design the HLD did not constrain.
-- The HLD must not change the SPEC. On conflict, stop. `to-spec` fixes the spec, or this skill fixes the design. Do not pick one and keep implementing.
-- This skill may apply `codebase-design` to a specific Module / Interface / Seam. It does not copy that skill's general rules.
+SPEC owns required behaviour and acceptance, including external API fields,
+protocol contracts and backend-defined states. HLD derives the shared technical
+design: module duties, types, internal Interfaces, dependency direction, flow,
+state/error semantics and integration/migration constraints. Tickets derive the
+execution split; implementation owns unconstrained local details.
 
-SPEC technical constraints are inputs. Examples include API field semantics, protocol contracts, and backend-defined states. HLD decides how to satisfy them.
+Do not change SPEC meaning. On conflict, stop and return the requirement or design
+to its owner under the Task Contract. Apply `codebase-design` to a specific
+Module / Interface / Seam when useful, without copying its general rules.
 
 ## Design from the codebase that exists
 
@@ -103,14 +98,11 @@ Keep integration order as technical prerequisites, not ticket IDs, assignments, 
 
 ## Handoff
 
-Report the HLD path, D IDs, local implementation space, unverified items, and downstream impact:
+Report the HLD path, D IDs, local implementation space, unverified items and
+downstream impact. Select execution using the [workflow policy](../shared/workflow-policy.md);
+when an existing graph is affected by amendment, `to-tickets` coordinates it.
+Continue into the selected planning skill once its entry conditions hold, without
+asking the user to invoke it. Implementation still requires current authorization.
 
-- No execution graph needed → `quick-implement`.
-- Several implementation tasks, blocking edges, or unified scheduling → `to-tickets`.
-- An execution graph already exists and the HLD was amended → `to-tickets` syncs affected tickets.
-
-Continue directly into the selected downstream planning skill when its entry conditions are satisfied. Do not stop only to ask the user to invoke the next skill.
-
-Planning handoff does not expand implementation authority. Enter `quick-implement` or `loop` only when the user's current request authorises implementation.
-
-This skill does not split tickets, implement code, or produce UI/UX, visual, or interaction drafts. It does not automatically gain authorisation to commit, push, create a branch, or rewrite history.
+This skill writes HLD only: ticket splitting, product implementation and UI/UX,
+visual or interaction drafts keep their existing owners.

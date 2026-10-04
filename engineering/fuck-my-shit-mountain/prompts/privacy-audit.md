@@ -49,24 +49,3 @@ Focus on personal data handling, data minimization, retention, deletion, export,
 3. Treat PII in logs as both privacy and security risk.
 4. Prefer data minimization, redaction, access control, retention config, and audit trails over broad rewrites.
 5. If no personal data is processed, mark the mode Not assessed or Info with evidence.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security / Stability / Release
-- Status: Confirmed / Suspected
-- Subtype: DataInventory / Minimization / AccessBoundary / Retention / Deletion / Export / TelemetryPrivacy
-- Affected data:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Problem:
-- Realistic privacy failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

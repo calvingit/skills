@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on code style consistency, naming conventions, pattern uniformity, and adherence to the project's own stated conventions.
 
+Compare the observed pattern with the project convention and establish its actual recurrence and maintenance cost before recommending unification.
+
 ## Audit Areas
 
 ### Naming Conventions
@@ -51,24 +53,3 @@ Focus on code style consistency, naming conventions, pattern uniformity, and adh
 3. Do NOT suggest a full codebase reformat — suggest targeted extraction or lint rule additions.
 4. If the project has an existing style guide or linter config, check compliance against it.
 5. Consider whether a `clippy`/`eslint`/`ruff` rule could catch the inconsistency automatically.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Maintainability
-- Status: Confirmed / Suspected
-- Subtype: NamingConvention / ImportOrganization / ErrorHandlingConsistency / PatternUniformity / FileStructure / Boilerplate
-- Evidence:
-  - File(s):
-  - Pattern observed:
-  - Expected convention:
-- Number of occurrences:
-- Why this creates maintenance cost:
-- Minimal fix (extract + unify):
-- Better long-term fix:
-- Regression test suggestion:
-- Estimated effort:

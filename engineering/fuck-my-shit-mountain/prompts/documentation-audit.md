@@ -15,8 +15,8 @@ Focus on whether external docs, internal docs, setup instructions, and operation
 - Operational docs lack health checks, alert handling, backup/restore, or incident response steps.
 
 ### Developer Documentation
-- No architecture overview for non-obvious module boundaries.
-- Missing contribution, test, build, or local environment instructions.
+- No architecture or module overview for non-obvious boundaries.
+- Missing contribution, test, build, local environment or error-handling guidance.
 - Generated code, migrations, or scripts have no safe usage notes.
 - Public extension/plugin APIs lack examples and compatibility expectations.
 
@@ -35,7 +35,7 @@ Focus on whether external docs, internal docs, setup instructions, and operation
 ### Documentation Maintenance
 - Docs duplicate source-of-truth data that could be generated.
 - Stale badges, version numbers, feature lists, or screenshots.
-- Comments and docs disagree with each other.
+- Comments and docs disagree with each other; use [comment coverage](comment-coverage-audit.md) for source-level investigation.
 - No docs check in CI for generated or schema-derived docs.
 
 ## Rules
@@ -45,24 +45,3 @@ Focus on whether external docs, internal docs, setup instructions, and operation
 3. Do not require heavyweight docs for a small private project unless missing guidance creates real risk.
 4. Prefer linking docs to generated schemas/contracts when possible.
 5. Include the exact doc location and the code/config it contradicts.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Maintainability / Release / Testing
-- Status: Confirmed / Suspected
-- Subtype: UserDocs / OperatorDocs / DeveloperDocs / ApiDocs / DecisionRecord / StaleDocs
-- Affected area:
-- Evidence:
-  - Documentation file:
-  - Code / config source:
-  - Relevant mismatch or omission:
-- Problem:
-- Realistic failure scenario:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

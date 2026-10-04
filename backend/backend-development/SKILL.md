@@ -5,247 +5,55 @@ description: Apply backend engineering practices when changing server-side APIs,
 
 # Backend Development
 
-Build backend changes that fit the existing system and preserve its behavioral,
-data, and operational guarantees.
+Build the smallest backend change that preserves the system's behavioural, data,
+and operational guarantees. Use the existing architecture, conventions and
+infrastructure unless they prevent the requirement from being met. Every added
+reliability or scalability mechanism needs a concrete failure mode, invariant or
+operational constraint.
 
-Use the repository as the primary source of truth. Prefer the architecture,
-conventions, abstractions, and infrastructure already in use unless they prevent
-the requirement from being implemented correctly.
+## Understand the affected path
 
-Do not add a reliability or scalability mechanism without identifying the
-concrete failure mode, invariant, or operational constraint it addresses.
-
-## Select relevant checks
-
-Apply the sections touched by this change, not a full backend audit. Read-only
-queries usually need authorization, query-cost, and result-limit checks; state
-writes need invariants, concurrency, and atomicity checks. Expand investigation
-only when the affected path or unexplained evidence requires it.
-
-- External writes with retries or uncertain outcomes: read
-  [operation outcomes and retries](references/operation-outcomes-and-retries.md).
-- Workers, long-running requests, cancellation, shutdown, or capacity changes:
-  read [lifecycle and resource limits](references/lifecycle-and-resource-limits.md).
+Follow the relevant production entry through its callers, business rules, reads,
+writes, external dependencies and failure handling. Identify the owner of each
+rule and state transition, and the contracts and tests protecting them. Directory
+names alone do not establish architecture.
 
 These checks complement the caller's implementation or review workflow; they do
-not create a separate planning, scheduling, or acceptance process.
-
-## Understand the existing path
-
-Before changing code, inspect the relevant execution path far enough to
-understand:
-
-- where requests or events enter the system;
-- which layer owns the behavior;
-- where data is read or written;
-- which external systems are involved;
-- how failures are represented;
-- what tests or contracts protect the behavior.
-
-Do not infer architecture from directory names alone. Follow actual call paths
-and existing ownership.
-
-Keep the change local when possible. Do not introduce a new architectural
-pattern merely because it is common in backend systems.
-
-## API and service boundaries
-
-At external and service boundaries:
-
-- validate untrusted input before it reaches deeper layers;
-- preserve established request and response contracts;
-- distinguish invalid input, missing resources, conflicts, authorization
-  failures, and internal failures when the protocol exposes those distinctions;
-- avoid leaking internal implementation details through errors;
-- keep transport-specific concerns at the boundary when the existing
-  architecture separates them from domain logic;
-- preserve compatibility when required by an external contract, explicit
-  requirement, or established project policy. Do not add compatibility shims
-  for obsolete internal behavior without evidence they are still needed.
-
-For write operations, consider duplicate requests and retries when they can
-cause repeated side effects. Add idempotency only where duplicate execution is
-a realistic failure mode.
-
-For collection APIs, follow the project's existing pagination, filtering,
-ordering, and limit conventions. Do not invent a second convention.
-
-## Business and domain logic
-
-Place business rules in the layer that already owns similar rules.
-
-Avoid:
-
-- duplicating the same rule across controllers, handlers, jobs, or consumers;
-- moving domain decisions into persistence or transport code for convenience;
-- creating abstractions that exist only to wrap a single trivial operation;
-- spreading a state transition across unrelated components without clear
-  ownership.
-
-When behavior depends on current state, make invalid transitions explicit rather
-than relying on incidental database or framework failures.
-
-## Data and persistence
-
-Treat data integrity as part of application correctness.
-
-When changing persistence behavior, determine:
-
-- which writes must succeed or fail together;
-- whether concurrent requests can modify the same state;
-- whether reads require a particular consistency guarantee;
-- whether the change affects existing queries, indexes, constraints, or data
-  volume;
-- whether existing data must remain readable after the change.
-
-Use transactions around actual atomicity boundaries, not entire request flows by
-default.
-
-Prefer database constraints for invariants the database can enforce reliably,
-while keeping user-facing validation and domain errors at the appropriate
-application boundary.
-
-Do not add locking, caching, denormalization, or new indexes without an observed
-or structurally clear need.
-
-For schema changes, consider both application versions and existing data during
-deployment. Avoid changes that require all instances to switch versions at the
-same instant unless the deployment model guarantees it.
-
-For backfills or data repairs, establish bounded batches, resumable progress,
-and how concurrent business writes are preserved. A checkpoint must not skip
-uncommitted work; repeating a batch must not corrupt or duplicate results.
-Verify the affected records and remaining work, not just the script's exit code.
-
-Application rollback does not undo data changes. Check whether the old version
-can read data written by the new version. Remove an old field or read/write path
-only after evidence shows required callers, jobs, and supported rollback versions
-no longer depend on it. Use the database's actual version and operational rules
-for DDL, locking, replication, and load; these application checks do not replace
-database-specific change review.
-
-## External systems
-
-Treat network and external service calls as unreliable.
-
-For each relevant integration, consider:
-
-- timeout behavior;
-- retry safety;
-- partial failure;
-- duplicate execution;
-- rate or capacity limits;
-- authentication and credential handling;
-- behavior when the dependency is unavailable.
-
-Do not retry failures blindly.
-
-Distinguish confirmed success, confirmed failure, and unknown outcome. A timeout
-or lost response does not establish that an external write failed. Identify the
-same business operation and how its outcome can be recovered before retrying it.
-
-Retry only when the operation is safe to repeat or has an explicit idempotency
-mechanism, and when the failure is plausibly transient.
-
-Do not retry permanent failures such as invalid input, rejected authorization,
-or known business errors.
-
-Keep external provider details behind the project's existing integration
-boundary when one exists.
-
-## Asynchronous processing
-
-For queues, events, schedulers, and background jobs, establish the delivery and
-failure assumptions before relying on them.
-
-Consider:
-
-- whether processing may happen more than once;
-- whether ordering matters;
-- what happens after partial success;
-- how failed work is retried or surfaced;
-- whether consumers can safely resume after interruption.
-
-Determine delivery and retry semantics from the actual infrastructure and
-configuration. When duplicate execution is possible and side effects matter,
-ensure processing is safe to repeat.
-
-Do not introduce asynchronous processing when a synchronous path already meets
-the requirement and operational constraints.
-
-## Security
-
-Treat authentication and authorization as separate concerns.
-
-Verify authorization against the resource or operation being performed, not
-only against the fact that a user is authenticated.
-
-Keep secrets, credentials, tokens, and sensitive payloads out of logs and error
-responses.
-
-Preserve existing trust boundaries and least-privilege assumptions.
-
-Do not bypass validation, authorization, tenancy, or ownership checks to reuse
-an internal API.
-
-## Failure handling
-
-Handle failures at the layer that can make a meaningful decision about them.
-
-Do not:
-
-- swallow errors;
-- convert every failure into a generic success or null result;
-- expose raw infrastructure exceptions to callers;
-- catch exceptions only to log and rethrow them repeatedly through every layer.
-
-Preserve useful failure context for diagnostics while presenting stable errors
-at public boundaries.
-
-When an operation can partially succeed, make the resulting state explicit and
-recoverable.
-
-## Operational behavior
-
-Follow the application's existing logging, metrics, and tracing infrastructure.
-
-Add operational signals when the new behavior introduces a meaningful new
-failure mode or operational dependency.
-
-Prefer structured, contextual logs over free-form diagnostic output.
-
-Avoid logging normal high-frequency execution paths unless the existing system
-does so intentionally.
-
-When relevant, preserve correlation or request context across downstream calls
-and asynchronous work using the mechanisms already present in the project.
-
-## Performance
-
-Do not optimize speculatively.
-
-Investigate performance when the change affects:
-
-- high-volume paths;
-- queries whose work grows with dataset size;
-- repeated remote calls;
-- large payloads;
-- loops containing database or network operations;
-- known latency-sensitive paths.
-
-Prefer removing unnecessary work over adding caching.
-
-Introduce caching only when ownership, invalidation, consistency, and failure
-behavior are understood.
+not create another planning, scheduling or acceptance process. Apply only the
+checks the change touches. Read-only queries usually need authorization, cost
+and result-limit checks; writes also need invariants, concurrency and atomicity.
+Expand investigation when the affected path or unexplained evidence requires it.
+
+## Choose relevant checks
+
+| Affected boundary | Check |
+| --- | --- |
+| API or service | Validate untrusted input; preserve required request, response and error contracts, including invalid input, missing resources, conflicts, authorization and internal failures when exposed by the protocol. Keep transport concerns and internal details behind the existing boundary. Follow established pagination, filtering, ordering and limits. |
+| Business rules | Keep rules with their current owner, without duplicating them in handlers, jobs or consumers. Make invalid state transitions explicit. Avoid trivial wrappers and state changes spread across unrelated owners. |
+| Persistence | Identify atomic writes, concurrent updates, read consistency, query/index impact and data compatibility. Read [persistence and migrations](references/persistence-and-migrations.md) for schema changes, backfills or repairs. |
+| External writes | Distinguish confirmed success, confirmed failure and unknown outcome. Read [operation outcomes and retries](references/operation-outcomes-and-retries.md) when retries or partial completion can repeat effects. Keep provider details behind the existing integration boundary. |
+| External dependencies | Check relevant timeouts, partial failure, duplicates, rate/capacity limits, credentials and unavailability. Retry only safe-to-repeat operations on plausibly transient failures, not invalid input, rejected authorization or known business errors. |
+| Async processing | Establish actual delivery, ordering, retry and interruption semantics from infrastructure and configuration; preserve duplicate safety where effects matter. Read [lifecycle and resource limits](references/lifecycle-and-resource-limits.md) for workers, cancellation, shutdown or capacity changes. |
+| Security | Check resource/operation authorization separately from authentication. Preserve tenancy, ownership, trust boundaries and least privilege; keep secrets and sensitive payloads out of logs and responses. Do not bypass these checks to reuse an internal API. |
+| Failure handling | Handle errors where a meaningful decision is possible. Preserve diagnostic context and stable public errors; do not swallow failures, turn them into success/null, or repeatedly log and rethrow through every layer. Make partial success explicit and recoverable. |
+| Operations | Use existing logging, metrics and tracing. Add signals for meaningful new failure modes or operational dependencies; keep logs structured and avoid unnecessary high-frequency output. Preserve correlation context across downstream and async work when relevant. |
+| Performance | Investigate affected high-volume or latency-sensitive paths, work growing with data size, large payloads, repeated remote calls, and I/O inside loops. Remove unnecessary work first. Cache only with understood ownership, invalidation, consistency and failure behaviour. |
+
+For explicit API compatibility or schema work, use `api-contracts` when available;
+for delivery, acknowledgement, replay or asynchronous side-effect design, use
+`event-driven-backend`. In a standalone installation, inspect the actual project
+contracts and infrastructure for those same questions; missing sibling skills do
+not remove the checks or block other investigation.
 
 ## Keep the design proportional
 
-Prefer the smallest design that preserves correctness and existing architectural
-boundaries.
+Do not add compatibility for obsolete internal behaviour without a required
+contract. Idempotency is warranted when duplicates can repeat meaningful effects;
+async processing is warranted when the synchronous path cannot meet the need.
+Do not add locks, caching, denormalization, indexes, microservices, CQRS, event
+sourcing, distributed transactions, message infrastructure or architectural
+layers without an observed or structurally clear need.
 
-Do not introduce microservices, CQRS, event sourcing, distributed transactions,
-new message infrastructure, or additional architectural layers unless the
-requirement or existing system actually needs them.
-
-When a requirement conflicts with the current architecture, surface the conflict
-instead of silently redesigning the system.
+Validate the affected business result and failure boundaries using the caller's
+project methods. If requirements conflict with the existing architecture,
+surface the conflict rather than silently redesigning the system.

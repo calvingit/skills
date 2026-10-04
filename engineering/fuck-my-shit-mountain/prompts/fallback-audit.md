@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on "无异议兜底" — silent fallbacks, default values, empty catch blocks, compatibility branches, and defensive code that may be hiding real errors.
 
+Establish what the original path can fail on, whether the fallback is required and observable, and whether keeping it with alerts, removing it or failing explicitly best preserves the contract.
+
 ## Audit Areas
 
 ### Silent Fallbacks
@@ -42,27 +44,3 @@ Focus on "无异议兜底" — silent fallbacks, default values, empty catch blo
 3. If the fallback is incorrect, recommend **fail-fast + clear error message**.
 4. Distinguish between **defensive programming** (validates external input) and **defensive guessing** (hides bugs).
 5. A fallback that activates silently and is never monitored is worse than a crash.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Stability
-- Status: Confirmed / Suspected
-- Subtype: SilentFallback / EmptyCatch / CompatibilityBranch / SilentCorrection / DefensiveGuess
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- What it falls back from:
-- Why the original path can fail:
-- Is the fallback necessary? (Yes / No / Partial):
-- If yes, is it monitored?:
-- Recommended action: KeepWithAlert / FailFast / Remove / Restructure
-- Minimal fix:
-- Regression test:
-- Estimated effort:

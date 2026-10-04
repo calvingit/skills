@@ -38,15 +38,6 @@ Unsettled module duties, internal Interfaces, shared types, dependency direction
 
 Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
 
-## Consume grilling outputs
-
-When consuming grilling outputs:
-
-- Requirement decisions become SPEC requirements or constraints.
-- Design concerns remain unresolved inputs for HLD.
-- Glossary entries provide terminology only.
-- ADRs provide historical context only.
-
 ## Modes
 
 - **Create**: no `SPEC.md` in the task directory. Follow the process below.
@@ -57,7 +48,7 @@ When consuming grilling outputs:
 
 ### 1. Gather confirmed context
 
-Collect the conversation, user docs, finished decisions, and requirement authority. Keep only explicit facts, constraints, terms, trade-offs, and Out of scope. Do not grow scope to fill a template.
+Collect the conversation, user docs, finished decisions, and requirement authority. Grilling requirement decisions become requirements or constraints; design concerns go to HLD, glossary entries supply terminology, and ADRs supply historical context. Keep explicit facts, constraints, trade-offs and Out of scope without growing the task to fill a template.
 
 Resolve the [Task Contract](../shared/task-contract.md) through these sources. Persist requirement-owned goal, scope, AC and confirmed task boundaries in the existing SPEC sections; link applicable authority and evidence rules instead of creating another contract file or copying project policy. Shared design and concrete verification methods keep their existing owners.
 
@@ -110,29 +101,24 @@ After consistency holds, write into the task directory. Report acceptance seams,
 
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
-After the SPEC is confirmed, apply the [workflow policy](../shared/workflow-policy.md) to uncertainty, blast radius and verification difficulty, then judge two paths separately. Identify known observation methods or gaps before implementation; do not put test recipes in SPEC. Ticket count is not a substitute for the design judgement:
+After confirming the SPEC, apply the [workflow policy](../shared/workflow-policy.md).
+Use [HLD entry conditions](../high-level-design/SKILL.md#when-an-hld-is-required)
+to judge shared design independently of execution decomposition. A required HLD
+must precede implementation; otherwise report `hld_not_required` with its basis.
+Identify known observation methods or gaps without putting test recipes in SPEC.
+This skill forecasts whether several execution units are likely, not their count
+or split.
 
-1. **High-level design**: call `high-level-design` first when shared types, Interfaces, state or error semantics, dependency direction, migration, or integration constraints span modules, callers, or implementation tasks. Otherwise record `hld_not_required` and why.
-2. **Execution**: `quick-implement` when the scope is single and needs no execution graph; `to-tickets` then `loop` when several implementation tasks, dependencies, or unified scheduling are needed.
-
-Continue directly into the selected downstream planning skill when its entry conditions are satisfied. Do not stop merely to ask the user to invoke `high-level-design` or `to-tickets`.
-
-Planning handoff does not expand implementation authority. Enter `quick-implement` or `loop` only when the user's current request authorises implementation; otherwise stop after the required planning artifacts are ready.
-
-Stop for a new user decision, missing requirement authority, unresolved load-bearing technical fog, or another action that requires explicit authorisation.
-
-When an HLD is required, it must exist before either execution path. This skill only forecasts whether several implementation tasks are likely. It does not choose ticket count or the split.
-
-No automatic authorisation to publish externally, commit, push, create a branch, or rewrite history.
+Continue directly into the selected planning skill when its entry conditions
+hold. Enter `quick-implement` or `loop` only when implementation is authorized;
+otherwise finish with the required planning artifacts. Missing authority,
+unsettled requirements or load-bearing feasibility gaps return to their owner.
 
 ## Change rules
 
-When new information arrives after downstream work has started, classify the change by authority before editing anything downstream. Resume from the owning artifact instead of restarting the full workflow.
-
-- **Unsettled product / requirement choice** → `grilling` on the affected branch, then Amendment mode.
-- **Normative change** to behaviour, bounds, permissions, compatibility, public contracts, or acceptance → Amendment mode here.
-- **High-level design change with unchanged SPEC meaning** → do not edit the SPEC. `high-level-design` amends the HLD, then `to-tickets` coordinates the affected graph.
-- **Execution split / dependency change with unchanged SPEC / HLD meaning** → `to-tickets` only.
-- **Execution-only change** → update ticket execution state/evidence only.
-
-Do not restart unaffected upstream stages or regenerate unaffected artifacts.
+Amend here when behaviour, bounds, permissions, compatibility, public contracts
+or acceptance change. Resolve unsettled requirement choices through `grilling`
+on the affected branch first. Unchanged requirement meaning does not warrant a
+SPEC edit; use [contract change ownership](../shared/task-contract.md#handoff-inheritance-and-change)
+for design, graph or execution changes and preserve unaffected work. Amendment
+mode defines this skill's impact checks and handoff.

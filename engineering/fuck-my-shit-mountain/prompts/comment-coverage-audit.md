@@ -6,6 +6,10 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on documentation quality, comment coverage of public APIs, stale/misleading comments, and the balance between useful documentation and unnecessary noise.
 
+For README, setup, architecture, ADR and operational documentation, use
+[documentation audit](documentation-audit.md). This prompt owns comments and
+source-level API documentation.
+
 ## Audit Areas
 
 ### Public API Documentation
@@ -27,12 +31,6 @@ Focus on documentation quality, comment coverage of public APIs, stale/misleadin
 - Change log comments in file headers (`2024-01-01: fixed bug` — that's what git is for).
 - Comments that explain "what" instead of "why".
 
-### Module / Package Documentation
-- Missing README or module-level docs for key packages.
-- Missing architecture decision records (ADR) for non-obvious design choices.
-- Missing setup/configuration documentation for development environment.
-- No documented error handling strategy or conventions.
-
 ### Inline Comment Quality
 - Comments that don't add context (explaining trivial code, missing explanation of non-trivial code).
 - Magic numbers/strings without explanation.
@@ -50,24 +48,3 @@ Focus on documentation quality, comment coverage of public APIs, stale/misleadin
 2. Prioritize stale/misleading comments over missing ones — wrong docs are worse than no docs.
 3. Consider the project's language ecosystem norms (Rust expects doc comments on pub items, Python less so).
 4. Flag commented-out code only if it's extensive (5+ lines) or has been there for multiple commits.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Maintainability
-- Status: Confirmed / Suspected
-- Subtype: MissingDoc / StaleComment / NoiseComment / MissingModuleDoc / PoorInlineComment / NotSelfDocumenting
-- Evidence:
-  - File(s):
-  - Function / Module:
-  - Current comment (or absence):
-- Why this matters:
-- Impact on maintainability or onboarding:
-- Minimal fix:
-- Better long-term fix:
-- Regression test suggestion:
-- Estimated effort:

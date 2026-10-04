@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on whether dependencies are pulling their weight — not just known vulnerabilities, but whether each dependency is justified relative to the project's scale.
 
+Establish what the dependency supplies, which APIs production uses, and measurable size impact when available. Compare keeping, inlining, replacing or removing it; identify the build/test checks needed after a change.
+
 ## Audit Areas
 
 ### Overweight Dependencies
@@ -48,27 +50,3 @@ Focus on whether dependencies are pulling their weight — not just known vulner
 2. A "heavy" dependency is acceptable if it is used deeply and consistently.
 3. Developer experience matters — a well-known library may be worth the weight for DX alone.
 4. For each flagged dependency, check: can it be removed, replaced with a lighter alternative, or inlined?
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Release / Performance / Maintainability
-- Status: Confirmed / Suspected
-- Subtype: Overweight / Unused / DeadDependency / TransitiveRisk / ToolchainComplexity / VersionRisk
-- Affected area:
-- Dependency:
-- Evidence:
-  - File (where it is used):
-  - Usage pattern (how much of its API is used):
-  - Bundle / binary size contribution (if measurable):
-- Problem:
-- Why it is a risk:
-- What it provides vs what the project actually needs:
-- Recommended action: Keep / Inline / ReplaceWithLighter / Remove / AuditTransitives
-- Minimal fix:
-- Build / test verification after removal:
-- Estimated effort:

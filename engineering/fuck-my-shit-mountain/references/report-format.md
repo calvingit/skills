@@ -1,6 +1,6 @@
 # Report Rules
 
-This reference owns report requirements for every audit mode. Mode-local finding formats and examples are optional aids and must not force extra sections, scoring, or effort estimates.
+This reference owns report requirements for every audit mode. Focused prompts own investigation questions; examples calibrate judgement without adding output fields.
 
 ## Default response
 

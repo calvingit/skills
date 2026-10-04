@@ -60,26 +60,3 @@ Focus on frontend state management, component architecture, and UI data flow. Th
 1. Do not recommend a state management library migration unless the current approach is demonstrably causing bugs or severe maintenance pain.
 2. Local component state is fine — not everything needs to be in a global store.
 3. Consider the scale: patterns that are fine at 5 components may break at 50.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Maintainability / Performance
-- Status: Confirmed / Suspected
-- Subtype: ComponentSize / StateDuplication / PropDrilling / EffectChain / UIBusinessCoupling / DOMasState / RequestState / RenderPerf
-- Affected area:
-- Evidence:
-  - File:
-  - Component / Store:
-  - Relevant behavior:
-- Problem:
-- Why it creates maintenance risk:
-- Recommended action: Split / Lift / Compute / Centralize / Debounce / Virtualize
-- Minimal fix:
-- Better long-term fix:
-- Regression test suggestion:
-- Estimated effort:

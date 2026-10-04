@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on whether tests provide **real confidence** or just green checkmarks. This is not about coverage percentage — it is about whether the tests would catch real bugs.
 
+Compare what the assertion actually observes with its required behaviour. Before removing or replacing a test, identify retained protection and a concrete failure a replacement must detect.
+
 ## Audit Areas
 
 ### Over-Mocking
@@ -49,26 +51,3 @@ Focus on whether tests provide **real confidence** or just green checkmarks. Thi
 2. If production code has test-only branches, that is a design smell. Tests should exercise production paths, not create special ones.
 3. Over-mocked tests test the mock, not the code. Reduce mock scope or write integration tests.
 4. Snapshot tests are not free — each one is a maintenance liability.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Testing
-- Status: Confirmed / Suspected
-- Subtype: OverMocked / ImplDetail / ProdCodeForTest / HappyPathOnly / Brittle / FalseConfidence
-- Affected area:
-- Evidence:
-  - Test file:
-  - Production file (if test-specific logic):
-  - Test function:
-  - What it actually tests vs what it should test:
-- Problem:
-- Why it produces false confidence:
-- Recommended action: Rewrite / Delete / Keep but augment / Move to integration
-- Minimal fix:
-- Suggested replacement test:
-- Estimated effort:

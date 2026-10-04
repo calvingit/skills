@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on realistic bottlenecks, not premature micro-optimization.
 
+Establish the workload, bottleneck mechanism and supported impact before proposing an optimization or benchmark.
+
 ## Audit Areas (see principle 10.2: Unbounded Resources)
 
 ### Hot Paths
@@ -67,25 +69,3 @@ Focus on realistic bottlenecks, not premature micro-optimization.
 
 1. **Be exhaustive.** Scan every hot path, every query, every allocation pattern. One unoptimized query can kill production at scale.
 2. **Do not be a yes-man.** Report bottlenecks even if the user says "it's fast enough for now." Your job is to identify where it will break under load.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Performance
-- Status: Confirmed / Suspected
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Workload where this matters:
-- Bottleneck mechanism:
-- Expected impact:
-- Minimal optimization:
-- Better long-term optimization:
-- Benchmark or test suggestion:
-- Estimated effort:

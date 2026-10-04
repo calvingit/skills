@@ -49,24 +49,3 @@ Focus on dependency provenance, build reproducibility, artifact integrity, CI pi
 3. For each issue, identify attacker precondition and artifact/build surface.
 4. Prefer pinning, verification, least privilege, reproducible builds, and provenance over broad toolchain swaps.
 5. Treat secrets exposed to untrusted CI as Critical or High depending on blast radius.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security / Release
-- Status: Confirmed / Suspected
-- Subtype: DependencyProvenance / Reproducibility / CIIntegrity / ArtifactProvenance / RegistryHygiene
-- Affected surface:
-- Evidence:
-  - File:
-  - Workflow / manifest / artifact:
-  - Relevant behavior:
-- Attack precondition:
-- Problem:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

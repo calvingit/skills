@@ -25,11 +25,11 @@ Cite existing acceptance meaning. Derive delivery acceptance targets from the ci
 ## Inputs
 
 1. Read the full `SPEC.md`: Goal, requirements, bounds, acceptance, Out of scope, and decision basis. Do not guess scope from headings.
-2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check whether shared types, Interfaces, state or error semantics, dependency direction, or integration choices still span modules, callers, or implementation tasks. If they do, stop and hand back to `high-level-design`.
+2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [HLD entry conditions](../high-level-design/SKILL.md#when-an-hld-is-required); hand back to `high-level-design` when they hold.
 3. Investigate the target repo, applicable `AGENTS.md`, domain vocabulary, ADRs, related call chains, and existing task conventions only when those facts would change a ticket's outcome, grain, or dependencies. Do not explore just to split tickets.
 4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance go back to `grilling` / `to-spec`. High-level technical gaps go back to `high-level-design`. Do not write assumptions as tickets.
 
-SPEC is the final authority for scope, acceptance, and upstream-confirmed constraints. HLD, when present, is the final authority for design constraints several implementations share. Tickets are the derived execution graph for claiming and collaboration. On conflict, hand back to the owner of that artifact. Tickets must not silently change upstream meaning.
+Tickets derive scope and acceptance from SPEC and shared design constraints from HLD. On conflict, return to the source owner; do not change upstream meaning.
 
 Follow [Task Contract inheritance](../shared/task-contract.md#handoff-inheritance-and-change) using the existing ticket fields. A slice may narrow scope/constraints, never grant extra authority or replace an upstream AC. Do not copy a full contract into each ticket or add another state/configuration format. Confirm each slice has an identifiable observation method or a visible capability gap before execution; method details remain in project guidance or the handoff.
 
@@ -65,7 +65,7 @@ Stop and hand back to the owning upstream skill only when decomposition exposes 
 
 `tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
 
-Read [script inputs](references/script-inputs.md) for JSON request shapes. Request shape: `python3 <to-tickets-skill>/scripts/create-graph create-batch --help`. Command input describes the current graph contract. It does not copy the acceptance protocol.
+Read [script inputs](references/script-inputs.md) for JSON request shapes. Use `python3 <to-tickets-skill>/scripts/create-graph create-batch --help` for the current command input.
 
 Then:
 
@@ -73,7 +73,7 @@ Then:
 python3 <to-tickets-skill>/scripts/create-graph create-batch <task-dir> --input <request.json>
 ```
 
-The CLI assigns immutable `T001`-style IDs, resolves in-batch dependencies, writes initial `open` lifecycle / empty execution facts, and returns key / ID / path mapping plus the full graph projection. Ticket-document schema, filename slug, evidence, blockers, current attempt, supersession lineage, and dynamic readiness belong to the graph tool. This skill must not keep a second JSON template.
+The CLI assigns immutable `T001`-style IDs, resolves dependencies, initializes `open` lifecycle and empty execution facts, and returns the mapping and full graph. Schema, identity, execution facts and readiness belong to the graph tool; do not keep another JSON template here.
 
 AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / HLD prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
@@ -89,8 +89,8 @@ Resolve `<to-tickets-skill>` to this installed skill directory, never to the tar
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Loop stops writers.
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
 
-`referenced_design_decisions` cites existing HLD decisions; `delivery_acceptance` proves this delivery's coverage of SPEC acceptance. Tickets do not create new design or acceptance meaning. Constraints inherit applicable HLD boundaries, such as using the established persistence path; use `constraints: []` when this ticket has no specific constraint, rather than adding filler. Do not prescribe method edits or implementation recipes.
+Use `constraints: []` when a ticket has no specific inherited constraint, rather than adding filler. Keep implementation recipes out of tickets.
 
 ## Handoff
 
-`to-tickets` does not claim a ticket, implement code, or automatically gain authorisation to commit, push, create a branch, or rewrite history.
+`to-tickets` stops at graph creation or reconciliation; Loop owns claiming and execution. Planning inherits the caller's authority under the Task Contract.

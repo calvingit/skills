@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus only on security-relevant risks.
 
+Establish attack preconditions, the reachable attack path and actual impact before recommending mitigation.
+
 ## Audit Areas (see principle 4.6: Least Privilege)
 
 ### Authentication & Authorization
@@ -61,26 +63,6 @@ Focus only on security-relevant risks.
 1. **Be exhaustively systematic.** Check all in-scope endpoints, auth paths, input boundaries, and dependency evidence. Follow the skill's coverage strategy and document exclusions honestly.
 2. **Do not be a yes-man.** Report security issues objectively. Do not downplay because the project "is just internal" or "nobody will attack us."
 
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security
-- Status: Confirmed / Suspected
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Attack precondition:
-- Attack path:
-- Impact:
-- Mitigation:
-- Regression test suggestion:
-- Estimated effort:
 
 ## Focus
 

@@ -19,70 +19,24 @@ Finding facts is your job. Investigate available code, documents, and tools befo
 
 Classify unresolved choices before asking:
 
-### Requirement Decision
+| Choice | Owner and record |
+| --- | --- |
+| User-visible behaviour, scope, acceptance, compatibility or permissions, including external API fields, protocol limits and backend-defined states | User decides; confirmed requirements become SPEC input. |
+| Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `high-level-design` review. Existing external-contract semantics remain requirements. |
+| Private methods, file layout, local helpers or internal refactoring | Agent decides; do not ask the user. |
 
-Changes:
-
-- user-visible behaviour
-- scope
-- acceptance
-- compatibility
-- permissions
-
-Owner: User
-
-Output: `SPEC.md`
-
-External technical facts are requirement decisions when they define required behaviour, such as API contracts, field semantics, protocol limitations, or backend-defined states.
-
-### Design Boundary Concern
-
-Changes:
-
-- architecture boundary
-- public contract
-- shared model direction
-- long-term technical choice
-
-Owner: `high-level-design` review
-
-Output: HLD input
-
-An existing external contract's semantics belong to Requirement Decision. A proposed new or changed public abstraction or cross-module contract belongs here.
-
-Record the concern without proposing an implementation solution. For example, write `Current mode model may need future extensibility`, not `Use Strategy Pattern`.
-
-### Implementation Detail
-
-Examples:
-
-- private methods
-- file layout
-- local helpers
-- internal refactoring
-
-Owner: Agent
-
-Do not ask the user.
+Record unresolved design concerns without selecting an implementation. For example,
+`Current mode model may need future extensibility` describes a concern; a pattern
+choice does not belong in this interview.
 
 ## Question format
 
 Number questions and keep each focused on the decision, necessary context, and key consequences. Give a recommendation and its reason when supported. Use meaningful options or ask directly; do not force A/B/C. Accept free-form answers and alternatives.
 
 ```markdown
-❓ **Q1** — **<decision>**
+❓ **Q1** — **<decision>**: <context, question and meaningful choices>
+➡️ <recommendation and reason>
 
-**Context:** <essential context and question>
-
-A. <option and key consequence>
-
-B. <option and key consequence>
-
-C. other: <free-form answer or alternative>
-
-➡️ <recommendation and main reason>
-
----
 **Reply:** `1A, 2: <answer or alternative>`
 ```
 
@@ -97,18 +51,6 @@ Resolve the session directory from the user's location or `task_contract` in the
 After each round, automatically update `decisions.md` with confirmed decisions, important reasons, observable acceptance, and unresolved questions. As terms or lasting decisions settle, use `domain-modeling` to update the glossary and write ADRs that pass its gate. Reuse established project locations; otherwise use the session directory. Follow its formats without duplicating records or requiring another approval to record confirmed conclusions.
 
 Create `acceptance-draft.md` only when a separate acceptance draft is needed for handoff or reuse; keep it to observable requirements, scenarios, expected results, and evidence sources.
-
-## Design Concerns
-
-Record unresolved technical boundaries discovered during requirement analysis.
-
-Examples:
-
-- future extensibility
-- public contract changes
-- shared model decisions
-
-Do not propose implementation solutions.
 
 ## Finish
 

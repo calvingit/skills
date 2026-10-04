@@ -15,7 +15,7 @@ The aim is leverage for callers, locality for maintainers, and testability for e
 
 Use these meanings within Module / Interface / Seam design discussions. Preserve the project's established domain terms and external contract names; clarify mappings when needed rather than renaming components, services, or APIs to match this glossary. These are analysis terms, not a replacement for the project's domain model.
 
-**Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice. _Avoid_: unit, component, service.
+**Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice, with one caller-visible Interface. _Avoid_: unit, component, service.
 
 **Interface** — everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow — they refer only to the type-level surface).
 
@@ -30,15 +30,6 @@ Use these meanings within Module / Interface / Seam design discussions. Preserve
 **Leverage** — what callers get from depth: more capability per unit of interface they learn. One implementation pays back across N call sites and M tests.
 
 **Locality** — what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.
-
-## Relationships
-
-- A **Module** has exactly one **Interface** (the surface it presents to callers and tests).
-- **Depth** is a property of a **Module**, measured against its **Interface**.
-- A **Seam** is where a **Module**'s **Interface** lives.
-- An **Adapter** sits at a **Seam** and satisfies the **Interface**.
-- Callers and tests cross the same **Interface**.
-- **Depth** produces **Leverage** for callers and **Locality** for maintainers.
 
 ## Principles
 
@@ -64,14 +55,13 @@ The deletion test judges value and depth. It does not prove the seam or the depe
 4. Judge the current Interface, Depth, Seam, Adapter, dependency direction, and Locality. Mark each claim Observed / Inferred / Unknown.
 5. Offer at most two or three real candidate designs, with benefit, cost, migration impact, and test seam. Do not pad with fake options.
 6. Recommend the simplest design that puts necessary complexity with the right owner without widening the public surface.
-7. Stop at the local design judgement. Confirmed SPEC that needs several design points gathered into a task-level technical contract goes to `high-level-design`. Requirement contracts go to `grilling` / `to-spec`. Implementation goes to `quick-implement` or `loop`.
+7. Stop at the local design judgement; route further work using the boundaries below.
 
 When dependency category changes how a cluster should deepen, read [DEEPENING.md](DEEPENING.md). Read [DESIGN-IT-TWICE.md](DESIGN-IT-TWICE.md) only when the user asks to compare interfaces, or one design is not enough to judge.
 
 ## Boundaries
 
 - Whether the current architecture is sound, matches project constraints, or has architecture debt: `review-architecture`.
-- A known Module / Interface / Seam that needs a local target design: `codebase-design`.
 - Confirmed SPEC that needs shared design across modules, callers, or implementation tasks, written to `HLD.md`: `high-level-design`.
 - Requirements or behaviour still open: `grilling`.
 - Bug root cause: `debug`.

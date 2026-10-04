@@ -6,6 +6,12 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on whether the tests provide real confidence in the codebase.
 
+For assertion credibility, over-mocking, implementation coupling and test-only
+production paths, read [testing authenticity](testing-authenticity-audit.md).
+This prompt owns coverage, test levels and infrastructure.
+
+For a coverage gap, identify the behaviour, smallest useful test case, failure it would catch and sufficient test level. Prioritise by actual risk; a gap does not by itself establish that release must be blocked.
+
 ## Audit Areas (see principles 8.1–8.5)
 
 ### Coverage Quality (not quantity)
@@ -21,13 +27,6 @@ Focus on whether the tests provide real confidence in the codebase.
 - End-to-end test coverage of critical user flows
 - Snapshot / golden file test quality
 - Property-based or fuzz test coverage where appropriate
-
-### Test Patterns
-- Tests that only cover happy paths
-- Tests that are over-mocked (testing mock behavior, not real behavior)
-- Tests that assert implementation details (brittle)
-- Tests that exist only for coverage metrics
-- Tests that are flaky (non-deterministic)
 
 ### Missing Tests
 - Regression tests for past bugs
@@ -48,34 +47,3 @@ Focus on whether the tests provide real confidence in the codebase.
 
 1. **Be exhaustively systematic.** Check in-scope critical paths, error paths, edge cases, and test layers. Follow the skill's coverage strategy and document exclusions honestly.
 2. **Do not be a yes-man.** Report testing gaps even if the user says "we have good coverage." Coverage percentage does not equal confidence.
-
-## Grouping
-
-Group recommendations into:
-
-- **Must add** — without these, the project cannot be confidently released
-- **Should add** — significant confidence gap
-- **Nice to have** — incremental improvement
-- **Not worth testing** — trivial, stable, or generated code
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Testing
-- Status: Confirmed / Suspected
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Behavior to test:
-- Why it matters:
-- Suggested test type: Unit / Integration / E2E / Property / Fuzz
-- Minimal test case:
-- Failure it would catch:
-- Estimated effort:
-- Priority: Must add / Should add / Nice to have / Not worth testing

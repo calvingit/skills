@@ -56,23 +56,3 @@ Focus on AI/LLM application risks: prompt injection, tool authorization, RAG dat
 3. Do not rely on prompt wording alone as a security control for tool execution.
 4. Prefer deterministic authorization, scoped retrieval, structured validation, evals, and budget limits.
 5. Treat cross-tenant data leakage and unauthorized tool execution as High or Critical depending on blast radius.
-
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Security / Stability / Testing / Performance
-- Status: Confirmed / Suspected
-- Subtype: PromptInjection / ToolAuthorization / RAGLeakage / ModelFallback / OutputValidation / EvalGap / AbuseCost
-- Boundary crossed:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Attack or failure path:
-- Minimal fix:
-- Regression test suggestion:
-- Estimated effort:

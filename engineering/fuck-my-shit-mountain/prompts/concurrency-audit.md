@@ -6,6 +6,8 @@ Shared setup, coverage, report template, HTML, and lint rules live in `reference
 
 Focus on race conditions, deadlocks, atomicity violations, shared state management, and synchronization correctness.
 
+Trace the concrete interleaving and its user-visible result for each candidate.
+
 ## Audit Areas (see principles 6.1–6.4, 10.3)
 
 ### Race Conditions
@@ -88,24 +90,3 @@ Focus on race conditions, deadlocks, atomicity violations, shared state manageme
 1. **Be exhaustively systematic.** Check all shared state, all lock acquisitions, all concurrent access patterns. Follow the skill's coverage strategy and document exclusions honestly.
 2. **Do not be a yes-man.** Do not skip issues because "we haven't hit this yet." Concurrency bugs are rare but catastrophic — report every realistic race or deadlock path.
 3. **Test evidence matters.** If the project doesn't run race detection or stress tests, that's a finding in itself.
-
-## Finding Format
-
-### Finding: <short title>
-
-- Severity: Critical / High / Medium / Low / Info
-- Confidence: High / Medium / Low
-- Category: Concurrency
-- Status: Confirmed / Suspected
-- Affected area:
-- Evidence:
-  - File:
-  - Function / Module:
-  - Relevant behavior:
-- Concurrent interleaving:
-- Failure scenario:
-- User-visible impact:
-- Minimal fix:
-- Better long-term fix:
-- Regression test suggestion:
-- Estimated effort:
