@@ -13,12 +13,12 @@ Do not assume a fixed path or filename. Discover in this order:
 
 1. Glossary, architecture decisions, or project docs the user named.
 2. Locations declared by repo-level agent instructions, README, CONTRIBUTING, or architecture docs.
-3. An existing glossary, CONTEXT, domain model, or ADR / decision-record layout.
+3. An existing glossary, CONTEXT, domain model, or ADR / decision-record layout. Existing `CONTEXT.md`, `DOMAIN.md`, `TERMS.md` or `domain-model.md` may remain the domain authority; do not rename or migrate them merely to match the default template.
 4. Facts proven by current code, public contracts, call chains, and tests.
 
-Read relevant glossary/ADR settings from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)). Explicit task locations still take precedence; `auto` or no Profile means discovery. Do not run setup automatically.
+Read relevant glossary/ADR settings from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)). `domain_glossary` locates domain vocabulary; `project_context` locates broader project background and is not an alias for it. Explicit task locations still take precedence; `auto` or no Profile means discovery. Do not run setup automatically.
 
-If the project has no glossary or ADR convention, do not invent a fixed documentation layout. Prefer the repo's existing structure when a long-lived document is actually needed. If there is still no convention and the location will matter later, ask once where to write. Default shapes live in [CONTEXT-FORMAT.md](CONTEXT-FORMAT.md) and [ADR-FORMAT.md](ADR-FORMAT.md); a project format always wins.
+If the project has no glossary or ADR convention, do not invent a fixed documentation layout. Prefer the repo's existing structure when a long-lived document is actually needed. If there is still no convention and the location will matter later, ask once where to write. Default shapes live in [GLOSSARY-FORMAT.md](GLOSSARY-FORMAT.md) and [ADR-FORMAT.md](ADR-FORMAT.md); a project format always wins.
 
 ## When to update the glossary
 
