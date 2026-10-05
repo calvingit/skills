@@ -6,6 +6,26 @@
 
 任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](../engineering/shared/task-contract.md)，各 Skill 无需重复这些定义。
 
+## 调用契约（Invocation Contract）
+
+以下三类是仓库的逻辑契约，不是新的 Skill metadata。用户可以直接启动三类 Skill，但仍须满足该 Skill 的输入与授权边界。
+
+| 类别 | 隐式选择 | 显式调度 | 本轮对齐的 Skills |
+| --- | --- | --- | --- |
+| Human Entry Point（用户工作流入口） | 不允许模型仅凭任务匹配自行启动 | 用户启动；已授权工作流可按明确交接继续下游入口，不必逐步要求用户重新输入名称。不得因此扩展授权。 | `grilling`、`to-spec`、`to-tickets`、`wayfinding`、`loop`、`project-setup`、`verification-setup`、`improve-agents-md` |
+| Orchestrated Role（受调度角色） | 不允许自由选择 | 用户可直接调用；已授权 orchestrator 可显式指定角色和范围，通过 Runtime 派发。 | `implement`、`verify`、`code-review`、`simplify` |
+| Model-discoverable Helper（模型可主动选择的辅助能力） | 允许在当前任务与权限内按需选择 | 也可由用户或调用方明确指定 | `debug`；`tdd` 和 `domain-modeling` 作为实现/领域方法按需组合 |
+
+[OpenAI 的调用策略说明](https://learn.chatgpt.com/docs/build-skills#optional-metadata)规定 `agents/openai.yaml` 中 `policy.allow_implicit_invocation: false` 禁用隐式调用，保留显式调用；它不表示 human-only，也不授予 worker 调度权限。上表入口和角色显式设为 `false`；`debug` 显式为 `true`；`tdd`、`domain-modeling` 未设置 policy，使用该宿主的默认隐式策略。其他 Skills 保持各自现有策略，本表不是全仓强制重分类。
+
+需区分三种表达：
+
+- **方法引用**：如 implement 中“Use `tdd`”，表示在当前实现职责内读取并采用方法，不另启交付流程或当然创建 worker。
+- **角色派发**：如 `loop → native worker → implement / verify`，由 Manager 明确指定 Skill、输入、范围、候选与证据要求，worker 加载相应指令；独立角色要求不能用同一执行者自检代替。
+- **Skill 调用**：让宿主加载明确指定的 Skill，或按其 policy 隐式发现。普通文档提及 Skill 名不证明实际调用成功。其他 Runtime 是否识别 metadata、worker 是否加载指令，须按实际能力验证，不从 YAML 推断。
+
+审计发现并修正：`loop`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`implement`、`verify` 及上表其余入口原有的 `false` 保持；所审 Skills 未发现需保留的 human-only 限制。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
+
 ## 事实与产物归属
 
 每项事实只维护一个当前权威来源。引用、派生的交付条件和历史快照可以有多份，但须能追溯来源及版本，不能自行改变原意。下表分别列出规范、持久化工程状态、原始观察和 Runtime 执行状态的维护责任。
@@ -84,9 +104,14 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 - verification-setup 维护方法和能力摘要，verify 判断当前 AC 的充分证据。没有另一套验证命令配置或强制工具选择。
 - verify 保留当前证据可信度检查，test-audit 保留系统测试价值审计，code-review 保留改动风险判断，不让任何一个报告替代另一个角色的验收责任。
 - implement 已负责当前变化造成的必要简化，simplify 检查仍存在且有证据的问题。Loop 保留已有最终 simplify 角色契约，不新增逐 ticket 审计。
+- Loop 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../engineering/loop/references/delivery-review.md)，不新增状态字段。
 - Loop 删除固定无活动阈值、soft-ping 协议、活动时间及性能台账，不再要求固定 context 文件对，但保留原生 worker 执行、独立最终角色、证据失效重验和停止旧写入方的要求。
 - codebase-design 的分析术语限定在设计讨论中，不要求项目把 service/API 等既有名称改成通用词汇。
 - 其他现有入口有不同的判断目标和停止点，本轮保留，不因检查同一份代码就合并。
+
+领域语言默认模板使用 [GLOSSARY-FORMAT.md](../engineering/domain-modeling/GLOSSARY-FORMAT.md)，保留项目既有 CONTEXT / DOMAIN / TERMS 等 authority。`project_context`、`domain_glossary` 和 ADR 分别定位项目背景、领域词汇与架构决策。
+
+Session-level 反馈先使用仓库本地的 [Retro 实验规范](../.agents/skills/verify-engineering/references/retro-evaluation.md)，只观察、诊断并路由给现有 owner；没有新增正式 retro Skill，也不自动进入交付流程。
 
 ## 验证边界
 

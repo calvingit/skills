@@ -7,6 +7,7 @@
 - 通用优先，项目实现细节、领域术语、ADR、Git 规则和测试约定由目标仓库维护。
 - 每个 Skill 有明确的判断目标和停止点，可以围绕不同目标检查同一份代码或测试。
 - 通过组合复用规则，不复制另一 Skill 的执行细节。
+- 能由确定性机制可靠保证的约束，不交给 Agent 记忆和判断。
 - 以确认需求、代码、实际观察和独立报告为依据，不把自报或命令成功当成完成证明。
 - Runtime 管理会话与 worker 生命周期，Engineering Skills 管理需求、设计、执行图和交付判断。
 
@@ -27,6 +28,8 @@
 各入口按需组合，不构成必经阶段。实现前以已确认的 AC 明确观察方法、前置条件和覆盖限制，会话中的简要说明或已有任务记录即可。安全且不受影响的工作可以继续，证据缺口不能写成通过。契约的来源、继承和授权规则见[任务契约](../engineering/shared/task-contract.md)。
 
 各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，共享设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
+
+调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](engineering-responsibilities.md#调用契约invocation-contract)。
 
 ## 项目准备
 
@@ -51,7 +54,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 `verify` 自己判断当前 AC 的证据可信度，`test-audit` 不替代这项责任，也不自动成为交付门。缺失的仓库测试交给实现方，失效的验证方法交给 verification-setup，环境或权限存在缺口时，说明解除条件。修复后即使产品代码未变，也要重新判断受影响的证据。
 
-单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Loop 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。状态命令、部署要求及 Runtime 边界见 [Loop 说明](loop-runtime.md)。
+单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Loop 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。首次收尾覆盖全量改动；correction 默认仅定向重验受影响 AC、原 regression 并执行项目 mandatory gates，独立 targeted review 检查累积修正，复核其他 AC 证据仍有效。实际影响扩大才升级 broad review，具体规则见[最终验收](../engineering/loop/references/delivery-review.md)。状态命令、部署要求及 Runtime 边界见 [Loop 说明](loop-runtime.md)。
 
 ## 产物入口
 
@@ -66,6 +69,8 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 共享技术设计 `HLD.md` | [high-level-design](../engineering/high-level-design/SKILL.md) |
 | `tickets/*.json` 契约与依赖 | [to-tickets](../engineering/to-tickets/SKILL.md) |
 | attempt、已接受证据与最终交付记录 | [loop](../engineering/loop/SKILL.md) |
+
+领域术语默认模板见 [Glossary 格式](../engineering/domain-modeling/GLOSSARY-FORMAT.md)；既有 `CONTEXT.md`、`DOMAIN.md`、`TERMS.md` 等仍可作为 authority，不强制迁移。项目背景、领域词汇和架构决策分别使用各自来源。
 
 ## 需求和设计变更
 
@@ -101,6 +106,8 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 创建或审校项目 Agent 指令 | 使用 [improve-agents-md](../engineering/improve-agents-md/SKILL.md)，`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
 文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
+
+会话级系统性问题先按 [Retro 实验规范](../.agents/skills/verify-engineering/references/retro-evaluation.md)收集真实证据并路由到现有 owner，不新增正式 Skill 或默认交付阶段。
 
 ## 图示与仓库维护
 
