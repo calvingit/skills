@@ -21,6 +21,8 @@ The existing repository check entry for engineering state tools remains `python3
 
 For backend Skill changes, select relevant [backend behaviour scenarios and dated evaluations](references/backend-skills-evaluation.md). Historical text trials are not live database tests or proof of current effectiveness.
 
+For session-level feedback research, use the [Retro evaluation protocol](references/retro-evaluation.md) with real session evidence. It is an optional experiment and owner-routing method, not a new delivery gate or formal retro Skill.
+
 ## Prepare, run and retain
 
 - Record the candidate `HEAD` plus staged, unstaged and untracked task changes and excluded existing edits. Recheck affected evidence after changes; `HEAD` alone does not identify an uncommitted candidate.
