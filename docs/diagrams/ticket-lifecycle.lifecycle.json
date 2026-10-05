@@ -82,6 +82,6 @@
     {"dot": "amber", "title": "阻塞与 Runtime", "items": ["unblock 后重新计算 readiness，依赖未完成时仍为 blocked", "in_progress 是已记录的执行状态，worker 是否运行、停止或可恢复由 Runtime 确认", "确认旧 writer 和相关命令停止后才开始重叠工作，图状态变化不会停止 worker"]},
     {"dot": "violet", "title": "契约协调", "items": ["reconcile-batch 是协调操作，不是持久化生命周期状态", "经核对未受影响的契约和证据可用 retain_contract 保留，原契约被替换时才 superseded", "superseded 保留历史证据与 lineage，但不提供当前验收覆盖"]},
     {"dot": "cyan", "title": "重开边界", "items": ["reopen 只用于上游含义未变而原交付未满足的缺陷，并受图约束", "reopen 后先回到 open，再计算 readiness，不能把需求变化改成重开", "图不允许重开时，由 to-tickets 安排修正交付，保留无关结果"]},
-    {"dot": "emerald", "title": "最终交付", "items": ["ticket done 只放行依赖，delivery_ready 表示可开始整体验收", "最终交付：专用 simplify → 有效候选快照 → 独立 verify / code-review → Loop 批准", "当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成"]}
+    {"dot": "emerald", "title": "最终交付", "items": ["ticket done 只放行依赖，delivery_ready 表示可开始整体验收", "首次全量收尾；修正后定向复验，影响扩大才扩审；有效快照由 Loop 批准", "当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成"]}
   ]
 }

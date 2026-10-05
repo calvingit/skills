@@ -105,6 +105,6 @@
     {"dot": "violet", "title": "Wayfinding 的其他出口", "items": ["最终决定可以形成 decision handoff", "Notes 明确允许直接变更时，转入对应执行流程"]},
     {"dot": "emerald", "title": "决策所有权", "items": ["业务行为和验收由用户确认，to-spec 维护需求快照", "技术约束进入 SPEC，共享设计和长期方向由 HLD 及其评审处理", "局部实现由 Agent 决定，任务拆分由 to-tickets 维护"]},
     {"dot": "cyan", "title": "验证方法与证据", "items": ["先复用已有验证方法，失效或缺少可重复方法时按需使用 verification-setup", "仓库测试或产品能力缺口交给实现方，setup 不宣告任务验收通过", "行为、视觉、交互和真实集成各需对应证据，缺口保持 NOT VERIFIED"]},
-    {"dot": "emerald", "title": "交付收尾", "items": ["quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改", "Loop：专用 simplify → 有效候选快照 → 独立 verify / code-review → 交付批准", "所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围"]}
+    {"dot": "emerald", "title": "交付收尾", "items": ["quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改", "Loop：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审", "所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围"]}
   ]
 }

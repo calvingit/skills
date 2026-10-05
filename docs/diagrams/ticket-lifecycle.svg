@@ -4807,7 +4807,7 @@
     }
   ]]></style><rect width="100%" height="100%" fill="#020617"/>
         <title id="archify-diagram-title">本地 Ticket 生命周期</title>
-        <desc id="archify-diagram-description">open 的依赖已完成且无 execution blocker 时动态计算为 ready，start 记录当前 attempt，complete 需全部本地 AC 证据、成功检查和 Loop 批准。 blocked 是 open 的动态 readiness，unblock 只移除 execution blocker，依赖未就绪时仍为 blocked，执行是否运行或停止由 Runtime 确认。 上游修订通过 reconcile-batch 协调受影响的契约，核对后可用 retain_contract 保留未受影响的契约和证据，只有原交付契约被替换时才转为 superseded。 最终交付：ticket done 只放行依赖，delivery_ready 表示可开始整体验收，最终交付：专用 simplify → 有效候选快照 → 独立 verify / code-review → Loop 批准，当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成。</desc>
+        <desc id="archify-diagram-description">open 的依赖已完成且无 execution blocker 时动态计算为 ready，start 记录当前 attempt，complete 需全部本地 AC 证据、成功检查和 Loop 批准。 blocked 是 open 的动态 readiness，unblock 只移除 execution blocker，依赖未就绪时仍为 blocked，执行是否运行或停止由 Runtime 确认。 上游修订通过 reconcile-batch 协调受影响的契约，核对后可用 retain_contract 保留未受影响的契约和证据，只有原交付契约被替换时才转为 superseded。 最终交付：ticket done 只放行依赖，delivery_ready 表示可开始整体验收，首次全量收尾；修正后定向复验，影响扩大才扩审；有效快照由 Loop 批准，当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成。</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -5017,7 +5017,7 @@
           <rect x="40" y="754" width="900" height="88" rx="8" class="c-lane" stroke-width="1"/>
           <text x="54" y="774" class="t-primary" font-size="10" font-weight="600">最终交付</text>
           <text x="54" y="794" class="t-muted" font-size="9">ticket done 只放行依赖，delivery_ready 表示可开始整体验收</text>
-          <text x="54" y="812" class="t-muted" font-size="9">最终交付：专用 simplify → 有效候选快照 → 独立 verify / code-review → Loop 批准</text>
+          <text x="54" y="812" class="t-muted" font-size="9">首次全量收尾；修正后定向复验，影响扩大才扩审；有效快照由 Loop 批准</text>
           <text x="54" y="830" class="t-muted" font-size="9">当前全部 SPEC AC 为 PASS，必需报告齐全且无必需未验证范围，delivery_review.state 为 passed 才完成</text>
         </g>
       </svg>

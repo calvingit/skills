@@ -4807,7 +4807,7 @@
     }
   ]]></style><rect width="100%" height="100%" fill="#020617"/>
         <title id="archify-diagram-title">Engineering Skills 工作流</title>
-        <desc id="archify-diagram-description">先核对已确认契约，并分别判断不确定性、影响范围和验证难度，需求未定时使用 grilling，关键技术路径需跨会话调查时使用 wayfinding。 单一范围也可能需要 HLD，共享设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。 单一范围且无图时使用 quick-implement，已有有效图继续 Loop，最终交付须有全部适用 AC 证据，以及各流程必需的简化、独立 verify 和 code-review。 交付收尾：quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改，Loop：专用 simplify → 有效候选快照 → 独立 verify / code-review → 交付批准，所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围。</desc>
+        <desc id="archify-diagram-description">先核对已确认契约，并分别判断不确定性、影响范围和验证难度，需求未定时使用 grilling，关键技术路径需跨会话调查时使用 wayfinding。 单一范围也可能需要 HLD，共享设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。 单一范围且无图时使用 quick-implement，已有有效图继续 Loop，最终交付须有全部适用 AC 证据，以及各流程必需的简化、独立 verify 和 code-review。 交付收尾：quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改，Loop：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审，所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围。</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -5166,7 +5166,7 @@
           <rect x="40" y="1170" width="1004" height="88" rx="8" class="c-lane" stroke-width="1"/>
           <text x="54" y="1190" class="t-primary" font-size="10" font-weight="600">交付收尾</text>
           <text x="54" y="1210" class="t-muted" font-size="9">quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改</text>
-          <text x="54" y="1228" class="t-muted" font-size="9">Loop：专用 simplify → 有效候选快照 → 独立 verify / code-review → 交付批准</text>
+          <text x="54" y="1228" class="t-muted" font-size="9">Loop：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审</text>
           <text x="54" y="1246" class="t-muted" font-size="9">所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围</text>
         </g>
       </svg>

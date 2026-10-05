@@ -31,7 +31,12 @@ python3 engineering/shared/check.py
 | 共享模块的连续 tickets | 委派 native worker，可按实际能力复用上下文，每张 ticket 有独立 attempt 和全部本地 AC 证据。 |
 | 真正独立的 tickets | 默认串行，并行前确认依赖、写入、共享设计及可变资源独立。 |
 | Runtime 没有原生 subagent | 保持 Loop 未完成并报告阻塞，不回退到 Manager 自行实现。 |
-| 最终审查发现已完成 ticket 的缺陷 | 按图约束 reopen 或创建修正 ticket，保留无关证据，修正后更新快照并重跑受影响验收。 |
+| A：首次 delivery，无必需 finding | 全量 simplify → prepare → 独立逐 AC verify → broad code-review → delivery-complete，frontier 为 passed。 |
+| B：最终审查发现局部 mapping defect | 按图约束 reopen 或创建修正 ticket；保存原报告和候选，更新快照，独立重验受影响 SPEC AC、原 regression 和所有 mandatory gates；targeted review 检查累积 correction 及相关调用方，不自动重跑全量 simplify / verify / broad review。未受影响 AC 的证据须重新确认适用。 |
+| C：correction 改变 public contract / shared design | 先交回需求/设计 owner，协调受影响图，再以实际扩大范围为依据升级 broad review，补充受影响独立验收；不能按局部修复直接批准。 |
+| correction 触及未审过的安全关键路径或发现独立重大缺陷 | 记录触发原因并扩大审查；少量代码不等于影响局部。 |
+| 扩审完成后再次出现局部 correction | 以最新已完成 broad review 为比较基线，保留历史报告；已审过的范围变化本身不再次触发扩审，新的累积影响仍须检查。 |
+| 原 broad report 缺失，或 targeted checks 仍失败 | 保持交付未完成；补原审查或继续有依据的限定修正，不以 targeted PASS 掩盖覆盖缺口，也不反复运行无新依据的失败方案。 |
 | 连续等待窗口结束，未取得结果 | 使用 Runtime 原生状态/结果，不因窗口结束认定失败、停止或重复派发，也不建立另一套超时协议。 |
 | 中断、需求变更或替换写入 worker | 确认原 writer 和相关命令停止，保留部分修改后再接管，无法确认时保持阻塞。 |
 | 替代执行开始后收到旧报告 | 按原 attempt 和候选版本判断适用性，不覆盖不适用的新结论。 |

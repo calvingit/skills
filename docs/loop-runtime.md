@@ -65,7 +65,7 @@ python3 engineering/loop/scripts/update-status complete /path/to/task T001 --inp
 
 ## 最终交付
 
-`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Loop Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，再更新快照和受影响的验收。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
+`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Loop Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，保存原报告后更新快照，默认转入 targeted closeout：独立重验受影响 SPEC AC、原 regression 和项目 mandatory gates，独立审查累积修正及相关路径，确认其余证据仍适用。只有实际影响扩大、原 broad review 依据失效时才升级 broad review，不因再次 delivery_ready 自动重跑全套收尾。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/loop/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>
@@ -73,7 +73,7 @@ python3 <loop-skill>/scripts/update-status delivery-complete <task-dir> --input 
 python3 <loop-skill>/scripts/frontier <task-dir>
 ```
 
-最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是独立审查的原始字符串，ticket review 可选也不会降低这个要求。
+最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是最新独立审查的原始字符串；targeted report 引用保留的 broad report/候选，说明定向范围、finding 处理与原审查覆盖的适用性。ticket review 可选也不会降低这个要求。
 
 快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置，也不要将最终验收记录写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效，外部服务变化由 Loop 重新判断证据适用性。
 
