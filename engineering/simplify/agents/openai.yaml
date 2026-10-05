@@ -2,3 +2,6 @@ interface:
   display_name: "Simplify"
   short_description: "Find or remove accidental complexity, including test-driven abstractions and verification scaffolding left by AI coding"
   default_prompt: "Use simplify to review or remove complexity in the requested scope that has no current production responsibility. Default to read-only on the current diff or an explicit responsibility; modification requires explicit authorization. Report evidence-backed candidates, or what was removed or merged and validated; keep anything whose evidence is insufficient."
+
+policy:
+  allow_implicit_invocation: false

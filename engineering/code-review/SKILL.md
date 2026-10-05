@@ -9,7 +9,7 @@ Review whether the change solves the intended problem without breaking existing 
 
 ## Establish scope
 
-Use the user's requested commit, branch, working tree, or paths. Pin the baseline and distinguish pre-existing edits. For a branch comparison use its merge base; for a single commit inspect that commit's patch, not a three-dot comparison against HEAD. Include staged, unstaged, and relevant untracked files in a working-tree review. An invalid ref, unreadable scope, or empty diff is a limitation, not a successful review.
+Use the user or authorised caller's requested commit, branch, working tree, or paths. Pin the baseline and distinguish pre-existing edits. For a branch comparison use its merge base; for a single commit inspect that commit's patch, not a three-dot comparison against HEAD. Include staged, unstaged, and relevant untracked files in a working-tree review. An invalid ref, unreadable scope, or empty diff is a limitation, not a successful review.
 
 Read the request and applicable repository rules, then follow the changed behaviour through callers, dependencies, public types, configuration, and tests. Use supplied requirements, acceptance criteria, and task-level design when available. Without a requirement source, review demonstrable defects and state that requirement completeness was not assessed; do not invent intent.
 

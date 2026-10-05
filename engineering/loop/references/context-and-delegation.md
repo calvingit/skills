@@ -2,6 +2,8 @@
 
 Read when invoking a worker or handing work across contexts. Pass the bounded ticket/question, current attempt or delivery candidate, authoritative source links, baseline, existing edits, expected change areas, resolved verification entry, permitted test resources, and evidence location. Include prior findings for corrections; do not copy all repository docs or prescribe verify's conclusions.
 
+Explicitly name the role Skill and provide its resolved `SKILL.md` path/instructions to the native worker. Dispatch is an explicit assignment within the authorised workflow, not model implicit selection. Confirm the Runtime can load the assigned Skill; a role name alone is not proof of loading. See the [invocation contract](../../../docs/engineering-responsibilities.md#调用契约invocation-contract).
+
 Carry relevant decision, authority, evidence and recovery bounds from the [Task Contract](../../shared/task-contract.md#handoff-inheritance-and-change). Keep upstream references and narrower role restrictions distinguishable. A summary or ticket cannot grant operations the caller lacks; missing optional documents do not require a new contract artifact.
 
 Reuse available task knowledge and source links. Write a brief derived note under the task's `.loop/` only when needed for handoff; compare it with current sources on resume. Notes are navigation, not requirements or acceptance evidence. Runtime owns context continuation and compaction; no fixed context-file pair or telemetry ledger is required.
