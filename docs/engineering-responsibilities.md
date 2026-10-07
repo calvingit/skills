@@ -4,7 +4,7 @@
 
 ## 任务契约与六类边界
 
-任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](../engineering/shared/task-contract.md)，各 Skill 无需重复这些定义。六类边界是[跨 Skill 不变量基线](ENGINEERING_KERNEL.md)在工作流层的角色化表述；不变量本身不由本文档改写，语义复核与冲突处置见[复核记录](engineering-kernel-review.md)。
+任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](../engineering/shared/task-contract.md)，各 Skill 无需重复这些定义。六类边界是[跨 Skill 不变量基线](ENGINEERING_KERNEL.md)在工作流层的角色化表述；不变量本身不由本文档改写，来源、角色映射与冲突判断见[规则审计](engineering-kernel-audit.md)，实施和验证见[迁移记录](kernel-migration-plan.md)。
 
 ## 调用契约（Invocation Contract）
 
