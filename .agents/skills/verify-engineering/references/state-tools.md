@@ -5,8 +5,8 @@ Skill 内的状态脚本只管理 tickets 和交付进度。Agent 的创建、�
 ## 必须满足
 
 - graph 查询和状态写入保留依赖、需求绑定、attempt、锁及事务校验。
-- ticket complete 要求当前 attempt、全部本地 AC 证据、成功检查、调用方批准和空未验证范围，实际 review 原文可选。
-- delivery-complete 仍要求最终独立 review、全部 SPEC AC 证据和有效快照，ticket done 只放行依赖。
+- ticket complete 的工具校验：当前 attempt、覆盖全部本地 AC 的证据和成功的检查记录，实际 review 原文可选。其输入不含 `approved`/`unverified`——调用该命令本身体现 Manager 对本地验收的语义批准，前提是调用前已确认没有未解决的阻断或必需的未验证范围；语义前提由调用方保证，工具不校验。
+- delivery-complete 在此之外仍要求最终独立 review、全部 SPEC AC 证据和有效快照，并显式提供 `approved: true` 与空 `unverified` 字段（工具校验）；ticket done 只放行依赖。
 - 审查字符串按原文存储，不解析标题、语言或严重性，不据此自动批准。
 - 非法状态、缺少证据、过期 attempt、未协调需求或失效交付快照不得标为完成。
 - 不提供 worker/provider/Agent CLI 命令，不启动 Agent 进程，不管理 session、heartbeat 或重试执行。

@@ -49,7 +49,7 @@ Compare the observed pattern with the project convention and establish its actua
 ## Rules
 
 1. Focus on inconsistencies that create **real maintenance cost**, not aesthetic preferences.
-2. A single inconsistent file is noise; a pattern of inconsistency across 5+ locations is a finding.
+2. A single inconsistent file is usually noise, and recurrence count is only a lead: a finding needs the actual maintenance cost — a change that must touch several places, or a reader who must handle two conventions for the same operation.
 3. Do NOT suggest a full codebase reformat — suggest targeted extraction or lint rule additions.
 4. If the project has an existing style guide or linter config, check compliance against it.
 5. Consider whether a `clippy`/`eslint`/`ruff` rule could catch the inconsistency automatically.

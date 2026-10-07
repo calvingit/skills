@@ -43,4 +43,4 @@ Establish what the original path can fail on, whether the fallback is required a
 2. If the fallback is correct, does it **log/warn/metric** so operators know it activated?
 3. If the fallback is incorrect, recommend **fail-fast + clear error message**.
 4. Distinguish between **defensive programming** (validates external input) and **defensive guessing** (hides bugs).
-5. A fallback that activates silently and is never monitored is worse than a crash.
+5. A fallback that activates silently and is never monitored is a risk lead, not automatically worse than a crash. Judge by what failure it can hide, whether the degraded result is acceptable, and the real consequence of each option — masked incorrect data and lost availability are different harms. Compare actual consequences instead of a fixed ranking.

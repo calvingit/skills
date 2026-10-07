@@ -47,7 +47,7 @@ Compare what the assertion actually observes with its required behaviour. Before
 
 ## Rules
 
-1. A test that never fails is not a good test — it is a test that never catches bugs.
+1. Distinguish observed failure history from capture capability. A test that has never failed may simply never have met a bug; judge its oracle — whether its assertions can distinguish correct from incorrect behaviour — and look for negative controls (mutation checks, deliberately broken variants) before calling it ineffective.
 2. If production code has test-only branches, that is a design smell. Tests should exercise production paths, not create special ones.
 3. Over-mocked tests test the mock, not the code. Reduce mock scope or write integration tests.
-4. Snapshot tests are not free — each one is a maintenance liability.
+4. Snapshot tests carry maintenance cost, but their value is net: compare what regression only this snapshot would catch (unique protection) against its update cost before recommending removal.

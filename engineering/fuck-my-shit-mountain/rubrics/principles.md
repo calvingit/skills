@@ -1,6 +1,6 @@
 # Software Engineering Principles Rubric
 
-A catalog of engineering principles that the audit checks against. Each principle includes what to look for, how to detect violations, and how to map findings to severity.
+A catalog of engineering principles that the audit checks against. Each principle includes what to look for, how to detect candidates, and how findings map to severity. Detection results are investigation leads, not verdicts; see "How to Use This Rubric" for the finding gate.
 
 ---
 
@@ -10,7 +10,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > A module/class/function should have one reason to change.
 
 - **Detection:** Count distinct responsibilities in one file/function. If a function parses input, validates auth, queries DB, and formats response — it violates SRP.
-- **Threshold:** >1 clear responsibility per function; >3 per class/module.
+- **Lead:** More than one clear responsibility per function, or more than ~3 per class/module, is where to look closer; name the distinct responsibilities and their different reasons to change before calling a violation.
 - **Severity:** Medium – increases coupling, hides dependencies, makes testing harder.
 - **Example:** A 400-line `handleRequest` that does auth, routing, business logic, serialization, and logging.
 
@@ -18,7 +18,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > A source file should not exceed reasonable size limits.
 
 - **Detection:** Count lines of code (excluding blank lines and imports).
-- **Threshold:** >500 lines → flag; >1000 lines → High.
+- **Lead:** Files well beyond ~500 lines invite a closer look at what they hide; reaching a count is not itself a finding.
 - **Severity:** Low (>500) / Medium (>1000) – larger files hide multiple responsibilities and reduce navigability.
 - **Exception:** Generated code, data tables, enum definitions.
 
@@ -26,14 +26,14 @@ A catalog of engineering principles that the audit checks against. Each principl
 > A function should fit in a screenful of code.
 
 - **Detection:** Count lines within function body.
-- **Threshold:** >50 lines → flag; >100 lines → High.
+- **Lead:** Functions well beyond ~50 lines invite a closer look at the branching they hide; length alone is not a finding.
 - **Severity:** Low (>50) / Medium (>100) – long functions hide branching complexity and make testing difficult.
 
 ### 1.4 Parameter Count
 > A function should have few parameters.
 
 - **Detection:** Count formal parameters.
-- **Threshold:** >4 parameters → flag; >7 → High.
+- **Lead:** More than ~4 parameters (outside constructor injection) is a lead to check for a missing abstraction, not a violation by itself.
 - **Severity:** Low (>4) / Medium (>7) – indicates missing abstraction (parameter object).
 - **Exception:** Constructor dependency injection.
 
@@ -41,14 +41,14 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Deep nesting indicates complexity.
 
 - **Detection:** Measure maximum indentation level within a function.
-- **Threshold:** >4 levels → flag; >7 → High.
+- **Lead:** Nesting beyond ~4 levels is a lead to check what the nesting encodes; depth alone is not a finding.
 - **Severity:** Medium (>4) – deeply nested code is hard to read, test, and maintain.
 
 ### 1.6 Cyclomatic Complexity
 > Too many independent paths through a function.
 
 - **Detection:** Count branches (if, else, case, loops, catch, logical operators).
-- **Threshold:** >10 → flag; >20 → High.
+- **Lead:** Cyclomatic complexity well above ~10 is a lead to check branch coverage and testability needs; the count alone does not set severity.
 - **Severity:** Medium (>10) – high complexity means more test cases needed and higher bug probability.
 
 ---
@@ -59,7 +59,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Modules should depend on few other modules, and only on stable ones.
 
 - **Detection:** Count imports/requires/includes that reference project-internal modules.
-- **Threshold:** >10 internal imports → flag.
+- **Lead:** More than ~10 internal imports in one module is a lead to map what it depends on and why.
 - **Severity:** Medium – high coupling makes the system rigid; changing one module breaks many.
 - **Form:** A utils/helpers module imported by 30+ files.
 
@@ -74,7 +74,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > A unit should not know about the internal structure of objects it depends on.
 
 - **Detection:** Chained method/property access like `a.b.c.d()` or `getX().getY().doZ()`.
-- **Threshold:** >2 dots past the receiver (excluding fluent APIs and builders).
+- **Lead:** Chained access beyond ~2 dots past the receiver (excluding fluent APIs and builders) is a lead to check coupling to intermediate types.
 - **Severity:** Low – increases coupling to intermediate types; breaks on internal restructuring.
 
 ### 2.4 Dependency Inversion (DIP)
@@ -88,14 +88,14 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Clients should not depend on interfaces they do not use.
 
 - **Detection:** A struct/class implements interface methods that throw `NotImplemented` / `panic!` / `return null`.
-- **Threshold:** >1 method is a no-op or throws.
+- **Lead:** More than one no-op or throwing interface method is a lead to check whether the interface is too fat.
 - **Severity:** Low – indicates interface is too fat, but low risk if stable.
 
 ### 2.6 Stable Dependencies Principle
 > Depend in the direction of stability.
 
 - **Detection:** An unstable module (frequently changed) is depended upon by many other modules.
-- **Threshold:** A module with >5 dependents and >10 commits/changes in last month.
+- **Lead:** A module with many dependents and frequent changes (e.g. >5 dependents and >10 changes in the last month) is a lead to check stability and change coordination.
 - **Severity:** High – changing this module breaks many downstream consumers.
 
 ---
@@ -106,21 +106,21 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Code should behave as its name and signature imply.
 
 - **Detection:** `getX()` that mutates state; `save()` that also sends email; `isValid()` that has side effects.
-- **Threshold:** Any violation.
+- **Lead:** Any suspected violation is a lead; verify how callers actually rely on the implied semantics.
 - **Severity:** High – causes subtle bugs when callers assume standard semantics.
 
 ### 3.2 Command-Query Separation (CQS)
 > A function should be either a command (mutates state, returns void) or a query (returns data, no side effects), not both.
 
 - **Detection:** Function that both mutates state AND returns a value (unless it's a well-known pattern like `pop()`).
-- **Threshold:** Any violation.
+- **Lead:** Any occurrence is a lead; check whether callers depend on the command/query split.
 - **Severity:** Medium – increases cognitive load, makes reasoning about state harder.
 
 ### 3.3 Tell, Don't Ask
 > Tell an object what to do rather than asking for its data and operating on it externally.
 
 - **Detection:** Code that calls getters on an object then uses that data in conditionals or computations.
-- **Threshold:** Repeated pattern across >3 locations.
+- **Lead:** The pattern repeated across a few locations (~3+) is a lead to check procedural coupling to the data structure.
 - **Severity:** Low – indicates procedural style; increases coupling to data structure.
 
 ### 3.4 Meaningful Names
@@ -146,9 +146,9 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Every piece of knowledge must have a single, unambiguous representation.
 
 - **Detection:** Identical or near-identical code blocks >3 lines long appearing in multiple places.
-- **Threshold:** >2 occurrences of identical logic.
+- **Lead:** Identical or near-identical logic appearing more than ~2 times is a lead; only shared knowledge counts (see the important note below).
 - **Severity:** Medium – duplication means bugs are fixed in one place but not others.
-- **Important:** Distinguish accidental duplication (coincidental) from essential duplication (same logic but different domains). Only flag the former.
+- **Important:** Duplication worth removing is the **same knowledge with the same reason to change**. Similar-looking code serving different domains has different change reasons and is not automatically mergeable; judge by knowledge and change reason, not by form or naming.
 
 ### 4.2 YAGNI (You Ain't Gonna Need It)
 > Do not add functionality until it is necessary.
@@ -161,14 +161,14 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Simple solutions are better than complex ones.
 
 - **Detection:** Unnecessary design patterns (Factory for one implementation, Visitor for 2 types), over-abstracted code (one-liner wrapped in a class hierarchy), complex configuration DSL for simple behavior.
-- **Threshold:** Flag when a simpler alternative is obvious and reduces total code by >30%.
+- **Lead:** An obviously simpler alternative that would remove a substantial share of the code is a lead — verify it preserves behaviour; a percentage is not a finding.
 - **Severity:** Medium – over-engineering increases maintenance burden without benefit.
 
 ### 4.4 Fail-Fast
 > Fail as early and as clearly as possible.
 
 - **Detection:** Functions that accept invalid input and pass it deeper before eventually failing; missing null/empty/validity checks at public API boundaries; silent fallbacks that mask errors.
-- **Threshold:** Any case where an invalid input propagates >3 layers before detection.
+- **Lead:** Invalid input propagating deep (~3+ layers) before detection is a lead to check fail-fast boundaries and the resulting error clarity.
 - **Severity:** High – delayed failures produce confusing error messages and make debugging harder.
 
 ### 4.5 Defensive Programming — Appropriate Level
@@ -257,28 +257,28 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Source code dependencies must point inward — outer layers depend on inner layers, never inward on outward.
 
 - **Detection:** UI/transport layer directly importing database driver; business logic importing HTTP library; persistence layer importing view/UI types.
-- **Threshold:** Any inward-to-outward dependency.
+- **Lead:** Any inward-to-outward dependency is a lead; trace its concrete testability and circular-dependency impact.
 - **Severity:** High – creates circular dependencies, makes it impossible to test layers in isolation.
 
 ### 7.2 Business Logic Independence
 > Business logic should be independent of frameworks, databases, and UI.
 
 - **Detection:** Business logic files importing framework-specific types; SQL embedded in business logic; UI rendering logic mixed with data processing.
-- **Threshold:** Any such mixing.
+- **Lead:** Any such mixing is a lead; assess the actual change cost it couples.
 - **Severity:** Medium – couples the core value of the software to infrastructure choices, making change expensive.
 
 ### 7.3 Explicit Dependencies Over Implicit/Global
 > Dependencies should be explicitly passed or declared, not obtained from global state.
 
 - **Detection:** Singleton access pattern, static/service locator, global variable, ambient context, thread-local storage for dependencies.
-- **Threshold:** Any use of global state for dependency resolution.
+- **Lead:** Any global-state dependency resolution is a lead; check its visibility and testability costs.
 - **Severity:** Medium – makes dependencies invisible in the type system, hides coupling, complicates testing.
 
 ### 7.4 Composition Over Inheritance
 > Prefer composing small units of behavior over deep inheritance hierarchies.
 
 - **Detection:** Inheritance chain >2 levels deep (excluding language-level base classes); subclass that overrides most methods of the parent.
-- **Threshold:** >2 levels of inheritance; subclass overriding >50% of parent methods.
+- **Lead:** Inheritance beyond ~2 levels, or a subclass overriding most of its parent, is a lead to check fragility against parent changes.
 - **Severity:** Low – deep inheritance creates fragility (ripple effects from parent changes).
 
 ### 7.5 Open for Extension, Closed for Modification (OCP)
@@ -296,7 +296,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Tests should verify observable behavior, not internal implementation details.
 
 - **Detection:** Tests that assert which methods were called (verify/mock assertions) rather than the outcome; tests that access private members; tests that break on refactoring that does not change behavior.
-- **Threshold:** >2 implementation-asserting tests per test file.
+- **Lead:** Implementation-asserting tests are a lead wherever found; check which behaviour-preserving refactor each would break.
 - **Severity:** Medium – brittle tests reduce confidence in refactoring.
 
 ### 8.2 Arrange-Act-Assert (AAA) Pattern
@@ -310,14 +310,14 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Each test should verify one behavior.
 
 - **Detection:** Tests with multiple unrelated assertions that test different behaviors; tests that assert across multiple independent scenarios.
-- **Threshold:** >3 assertions about different outcomes in one test.
+- **Lead:** Multiple unrelated assertions in one test is a lead to check diagnosis cost when the first failure hides later issues.
 - **Severity:** Low – first failure hides later issues; harder to diagnose.
 
 ### 8.4 Don't Mock What You Don't Own
 > Mock external boundaries, not third-party library internals.
 
 - **Detection:** Mocks for standard library types; mocks for framework internals; mocks for types from third-party libraries (unless the library is the abstraction boundary).
-- **Threshold:** Any mock of a type not owned by the project.
+- **Lead:** Mocking a type the project does not own is a lead; check whether the library is the real boundary and what breaks on library updates.
 - **Severity:** Medium – mocks of external libraries create tight coupling to library internals; tests break on library updates.
 
 ### 8.5 Test One Failure Mode at a Time
@@ -360,7 +360,7 @@ A catalog of engineering principles that the audit checks against. Each principl
 > Blocking I/O in async code defeats the purpose of async.
 
 - **Detection:** `std::thread::sleep()`, `time.sleep()`, synchronous I/O in async functions.
-- **Threshold:** Any occurrence.
+- **Lead:** Any blocking call in async context is a lead; verify the actual starvation and latency risk.
 - **Severity:** High – causes thread pool starvation and unexpected latency.
 
 ### 10.2 Unbounded Resources Must Not Grow Forever
@@ -389,11 +389,13 @@ A catalog of engineering principles that the audit checks against. Each principl
 ## How to Use This Rubric
 
 1. **During audit:** Cross-reference code against these principles.
-2. **For violations:** Map to the appropriate dimension (Maintainability, Security, Stability, etc.).
-3. **Severity mapping:** Use the severity listed for each principle as the default, then adjust up or down based on context (how many places, how central, how likely to cause real failure).
-4. **Evidence requirement:** For each violation, cite which principle is violated and why, with specific code evidence.
-5. **Do not report every minor violation** — focus on violations that create real engineering risk.
-6. **Example format:**
+2. **Leads, not verdicts:** Counts, sizes and thresholds — whether marked **Lead** or **Threshold** — say where to look closer. A lead is not a finding: a finding must state the location, a reachable failure or maintenance scenario, the actual impact, and what would count as counter-evidence. A lead that cannot show impact stays out of the report or is listed as an open question.
+3. **Project-adopted metrics:** Where the project has explicitly adopted limits (style guide, linter, CI thresholds), those tools enforce them; this rubric neither overrides nor duplicates them with generic hard gates.
+4. **For violations:** Map to the appropriate dimension (Maintainability, Security, Stability, etc.).
+5. **Severity mapping:** Use the severity listed for each principle as the default, then adjust up or down based on context (how many places, how central, how likely to cause real failure).
+6. **Evidence requirement:** For each violation, cite which principle is violated and why, with specific code evidence.
+7. **Do not report every minor violation** — focus on violations that create real engineering risk.
+8. **Example format:**
 
 ```
 ### Finding: SRP violation in UserService — 3 responsibilities in one class

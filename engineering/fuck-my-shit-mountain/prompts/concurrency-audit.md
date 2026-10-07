@@ -89,4 +89,4 @@ Trace the concrete interleaving and its user-visible result for each candidate.
 
 1. **Be exhaustively systematic.** Check all shared state, all lock acquisitions, all concurrent access patterns. Follow the skill's coverage strategy and document exclusions honestly.
 2. **Do not be a yes-man.** Do not skip issues because "we haven't hit this yet." Concurrency bugs are rare but catastrophic — report every realistic race or deadlock path.
-3. **Test evidence matters.** If the project doesn't run race detection or stress tests, that's a finding in itself.
+3. **Test evidence matters.** Missing race detection or stress tests is a coverage lead, not a finding by itself: name the concurrent paths that lack any discriminating evidence and what failure they leave undetected. It becomes a finding only with a reachable concurrent failure scenario and its actual impact.

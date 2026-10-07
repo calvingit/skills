@@ -63,4 +63,4 @@ Focus on API design, request/response contracts, data access patterns, and backe
 
 1. Judge API design relative to the project's scale — a 5-endpoint service does not need GraphQL.
 2. Consistency is more important than "correct" design. If all endpoints use snake_case, do not recommend camelCase.
-3. Missing pagination is a problem only if the dataset can grow beyond ~1000 items.
+3. Missing pagination on a list endpoint is an investigation lead, not a verdict: assess actual dataset growth, record size, query cost, and business caps. A finding needs a reachable unbounded-growth or latency scenario with its user-visible impact — not a fixed record count.

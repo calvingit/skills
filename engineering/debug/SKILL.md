@@ -43,23 +43,23 @@ Phase 1 is done when you can name **one command** you have **already run at leas
 
 - **Red-capable** — it drives the actual bug path and asserts the user's exact symptom, so it can go red on this bug and green once fixed.
 - **Repeatable** — same verdict every run, or, for flaky bugs, a recorded reproduction rate high enough to debug against.
-- **Agent-runnable** — you can run it unattended; a human in the loop only via `scripts/hitl-loop.template.sh`.
+- **Agent-runnable** — you can run it unattended. When a human must be in the loop, structure it with `scripts/hitl-loop.template.sh` or an equivalent host-native interactive mechanism; the requirement is a re-runnable, captured loop, not one specific script.
 
-While building the loop, you may inspect code, logs, and the environment as read-only inputs. Do not move to repair decisions or execution until a red-capable command exists.
+While building the loop, you may inspect code, logs, and the environment as read-only inputs. Do not execute a fix until your evidence can distinguish the current hypothesis from its rivals — normally a red-capable command; where the environment cannot reproduce, a recorded set of observations that together distinguish the hypothesis, with the non-reproducible parts kept as verification limits.
 
-When you genuinely cannot build a loop: stop and say so. List what you tried. Ask for access to the reproducing environment, a redacted captured artifact (HAR, log dump, recording), or permission to add temporary instrumentation. Do **not** proceed to hypothesise without a loop.
+When you genuinely cannot build a loop: stop and say so. List what you tried. Ask for access to the reproducing environment, a redacted captured artifact (HAR, log dump, recording), or permission to add temporary instrumentation. You may still form hypotheses from read-only evidence — logs, call chains, state changes, captured artifacts — as long as each is explicitly labelled unverified; proposing a labelled hypothesis is not executing an unproven fix.
 
 ## Phase 2 — Reproduce + minimise
 
-Run the loop. Confirm it produces the failure the **user** described — not a nearby different failure. Record how reproducible it is.
+Run the loop when you have one. Confirm it produces the failure the **user** described — not a nearby different failure. Record how reproducible it is.
 
 Cut inputs, callers, config, and steps one at a time until every remaining element is load-bearing. Capture the exact symptom: error, wrong output, or wrong timing.
 
-Do not proceed until you have reproduced **and** minimised.
+Reproduce and minimise before executing a fix. When the failure cannot be reproduced in available resources (production-only, non-deterministic, restricted environment), continue the investigation with labelled hypotheses from logs, call chains, and state changes, and record the non-reproducible scope as a verification limit — an unverified hypothesis must never be written as the root cause.
 
 ## Phase 3 — Hypothesise
 
-List falsifiable hypotheses ranked by current evidence. If the evidence supports one strong hypothesis, do not invent extras to pad the list.
+List falsifiable hypotheses ranked by current evidence. If the evidence supports one strong hypothesis, do not invent extras to pad the list. Label each hypothesis with its current status: unverified, supported, or ruled out.
 
 Each hypothesis must state a prediction:
 
@@ -90,6 +90,8 @@ Default fix mode:
 3. Apply the smallest root-cause fix.
 4. Watch it pass.
 5. Re-run the original, un-minimised Phase 1 loop.
+
+When no repro exists and the fix rests on a distinguishing observation set instead, the fix is not verified until a regression check exists for the originally observed failure; record that as an explicit verification limit in the report.
 
 If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, noops, or internals. Consult `codebase-design` when the Seam / Interface itself may need to move. Do not widen a production API for tests unless that production change is justified.
 
