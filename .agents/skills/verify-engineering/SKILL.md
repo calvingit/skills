@@ -23,6 +23,8 @@ For backend Skill changes, select relevant [backend behaviour scenarios and date
 
 For session-level feedback research, use the [Retro evaluation protocol](references/retro-evaluation.md) with real session evidence. It is an optional experiment and owner-routing method, not a new delivery gate or formal retro Skill.
 
+For the fixed-versus-risk-based close-out role comparison, use the [close-out role experiment](references/closeout-role-experiment.md). It defines the comparison protocol and decision conditions only; quick-implement and Loop close-out requirements are unchanged until reviewed evidence supports a change.
+
 ## Prepare, run and retain
 
 - Record the candidate `HEAD` plus staged, unstaged and untracked task changes and excluded existing edits. Recheck affected evidence after changes; `HEAD` alone does not identify an uncommitted candidate.

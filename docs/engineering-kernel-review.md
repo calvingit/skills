@@ -92,5 +92,5 @@
 ## 剩余缺口
 
 1. 真实 Runtime 加载、独立安装时 Kernel 的可发现性未演练；本轮以 AGENTS 与职责文档的入口链接保证仓库内可发现，Skill 级文件不依赖 Kernel 链接，独立安装不受影响。
-2. 固定收尾角色与按风险选择角色的对照（漏检率、错误结论率、耗时、成本）尚无数据，实验协议另行定义；在此之前 quick-implement 与 Loop 的既有要求不变。
+2. 固定收尾角色与按风险选择角色的对照（漏检率、错误结论率、耗时、成本）尚无数据，实验协议见[收尾角色对照实验](../.agents/skills/verify-engineering/references/closeout-role-experiment.md)；在此之前 quick-implement 与 Loop 的既有要求不变。
 3. 3766 个 METHOD 出现项的逐条再复核未声称完成；后续任何迁移按迁移建议的约束执行：以台账 ID 回到源段落，保留跨句条件、角色方法与工具前提，先证实冲突已消除，再减少原则性重述。
