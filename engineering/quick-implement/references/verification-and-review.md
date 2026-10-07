@@ -1,5 +1,7 @@
 # Verification and Review
 
+The three close-out roles below are required independent judgements of this workflow, not a prescription of how the host spawns workers: role separation and evidence consumption stay here, dispatch mechanics belong to the Runtime. Whether to select roles by risk instead of running all three is a separate behaviour decision that currently requires all three.
+
 ## Simplification
 
 Before verification, dispatch a dedicated `simplify` sub-agent in Review mode on

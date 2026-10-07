@@ -36,7 +36,7 @@ Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC
 
 ## Close-out
 
-Follow [close-out and receipt details](references/verification-and-review.md):
+Close-out requires three separate independent judgements — simplification review, per-AC verification, and change review — each consumed from its own role's actual report. Worker creation, waiting and context assignment are Runtime mechanics; a dispatched worker existing is not proof its role judgement ran. Follow [close-out and receipt details](references/verification-and-review.md):
 
 1. Use a dedicated `simplify` sub-agent in Review mode and consume its findings.
 2. Use a separate native `verify` sub-agent for every applicable AC and project gate.

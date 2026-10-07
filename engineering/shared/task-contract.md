@@ -20,6 +20,8 @@ When a SPEC exists, it is the normative engineering requirement snapshot for dow
 
 ## Six boundaries
 
+These boundaries are the workflow-level expression of the cross-skill [engineering kernel](../../docs/engineering-kernel.md); the kernel holds the invariants, this contract keeps their task-level meaning and does not replace them.
+
 | Boundary | Enforced meaning |
 | --- | --- |
 | Goal | Declare completion only for the confirmed result and current criteria, including required gates. Ticket completion and final delivery are distinct. |
