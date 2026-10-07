@@ -13,7 +13,7 @@ Phase 1 of `debug`, in more detail: how to construct a feedback loop, how to tig
 7. Property / fuzz loop: 1000 random inputs looking for the failure mode.
 8. Bisection harness: automate "boot at state X, check, repeat" between two known states, for `git bisect run`.
 9. Differential loop: same input through old vs new (or two configs), diff the outputs.
-10. HITL bash script ([`scripts/hitl-loop.template.sh`](../scripts/hitl-loop.template.sh)): last resort when a human must click. The script still structures the loop and captures output.
+10. Human-in-the-loop capture when a person must act: use the host-native interactive mechanism or [`scripts/hitl-loop.template.sh`](../scripts/hitl-loop.template.sh), keeping the actions and observations re-runnable and recorded.
 
 ## Tighten the loop
 
@@ -37,4 +37,4 @@ Name one command you have already run, or a set of observations that together di
 - Reproducibility is recorded, not a one-off impression.
 - Performance problems have a baseline first, then measurement rather than generalised logs.
 
-Until a red-capable loop exists, do not proceed to repair decisions. You may inspect code, logs, and the environment as read-only inputs needed to *build* the loop. Do not change code when the evidence cannot support a fix conclusion.
+Do not execute a fix until the evidence distinguishes the cause from competing explanations and the change is authorized. Prefer a red-capable loop. When the available environment cannot reproduce, a recorded distinguishing observation set may support a repair decision; keep the unavailable reproduction and regression checks as verification limits. Continue useful read-only investigation and label unresolved hypotheses. Neither an observation set nor a loop alone proves the fix passed.

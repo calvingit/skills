@@ -6,7 +6,7 @@ Engineering Skills 当前处于收敛期：暂停新增全局工程 Skill，优�
 
 涉及跨 Skill 交接、任务边界或路由时，按需读取 [任务契约](engineering/shared/task-contract.md) 和 [流程选择](engineering/shared/workflow-policy.md)。本仓库验证方法见 [.agents/skills/verify-engineering/SKILL.md](.agents/skills/verify-engineering/SKILL.md)，只加载当前改动需要的检查。
 
-跨 Skill 不变量基线见 [Engineering Kernel](docs/engineering-kernel.md)，其[语义复核记录](docs/engineering-kernel-review.md)说明出现项计数、逐族复核与冲突处置；Kernel 不代替项目契约、角色写入边界或强制门禁。
+跨 Skill 不变量基线见 [Engineering Kernel](docs/ENGINEERING_KERNEL.md)，其[语义复核记录](docs/engineering-kernel-review.md)说明出现项计数、逐族复核与冲突处置；Kernel 不代替项目契约、角色写入边界或强制门禁。
 
 Skill 负责工程判断与产物，Runtime 负责会话和 worker 生命周期。保留确认需求、独立验收与状态约束，不复制另一角色的执行协议。
 

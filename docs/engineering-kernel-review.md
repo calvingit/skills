@@ -1,6 +1,6 @@
 # Engineering Kernel 语义复核记录
 
-日期：2026-10-06。基线：calvingit/skills@6672234（2026-10-05 14:23:27 UTC），默认分支 main，工作区自该提交起改动。本记录是对规则台账与工作流文档的语义复核结论，也是 [Engineering Kernel](engineering-kernel.md) 重新确认的依据；不构成对任何 Skill 的删改授权。
+日期：2026-10-06。基线：calvingit/skills@6672234（2026-10-05 14:23:27 UTC），默认分支 main，工作区自该提交起改动。本记录是对规则台账与工作流文档的语义复核结论，也是 [Engineering Kernel](ENGINEERING_KERNEL.md) 重新确认的依据；不构成对任何 Skill 的删改授权。
 
 ## 输入与方法
 
@@ -89,8 +89,14 @@
 
 17 条不变量全部确认，表述与冻结基线一致，未新增、未改写、未删除。使用边界维持原文：Kernel 不能代替项目契约、角色写入边界或强制门禁；改变既有门禁或工作方式属于行为变更，不能作为文字去重实施。
 
-## 剩余缺口
+## 原轮次剩余缺口（由本轮记录接续）
 
 1. 真实 Runtime 加载、独立安装时 Kernel 的可发现性未演练；本轮以 AGENTS 与职责文档的入口链接保证仓库内可发现，Skill 级文件不依赖 Kernel 链接，独立安装不受影响。
 2. 固定收尾角色与按风险选择角色的对照（漏检率、错误结论率、耗时、成本）尚无数据，实验协议见[收尾角色对照实验](../.agents/skills/verify-engineering/references/closeout-role-experiment.md)；在此之前 quick-implement 与 Loop 的既有要求不变。
 3. 3766 个 METHOD 出现项的逐条再复核未声称完成；后续任何迁移按迁移建议的约束执行：以台账 ID 回到源段落，保留跨句条件、角色方法与工具前提，先证实冲突已消除，再减少原则性重述。
+
+## 2026-10-07 全量复核接续
+
+此前 METHOD/TOOLING 以族抽查，不能替代逐项复核。本轮回到冻结源文，完成八组候选复核，校验输入对应关系、来源范围与分类，保留 4951 个行为出现项；完整台账与新的来源归并见 [engineering-kernel-audit.md](engineering-kernel-audit.md)。原 4986/112/348 等计数保留为历史轮次事实，不是当前台账统计。17 条不变量措辞不变。
+
+F02 继续修正入口中的适配器数量硬判定；F03 继续统一反馈 loop 与只读诊断的适用条件。实际实施、验证及未覆盖范围见 [kernel-migration-plan.md](kernel-migration-plan.md)。本轮不声称固定角色对照或真实 GUI / 跨模型实验已执行。

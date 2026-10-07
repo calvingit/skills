@@ -26,7 +26,7 @@ Third-party services (Stripe, Twilio, etc.) you don't control. The deepened modu
 
 ## Seam discipline
 
-- **Adapter count is a lead, not a verdict.** One adapter means a hypothetical seam — worth questioning whether a second adapter is justified (typically production + test). But a single-adapter seam is not automatically mere indirection: it may hide necessary complexity or isolate a real external boundary. Judge by what changes the seam separates, not by the count.
+- **Adapter count is a lead, not a verdict.** One adapter invites checking what the boundary isolates; it does not make the seam hypothetical or require a second adapter. But a single-adapter seam is not automatically mere indirection: it may hide necessary complexity or isolate a real external boundary. Judge by what changes the seam separates, not by the count.
 - **Internal seams vs external seams.** A deep module can have internal seams (private to its implementation, used by its own tests) as well as the external seam at its interface. Don't expose internal seams through the interface just because tests use them.
 
 ## Testing strategy: replace, don't layer

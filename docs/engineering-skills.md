@@ -1,6 +1,6 @@
 # Engineering Skills
 
-本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](engineering-kernel.md)。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](ENGINEERING_KERNEL.md)。
 
 ## 设计原则
 

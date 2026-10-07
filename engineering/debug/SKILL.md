@@ -27,7 +27,7 @@ This skill has you show commands, outputs, and captured artifacts. **Redact ever
 
 ## Phase 1 — Build a feedback loop
 
-**This is the skill.** Everything else is mechanical. If you have a **tight** pass/fail signal for the bug — one that goes red on *this* bug — you will find the cause. If you don't, later phases just guess.
+Seek a discriminating signal for the reported failure. A repeatable pass/fail loop improves diagnosis, but does not guarantee the cause or exclude useful investigation from captured observations. Preserve uncertainty when the available evidence cannot distinguish explanations.
 
 Prefer one command that can go red on *this* bug and that you can re-run:
 
@@ -39,7 +39,7 @@ If cheap options cannot produce a red signal, escalate using `references/feedbac
 
 The loop must assert the user's exact symptom, not "didn't crash".
 
-Phase 1 is done when you can name **one command** you have **already run at least once** (show the invocation and its redacted output) that is:
+The command-based feedback loop is established when you can name **one command** you have **already run at least once** (show the invocation and its redacted output) that is:
 
 - **Red-capable** — it drives the actual bug path and asserts the user's exact symptom, so it can go red on this bug and green once fixed.
 - **Repeatable** — same verdict every run, or, for flaky bugs, a recorded reproduction rate high enough to debug against.
@@ -47,7 +47,7 @@ Phase 1 is done when you can name **one command** you have **already run at leas
 
 While building the loop, you may inspect code, logs, and the environment as read-only inputs. Do not execute a fix until your evidence can distinguish the current hypothesis from its rivals — normally a red-capable command; where the environment cannot reproduce, a recorded set of observations that together distinguish the hypothesis, with the non-reproducible parts kept as verification limits.
 
-When you genuinely cannot build a loop: stop and say so. List what you tried. Ask for access to the reproducing environment, a redacted captured artifact (HAR, log dump, recording), or permission to add temporary instrumentation. You may still form hypotheses from read-only evidence — logs, call chains, state changes, captured artifacts — as long as each is explicitly labelled unverified; proposing a labelled hypothesis is not executing an unproven fix.
+When you cannot build a loop, report that limit and what you tried; continue useful read-only investigation. Identify the minimum reproducing access, redacted artifact (HAR, log dump, recording), or authorized instrumentation needed to resolve the remaining uncertainty. You may still form hypotheses from read-only evidence — logs, call chains, state changes, captured artifacts — as long as each is explicitly labelled unverified; proposing a labelled hypothesis is not executing an unproven fix.
 
 ## Phase 2 — Reproduce + minimise
 
@@ -65,7 +65,7 @@ Each hypothesis must state a prediction:
 
 > If <X> is the cause, then <changing Y> will make the bug disappear / <changing Z> will make it worse.
 
-Show the ranked list to the user. Don't block on a reply. Change one variable at a time.
+Show the ranked list to the user and continue authorized investigation. Change one variable at a time only when the probe and its side effects are within the granted scope; diagnosis-only authorization does not grant product changes.
 
 ## Phase 4 — Instrument
 

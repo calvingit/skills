@@ -20,7 +20,7 @@ When a SPEC exists, it is the normative engineering requirement snapshot for dow
 
 ## Six boundaries
 
-These boundaries are the workflow-level expression of the cross-skill [engineering kernel](../../docs/engineering-kernel.md); the kernel holds the invariants, this contract keeps their task-level meaning and does not replace them.
+These boundaries are the workflow-level expression of the cross-skill [engineering kernel](../../docs/ENGINEERING_KERNEL.md); the kernel holds the invariants, this contract keeps their task-level meaning and does not replace them.
 
 | Boundary | Enforced meaning |
 | --- | --- |
