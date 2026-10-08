@@ -30,7 +30,7 @@ python3 engineering/shared/check.py
 | --- | --- |
 | 共享模块的连续 tickets | 委派 native worker，可按实际能力复用上下文，每张 ticket 有独立 attempt 和全部本地 AC 证据。 |
 | 真正独立的 tickets | 默认串行，并行前确认依赖、写入、共享设计及可变资源独立。 |
-| Runtime 没有原生 subagent | 保持 Loop 未完成并报告阻塞，不回退到 Manager 自行实现。 |
+
 | A：首次 delivery，无必需 finding | 全量 simplify → prepare → 独立逐 AC verify → broad code-review → delivery-complete，frontier 为 passed。 |
 | B：最终审查发现局部 mapping defect | 按图约束 reopen 或创建修正 ticket；保存原报告和候选，更新快照，独立重验受影响 SPEC AC、原 regression 和所有 mandatory gates；targeted review 检查累积 correction 及相关调用方，不自动重跑全量 simplify / verify / broad review。未受影响 AC 的证据须重新确认适用。 |
 | C：correction 改变 public contract / shared design | 先交回需求/设计 owner，协调受影响图，再以实际扩大范围为依据升级 broad review，补充受影响独立验收；不能按局部修复直接批准。 |

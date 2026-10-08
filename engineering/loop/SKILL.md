@@ -7,7 +7,7 @@ description: Advance a confirmed ticket graph through implementation, evidence i
 
 Select work, invoke the responsible skill, inspect its result, and record the resulting task state. The Manager owns these decisions; Runtime owns worker creation, waiting, cancellation, and session continuation. State scripts record graph and delivery facts, never launch agents or interpret reports.
 
-Loop's existing execution contract uses Runtime-native workers for implementation and corrections; the Manager does not edit product code. Final simplification, verification, and review use dedicated workers. If the required native capability is unavailable, report the blocker and leave delivery incomplete. Do not substitute an external Agent CLI.
+Loop's existing execution contract uses Runtime-native workers for implementation and corrections; the Manager does not edit product code. Final simplification, verification, and review use dedicated workers. Do not substitute an external Agent CLI.
 
 ## Execute
 
