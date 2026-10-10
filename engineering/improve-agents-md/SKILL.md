@@ -1,6 +1,6 @@
 ---
 name: improve-agents-md
-description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。适用于审查、精简或新建项目级 Agent 指令，并与仓库事实、CI 和工具入口对齐。
+description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。适用于审查、精简或新建项目级 Agent 指令，并对照仓库事实、CI 和工具入口。
 ---
 
 # Improve AGENTS.md
