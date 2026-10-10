@@ -1,0 +1,7 @@
+interface:
+  display_name: "Domain Modeling"
+  short_description: "Build glossaries and record long-lived domain or architecture decisions"
+  default_prompt: "Use $domain-modeling to sharpen the domain terms or record the architecture decision for this change."
+
+policy:
+  allow_implicit_invocation: false

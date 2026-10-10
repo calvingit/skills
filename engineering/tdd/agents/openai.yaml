@@ -1,0 +1,7 @@
+interface:
+  display_name: "TDD"
+  short_description: "Drive one behaviour through red, green, and scoped refactor cycles"
+  default_prompt: "Use $tdd to implement the next confirmed behaviour with a meaningful failing test, then the smallest green fix."
+
+policy:
+  allow_implicit_invocation: true

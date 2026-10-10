@@ -1,0 +1,7 @@
+interface:
+  display_name: "Prompt Optimizer"
+  short_description: "Improve or diagnose prompts for clearer, more reliable results"
+  default_prompt: "Use $prompt-optimizer to rewrite this prompt so the goal, context, boundaries, output, and checks are clear."
+
+policy:
+  allow_implicit_invocation: false
