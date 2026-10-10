@@ -1,23 +1,21 @@
 # Agent Skills
 
-个人 Agent Skills 集合：Engineering 工作流（调研 → 需求 → 设计 → 实现 → 验证 → 审查）为核心，辅以后端生产实践、中文文档处理与全局会话/工具能力。面向 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
+个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、中文文档处理和全局会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
 
 > 维护说明见 [`AGENTS.md`](./AGENTS.md)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
 
 ## 安装
 
-按你使用的 Agent 把本仓库中的 Skill 目录放到其 Skills 搜索路径即可；每个 Skill 是独立文件夹（内含 `SKILL.md`）。
+把本仓库里需要的 Skill 目录放到所用 Agent 的 Skills 搜索路径；每个 Skill 是一个含 `SKILL.md` 的独立文件夹。
 
 常见做法：
 
-1. **克隆或子模块**到本机，例如 `~/skills/calvingit-skills`。
-2. **按需链接**需要的 Skill 目录到 Agent 的 skills 根目录（名称保持与文件夹名一致），例如：
+1. 克隆或加为子模块到本机，例如 `~/skills/calvingit-skills`。
+2. 按需把 Skill 目录链接到 Agent 的 skills 根目录（文件夹名保持不变），例如：
    - Claude Code / 兼容实现：`~/.claude/skills/<skill-name> -> <repo>/<category>/<skill-name>`
-   - 项目内：`.agents/skills/<skill-name>` 或工具文档指定的路径
-3. **不要整库当作单个 Skill 安装**。`.agents/skills/verify-engineering` 仅用于维护本仓库，一般无需安装到其他项目。
-4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`loop`）需本机具备其依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
-
-仓库元数据（GitHub description / topics）需在 UI 或 `gh repo edit` 中单独设置；本 PR 无法通过文件提交完成。
+   - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
+3. 不要把整库当成单个 Skill 安装。`.agents/skills/verify-engineering` 只用于维护本仓库，一般不必装到其他项目。
+4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`loop`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
 
 ## 目录
 
@@ -28,7 +26,7 @@
 | [`documents/`](./documents/) | 文档转换、中文润色/术语与事实同步 |
 | [`global/`](./global/) | 跨领域工具、上下文、会话辅助与学习 |
 | [`docs/`](./docs/) | Engineering 使用总览、职责、Loop/Runtime、Kernel 与图示 |
-| [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（非对外安装包） |
+| [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
 
 许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
 
@@ -38,8 +36,8 @@
 
 | 当前状态 | 入口 |
 | --- | --- |
-| 需求/边界/验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
-| 技术路径有跨会话迷雾 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
+| 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
+| 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
 | 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
 | 多模块共享设计约束 | [`high-level-design`](./engineering/high-level-design/SKILL.md) |
 | 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`loop`](./engineering/loop/SKILL.md) |
@@ -51,12 +49,12 @@
 | Skill | 用途 |
 | --- | --- |
 | [`grilling`](./engineering/grilling/SKILL.md) | 访谈收敛尚未决定的需求与选择。 |
-| [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话摸清依赖决策与探索地图。 |
+| [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话理清依赖决策与探索路径。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 把已确认需求写成规范性 SPEC。 |
-| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 对照 SPEC 与代码库产出/修订 HLD。 |
+| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 对照 SPEC 与代码库产出或修订 HLD。 |
 | [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图。 |
 | [`loop`](./engineering/loop/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
-| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 单一范围实现并收尾验证/审查。 |
+| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 单一范围实现，并收尾验证与审查。 |
 | [`implement`](./engineering/implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
 | [`tdd`](./engineering/tdd/SKILL.md) | 用红-绿-重构驱动单个行为。 |
 | [`verify`](./engineering/verify/SKILL.md) | 独立按 AC 判断 PASS/FAIL/NOT VERIFIED。 |
@@ -65,19 +63,19 @@
 | [`debug`](./engineering/debug/SKILL.md) | 复现与诊断疑难缺陷（修复需授权）。 |
 | [`test-audit`](./engineering/test-audit/SKILL.md) | 审计测试有效性与维护成本。 |
 | [`project-setup`](./engineering/project-setup/SKILL.md) | 探测并持久化工程 Profile。 |
-| [`verification-setup`](./engineering/verification-setup/SKILL.md) | 从仓库证据建立/刷新本地验证方法。 |
+| [`verification-setup`](./engineering/verification-setup/SKILL.md) | 从仓库证据建立或刷新本地验证方法。 |
 | [`domain-modeling`](./engineering/domain-modeling/SKILL.md) | 术语表与长期架构决策。 |
 | [`codebase-design`](./engineering/codebase-design/SKILL.md) | 深模块、缝与依赖方向的共用词汇。 |
 | [`review-architecture`](./engineering/review-architecture/SKILL.md) | 只读架构符合性审查与候选发现。 |
-| [`challenge`](./engineering/challenge/SKILL.md) | 对已有方案做有边界对抗式审查。 |
+| [`challenge`](./engineering/challenge/SKILL.md) | 对已有方案做有边界的对抗式审查。 |
 | [`tech-research`](./engineering/tech-research/SKILL.md) | 基于证据的技术调研与选型建议。 |
 | [`find-docs`](./engineering/find-docs/SKILL.md) | 按版本查找官方文档。 |
 | [`how`](./engineering/how/SKILL.md) | 用户手动调用：解释当前代码如何运行。 |
-| [`why`](./engineering/why/SKILL.md) | 用户手动调用：追查设计/限制成因。 |
+| [`why`](./engineering/why/SKILL.md) | 用户手动调用：追查设计或限制成因。 |
 | [`improve-agents-md`](./engineering/improve-agents-md/SKILL.md) | 创建或优化多工具适用的 AGENTS.md。 |
-| [`fuck-my-shit-mountain`](./engineering/fuck-my-shit-mountain/SKILL.md) | **Project Audit**：多维证据审计；**仅显式调用**（目录名保持兼容，界面显示名 Project Audit）。 |
+| [`fuck-my-shit-mountain`](./engineering/fuck-my-shit-mountain/SKILL.md) | Project Audit：多维证据审计；仅显式调用（目录名保持兼容，界面显示名为 Project Audit）。 |
 
-共享契约与状态工具：[`engineering/shared/`](./engineering/shared/)（含 `check.py`、ticket graph）。跨 Skill 导航另见 [`docs/`](./docs/)。
+共享契约与状态工具见 [`engineering/shared/`](./engineering/shared/)（含 `check.py`、ticket graph）。跨 Skill 导航另见 [`docs/`](./docs/)。
 
 ## Backend Skills
 
