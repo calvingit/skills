@@ -1,6 +1,6 @@
 ---
 name: url-to-markdown
-description: Convert public URLs into local Markdown files.
+description: Convert public URLs into local Markdown files. Use when the user wants to export, save, or hand off webpage content as .md for later reading, summary, or rewrite.
 ---
 
 # URL To Markdown

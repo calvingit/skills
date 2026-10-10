@@ -1,6 +1,6 @@
 ---
 name: tech-research
-description: "开展基于证据的技术调研，并给出可执行建议。"
+description: 开展基于证据的技术调研，并给出可执行建议。适用于技术选型、方案比较与跨会话调查；需区分已验证事实与推断，并给出采用条件与最小验证方式。
 ---
 
 # Tech Research
