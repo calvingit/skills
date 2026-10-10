@@ -1,0 +1,7 @@
+interface:
+  display_name: "Find Docs"
+  short_description: "Fetch official docs for a library or service at the relevant version"
+  default_prompt: "Use $find-docs to look up the official documentation for this library or API at the project version and answer with sources."
+
+policy:
+  allow_implicit_invocation: true

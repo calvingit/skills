@@ -1,14 +1,81 @@
 # Agent Skills
 
-个人 Agent Skills 集合。
+个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、中文文档处理和全局会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
+
+> 维护说明见 [`AGENTS.md`](./AGENTS.md)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
+
+## 安装
+
+把本仓库里需要的 Skill 目录放到所用 Agent 的 Skills 搜索路径；每个 Skill 是一个含 `SKILL.md` 的独立文件夹。
+
+常见做法：
+
+1. 克隆或加为子模块到本机，例如 `~/skills/calvingit-skills`。
+2. 按需把 Skill 目录链接到 Agent 的 skills 根目录（文件夹名保持不变），例如：
+   - Claude Code / 兼容实现：`~/.claude/skills/<skill-name> -> <repo>/<category>/<skill-name>`
+   - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
+3. 不要把整库当成单个 Skill 安装。`.agents/skills/verify-engineering` 只用于维护本仓库，一般不必装到其他项目。
+4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`loop`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
 
 ## 目录
 
-- `backend/`：后端技术栈规范、生产实践与疑难问题处理。
-- `global/`：跨领域的 Agent 工具、上下文管理、会话辅助与持续学习。
-- `documents/`：文档与文本的转换、表达审校和事实同步。
-- `engineering/`：软件项目的调研、需求、设计、实现、验证、审查与维护，不绑定具体框架。
-- `docs/`：使用总览、跨 Skill 职责、Loop 说明与成套图示，执行参考资料由所属 Skill 维护。
+| 目录 | 内容 |
+| --- | --- |
+| [`engineering/`](./engineering/) | 调研、需求、设计、实现、验证、审查与维护（不绑定具体框架） |
+| [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
+| [`documents/`](./documents/) | 文档转换、中文润色/术语与事实同步 |
+| [`global/`](./global/) | 跨领域工具、上下文、会话辅助与学习 |
+| [`docs/`](./docs/) | Engineering 使用总览、职责、Loop/Runtime、Kernel 与图示 |
+| [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
+
+许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
+
+## 如何选用（Engineering 速查）
+
+完整规则见 [`docs/engineering-skills.md`](./docs/engineering-skills.md)。按当前目标选入口，不必走完所有阶段：
+
+| 当前状态 | 入口 |
+| --- | --- |
+| 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
+| 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
+| 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
+| 多模块共享设计约束 | [`high-level-design`](./engineering/high-level-design/SKILL.md) |
+| 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`loop`](./engineering/loop/SKILL.md) |
+| 单一范围、无执行图 | [`quick-implement`](./engineering/quick-implement/SKILL.md) |
+| 缺可重复验证方法 | [`verification-setup`](./engineering/verification-setup/SKILL.md) |
+
+## Engineering Skills
+
+| Skill | 用途 |
+| --- | --- |
+| [`grilling`](./engineering/grilling/SKILL.md) | 访谈收敛尚未决定的需求与选择。 |
+| [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话理清依赖决策与探索路径。 |
+| [`to-spec`](./engineering/to-spec/SKILL.md) | 把已确认需求写成规范性 SPEC。 |
+| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 对照 SPEC 与代码库产出或修订 HLD。 |
+| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图。 |
+| [`loop`](./engineering/loop/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
+| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 单一范围实现，并收尾验证与审查。 |
+| [`implement`](./engineering/implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
+| [`tdd`](./engineering/tdd/SKILL.md) | 用红-绿-重构驱动单个行为。 |
+| [`verify`](./engineering/verify/SKILL.md) | 独立按 AC 判断 PASS/FAIL/NOT VERIFIED。 |
+| [`code-review`](./engineering/code-review/SKILL.md) | 审查缺陷、回归与无必要复杂度。 |
+| [`simplify`](./engineering/simplify/SKILL.md) | 审查或去掉无当前职责的复杂度。 |
+| [`debug`](./engineering/debug/SKILL.md) | 复现与诊断疑难缺陷（修复需授权）。 |
+| [`test-audit`](./engineering/test-audit/SKILL.md) | 审计测试有效性与维护成本。 |
+| [`project-setup`](./engineering/project-setup/SKILL.md) | 探测并持久化工程 Profile。 |
+| [`verification-setup`](./engineering/verification-setup/SKILL.md) | 从仓库证据建立或刷新本地验证方法。 |
+| [`domain-modeling`](./engineering/domain-modeling/SKILL.md) | 术语表与长期架构决策。 |
+| [`codebase-design`](./engineering/codebase-design/SKILL.md) | 深模块、缝与依赖方向的共用词汇。 |
+| [`review-architecture`](./engineering/review-architecture/SKILL.md) | 只读架构符合性审查与候选发现。 |
+| [`challenge`](./engineering/challenge/SKILL.md) | 对已有方案做有边界的对抗式审查。 |
+| [`tech-research`](./engineering/tech-research/SKILL.md) | 基于证据的技术调研与选型建议。 |
+| [`find-docs`](./engineering/find-docs/SKILL.md) | 按版本查找官方文档。 |
+| [`how`](./engineering/how/SKILL.md) | 用户手动调用：解释当前代码如何运行。 |
+| [`why`](./engineering/why/SKILL.md) | 用户手动调用：追查设计或限制成因。 |
+| [`improve-agents-md`](./engineering/improve-agents-md/SKILL.md) | 创建或优化多工具适用的 AGENTS.md。 |
+| [`fuck-my-shit-mountain`](./engineering/fuck-my-shit-mountain/SKILL.md) | Project Audit：多维证据审计；仅显式调用（目录名保持兼容，界面显示名为 Project Audit）。 |
+
+共享契约与状态工具见 [`engineering/shared/`](./engineering/shared/)（含 `check.py`、ticket graph）。跨 Skill 导航另见 [`docs/`](./docs/)。
 
 ## Backend Skills
 
@@ -22,7 +89,7 @@
 | [`redis-best-practices`](./backend/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
 | [`mongodb-best-practices`](./backend/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
 
-`backend-development` 按改动边界加载检查项，外部写入结果与重试、运行生命周期与资源限制的细节按需读取。`api-contracts` 统一检查 API 与事件 Schema 兼容性，`event-driven-backend` 负责异步投递与副作用生命周期。Java Skill 负责编码规约，MySQL、Redis 和 MongoDB Skills 负责各自数据库的机制、现场和变更风险，实现、验证与审查流程仍由 Engineering Skills 负责。后端 Skill 的维护评估入口见[本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)。
+`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。本仓库后端 Skill 的维护评估见 [verify-engineering](./.agents/skills/verify-engineering/SKILL.md)。
 
 ## Global Skills
 
@@ -48,13 +115,14 @@
 | [`url-to-markdown`](./documents/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
 | [`terminology-zh`](./documents/terminology-zh/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
-## Engineering Skills
+## 文档与图示
 
-Engineering Skills 提供按需组合的调研、需求、设计、实现、验证与审查能力，目录归类不代表必经阶段，独立任务无需先建立 SPEC 或 ticket。
+- [使用总览与选择入口](./docs/engineering-skills.md)
+- [职责与产物归属](./docs/engineering-responsibilities.md)
+- [Loop 与 Runtime](./docs/loop-runtime.md)
+- [Engineering Kernel](./docs/ENGINEERING_KERNEL.md)
+- [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)
 
-- [使用总览与选择入口](./docs/engineering-skills.md)：按当前目标选择能力，查找项目准备、交付与图示入口。
-- [职责与产物归属](./docs/engineering-responsibilities.md)：维护跨 Skill 边界、权威来源与适配规范。
-- [Loop 与 Runtime](./docs/loop-runtime.md)：理解 ticket 执行、状态脚本部署和最终交付。
-- [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)：按改动选择静态检查、状态协议回归和行为评估。
+[![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/engineering-workflow.html)
 
-按需读取目标 Skill，具体执行规则以其 `SKILL.md` 和参考资料为准。
+[![本地 Ticket 生命周期](./docs/diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)

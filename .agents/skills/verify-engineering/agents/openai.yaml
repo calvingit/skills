@@ -1,0 +1,7 @@
+interface:
+  display_name: "Verify Engineering Repo"
+  short_description: "Validate changes to this skills repository's instructions and state tools"
+  default_prompt: "Use $verify-engineering to choose static checks, state-tool regressions, and skill exercises for the current skills-repo change."
+
+policy:
+  allow_implicit_invocation: false
