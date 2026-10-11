@@ -7,7 +7,7 @@ description: Break a confirmed SPEC and optional HLD into tracer-bullet delivery
 
 Break the confirmed `SPEC.md` and, when present, the task directory's `HLD.md` into claimable **delivery tickets** under sibling `tickets/`. Each ticket is an independently verifiable end-to-end delivery, and each declares the other tickets that actually block it from starting.
 
-Wayfinding Map decisions that affect requirements must go through `to-spec` first. Purely technical decisions are absorbed by `high-level-design` after the SPEC is confirmed. Stop and Call the Skill tool with "to-spec" when there is no SPEC.
+Wayfinding Map decisions that affect requirements must go through `to-spec` first. Purely technical decisions are absorbed by `high-level-design` after the SPEC is confirmed. Stop and hand back to `to-spec` when there is no SPEC.
 
 Every ticket must cite existing protocol meaning through `covers.requirements` and `covers.spec_acceptance`, for example:
 
@@ -15,7 +15,7 @@ Every ticket must cite existing protocol meaning through `covers.requirements` a
 {"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"delivery_acceptance":[{"id":"AC1","description":"..."}]}
 ```
 
-Cite existing acceptance meaning. Derive delivery acceptance targets from the cited SPEC / AC; do not invent new acceptance semantics. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and Call the Skill tool with "to-spec" only when a scenario is missing an expected result.
+Cite existing acceptance meaning. Derive delivery acceptance targets from the cited SPEC / AC; do not invent new acceptance semantics. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and hand back to `to-spec` only when a scenario is missing an expected result.
 
 ## Modes
 
@@ -25,9 +25,9 @@ Cite existing acceptance meaning. Derive delivery acceptance targets from the ci
 ## Inputs
 
 1. Read the full `SPEC.md`: Goal, requirements, bounds, acceptance, Out of scope, and decision basis. Do not guess scope from headings.
-2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [HLD entry conditions](../high-level-design/SKILL.md#when-an-hld-is-required); Call the Skill tool with "high-level-design" when they hold.
+2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [HLD entry conditions](../high-level-design/SKILL.md#when-an-hld-is-required); hand back to `high-level-design` when they hold.
 3. Investigate the target repo, applicable `AGENTS.md`, domain vocabulary, ADRs, related call chains, and existing task conventions only when those facts would change a ticket's outcome, grain, or dependencies. Do not explore just to split tickets.
-4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance → Call the Skill tool with "grilling", or with "to-spec". High-level technical gaps → Call the Skill tool with "high-level-design". Do not write assumptions as tickets.
+4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance go back to `grilling` / `to-spec`. High-level technical gaps go back to `high-level-design`. Do not write assumptions as tickets.
 
 Tickets derive scope and acceptance from SPEC and shared design constraints from HLD. On conflict, return to the source owner; do not change upstream meaning.
 
@@ -59,7 +59,7 @@ Before writing, form a candidate split and check it against the confirmed SPEC, 
 
 Choose ordinary ticket grain and blocking edges from the confirmed upstream contracts. Do not require user confirmation for ordinary execution decomposition.
 
-Stop and Call the Skill tool with the owning upstream skill only when decomposition exposes a product, scope, priority, rollout, compatibility, acceptance, or shared-design choice that the SPEC / HLD does not settle. Do not encode that choice as a ticket assumption.
+Stop and hand back to the owning upstream skill only when decomposition exposes a product, scope, priority, rollout, compatibility, acceptance, or shared-design choice that the SPEC / HLD does not settle. Do not encode that choice as a ticket assumption.
 
 ## Write local tickets
 
