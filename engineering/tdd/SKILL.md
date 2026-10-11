@@ -17,7 +17,7 @@ Read the confirmed requirements, relevant project vocabulary, applicable design 
 
 Reuse existing decisions and interfaces; do not ask the user to reconfirm routine test choices. For new behaviour, a proposed interface grounded in real caller needs is enough to start; it need not already be implemented. Resolve consequential requirement or shared-design conflicts through the caller before dependent work. Keep technical test boundaries in applicable design or test guidance, not in SPEC as implementation details.
 
-Prefer public behaviour over private structure. Do not widen production APIs or add registries, setters, wrappers, or dependency layers solely to make a test convenient. Call the Skill tool with "codebase-design" when a real interface design problem needs its vocabulary; it is not a mandatory stage.
+Prefer public behaviour over private structure. Do not widen production APIs or add registries, setters, wrappers, or dependency layers solely to make a test convenient. Consult `codebase-design` when a real interface design problem needs its vocabulary; it is not a mandatory stage.
 
 ## Write useful tests
 
@@ -35,7 +35,7 @@ Avoid bulk test-first work that commits to speculative interfaces before feedbac
 4. **Refactor when useful.** Remove duplication or unnecessary complexity exposed in the touched code. Keep behaviour unchanged and rerun the test and the smallest affected regression set. No mandatory extraction, abstraction, or separate refactoring pass is required for each cycle.
 5. **Continue.** Select the next confirmed behaviour using the feedback. Shared-design changes or unrelated cleanup exceed this cycle; return them to the caller.
 
-For a bug fix, reuse an available minimised reproduction and diagnosis, turn it into a regression test, and rerun the original reproduction after the fix. If the cause is still unknown, investigate it (Call the Skill tool with "debug" when useful) before choosing a speculative fix.
+For a bug fix, reuse an available minimised reproduction and diagnosis, turn it into a regression test, and rerun the original reproduction after the fix. If the cause is still unknown, investigate it (using `debug` when useful) before choosing a speculative fix.
 
 ## Stop and report
 
