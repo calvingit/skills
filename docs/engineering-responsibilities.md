@@ -20,11 +20,13 @@
 
 需区分三种表达：
 
-- **方法引用**：如 implement 中“Use `tdd`”，表示在当前实现职责内读取并采用方法，不另启交付流程或当然创建 worker。
-- **角色派发**：如 `loop → native worker → implement / verify`，由 Manager 明确指定 Skill、输入、范围、候选与证据要求，worker 加载相应指令；独立角色要求不能用同一执行者自检代替。
-- **Skill 调用**：让宿主加载明确指定的 Skill，或按其 policy 隐式发现。普通文档提及 Skill 名不证明实际调用成功。其他 Runtime 是否识别 metadata、worker 是否加载指令，须按实际能力验证，不从 YAML 推断。
+- **方法引用**：如 implement 中加载 `tdd`，表示在当前实现职责内采用该方法，不另启交付流程或当然创建 worker。要加载另一 Skill 的规程时，写成 `Call the Skill tool with "tdd"`，不要写成散文式的 `run /tdd`。
+- **角色派发**：如 `loop → native worker → implement / verify`，由 Manager 明确指定 Skill、输入、范围、候选与证据要求，worker 加载相应指令；独立角色要求不能用同一执行者自检代替。派发时同样点名 Skill（含 Skill tool 或把已解析的 `SKILL.md` 交给 worker），不要只丢一个斜杠命令指望宿主猜。
+- **Skill 调用**：让宿主加载明确指定的 Skill，或按其 policy 隐式发现。操作性步骤写成 `Call the Skill tool with "grilling"`（一次一个名字；要两个就写两次）。导航表、README、只给人类看的路由说明可以继续用 Skill 名作标签，那不算调用。普通文档提及 Skill 名不证明实际调用成功。其他 Runtime 是否识别 metadata、worker 是否加载指令，须按实际能力验证，不从 YAML 推断。
 
-审计发现并修正：`loop`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`implement`、`verify` 及上表其余入口原有的 `false` 保持；所审 Skills 未发现需保留的 human-only 限制。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
+仅用户手动触发的 Skill（当前明确包括 `how`、`why`）不得由其他 Skill 通过 Skill tool 代为拉起；需要时告诉用户自己运行。Human Entry Point 在已授权工作流里仍可按交接继续下游（不必逐步让用户重输名称），继续时用 Skill tool 调用，不要散文式 `run /xxx`。
+
+审计发现并修正：`loop`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
 
 ## 事实与产物归属
 

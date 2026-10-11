@@ -24,10 +24,10 @@ Judge in this order. Do not dress personal taste as a standard:
 1. The user's explicit request and the current task's constraints.
 2. Repo-level agent instructions, architecture docs, ADRs, coding standards, and test / build rules.
 3. Facts proven by current code, call chains, runtime paths, tests, and runnable checks.
-4. Official architecture or best-practice guidance for this stack that is still current and directly relevant. Use `find-docs` when fresh external basis is needed, and distinguish project rules from external advice.
+4. Official architecture or best-practice guidance for this stack that is still current and directly relevant. Call the Skill tool with "find-docs" when fresh external basis is needed, and distinguish project rules from external advice.
 5. General design principles as an analysis lens only. They cannot prove non-compliance by themselves.
 
-When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Locality, use `codebase-design`'s shared vocabulary. This skill still *reviews the current design*. It does not finish a redesign in advance.
+When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Locality, Call the Skill tool with "codebase-design" for its shared vocabulary. This skill still *reviews the current design*. It does not finish a redesign in advance.
 
 ## Boundaries
 

@@ -36,7 +36,7 @@ description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。适用�
 - 调整入口或优先级时，读取[兼容性说明](references/compatibility.md)，核对目标工具的最新官方文档。CLI、IDE、云端和代码审查的发现行为分别判断。
 - 创建文档或调整结构时，读取[默认结构](references/default-structure.md)。
 
-`Engineering Skills Profile` 由 `project-setup` 维护，默认位于 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口与读取条件。按[配置读取与迁移约定](../project-setup/references/profile.md)保留已有入口和配置，旧内嵌块在获准迁移前保持可读。优化指令不自动授权迁移、重建或重新配置 Profile，冲突须报告。跨上下文职责审查属于 `context-audit`。
+`Engineering Skills Profile` 由 `project-setup` 维护，默认位于 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口与读取条件。按[配置读取与迁移约定](../project-setup/references/profile.md)保留已有入口和配置，旧内嵌块在获准迁移前保持可读。优化指令不自动授权迁移、重建或重新配置 Profile，冲突须报告。跨上下文职责审查需要时，告诉用户运行 `context-audit`，不要从本 Skill 用 Skill tool 代为拉起。
 
 ## 输出
 

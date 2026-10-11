@@ -13,15 +13,13 @@ Use wayfinding only when the destination is known, multiple unresolved decisions
 
 ## Relationship with other flows
 
-Use `grilling` when the destination is known but user decisions are still unresolved.
+These labels help choose a flow; they are not Skill tool calls by themselves.
 
-Use wayfinding when the destination is known but the path contains multiple dependent decisions that cannot be resolved together.
-
-Use `high-level-design` when requirements are settled and the remaining uncertainty is technical structure.
-
-Use research when unknown facts need investigation rather than decisions.
-
-Use `to-spec` when decisions are resolved and a build contract is needed.
+- Destination known, user decisions still open → `grilling`
+- Destination known, dependent decisions will not converge in one session → this skill
+- Requirements settled, remaining uncertainty is technical structure → `high-level-design`
+- Unknown facts need investigation rather than decisions → research
+- Decisions resolved, a build contract is needed → `to-spec`
 
 When the user names this flow and the destination is clear, enter directly. When *this* skill suggests switching from other work, state the reason and get confirmation first.
 
@@ -35,7 +33,7 @@ When the user names this flow and the destination is clear, enter directly. When
 
 Default to local working docs. Prefer the task directory the user named this turn, then the project's existing task-doc convention.
 
-Read `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user or `grilling`. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
+Read `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user, or Call the Skill tool with "grilling" when continuing an authorised interview. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
 
 If the location would change project structure and is still unclear, ask. This flow creates only:
 
@@ -86,7 +84,7 @@ The local frontier is open, unclaimed tickets whose blockers are all resolved. C
 
 Every ticket is either **HITL** — worked *with* a human who speaks for themselves — or **AFK**, driven by the agent alone. Never stand in for the human on a HITL ticket.
 
-- **Grilling (HITL)**: needs the user's judgement. Use `grilling`'s Design Tree / frontier / round. Domain terms and necessary ADRs stay in sync through the domain-modeling discipline `grilling` orchestrates.
+- **Grilling (HITL)**: needs the user's judgement. Call the Skill tool twice, for "grilling" and "domain-modeling". Grilling owns Design Tree / frontier / round; domain-modeling keeps terms and necessary ADRs in sync.
 - **Research (AFK)**: gathers facts from the project, docs, or read-only external investigation to answer the decision.
 - **Exploration (HITL or AFK)**: a prototype, spike, benchmark, or technical experiment is needed to produce evidence for the decision.
 - **Task (HITL or AFK)**: nothing to decide, explore, or research, but some external prep or human action must happen before a *decision* can be made. A task unblocks a decision. It does not deliver the destination.
@@ -102,7 +100,7 @@ Do not disguise an implementation ticket as a decision. The answer resolves the 
 5. Wire blocking edges and compute the frontier.
 6. Stop charting. Resolve tickets only in the work phase.
 
-If there is no technical fog after investigation, do not create a map. Suggest `grilling` when decisions can converge directly. If the requirement is already clear, go to the work the user actually wants.
+If there is no technical fog after investigation, do not create a map. When decisions can converge directly, tell the user to run `grilling` (or Call the Skill tool with "grilling" only if this session already authorised that handoff). If the requirement is already clear, go to the work the user actually wants.
 
 ## Work through the map
 
@@ -129,4 +127,4 @@ Leave when:
 - Not yet specified holds no fog still pointing at the destination.
 - Every blocking decision has a traceable answer.
 
-Then summarise, get the user's final confirmation, and choose the exit from the destination: `to-spec` when a build contract is needed; a decision handoff when the destination *is* the decision; the matching execution flow when Notes explicitly allow an in-place change. Keep `MAP.md` and `decisions/` as the decision record. They are not implementation notes.
+Then summarise, get the user's final confirmation, and choose the exit from the destination: Call the Skill tool with "to-spec" when a build contract is needed; a decision handoff when the destination *is* the decision; the matching execution flow when Notes explicitly allow an in-place change. Keep `MAP.md` and `decisions/` as the decision record. They are not implementation notes.
