@@ -7,7 +7,7 @@ Write a handoff document summarising the current conversation so a fresh agent c
 
 Capture the current goal and scope, completed work and actual verification, remaining work, confirmed decisions, existing authorisation and limits, blockers, and the next actionable step. Identify the workspace and relevant existing changes. Separate observed results from assumptions; include only what is needed to resume, and return the saved file's absolute path.
 
-Include a "suggested skills" section naming the exact skills the next agent should invoke.
+Include a "suggested skills" section listing exact skill names the next agent should load with `Call the Skill tool with "<name>"` (one name per call). Do not suggest only-user-invoked skills such as `how` or `why` for automatic loading — tell the human to run those.
 
 Do not duplicate content already captured in other artifacts (specs, plans, ADRs, issues, commits, diffs). Reference them by path or URL instead.
 
