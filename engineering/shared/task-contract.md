@@ -38,7 +38,16 @@ Evidence planning happens before implementation: relate each AC to an observable
 - Pass the bounded work, authoritative source paths/sections and revision or supplied snapshot, relevant constraints, candidate/baseline, existing edits, permitted resources, and required evidence. A worker reads the sources and reports material conflicts before dependent work.
 - Tickets derive a delivery slice through the existing `covers`, `referenced_design_decisions`, `constraints` and `delivery_acceptance` fields. Scope and constraints may narrow the upstream task; they cannot change its meaning or grant operations. Do not add a second contract envelope to ticket JSON. Ticket-local AC IDs are a separate namespace from SPEC AC IDs.
 - Keep copied excerpts and receipts visibly derived and tied to their source/candidate. On resume or amendment, compare affected meaning and evidence with current sources; an unchanged ID alone does not prove validity. Refresh obsolete handoff notes rather than maintaining another authority.
-- Change only the responsible source, then reconcile affected consumers and evidence. Preserve unaffected decisions, historical completion and valid observations. During Loop execution, stop affected writers through Runtime before upstream amendment or graph reconciliation; changing state alone does not stop them.
+- Change only the responsible source, then reconcile affected consumers and evidence. Preserve unaffected decisions, historical completion and valid observations.
 - `NOT VERIFIED` records insufficient evidence, not a product defect or permission to waive acceptance. Only an explicit authorized change to the applicable contract/gates can change completion conditions; retain its source and limits.
+
+## Amendment stop-write protocol
+
+When amending an upstream authority (SPEC, HLD, or ticket graph) while Loop execution may be active, follow this shared order. Product-specific delta rules stay in each skill's `references/amendment.md`.
+
+1. **Stop writers** — When a graph exists, have `loop` stop task dispatch, interrupt workers through Runtime, preserve partial receipts, and block active attempts. Changing graph state alone does not stop a writer. Reconciliation rejects graphs with in-progress attempts.
+2. **Confirm impact** — Show the user the authority delta and the possibly affected downstream (HLD / tickets / evidence) before writing.
+3. **Write authority** — Update only the responsible source after confirmation (or after that skill's own review gate when it applies).
+4. **Reconcile** — Hand off to the next owner (`high-level-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
 
 The [ownership matrix](../../docs/engineering-responsibilities.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.
