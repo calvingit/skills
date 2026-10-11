@@ -11,7 +11,7 @@ See [usage examples and design source](references/usage.md) when establishing an
 
 ## Discover before designing
 
-1. Read applicable instructions, Git status, project/domain docs, manifests, scripts, CI, test configuration, and relevant tests. Resolve the entry from the current task, then `verification_instructions` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)), then repository conventions. A missing Profile or `auto` does not block discovery.
+1. Read applicable instructions, Git status, project/domain docs, manifests, scripts, CI, test configuration, and relevant tests. Resolve the entry from the current task, then `verification_instructions` via [Profile resolution](../project-setup/references/profile.md#resolve-and-load), then repository conventions. A missing Profile or `auto` does not block discovery.
 2. Identify relevant surfaces (UI, API, CLI, library, device), how to build/start them, how to drive them, what results and side effects can be observed, and how to isolate and clean up a run. Inspect versions, auth/seed needs, ports, devices and shared resources where applicable. Distinguish declared commands from checks actually executed.
 3. Reuse existing harnesses and guides. Match each needed behaviour to a sufficient method; a framework name alone does not justify installing a tool. Separate behaviour, visual conformance and interaction quality. Ask only about unavailable facts or consequential choices that repository evidence cannot settle.
 
