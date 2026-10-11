@@ -1,6 +1,6 @@
 ---
 name: wayfinding
-description: Map cross-session work when the destination is known but multiple dependent decisions prevent convergence in one session. Do not use for unclear requirements, standalone fact-finding, settled design, or directly ticketable work.
+description: Map cross-session decisions when the destination is known but dependent fog blocks one-session convergence. Not for unclear requirements, standalone research, settled design, or ticketable work.
 ---
 
 # Wayfinding
@@ -33,7 +33,7 @@ When the user names this flow and the destination is clear, enter directly. When
 
 Default to local working docs. Prefer the task directory the user named this turn, then the project's existing task-doc convention.
 
-Read `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user, or Call the Skill tool with "grilling" when continuing an authorised interview. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
+Read `requirement_authority` via [Profile resolution](../project-setup/references/profile.md#resolve-and-load) only to classify the question. An unreachable external requirement, a missing requirement increment, or an unconfirmed product bound is a **requirement gap** — hand it to the user, or Call the Skill tool with "grilling" when continuing an authorised interview. Technical fog is only when the destination already stands and the technical path is still unclear. Wayfinding does not sync an external PRD, and it does not write unverified requirements as decision answers.
 
 If the location would change project structure and is still unclear, ask. This flow creates only:
 

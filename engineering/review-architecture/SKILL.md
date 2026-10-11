@@ -51,7 +51,7 @@ Name what this round reviews and what "sound" means here.
 
 ### 2. Discover current architecture and rules
 
-Read relevant architecture entries from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) and check them against current code. With no Profile, keep discovering dynamically. Do not run setup automatically.
+Read relevant architecture entries via [Profile resolution](../project-setup/references/profile.md#resolve-and-load) and check them against current code. With no Profile, keep discovering dynamically. Do not run setup automatically.
 
 Read what actually exists:
 

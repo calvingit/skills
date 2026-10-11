@@ -11,18 +11,18 @@ Quick means no execution graph. It does not mean skipping high-level design chec
 
 ## Entry
 
-Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Use the [workflow policy](../shared/workflow-policy.md) to assess uncertainty, blast radius and verification difficulty; confirm the whole scope can finish reliably in the current context.
+Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context. Other entry selection follows the [workflow policy](../shared/workflow-policy.md).
 
-- Unclear goal, scope, or result → stop; Call the Skill tool with "grilling", or with "wayfinding", as fits (one name per call). Call the Skill tool with "to-spec" only when the requirement needs to be persisted, shared, or versioned.
-- No HLD, but shared types, Interfaces, state / error semantics, dependency direction, or integration choices span modules, callers, or implementation tasks → Call the Skill tool with "high-level-design".
-- HLD conflicts, has gaps, or is disproven by code facts → stop. Call the Skill tool with "high-level-design" to amend it. Do not silently change a shared contract while implementing.
-- Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "loop".
+Hard stops (do not bypass):
+
 - A ticket graph already exists → do not use this skill; Call the Skill tool with "loop".
+- Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "loop".
+- Unclear goal/scope/result, missing shared design across modules, or HLD conflict/gap → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `high-level-design` as fits. Do not silently change a shared contract while implementing.
 
 ## Investigate and plan
 
 1. Record `HEAD`, staged / unstaged / untracked state, and a baseline. Protect existing edits.
-2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant entries from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)); otherwise keep discovering what is already there.
+2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant Profile entries via [Profile resolution](../project-setup/references/profile.md#resolve-and-load); otherwise keep discovering what is already there.
 3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Call the Skill tool with "codebase-design" (or use local detailed design) only for module internals, private helpers, file layout, and algorithms inside the local implementation space.
    Before implementing, relate each AC to a sufficient project method, prerequisites and coverage limits. Reuse existing guidance; route necessary method/test capability work within authority and keep uncovered criteria visible. No separate evidence-plan file is required.
 4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and Call the Skill tool once for the fitting owner among "grilling", "wayfinding", and "to-spec". Technical design several implementations share → Call the Skill tool with "high-level-design".

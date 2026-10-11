@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: Turn confirmed requirements, the settled conversation, and codebase facts into a normative SPEC.md. Maintain ACCEPTANCE.md only when the task needs a separate acceptance protocol. Distinguish requirement constraints from high-level technical design, and decide whether downstream work needs an HLD or an execution graph.
+description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Not for HLD, tickets, or implementation.
 ---
 
 # To Spec
@@ -26,17 +26,15 @@ Technical constraints are allowed when they define required behaviour, including
 
 ## Entry
 
-Resolve requirement sources in this order: what the user named this turn → `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
+Resolve requirement sources in this order: what the user named this turn → `requirement_authority` via [Profile resolution](../project-setup/references/profile.md#resolve-and-load) → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
 
-Stop and Call the Skill tool with "grilling" when requirements, external behaviour, business bounds, permissions, public contracts, or acceptance still have open choices that would change the plan.
+Unsettled requirements or technical fog: follow the [workflow policy](../shared/workflow-policy.md) (`grilling` / `wayfinding` as fits).
 
-Stop and Call the Skill tool with "wayfinding" when the destination can be named but a load-bearing path is still in technical fog and needs investigation across sessions.
+SPEC-specific stops:
 
-When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
-
-Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and, after the SPEC is confirmed, Call the Skill tool with "high-level-design".
-
-Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
+- When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
+- Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and, after the SPEC is confirmed, Call the Skill tool with "high-level-design".
+- Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
 
 ## Modes
 

@@ -1,6 +1,6 @@
 ---
 name: high-level-design
-description: Search the current codebase against a confirmed SPEC and create or amend a task-level HLD.md. Prefer reusing or extending the architecture already there. Lock module duties, shared types, interfaces, and integration constraints that several implementations must share. Not for UI/UX, ticket splitting, or local detailed design.
+description: Create or amend HLD.md from a confirmed SPEC: lock shared module duties, types, interfaces, and integration constraints. Prefer reuse. Not for UI/UX, tickets, or local detailed design.
 ---
 
 # High-Level Design
@@ -57,7 +57,7 @@ Read the full SPEC, applicable agent instructions, architecture / domain docs, A
 
 Ticket count is not the test. A single execution unit may still need an HLD; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
 
-Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. Stop and Call the Skill tool with "grilling", or with "to-spec", only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance. Call the Skill tool with "wayfinding" only when a load-bearing technical feasibility is genuinely unknown, limited code investigation or a small check cannot settle it, and the exploration needs to cross sessions.
+Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. For requirement conflicts or load-bearing technical fog, follow the [workflow policy](../shared/workflow-policy.md). HLD-specific stop: return upstream only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance.
 
 ## Design Review Gate
 
