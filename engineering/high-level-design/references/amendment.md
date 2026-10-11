@@ -5,11 +5,11 @@ Read this file when `HLD.md` already exists and the SPEC, codebase facts, or a c
 Compare old / new SPEC, the current HLD, codebase facts, and existing tickets. Classify design change as `added`, `changed`, `removed`, or `no design effect`:
 
 - Keep unaffected D IDs. Append new IDs for new decisions. Do not renumber.
-- Requirement or external-behaviour change is amended in the SPEC by calling the Skill tool with "to-spec" first, then the HLD.
+- Requirement or external-behaviour change is amended in the SPEC by `to-spec` first, then the HLD.
 - Design change with unchanged requirements updates only the HLD. Do not rewrite the SPEC backwards.
 - When a graph exists, read-only check which tickets cite affected Ds, which implemented behaviour still holds, and what needs amendment, correction, migration, or replacement. Do not edit tickets.
-- Before writing a shared HLD while a graph exists, Call the Skill tool with "loop" so it can stop task dispatch, interrupt workers, preserve partial receipts, and block all active attempts. The current shared-workspace runtime pauses the task, not just the selected tickets.
-- Show the user the design delta and ticket impact, then apply the Design Review Gate in [SKILL.md](../SKILL.md#design-review-gate). If the gate is triggered and the affected design choice is not already confirmed, wait for the user's decision before updating the HLD or Call the Skill tool with "to-tickets". When the gate is not triggered or the choice is already confirmed, update the same HLD from confirmed requirements and repo evidence, then Call the Skill tool with "to-tickets" to coordinate the graph. New requirement choices or unresolved feasibility follow the upstream routing rules in SKILL.md.
+- Before writing a shared HLD while a graph exists, ask `loop` to stop task dispatch, interrupt workers, preserve partial receipts, and block all active attempts. The current shared-workspace runtime pauses the task, not just the selected tickets.
+- Show the user the design delta and ticket impact, then apply the Design Review Gate in [SKILL.md](../SKILL.md#design-review-gate). If the gate is triggered and the affected design choice is not already confirmed, wait for the user's decision before updating the HLD or continuing to `to-tickets`. When the gate is not triggered or the choice is already confirmed, update the same HLD from confirmed requirements and repo evidence, then continue to `to-tickets` to coordinate the graph. New requirement choices or unresolved feasibility follow the upstream routing rules in SKILL.md.
 
 If implementation finds the HLD cannot hold, the worker must report blocked. It must not quietly change a shared design constraint and continue. After the HLD is amended, resume execution according to actual impact.
 

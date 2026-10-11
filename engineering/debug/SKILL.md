@@ -11,7 +11,7 @@ When exploring the codebase, discover domain docs, ADRs / decision records, and 
 
 ## Authorisation
 
-Write down expected behaviour, actual behaviour, and where the expectation comes from. If the expectation is unconfirmed, do not change code. Name the evidence gap and tell the user to run `grilling` — do not Call the Skill tool for grilling from debug.
+Write down expected behaviour, actual behaviour, and where the expectation comes from. If the expectation is unconfirmed, do not change code. Name the evidence gap and suggest `grilling`.
 
 When the user asked for a fix, continue to the smallest fix after the bug is confirmed. When they asked only to diagnose, analyse, or investigate, stop at diagnosis.
 
@@ -93,11 +93,11 @@ Default fix mode:
 
 When no repro exists and the fix rests on a distinguishing observation set instead, the fix is not verified until a regression check exists for the originally observed failure; record that as an explicit verification limit in the report.
 
-If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, noops, or internals. Call the Skill tool with "codebase-design" when the Seam / Interface itself may need to move. Do not widen a production API for tests unless that production change is justified.
+If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, noops, or internals. Consult `codebase-design` when the Seam / Interface itself may need to move. Do not widen a production API for tests unless that production change is justified.
 
 ## Phase 6 — Simplify only when needed
 
-After the fix and regression pass, Call the Skill tool with "simplify" only when the current diff has a clear complexity problem or the user asks. Do not make simplify a required Debug stage.
+After the fix and regression pass, call `simplify` only when the current diff has a clear complexity problem or the user asks. Do not make simplify a required Debug stage.
 
 - `completed` with edits: re-run related tests and the applicable targeted static, format, and diff-whitespace checks.
 - `no_change`: keep the receipt; reuse verification that is still valid.
@@ -116,7 +116,7 @@ Before declaring done:
 - `simplify`, if run, returned `completed` or `no_change`.
 - The report names root cause, change, validation, unverified items, and remaining risk.
 
-If the problem needs an architecture change *after* the fix, tell the user to run `review-architecture`. Do not Call the Skill tool for it from debug, and do not widen this debug.
+If the problem needs an architecture change, hand to `review-architecture` *after* the fix. Do not widen this debug.
 
 ## Across sessions
 
