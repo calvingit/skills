@@ -115,4 +115,4 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 [![本地 Ticket 生命周期](diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
 
-维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](../engineering/shared/workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
+维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](../engineering/shared/workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](../engineering/shared/closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](../engineering/shared/task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
