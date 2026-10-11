@@ -1,6 +1,6 @@
 ---
 name: to-tickets
-description: Break a confirmed SPEC and optional HLD into tracer-bullet delivery tickets with real blocking edges, or sync the affected graph after an upstream amendment. Do not redo requirements or high-level design, and do not implement code.
+description: Break a confirmed SPEC and optional HLD into tracer-bullet tickets with real dependencies, or sync the graph after an upstream amendment. Not for rewriting requirements, HLD, or implementing code.
 ---
 
 # To Tickets
