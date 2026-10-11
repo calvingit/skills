@@ -1,6 +1,6 @@
 # Sync a SPEC / HLD amendment
 
-When tickets already exist and a SPEC or HLD amendment is confirmed, first confirm `loop` has stopped task dispatch, stopped all active workers, preserved partial receipts, and blocked active attempts. Reconciliation rejects graphs with in-progress attempts. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
+When tickets already exist and a SPEC or HLD amendment is confirmed, first follow the shared [Amendment stop-write protocol](../../shared/task-contract.md#amendment-stop-write-protocol): confirm `loop` has stopped task dispatch, stopped all active workers, preserved partial receipts, and blocked active attempts. Reconciliation rejects graphs with in-progress attempts. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
 
 - Unaffected tickets keep immutable ID, contract, and current evidence.
 - An HLD design-only amendment does not change historical acceptance that still satisfies the SPEC. If done behaviour still matches the requirement but not the new design, keep its requirement evidence and create an explicit correction / migration ticket covering the affected Ds. Supersede only when the original delivery contract is replaced as a whole.
