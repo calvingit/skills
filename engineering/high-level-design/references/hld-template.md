@@ -9,7 +9,7 @@ Read this file when an HLD is required and the task directory has no `HLD.md`. D
 3. Describe the current call chain, ownership, existing Interfaces, shared data shapes, external bounds, and invariants that must hold. Mark Observed / Inferred / Unknown.
 4. Find design points that would diverge if downstream implementers decided them separately. Form the target design only for those points. Local implementation stays free.
 5. For each design point prefer `Reuse`, then `Extend`. `New` or `Replace` only when the existing structure cannot satisfy the SPEC. Those two must say why Reuse / Extend fails, the migration impact, and the control range.
-6. Call the Skill tool with "codebase-design" for load-bearing Module / Interface / Seam points. Compare at most 2–3 real candidates only when evidence cannot lock a single design. Ordinary engineering trade-offs are recommended and decided by this skill.
+6. Apply `codebase-design` to load-bearing Module / Interface / Seam points. Compare at most 2–3 real candidates only when evidence cannot lock a single design. Ordinary engineering trade-offs are recommended and decided by this skill.
 7. Assign stable `D1`, `D2`… IDs to each normative high-level decision. Mark change kind, the reference implementation, and which SPEC `R` / `AC`, callers, or modules it constrains.
 8. Check the HLD against the SPEC, project ADRs, current architecture facts, and its own sections. Create the HLD only after a multi-implementer consistency check, with no untreated conflict or unknown that would change the plan.
 
