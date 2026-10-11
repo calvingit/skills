@@ -1,6 +1,6 @@
 # Agent Skills
 
-个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、中文文档处理和全局会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
+个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和全局会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
 
 > 维护说明见 [`AGENTS.md`](./AGENTS.md)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
 
@@ -23,7 +23,7 @@
 | --- | --- |
 | [`engineering/`](./engineering/) | 调研、需求、设计、实现、验证、审查与维护（不绑定具体框架） |
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
-| [`documents/`](./documents/) | 文档转换、中文润色/术语与事实同步 |
+| [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
 | [`global/`](./global/) | 跨领域工具、上下文、会话辅助与学习 |
 | [`docs/`](./docs/) | Engineering 使用总览、职责、Loop/Runtime、Kernel 与图示 |
 | [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
@@ -111,7 +111,7 @@
 | Skill | 用途 |
 | --- | --- |
 | [`document-sync`](./documents/document-sync/SKILL.md) | 检查文档与当前实现和规范是否一致，只更新受影响内容。 |
-| [`humanizer-zh`](./documents/humanizer-zh/SKILL.md) | 清理中文文本中的 AI 味、翻译腔和模板化表达。 |
+| [`unslop`](./documents/unslop/SKILL.md) | 润色已有文本，去掉 AI 味、翻译腔和模板表达，保留原意、专业性与作者口吻；按正文语言加载中英文规则。 |
 | [`url-to-markdown`](./documents/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
 | [`terminology-zh`](./documents/terminology-zh/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
