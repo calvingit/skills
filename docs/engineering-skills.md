@@ -39,6 +39,12 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 [verification-setup](../engineering/verification-setup/SKILL.md) 复用仓库工具，创建或刷新项目本地验证方法并实际试运行，[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
 
+## 行为规格
+
+`to-spec` 以 AC 表达已确认行为；AC 已明确时无需实例。边界和分支优先用简短 Example，需要上下文的状态、权限等行为才用 Given / When / Then。实例只消除歧义，不补写未知业务决策，也不引入完整 BDD 流程。选择和停止规则见 [to-spec](../engineering/to-spec/SKILL.md#select-behaviour-examples-only-when-useful)。
+
+Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 AC 判断证据；新增实例本身不要求独立 ACCEPTANCE、执行状态或更多测试。
+
 ## 实现、测试与验收的组织
 
 | 能力 | 主要责任 |

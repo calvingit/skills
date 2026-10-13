@@ -19,9 +19,9 @@ owner: to-spec
 
 - <External behaviour observable without looking at the implementation>
 
-## Acceptance Criteria / Scenarios
+## AC References and Optional Examples
 
-- <Acceptance criteria or scenarios; fill only when a separate protocol is needed>
+- <Current SPEC R / AC reference, observable expected result and evidence kind; add a titled Example / Scenario only when it clarifies that AC>
 
 ## Failure and Environment Notes
 
@@ -43,8 +43,8 @@ owner: to-spec
 ## Writing rules
 
 - `protocol_version` is this task's acceptance revision, starting at 1. Bump when public behaviour, error or cancel semantics, CLI / JSON / schema / exit codes, permissions, or artifact bounds change. Internal refactors and new tests do not bump.
-- Before writing, run the bidirectional check `R → AC → scenario → expected result → executable evidence`. Protocol gaps → Call the Skill tool with "grilling". Do not disguise them as implementation tasks.
-- Every scenario cites at least one current SPEC `R` and `AC`, and names expected result and evidence kind. Keep AC definitions in SPEC; this protocol owns scenario detail and evidence rules, not another editable copy of the same AC. Machine-readable mapping is required only when an independent scenario protocol is enabled.
-- Success, failure, cancel, timeout, permission, and environment paths must be written explicitly.
+- Check `R → AC` and whether planned evidence can establish each referenced AC. Apply [behaviour example selection](../SKILL.md#select-behaviour-examples-only-when-useful); a separate protocol does not make Scenarios mandatory. Unconfirmed behavioural choices → Call the Skill tool with "grilling".
+- Every Example / Scenario cites at least one current SPEC `R` and `AC`, and names expected result and evidence kind. Keep AC definitions in SPEC; this protocol owns scenario detail and evidence rules, not another editable copy of the same AC. Do not add Scenario IDs or a traceability matrix.
+- Include success, failure, cancel, timeout, permission or environment distinctions only when they express confirmed contract behaviour or applicable evidence constraints. Do not invent semantics or expand these categories mechanically.
 - Add machine-readable fields and verification commands only when the task explicitly enables an executable protocol; ordinary acceptance does not require them.
 - HLD owns shared technical constraints. Tickets own execution. This file does not invent acceptance meaning.

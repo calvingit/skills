@@ -52,6 +52,12 @@ Create and Amendment use the same requirement structure. Preserve existing R / A
 ## Writing rules
 
 - Every in-scope R has at least one AC. Preserve the numbered R and bulleted AC syntax above for graph extraction.
+- Apply [behaviour example selection](../SKILL.md#select-behaviour-examples-only-when-useful). Examples are optional, subordinate to their AC, and introduce no new rules. Omit the example block when the AC is already clear. For a confirmed rule that a coupon is accepted iff the eligible amount is at least 100 yuan (amounts use two decimal places):
+
+  ```markdown
+  - **AC1** — Covers: R1. Accept the coupon when the eligible amount is at least 100 yuan; reject it below 100 yuan. Expected source: <confirmed rule>.
+    - Example — Threshold: 99.99 → rejected; 100.00 → accepted.
+  ```
 - Acceptance Seams name public observations such as an API, UI interaction, or export file. Do not prescribe unit/integration tests, mocks, test paths, service classes, repository methods, or database tables as internal observation points.
 - Explicit platform/public-contract constraints retain their authoritative source. Derived module ownership, internal interfaces, types, migration mechanisms, and test strategy belong to HLD.
 - For existing SPECs, preserve requirement meaning and stable IDs. Replace `Solution` / `Destination` with Goal / Scope where appropriate, and classify legacy `Solution Constraints`, `Implementation Decisions`, and `Testing Decisions`: upstream requirements stay here; derived design / test strategy is handed to HLD. Do not silently discard confirmed requirements or maintain duplicate authority.

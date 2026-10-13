@@ -25,6 +25,8 @@ Classify unresolved choices before asking:
 | Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `high-level-design` review. Existing external-contract semantics remain requirements. |
 | Private methods, file layout, local helpers or internal refactoring | Agent decides; do not ask the user. |
 
+A Scenario cannot settle an unconfirmed business choice: if alternative answers change behaviour (for example, soft versus permanent account deletion or recovery), resolve the choice here. Concrete examples of already settled behaviour belong to `to-spec`.
+
 Record unresolved design concerns without selecting an implementation. For example,
 `Current mode model may need future extensibility` describes a concern; a pattern
 choice does not belong in this interview.

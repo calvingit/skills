@@ -78,7 +78,14 @@ Once acceptance seams are decided, write from the templates. Read:
 - [references/spec-template.md](references/spec-template.md)
 - [references/acceptance-template.md](references/acceptance-template.md) only when separate acceptance is enabled.
 
-Without a separate acceptance protocol, check `R → AC` and decidable results before writing. When creating or amending `ACCEPTANCE.md`, run the bidirectional check `R → AC → scenario → expected result → executable evidence`. Protocol gaps → Call the Skill tool with "grilling". Do not disguise them as implementation tasks.
+Keep `R → AC` traceability and decidable expected results. AC are the sole behavioural acceptance authority; Scenarios / Examples only illustrate them and cannot add business rules. Evidence must support AC directly, with or without examples. A separate protocol records observation and evidence rules without redefining AC.
+
+#### Select behaviour examples only when useful
+
+- Keep an already unambiguous AC without examples. Prefer compact input → outcome Examples for meaningful branches or boundaries; use Given / When / Then Scenarios when state transitions, permissions, authentication or interacting conditions need context. Do not introduce a full BDD workflow.
+- Retain an example only if it rules out a plausible misreading, expresses a business boundary or distinct outcome, or makes a key confirmed behaviour concrete. Omit equivalent inputs, test-category checklists and implementation details; do not expand every AC into Happy / Error / Edge cases.
+- Stop when rules and key branches are clear and another example would not change an implementation decision. Nest an optional title under its AC, or cite that AC in a separate protocol; do not introduce Scenario IDs or a traceability matrix.
+- If different answers would change business behaviour, Call the Skill tool with "grilling" for the unresolved choice before specifying dependent examples. For “delete account”, soft deletion, permanence and recovery are decisions, not details an example may assume. Settled behaviour that only needs concrete expression stays here.
 
 ### 5. Consistency
 

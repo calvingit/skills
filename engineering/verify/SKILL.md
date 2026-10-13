@@ -19,6 +19,8 @@ For the rationale behind independent evidence, see [evidence.md](references/evid
 4. Inspect supporting tests, fixtures, snapshots, mocks, and verification configuration only far enough to judge evidence credibility. Weakened, skipped, implementation-derived, or otherwise invalidated checks are insufficient even when green. State mocked/bypassed boundaries, platform limits, and visual/interaction gaps. Judge this credibility here; a separate `test-audit` is not a prerequisite or substitute.
 5. Report a verdict for every AC, with its requirement source, actual observation, and coverage limit. Record applicable gate outcomes separately when they do not establish an AC. Keep failures and gaps visible in the conclusion.
 
+Judge `Evidence → AC`, not “Scenario executed → AC passed”. Examples illustrate AC; neither their count nor successful execution establishes unobserved branches or conditions. Do not introduce Scenario execution states.
+
 ## Verdicts
 
 - `PASS`: sufficient observable evidence establishes the criterion.
