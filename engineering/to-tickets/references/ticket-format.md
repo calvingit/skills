@@ -54,3 +54,10 @@ The caller can send a message and observe its confirmed result.
 No field appears in both places; a body field in frontmatter is rejected as `duplicated_authority`. The three sections are required, in this order, and no other sections are allowed. `ready` / `blocked` are computed, never stored.
 
 Frontmatter is a restricted YAML subset parsed without third-party packages: block mappings and sequences, `[]`, `{}`, `null`, `true`/`false`, integers, double- or single-quoted strings and simple unquoted words. Comments, anchors, tags, block scalars, inline collections with items, tabs and duplicate keys are rejected. Lifecycle commands rewrite only the frontmatter and keep the body bytes unchanged.
+
+## Version boundary
+
+v3 is a breaking storage format. New tasks use Markdown tickets only. Finish
+and archive existing v2 JSON tasks with the v2 tooling before adopting v3.
+There is no JSON migration, mixed-format graph, or legacy CLI entry point.
+JSON remains the CLI request/response format, not ticket storage.

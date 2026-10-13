@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .authority import authority_index, authority_current, authority_fingerprint
-from .contracts import invalid_field, problem, validate_shape, validate_string_list, validate_ticket
+from .contracts import problem, validate_ticket
 from .frontmatter import FrontmatterError
 from .graph import graph_projection, public_ticket, validate_graph
 from .ticket_markdown import TicketFormatError, parse_ticket, render_ticket
@@ -27,16 +27,11 @@ def load_graph(task_dir: Path) -> tuple[list[dict[str, Any]], list[dict[str, str
     if not tickets_dir.is_dir():
         problems.append(problem("contract", "missing_tickets_directory", "tickets/ was not found."))
         return [], problems
-    legacy = sorted(tickets_dir.glob("*.json"))
     markdown_paths = sorted(tickets_dir.glob("*.md"))
-    markdown_ids = {path.stem.split("-", 1)[0] for path in markdown_paths}
-    for path in legacy:
-        relative = path.relative_to(task_dir).as_posix()
-        ticket_id = path.stem.split("-", 1)[0]
-        if ticket_id in markdown_ids:
-            problems.append(problem("contract", "mixed_ticket_formats", f"{ticket_id} exists as both JSON and Markdown; resolve it explicitly, then re-run validation.", ticket_id=ticket_id, path=relative))
-        else:
-            problems.append(problem("contract", "legacy_json_ticket", "JSON tickets need an explicit migration: create-graph migrate <task-dir> --dry-run.", path=relative))
+    for path in sorted(tickets_dir.glob("*.json")):
+        problems.append(problem("contract", "unsupported_ticket_format",
+            "v3 supports Markdown tickets only. Finish and archive v2 tasks with v2 tooling.",
+            path=path.relative_to(task_dir).as_posix()))
     for path in markdown_paths:
         relative = path.relative_to(task_dir).as_posix()
         try:
@@ -175,14 +170,12 @@ def commit_graph_transaction(
     task_dir: Path,
     tickets: list[dict[str, Any]],
     operation: str,
-    removed_files: list[str] | None = None,
 ) -> list[dict[str, str]]:
-    """Stage, validate and switch ticket files; removed_files are deleted only
-    after every target is in place, so recovery can roll forward or back."""
-    removed_files = sorted(removed_files or [])
+    """Stage, validate and switch Markdown tickets with transaction recovery."""
     transaction = task_dir / ".ticket-graph-transaction"
     staging = transaction / "staging"
     backup = transaction / "backup"
+    switching = False
     try:
         transaction.mkdir()
         (staging / "tickets").mkdir(parents=True)
@@ -193,8 +186,7 @@ def commit_graph_transaction(
                 shutil.copy2(source, staging / authority_name)
         original_files = sorted(
             path.relative_to(task_dir).as_posix()
-            for pattern in ("*.json", "*.md")
-            for path in (task_dir / "tickets").glob(pattern)
+            for path in (task_dir / "tickets").glob("*.md")
         )
         target_files = sorted(ticket["_path"] for ticket in tickets)
         for relative in original_files:
@@ -208,7 +200,6 @@ def commit_graph_transaction(
             "state": "prepared",
             "original_files": original_files,
             "target_files": target_files,
-            "removed_files": removed_files,
         }
         (transaction / "manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -221,14 +212,13 @@ def commit_graph_transaction(
         (transaction / "manifest.json").write_text(
             json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
         )
+        switching = True
         for relative in target_files:
             target = task_dir / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             temporary = target.with_name(f".{target.name}.transaction.tmp")
             shutil.copy2(staging / relative, temporary)
             os.replace(temporary, target)
-        for relative in removed_files:
-            (task_dir / relative).unlink(missing_ok=True)
         _, _, committed_problems = validated_snapshot(task_dir, allow_transaction=True)
         if committed_problems:
             return committed_problems
@@ -240,6 +230,9 @@ def commit_graph_transaction(
         shutil.rmtree(transaction, ignore_errors=True)
         return [problem("contract", exc.code, exc.detail)]
     except OSError as exc:
+        # No live files have changed if staging fails before the switch.
+        if not switching:
+            shutil.rmtree(transaction, ignore_errors=True)
         return [problem("storage", "transaction_failed", str(exc), path=transaction.name)]
 
 
@@ -250,44 +243,3 @@ def atomic_copy(source: Path, target: Path) -> None:
     os.replace(temporary, target)
 
 
-def read_legacy_tickets(
-    task_dir: Path,
-) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
-    """Read v2 JSON tickets for explicit migration only."""
-    problems: list[dict[str, str]] = []
-    tickets_dir = task_dir / "tickets"
-    if not task_dir.is_dir() or not (task_dir / "SPEC.md").is_file():
-        return [], [problem("authority", "missing_spec", "A task directory with SPEC.md is required.")]
-    if not tickets_dir.is_dir():
-        return [], [problem("contract", "missing_tickets_directory", "tickets/ was not found.")]
-    legacy = sorted(tickets_dir.glob("*.json"))
-    markdown = sorted(tickets_dir.glob("*.md"))
-    for path in markdown:
-        ticket_id = path.stem.split("-", 1)[0]
-        mixed = any(item.stem.split("-", 1)[0] == ticket_id for item in legacy)
-        problems.append(problem(
-            "contract",
-            "mixed_ticket_formats" if mixed else "markdown_ticket_present",
-            "Migration needs a pure JSON graph; resolve existing Markdown tickets explicitly first.",
-            ticket_id=ticket_id,
-            path=path.relative_to(task_dir).as_posix(),
-        ))
-    tickets: list[dict[str, Any]] = []
-    for path in legacy:
-        relative = path.relative_to(task_dir).as_posix()
-        try:
-            ticket = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-            problems.append(problem("contract", "invalid_json", str(exc), path=relative))
-            continue
-        if not isinstance(ticket, dict):
-            problems.append(problem("contract", "invalid_ticket_document", "Ticket must be a JSON object.", path=relative))
-            continue
-        if ticket.get("schema_version") != 2 or isinstance(ticket.get("schema_version"), bool):
-            problems.append(invalid_field(relative, ticket.get("id") if isinstance(ticket.get("id"), str) else None, "schema_version", "Only schema_version 2 JSON tickets can be migrated."))
-            continue
-        ticket["_path"] = relative
-        tickets.append(ticket)
-    if not tickets and not problems:
-        problems.append(problem("contract", "no_tickets", "tickets/ contains no JSON tickets to migrate."))
-    return tickets, problems

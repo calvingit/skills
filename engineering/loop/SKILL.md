@@ -36,7 +36,7 @@ Changes to code, requirements, tests, fixtures, snapshots, verification configur
 
 ## State and execution boundaries
 
-Resolve `<loop-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status` (`scripts/record-attempt` is a compatibility alias for start/retry). Tickets are Markdown; never hand-edit their frontmatter. `recover` repairs a graph transaction, not an Agent session.
+Resolve `<loop-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status`. Tickets are Markdown; never hand-edit their frontmatter. `recover` repairs a graph transaction, not an Agent session.
 
 Keep `.loop/` in the task directory next to SPEC and tickets. It contains attempts, reports, command logs, and delivery inputs; it is not project configuration or a place for product code/tests. Use existing source links and brief handoff notes when needed, without mandatory context files, timing ledgers, Agent pools, heartbeat services, or another execution state machine.
 

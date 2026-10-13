@@ -23,29 +23,23 @@ def recover_transaction(
         except (OSError, UnicodeError, json.JSONDecodeError) as exc:
             problems = [problem("recovery", "invalid_transaction_manifest", str(exc), path=manifest_path.name)]
             return envelope("recover", ok=False, problems=problems), 1
-        if isinstance(manifest, dict):
-            manifest.setdefault("removed_files", [])
         manifest_problems = validate_shape(
             manifest,
-            {"operation", "state", "original_files", "target_files", "removed_files"},
+            {"operation", "state", "original_files", "target_files"},
             path=manifest_path.name,
             ticket_id=None,
             field="",
         )
         original_files = manifest.get("original_files")
         target_files = manifest.get("target_files")
-        removed_files = manifest.get("removed_files")
         if (
             manifest_problems
             or manifest.get("state") not in {"prepared", "switching"}
             or not validate_string_list(original_files)
             or not validate_string_list(target_files, require_items=True)
-            or not validate_string_list(removed_files)
-            or not set(removed_files) <= set(original_files)
-            or set(removed_files) & set(target_files)
             or any(
                 not relative.startswith("tickets/") or ".." in Path(relative).parts
-                for relative in [*original_files, *target_files, *removed_files]
+                for relative in [*original_files, *target_files]
             )
         ):
             if not manifest_problems:
@@ -59,8 +53,6 @@ def recover_transaction(
                 return envelope("recover", ok=False, problems=staging_problems), 1
             for relative in target_files:
                 atomic_copy(staging / relative, task_dir / relative)
-            for relative in removed_files:
-                (task_dir / relative).unlink(missing_ok=True)
         elif mode == "rollback":
             original_set = set(original_files)
             for relative in target_files:
@@ -79,15 +71,6 @@ def recover_transaction(
         for leftover in (task_dir / "tickets").glob(".*.transaction.tmp"):
             leftover.unlink(missing_ok=True)
         _, graph, committed_problems = validated_snapshot(task_dir, allow_transaction=True)
-        if (
-            mode == "rollback"
-            and manifest["operation"] == "migrate"
-            and committed_problems
-            and all(item["code"] == "legacy_json_ticket" for item in committed_problems)
-        ):
-            # Rolling back a migration restores the untouched JSON graph; it still needs migration.
-            shutil.rmtree(transaction)
-            return envelope("recover", ok=True, result={"mode": mode, "restored": "legacy_json"}, problems=committed_problems), 0
         if committed_problems:
             return envelope("recover", ok=False, graph=graph, problems=committed_problems), 1
         shutil.rmtree(transaction)

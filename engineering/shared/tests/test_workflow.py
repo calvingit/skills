@@ -34,7 +34,7 @@ class WorkflowCliTests(unittest.TestCase):
         doc = (root / 'loop/references/script-inputs.md').read_text()
         samples = [part.split('```', 1)[0] for part in doc.split('```json\n')[1:]]
         start, complete = map(json.loads, samples[:2])
-        for script, operation, request in [('record-attempt', 'start', start), ('update-status', 'complete', complete)]:
+        for script, operation, request in [('update-status', 'start', start), ('update-status', 'complete', complete)]:
             result = subprocess.run([sys.executable, str(root / 'loop/scripts' / script), operation, str(self.task), 'T001', '--input', '-'], input=json.dumps(request), capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         ticket = read_ticket(next((self.task / 'tickets').glob('*.md')))

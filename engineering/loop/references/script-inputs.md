@@ -20,7 +20,7 @@ python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <req
 | `complete` | `expected_attempt`, `evidence`, `verification`; optional `review` (actual original report) |
 | `reopen` | `review_finding`, `invalidated_acceptance` (local AC ID array), `upstream_unchanged: true` |
 
-`update-status` owns every state write; `record-attempt start|retry` remains as a compatibility alias with identical behaviour. Each successful write returns the updated `graph` (frontier, blocked, stale authority); use it to choose the next ticket instead of re-querying. Run `frontier` when resuming a session or before finalization, where its `delivery_review` status is needed. Example start request:
+`update-status` owns every state write; Each successful write returns the updated `graph` (frontier, blocked, stale authority); use it to choose the next ticket instead of re-querying. Run `frontier` when resuming a session or before finalization, where its `delivery_review` status is needed. Example start request:
 
 ```json
 {

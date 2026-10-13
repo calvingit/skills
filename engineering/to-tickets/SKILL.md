@@ -87,7 +87,7 @@ Resolve `<to-tickets-skill>` to this installed skill directory, never to the tar
 
 - `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; initialize empty execution facts.
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Loop stops writers.
-- `scripts/create-graph migrate`: convert a legacy JSON ticket graph to Markdown; `--dry-run` (default) only reports, `--apply` commits transactionally. Graph commands refuse JSON tickets until migrated.
+
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
 
 Use `constraints: []` when a ticket has no specific inherited constraint, rather than adding filler. Keep implementation recipes out of tickets.

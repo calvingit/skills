@@ -47,11 +47,3 @@ python3 <to-tickets-skill>/scripts/validate-graph <task-dir>
 
 Graph transaction recovery is available through `loop`'s `update-status recover` command.
 
-## Migrate legacy JSON tickets
-
-```bash
-python3 <to-tickets-skill>/scripts/create-graph migrate <task-dir> --dry-run   # default: report only
-python3 <to-tickets-skill>/scripts/create-graph migrate <task-dir> --apply     # commit
-```
-
-No `--input`. Migration validates the v2 JSON graph, converts each ticket to [Markdown](ticket-format.md), validates the new graph, proves every field round-trips unchanged (including authority binding status), then commits through the graph transaction and deletes the JSON files. A task with any Markdown ticket is refused; the same ID in both formats is reported as `mixed_ticket_formats` and never resolved automatically. If interrupted, `loop/scripts/update-status recover <task-dir> rollback|commit` restores the JSON graph or finishes the switch.
