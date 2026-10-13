@@ -9,7 +9,7 @@ Discover how this repository can establish observable behaviour, then create or 
 
 Choose the scope from the request:
 
-- **Discover only**: inventory existing methods and their limits, then report or update an existing Verification summary. Stop after [Discover before designing](#discover-before-designing). Do not create a local skill, feature map or helper, and do not run checks; label every entry as discovered from configuration, not executed.
+- **Discover only**: inventory existing methods and report them without modifying project files. The report lists each method's source, actual command, prerequisites, evidence scope, limits and execution status (not run). Update an existing Verification summary only when the caller explicitly authorises it, and keep it to navigation: surface, method entry, essential prerequisites, capability summary and limits, never a copied command list. Stop after [Discover before designing](#discover-before-designing). Do not create a local skill, feature map or helper, and do not run checks.
 - **Create or refresh**: build or repair a runnable method, then follow every section below, including the trial run. Discovery alone never makes a method operational.
 
 See [usage examples and design source](references/usage.md) when establishing an entry or planning an incremental refresh.
