@@ -12,7 +12,9 @@ from typing import Any
 from ticket_graph.authority import authority_index, authority_fingerprint, bind_authority
 from ticket_graph.contracts import CURRENT_SCHEMA_VERSION, TICKET_ID_RE, envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_ticket
 from ticket_graph.graph import public_ticket, validate_graph
-from ticket_graph.store import acquire_write_lock, atomic_copy, commit_graph_transaction, release_lock, validated_snapshot
+from ticket_graph.authority import authority_current
+from ticket_graph.store import acquire_write_lock, atomic_copy, commit_graph_transaction, read_legacy_tickets, release_lock, validated_snapshot
+from ticket_graph.ticket_markdown import TicketFormatError, parse_ticket, render_ticket
 
 
 def slugify(title: object) -> str:
@@ -64,7 +66,7 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
                 request_problems.append(problem("graph", "unknown_candidate_dependency", f"Candidate {candidate['key']} has an unknown dependency."))
                 continue
             ticket_id = ids[candidate["key"]]
-            relative = f"tickets/{ticket_id}-{slugify(candidate['title'])}.json"
+            relative = f"tickets/{ticket_id}-{slugify(candidate['title'])}.md"
             ticket = {
                 "schema_version": CURRENT_SCHEMA_VERSION,
                 "id": ticket_id,
@@ -189,7 +191,7 @@ def reconcile_batch(
                     request_problems.append(problem("graph", "unknown_reconciliation_dependency", f"Create operation {operation['key']} has an unknown dependency."))
                     continue
                 ticket_id = ids_by_key[operation["key"]]
-                relative = f"tickets/{ticket_id}-{slugify(contract['title'])}.json"
+                relative = f"tickets/{ticket_id}-{slugify(contract['title'])}.md"
                 ticket = {
                     "schema_version": CURRENT_SCHEMA_VERSION,
                     "id": ticket_id,
@@ -310,5 +312,69 @@ def reconcile_batch(
             ),
             0 if not committed_problems else 1,
         )
+    finally:
+        release_lock(descriptor)
+
+
+def migrate_graph(task_dir: Path, *, apply: bool) -> tuple[dict[str, object], int]:
+    """Explicit v2 JSON -> v3 Markdown migration.
+
+    Validate the old graph, convert, validate the new graph, prove semantic
+    equivalence, then (only with apply) commit transactionally and remove JSON.
+    """
+    operation = "migrate"
+    descriptor, _, lock_problems = acquire_write_lock(task_dir)
+    if lock_problems:
+        return envelope(operation, ok=False, problems=lock_problems), 1
+    try:
+        if (task_dir / ".ticket-graph-transaction").exists():
+            return envelope(operation, ok=False, problems=[problem("recovery", "recovery_required", "An unfinished graph transaction requires recovery: update-status recover <task-dir> commit|rollback.")]), 1
+        legacy, problems = read_legacy_tickets(task_dir)
+        if problems:
+            return envelope(operation, ok=False, problems=problems), 1
+        converted: list[dict[str, Any]] = []
+        files: list[dict[str, str]] = []
+        for old in legacy:
+            ticket = copy.deepcopy(old)
+            ticket["schema_version"] = CURRENT_SCHEMA_VERSION
+            source = ticket["_path"]
+            ticket["_path"] = source[: -len(".json")] + ".md"
+            problems.extend(validate_ticket(public_ticket(ticket), source))
+            converted.append(ticket)
+            files.append({"from": source, "to": ticket["_path"]})
+        if problems:
+            return envelope(operation, ok=False, problems=problems), 1
+        for ticket in converted:
+            ticket_id = ticket["id"]
+            if not (Path(ticket["_path"]).stem == ticket_id or Path(ticket["_path"]).stem.startswith(ticket_id + "-")):
+                problems.append(problem("contract", "ticket_filename_mismatch", "Ticket filename must begin with its immutable ID.", ticket_id=ticket_id, path=ticket["_path"]))
+        authority, authority_problems = authority_index(task_dir)
+        graph_problems, _ = validate_graph(converted, authority, has_hld=(task_dir / "HLD.md").is_file())
+        problems.extend(authority_problems + graph_problems)
+        if problems:
+            return envelope(operation, ok=False, problems=problems), 1
+        # Semantic equivalence: render, parse back, compare every field.
+        for old, ticket in zip(legacy, converted):
+            try:
+                reparsed, _ = parse_ticket(render_ticket(ticket))
+            except (TicketFormatError, ValueError) as exc:
+                problems.append(problem("contract", "unrepresentable_ticket", str(exc), ticket_id=ticket["id"], path=old["_path"]))
+                continue
+            expected = {**public_ticket(old), "schema_version": CURRENT_SCHEMA_VERSION}
+            if reparsed != expected:
+                problems.append(problem("contract", "migration_not_equivalent", "Converted ticket differs from the JSON source.", ticket_id=ticket["id"], path=old["_path"]))
+            if authority_current(task_dir, old) != authority_current(task_dir, ticket):
+                problems.append(problem("authority", "migration_changed_authority", "Conversion changed the authority binding status.", ticket_id=ticket["id"]))
+        if problems:
+            return envelope(operation, ok=False, problems=problems), 1
+        stale = sorted(t["id"] for t in legacy if t["lifecycle"]["phase"] != "superseded" and not authority_current(task_dir, t))
+        result: dict[str, object] = {"applied": apply, "files": files, "stale_authority_preserved": stale}
+        if not apply:
+            return envelope(operation, ok=True, result=result), 0
+        transaction_problems = commit_graph_transaction(task_dir, converted, operation, removed_files=[item["from"] for item in files])
+        if transaction_problems:
+            return envelope(operation, ok=False, result=result, problems=transaction_problems), 1
+        _, graph, committed_problems = validated_snapshot(task_dir)
+        return envelope(operation, ok=not committed_problems, result=result, graph=graph, problems=committed_problems), (0 if not committed_problems else 1)
     finally:
         release_lock(descriptor)

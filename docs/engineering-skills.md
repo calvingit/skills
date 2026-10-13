@@ -73,7 +73,7 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 | `SPEC.md` | [to-spec](../engineering/to-spec/SKILL.md) |
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../engineering/to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
 | 共享技术设计 `HLD.md` | [high-level-design](../engineering/high-level-design/SKILL.md) |
-| `tickets/*.json` 契约与依赖 | [to-tickets](../engineering/to-tickets/SKILL.md) |
+| `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../engineering/to-tickets/SKILL.md) |
 | attempt、已接受证据与最终交付记录 | [loop](../engineering/loop/SKILL.md) |
 
 领域术语默认模板见 [Glossary 格式](../engineering/domain-modeling/GLOSSARY-FORMAT.md)；既有 `CONTEXT.md`、`DOMAIN.md`、`TERMS.md` 等仍可作为 authority，不强制迁移。项目背景、领域词汇和架构决策分别使用各自来源。

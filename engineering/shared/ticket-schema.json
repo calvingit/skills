@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:engineering-skills:ticket:v2",
+  "$id": "urn:engineering-skills:ticket:v3",
   "title": "Loop ticket",
   "type": "object",
   "additionalProperties": false,
@@ -19,7 +19,7 @@
     "supersession"
   ],
   "properties": {
-    "schema_version": {"const": 2},
+    "schema_version": {"const": 3},
     "id": {"type": "string", "pattern": "^T[0-9]{3,}$"},
     "title": {"type": "string", "minLength": 1},
     "covers": {
