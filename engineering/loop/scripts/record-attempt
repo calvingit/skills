@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
+"""Compatibility wrapper: start/retry now also live in update-status."""
 import _bootstrap
 from ticket_graph.command import parser, task_argument, request, run
 from lifecycle import mutate_ticket
-p = parser("Start or retry an attempt after Loop decides it is actionable.")
+p = parser("Compatibility alias for `update-status start|retry`.")
 p.add_argument('operation', choices=['start', 'retry'])
 task_argument(p)
 p.add_argument('ticket_id')

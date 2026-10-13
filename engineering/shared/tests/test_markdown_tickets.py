@@ -83,7 +83,7 @@ class MarkdownTicketTests(unittest.TestCase):
         return next((self.task / "tickets").glob(ticket_id + "-*.md"))
 
     def update(self, operation, ticket_id, request, script=None):
-        script = script or ("loop/scripts/record-attempt" if operation in {"start", "retry"} else "loop/scripts/update-status")
+        script = script or "loop/scripts/update-status"
         code, payload = run(script, operation, str(self.task), ticket_id, "--input", "-", stdin=json.dumps(request))
         self.assertEqual(code, 0, payload)
         return payload
@@ -113,7 +113,9 @@ class MarkdownTicketTests(unittest.TestCase):
         self.update("block", "T001", {"blocker": {"category": "environment", "reason": "db down", "release_condition": "db up"}, "evidence": {}})
         self.update("unblock", "T001", {"release_evidence": "db is up"})
         self.update("start", "T001", START, script="loop/scripts/record-attempt")
-        self.update("retry", "T001", {**START, "expected_attempt": 2, "findings": "fix"})
+        retried = self.update("retry", "T001", {"baseline": BASELINE, "existing_changes": START["existing_changes"], "expected_attempt": 2, "findings": "fix"})
+        self.assertEqual(retried["result"]["ticket"]["execution"]["current_attempt"]["allowed_write_scope"], ["src/**"])  # Inherited.
+        self.assertEqual(retried["graph"]["in_progress"], ["T001"])  # Callers use this graph; no re-query needed.
         self.update("complete", "T001", {"expected_attempt": 3, "evidence": {"AC1": {"result": "passed", "summary": "seen"}}, **PASS})
         self.update("reopen", "T001", {"review_finding": "regress", "invalidated_acceptance": ["AC1"], "upstream_unchanged": True})
         self.assertEqual(path.read_text().split("\n---\n", 1)[1], edited)
@@ -252,6 +254,19 @@ class MarkdownTicketTests(unittest.TestCase):
             code, payload = run("loop/scripts/record-attempt", "start", str(self.task), "T001", "--input", "-", cwd=elsewhere, stdin=json.dumps(START))
             self.assertEqual(code, 0, payload)
             self.assertEqual(payload["graph"]["in_progress"], ["T001"])
+
+    def test_compat_alias_and_unified_entry_write_identical_state(self):
+        self.create()
+        self.update("start", "T001", START, script="loop/scripts/record-attempt")
+        via_alias = self.path("T001").read_text()
+        self.update("block", "T001", {"blocker": {"category": "environment", "reason": "r", "release_condition": "c"}, "evidence": {}})
+        self.update("unblock", "T001", {"release_evidence": "ok"})
+        self.update("start", "T001", START)
+        self.assertEqual(read_ticket(self.path("T001"))["execution"]["current_attempt"]["allowed_write_scope"],
+                         parse_ticket(via_alias)[0]["execution"]["current_attempt"]["allowed_write_scope"])
+        code, payload = run("loop/scripts/update-status", "retry", str(self.task), "T001", "--input", "-",
+                            stdin=json.dumps({"baseline": BASELINE, "existing_changes": START["existing_changes"], "expected_attempt": 2, "findings": "x", "allowed_write_scope": ["../escape"]}))
+        self.assertEqual(code, 1, payload)  # An explicit scope is still validated.
 
     def test_render_refuses_lossy_tickets(self):
         bad = canonical_ticket(schema_version=3, what_to_build="text\n## Injected")

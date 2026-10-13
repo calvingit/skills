@@ -20,8 +20,6 @@ def main(args):
         return invoke(E / 'to-tickets/scripts/create-graph', args)
     if operation in ['inspect', 'list', 'show']:
         return invoke(E / 'loop/scripts/graph-query', args)
-    if operation in ['start', 'retry']:
-        return invoke(E / 'loop/scripts/record-attempt', args)
     return invoke(E / 'loop/scripts/update-status', args)
 
 if __name__ == '__main__':

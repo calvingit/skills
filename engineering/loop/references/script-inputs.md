@@ -7,20 +7,20 @@ Resolve scripts relative to this installed skill, preserving sibling `shared/`. 
 ```bash
 python3 <loop-skill>/scripts/frontier <task-dir>
 python3 <loop-skill>/scripts/graph-query show <task-dir> T001
-python3 <loop-skill>/scripts/record-attempt start <task-dir> T001 --input <request.json>
+python3 <loop-skill>/scripts/update-status start <task-dir> T001 --input <request.json>
 python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <request.json>
 ```
 
 | Operation | Required JSON fields |
 | --- | --- |
 | `start` | `baseline` (object: `reference`, `staged`, `unstaged`, `untracked`), `existing_changes` (object: `included`, `excluded`; both path arrays), `allowed_write_scope` (nonempty relative-path array; guidance, not a write restriction) |
-| `retry` | start fields plus `expected_attempt` (current number), `findings` (original report string) |
+| `retry` | `baseline`, `existing_changes`, `expected_attempt` (current number), `findings` (original report string); optional `allowed_write_scope` (defaults to the current attempt's) |
 | `block` | `blocker` (`category`, `reason`, `release_condition`), `evidence` (local AC ID → result/summary) |
 | `unblock` | `release_evidence` (Loop-confirmed explanation) |
 | `complete` | `expected_attempt`, `evidence`, `verification`; optional `review` (actual original report) |
 | `reopen` | `review_finding`, `invalidated_acceptance` (local AC ID array), `upstream_unchanged: true` |
 
-`retry` belongs to `record-attempt`; other state mutations belong to `update-status`. Example start request:
+`update-status` owns every state write; `record-attempt start|retry` remains as a compatibility alias with identical behaviour. Each successful write returns the updated `graph` (frontier, blocked, stale authority); use it to choose the next ticket instead of re-querying. Run `frontier` when resuming a session or before finalization, where its `delivery_review` status is needed. Example start request:
 
 ```json
 {

@@ -50,6 +50,9 @@ def apply_unblock(ticket, request):
 def apply_retry(ticket, request):
     if ticket["lifecycle"]["phase"] != "in_progress":
         return transition_failure(ticket, "invalid_transition", "retry requires an in_progress ticket.")
+    if isinstance(request, dict) and "allowed_write_scope" not in request:
+        # Expected change areas usually stay the same across a correction; inherit them.
+        request = {**request, "allowed_write_scope": ticket["execution"]["current_attempt"]["allowed_write_scope"]}
     issues = validate_shape(request, {"expected_attempt", "baseline", "existing_changes", "allowed_write_scope", "findings"}, path="<request>", ticket_id=ticket["id"], field="")
     if issues:
         return None, issues
