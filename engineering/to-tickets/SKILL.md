@@ -63,7 +63,7 @@ Stop and Call the Skill tool with the owning upstream skill only when decomposit
 
 ## Write local tickets
 
-`tickets/*.json` is the only execution graph. `to-tickets` does not write JSON files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
+`tickets/*.md` (Markdown + YAML frontmatter, [format](references/ticket-format.md)) is the only execution graph. `to-tickets` does not write ticket files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
 
 Read [script inputs](references/script-inputs.md) for JSON request shapes. Use `python3 <to-tickets-skill>/scripts/create-graph create-batch --help` for the current command input.
 
@@ -73,7 +73,7 @@ Then:
 python3 <to-tickets-skill>/scripts/create-graph create-batch <task-dir> --input <request.json>
 ```
 
-The CLI assigns immutable `T001`-style IDs, resolves dependencies, initializes `open` lifecycle and empty execution facts, and returns the mapping and full graph. Schema, identity, execution facts and readiness belong to the graph tool; do not keep another JSON template here.
+The CLI assigns immutable `T001`-style IDs, resolves dependencies, initializes `open` lifecycle and empty execution facts, and returns the mapping and full graph. Schema, identity, execution facts and readiness belong to the graph tool; do not keep another ticket template here. The Markdown body (title, Delivery, Constraints, Delivery Acceptance) is the readable contract; the frontmatter holds machine facts only.
 
 AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / HLD prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
@@ -87,6 +87,7 @@ Resolve `<to-tickets-skill>` to this installed skill directory, never to the tar
 
 - `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; initialize empty execution facts.
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Loop stops writers.
+
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
 
 Use `constraints: []` when a ticket has no specific inherited constraint, rather than adding filler. Keep implementation recipes out of tickets.

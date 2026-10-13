@@ -37,7 +37,7 @@
 | 需求、目标、任务范围、SPEC AC | 简单任务使用经确认的会话内容，保存为文档后，以 SPEC 中的工程需求快照为准 | 用户确认需求选择，由 `to-spec` 维护快照 | HLD、tickets、实现与验收引用当前快照，新输入改变快照时先修订 SPEC。 |
 | 独立维护版本的验收场景与证据规则 | 按需建立的 ACCEPTANCE | `to-spec` | 场景引用 SPEC R / AC，不再维护另一份同名 AC 定义，与 SPEC 有冲突时，停止受影响的工作并交回负责方。 |
 | 交付共享技术设计 | 交付设计以 HLD 为准，长期项目决策由已有架构文档 / ADR 维护 | 交付设计由 `high-level-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，HLD 不自行取代长期约束，也不反向修改需求。 |
-| 交付拆分、依赖、本地 AC 与约束 | `tickets/*.json` 的契约字段 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
+| 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
 | ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `loop` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
 | 最终交付候选与状态 | `.loop/delivery.json` | `loop` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
 | 项目稳定工程知识与导航 | 使用已有项目指令、术语表和架构资料，通过 Profile 定位来源 | 项目资料由各自的维护者负责，`project-setup` 维护 Profile | 按需引用，不把当前任务、运行结果或授权复制进 Profile。 |

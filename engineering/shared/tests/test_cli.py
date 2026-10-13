@@ -12,14 +12,14 @@ class ScriptCliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             env = dict(os.environ)
             env.pop('PYTHONPATH', None)
-            for skill, names in [('to-tickets', ['create-graph','validate-graph']), ('loop', ['frontier','graph-query','record-attempt','update-status'])]:
+            for skill, names in [('to-tickets', ['create-graph','validate-graph']), ('loop', ['frontier','graph-query','update-status'])]:
                 for name in names:
                     result = subprocess.run([sys.executable, str(E / skill / 'scripts' / name), '--help'], cwd=directory, env=env, capture_output=True, text=True)
                     self.assertEqual(result.returncode, 0, result.stderr)
                     self.assertIn('usage:', result.stdout)
 
     def test_entrypoints_reject_other_owners_operations(self):
-        for skill, script, args in [('to-tickets','create-graph',['start']), ('loop','update-status',['create-batch']), ('loop','graph-query',['complete']), ('loop','record-attempt',['worker'])]:
+        for skill, script, args in [('to-tickets','create-graph',['start']), ('loop','update-status',['create-batch']), ('loop','graph-query',['complete'])]:
             result = subprocess.run([sys.executable, str(E / skill / 'scripts' / script), *args], capture_output=True, text=True)
             self.assertEqual(result.returncode, 2)
 

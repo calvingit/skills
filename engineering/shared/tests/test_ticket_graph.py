@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import test_bootstrap
+from test_bootstrap import dump_ticket, read_ticket
 import json
 import re
 import runpy
@@ -92,7 +93,7 @@ def schema_errors(
 
 def canonical_ticket(**overrides: object) -> dict[str, object]:
     ticket: dict[str, object] = {
-        "schema_version": 2,
+        "schema_version": 3,
         "id": "T001",
         "title": "Example delivery",
         "covers": {"requirements": ["R1"], "spec_acceptance": ["AC1"]},
@@ -136,10 +137,10 @@ class TicketGraphCliTests(unittest.TestCase):
         self.temporary_directory.cleanup()
 
     def write_ticket(
-        self, ticket: dict[str, object], filename: str = "T001-example-delivery.json"
+        self, ticket: dict[str, object], filename: str = "T001-example-delivery.md"
     ) -> Path:
         path = self.task_dir / "tickets" / filename
-        path.write_text(json.dumps(ticket, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        path.write_text(dump_ticket(ticket), encoding="utf-8")
         return path
 
     def write_request(self, value: dict[str, object]) -> Path:
@@ -172,7 +173,7 @@ class TicketGraphCliTests(unittest.TestCase):
         relative = ticket_path.relative_to(self.task_dir)
         shutil.copy2(ticket_path, backup / relative)
         (staging / relative).write_text(
-            json.dumps(target, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+            dump_ticket(target), encoding="utf-8"
         )
         (transaction / "manifest.json").write_text(
             json.dumps(
@@ -207,7 +208,7 @@ class TicketGraphCliTests(unittest.TestCase):
 
         missing_title = canonical_ticket()
         del missing_title["title"]
-        cases.append((missing_title, "missing_field"))
+        cases.append((missing_title, "invalid_ticket_body"))
 
         persisted_readiness = canonical_ticket(readiness="ready")
         cases.append((persisted_readiness, "unknown_field"))
@@ -218,7 +219,7 @@ class TicketGraphCliTests(unittest.TestCase):
         invalid_phase_type = canonical_ticket(lifecycle={"phase": {"unexpected": True}})
         cases.append((invalid_phase_type, "invalid_field"))
 
-        unsupported_version = canonical_ticket(schema_version=3)
+        unsupported_version = canonical_ticket(schema_version=2)
         cases.append((unsupported_version, "unsupported_schema_version"))
 
         for ticket, expected_code in cases:
@@ -248,7 +249,7 @@ class TicketGraphCliTests(unittest.TestCase):
     def test_public_schemas_define_closed_v1_contracts(self) -> None:
         ticket_schema = json.loads((SCHEMAS / "ticket-schema.json").read_text(encoding="utf-8"))
 
-        self.assertEqual(ticket_schema["properties"]["schema_version"]["const"], 2)
+        self.assertEqual(ticket_schema["properties"]["schema_version"]["const"], 3)
         self.assertFalse(ticket_schema["additionalProperties"])
         self.assertEqual(set(ticket_schema["required"]), set(canonical_ticket()))
         self.assertEqual(schema_errors(canonical_ticket(), ticket_schema, ticket_schema), [])
@@ -256,14 +257,14 @@ class TicketGraphCliTests(unittest.TestCase):
             schema_errors(canonical_ticket(readiness="ready"), ticket_schema, ticket_schema)
         )
 
-    def test_markdown_only_graph_is_rejected(self) -> None:
-        (self.task_dir / "tickets" / "01-legacy.md").write_text("# Legacy\n", encoding="utf-8")
+    def test_markdown_without_frontmatter_is_rejected(self) -> None:
+        (self.task_dir / "tickets" / "T001-legacy.md").write_text("# Legacy\n", encoding="utf-8")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
         self.assertEqual(result.returncode, 1)
         self.assertFalse(payload["ok"])
-        self.assertIn("unsupported_markdown_ticket", {item["code"] for item in payload["problems"]})
+        self.assertIn("missing_frontmatter", {item["code"] for item in payload["problems"]})
 
     def test_unknown_authority_references_and_coverage_gaps_are_reported(self) -> None:
         ticket = canonical_ticket(
@@ -296,8 +297,8 @@ class TicketGraphCliTests(unittest.TestCase):
                 self.assertEqual(payload["problems"], [])
 
     def test_duplicate_ticket_ids_are_rejected(self) -> None:
-        self.write_ticket(canonical_ticket(), "T001-first.json")
-        self.write_ticket(canonical_ticket(), "T001-second.json")
+        self.write_ticket(canonical_ticket(), "T001-first.md")
+        self.write_ticket(canonical_ticket(), "T001-second.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -305,9 +306,9 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertIn("duplicate_ticket_id", {item["code"] for item in payload["problems"]})
 
     def test_dependency_cycles_are_rejected(self) -> None:
-        self.write_ticket(canonical_ticket(dependencies=["T002"]), "T001-first.json")
+        self.write_ticket(canonical_ticket(dependencies=["T002"]), "T001-first.md")
         second = canonical_ticket(id="T002", dependencies=["T001"])
-        self.write_ticket(second, "T002-second.json")
+        self.write_ticket(second, "T002-second.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -319,9 +320,9 @@ class TicketGraphCliTests(unittest.TestCase):
             lifecycle={"phase": "superseded"},
             supersession={"reason": "Replaced", "replacement_ticket_id": "T002"},
         )
-        self.write_ticket(superseded, "T001-old.json")
+        self.write_ticket(superseded, "T001-old.md")
         replacement = canonical_ticket(id="T002", dependencies=["T001"])
-        self.write_ticket(replacement, "T002-new.json")
+        self.write_ticket(replacement, "T002-new.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -339,9 +340,9 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             },
         )
-        first_path = self.write_ticket(completed, "T001-completed.json")
+        first_path = self.write_ticket(completed, "T001-completed.md")
         second = canonical_ticket(id="T002", dependencies=["T001"])
-        second_path = self.write_ticket(second, "T002-ready.json")
+        second_path = self.write_ticket(second, "T002-ready.md")
         before = {first_path: first_path.read_bytes(), second_path: second_path.read_bytes()}
 
         list_result, list_payload = self.run_cli(
@@ -406,9 +407,9 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             }
         )
-        self.write_ticket(blocked, "T001-environment.json")
+        self.write_ticket(blocked, "T001-environment.md")
         dependent = canonical_ticket(id="T002", dependencies=["T001"])
-        self.write_ticket(dependent, "T002-dependent.json")
+        self.write_ticket(dependent, "T002-dependent.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -433,8 +434,8 @@ class TicketGraphCliTests(unittest.TestCase):
             },
             supersession={"reason": "Replaced", "replacement_ticket_id": "T002"},
         )
-        self.write_ticket(superseded, "T001-old.json")
-        self.write_ticket(canonical_ticket(id="T002"), "T002-current.json")
+        self.write_ticket(superseded, "T001-old.md")
+        self.write_ticket(canonical_ticket(id="T002"), "T002-current.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -446,8 +447,8 @@ class TicketGraphCliTests(unittest.TestCase):
             lifecycle={"phase": "superseded"},
             supersession={"reason": "Replaced", "replacement_ticket_id": "T999"},
         )
-        self.write_ticket(superseded, "T001-old.json")
-        self.write_ticket(canonical_ticket(id="T002"), "T002-current.json")
+        self.write_ticket(superseded, "T001-old.md")
+        self.write_ticket(canonical_ticket(id="T002"), "T002-current.md")
 
         result, payload = self.run_cli("inspect", str(self.task_dir))
 
@@ -475,7 +476,7 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
         self.assertTrue(payload["ok"])
-        stored = json.loads(path.read_text(encoding="utf-8"))
+        stored = read_ticket(path)
         self.assertEqual(stored["lifecycle"]["phase"], "in_progress")
         self.assertEqual(stored["execution"]["attempt_sequence"], 1)
         self.assertEqual(stored["execution"]["current_attempt"]["number"], 1)
@@ -494,7 +495,7 @@ class TicketGraphCliTests(unittest.TestCase):
                 "reopen_context": None,
             }
         )
-        path.write_text(json.dumps(blocked, indent=2) + "\n", encoding="utf-8")
+        path.write_text(dump_ticket(blocked), encoding="utf-8")
         before = path.read_bytes()
         blocked_result, blocked_payload = self.run_cli(
             "start", str(self.task_dir), "T001", "--input", str(request)
@@ -517,7 +518,7 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
-        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["lifecycle"]["phase"], "open")
+        self.assertEqual(read_ticket(path)["lifecycle"]["phase"], "open")
 
     def test_block_and_unblock_preserve_the_execution_boundary(self) -> None:
         ticket = canonical_ticket(
@@ -559,7 +560,7 @@ class TicketGraphCliTests(unittest.TestCase):
         )
 
         self.assertEqual(block_result.returncode, 0)
-        stored = json.loads(path.read_text(encoding="utf-8"))
+        stored = read_ticket(path)
         self.assertEqual(stored["lifecycle"]["phase"], "open")
         self.assertIsNone(stored["execution"]["current_attempt"])
         self.assertEqual(stored["execution"]["blocker"]["category"], "environment")
@@ -580,7 +581,7 @@ class TicketGraphCliTests(unittest.TestCase):
             "unblock", str(self.task_dir), "T001", "--input", str(unblock_request)
         )
         self.assertEqual(unblock_result.returncode, 0)
-        self.assertIsNone(json.loads(path.read_text(encoding="utf-8"))["execution"]["blocker"])
+        self.assertIsNone(read_ticket(path)["execution"]["blocker"])
 
         start_request = self.write_request(
             {
@@ -593,7 +594,7 @@ class TicketGraphCliTests(unittest.TestCase):
             "start", str(self.task_dir), "T001", "--input", str(start_request)
         )
         self.assertEqual(start_result.returncode, 0)
-        self.assertNotIn("review", json.loads(path.read_text(encoding="utf-8"))["execution"])
+        self.assertNotIn("review", read_ticket(path)["execution"])
 
     def test_retry_increments_attempt_without_leaving_in_progress(self) -> None:
         ticket = canonical_ticket(
@@ -628,7 +629,7 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
         self.assertTrue(payload["ok"])
-        stored = json.loads(path.read_text(encoding="utf-8"))
+        stored = read_ticket(path)
         self.assertEqual(stored["lifecycle"]["phase"], "in_progress")
         self.assertEqual(stored["execution"]["attempt_sequence"], 2)
         self.assertEqual(stored["execution"]["evidence"], {})
@@ -670,7 +671,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertFalse(payload["ok"])
         self.assertIn("stale_attempt", {item["code"] for item in payload["problems"]})
-        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["execution"]["attempt_sequence"], 2)
+        self.assertEqual(read_ticket(path)["execution"]["attempt_sequence"], 2)
 
     def test_retry_rejects_an_empty_write_scope(self) -> None:
         ticket = canonical_ticket(
@@ -704,7 +705,7 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
-        self.assertEqual(json.loads(path.read_text(encoding="utf-8"))["execution"]["attempt_sequence"], 1)
+        self.assertEqual(read_ticket(path)["execution"]["attempt_sequence"], 1)
 
     def test_block_accepts_dependency_as_an_execution_blocker(self) -> None:
         ticket = canonical_ticket(
@@ -798,7 +799,7 @@ class TicketGraphCliTests(unittest.TestCase):
             "complete", str(self.task_dir), "T001", "--input", str(complete_request)
         )
         self.assertEqual(complete_result.returncode, 0)
-        completed = json.loads(path.read_text(encoding="utf-8"))
+        completed = read_ticket(path)
         self.assertEqual(completed["lifecycle"]["phase"], "done")
         self.assertIsNone(completed["execution"]["current_attempt"])
 
@@ -813,7 +814,7 @@ class TicketGraphCliTests(unittest.TestCase):
             "reopen", str(self.task_dir), "T001", "--input", str(reopen_request)
         )
         self.assertEqual(reopen_result.returncode, 0)
-        reopened = json.loads(path.read_text(encoding="utf-8"))
+        reopened = read_ticket(path)
         self.assertEqual(reopened["lifecycle"]["phase"], "open")
         self.assertEqual(set(reopened["execution"]["evidence"]), {"AC1"})
         self.assertEqual(reopened["execution"]["reopen_context"]["invalidated_acceptance"], ["AC2"])
@@ -895,9 +896,9 @@ class TicketGraphCliTests(unittest.TestCase):
             [(item["key"], item["id"]) for item in payload["result"]["created"]],
             [("foundation", "T001"), ("consumer", "T002")],
         )
-        files = sorted((self.task_dir / "tickets").glob("*.json"))
+        files = sorted((self.task_dir / "tickets").glob("*.md"))
         self.assertEqual([path.name.split("-", 1)[0] for path in files], ["T001", "T002"])
-        stored = [json.loads(path.read_text(encoding="utf-8")) for path in files]
+        stored = [read_ticket(path) for path in files]
         self.assertEqual(stored[0]["lifecycle"]["phase"], "open")
         self.assertEqual(stored[0]["constraints"], [])
         self.assertEqual(stored[1]["dependencies"], ["T001"])
@@ -929,11 +930,11 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 1)
         self.assertIn("invalid_field", {item["code"] for item in payload["problems"]})
-        self.assertEqual(list((self.task_dir / "tickets").glob("*.json")), [])
+        self.assertEqual(list((self.task_dir / "tickets").glob("*.md")), [])
 
     def test_reconcile_batch_commits_replacement_lineage_and_dependency_reconnect(self) -> None:
-        self.write_ticket(canonical_ticket(), "T001-old.json")
-        self.write_ticket(canonical_ticket(id="T002", dependencies=["T001"]), "T002-consumer.json")
+        self.write_ticket(canonical_ticket(), "T001-old.md")
+        self.write_ticket(canonical_ticket(id="T002", dependencies=["T001"]), "T002-consumer.md")
         request = self.write_request(
             {
                 "reason": "The confirmed delivery graph changed.",
@@ -978,8 +979,8 @@ class TicketGraphCliTests(unittest.TestCase):
         by_id = {
             ticket["id"]: ticket
             for ticket in (
-                json.loads(path.read_text(encoding="utf-8"))
-                for path in (self.task_dir / "tickets").glob("*.json")
+                read_ticket(path)
+                for path in (self.task_dir / "tickets").glob("*.md")
             )
         }
         self.assertEqual(by_id["T001"]["lifecycle"]["phase"], "superseded")
@@ -988,9 +989,9 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(by_id["T003"]["lifecycle"]["phase"], "open")
 
     def test_reconcile_batch_rejects_an_invalid_prospective_graph_without_writes(self) -> None:
-        first = self.write_ticket(canonical_ticket(), "T001-old.json")
+        first = self.write_ticket(canonical_ticket(), "T001-old.md")
         second = self.write_ticket(
-            canonical_ticket(id="T002", dependencies=["T001"]), "T002-consumer.json"
+            canonical_ticket(id="T002", dependencies=["T001"]), "T002-consumer.md"
         )
         before = {first: first.read_bytes(), second: second.read_bytes()}
         request = self.write_request(
@@ -1039,7 +1040,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(inspect_payload["problems"][0]["code"], "recovery_required")
         self.assertEqual(recover_result.returncode, 0)
         self.assertTrue(recover_payload["ok"])
-        self.assertEqual(json.loads(ticket_path.read_text(encoding="utf-8")), original)
+        self.assertEqual(read_ticket(ticket_path), original)
         self.assertFalse((self.task_dir / ".ticket-graph-transaction").exists())
 
     def test_recover_commit_accepts_only_a_valid_staged_graph(self) -> None:
@@ -1060,9 +1061,9 @@ class TicketGraphCliTests(unittest.TestCase):
 
         self.assertEqual(result.returncode, 0)
         self.assertTrue(payload["ok"])
-        self.assertEqual(json.loads(ticket_path.read_text(encoding="utf-8")), target)
+        self.assertEqual(read_ticket(ticket_path), target)
 
-        invalid = canonical_ticket(schema_version=3)
+        invalid = canonical_ticket(schema_version=2)
         self.prepare_switching_transaction(original, invalid)
         before = ticket_path.read_bytes()
         invalid_result, invalid_payload = self.run_cli(
@@ -1076,7 +1077,7 @@ class TicketGraphCliTests(unittest.TestCase):
         self.assertEqual(ticket_path.read_bytes(), before)
         self.assertTrue((self.task_dir / ".ticket-graph-transaction").exists())
 
-    def test_workflow_contract_docs_are_json_only_and_command_aligned(self) -> None:
+    def test_workflow_contract_docs_are_markdown_only_and_command_aligned(self) -> None:
         paths = [
             REPOSITORY / "README.md",
             REPOSITORY / "engineering" / "loop" / "SKILL.md",
@@ -1087,9 +1088,9 @@ class TicketGraphCliTests(unittest.TestCase):
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
-        self.assertNotIn("tickets/*.md", text)
+        self.assertNotIn("tickets/*.json", text)
         self.assertNotIn("inspect_graph.py", text)
-        self.assertIn("tickets/*.json", text)
+        self.assertIn("tickets/*.md", text)
         self.assertIn("create-batch", text)
         self.assertIn("reconcile-batch", text)
         self.assertIn("open", text)

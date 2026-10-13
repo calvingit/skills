@@ -46,3 +46,4 @@ python3 <to-tickets-skill>/scripts/validate-graph <task-dir>
 ```
 
 Graph transaction recovery is available through `loop`'s `update-status recover` command.
+

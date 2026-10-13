@@ -97,6 +97,7 @@ def _graph_files(task_dir: Path) -> dict[str, bytes]:
         path = task_dir / name
         if path.is_file():
             files[name] = path.read_bytes()
-    for path in sorted((task_dir / "tickets").glob("*.json")):
+    # Every ticket file counts, including stray legacy JSON, so any edit stales review.
+    for path in sorted([*(task_dir / "tickets").glob("*.md"), *(task_dir / "tickets").glob("*.json")]):
         files[path.relative_to(task_dir).as_posix()] = path.read_bytes()
     return files

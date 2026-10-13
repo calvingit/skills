@@ -71,7 +71,7 @@
     {"id": "high_level_design", "lane": "design", "col": 5, "type": "backend", "label": "high-level-design", "sublabel": "共享设计 + 按需评审", "width": 124},
     {"id": "execution_check", "lane": "execution", "col": 3, "type": "security", "label": "已有或需要执行图？", "sublabel": "分别判断图与共享设计", "tag": "DECISION", "width": 158},
     {"id": "quick_implement", "lane": "execution", "col": 4, "type": "frontend", "label": "quick-implement", "sublabel": "实现 + 三项独立收尾", "width": 112, "yOffset": -70},
-    {"id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.json", "yOffset": 70},
+    {"id": "to_tickets", "lane": "execution", "col": 4, "type": "backend", "label": "to-tickets", "sublabel": "tickets/*.md", "yOffset": 70},
     {"id": "loop", "lane": "execution", "col": 5, "type": "messagebus", "label": "loop", "sublabel": "原生 worker + 证据判断", "width": 160, "yOffset": 70},
     {"id": "delivery", "lane": "execution", "col": 5, "type": "cloud", "label": "verified delivery", "sublabel": "全部 AC 与必需收尾通过", "tag": "DONE", "width": 124, "yOffset": -70}
   ],
