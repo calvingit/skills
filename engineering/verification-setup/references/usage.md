@@ -2,6 +2,12 @@
 
 执行规则见 [Verification Setup](../SKILL.md)，本地方法应包含的内容见 [harness 契约](project-harness.md)，配置入口与迁移见 [Profile 约定](../../project-setup/references/profile.md)。已有文档、脚本或本地 Skill 足够时直接使用，需要建立可重复的方法入口时再运行 setup。
 
+## 只盘点、不执行
+
+- `使用 verification-setup 盘点这个仓库现有的验证方法，列出来源、命令、前置条件、能证明的范围和限制，不创建 Skill，也不运行。`
+
+产物是一份报告，或对已有 Verification 摘要的更新，每项都标明“依据配置发现，未执行”。已有说明时只补缺项，不复制命令，不新增入口。没有说明且只要求盘点时，直接报告即可，不必新建 Profile 或独立的能力清单文件。
+
 ## 首次建立与增量维护
 
 - 首次建立：`使用 verification-setup 分析这个仓库，复用已有验证工具，为当前产品建立项目本地验证 Skill，并实际跑通一条代表性路径。`

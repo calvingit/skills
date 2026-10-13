@@ -63,7 +63,7 @@
 | [`debug`](./engineering/debug/SKILL.md) | 复现与诊断疑难缺陷（修复需授权）。 |
 | [`test-audit`](./engineering/test-audit/SKILL.md) | 审计测试有效性与维护成本。 |
 | [`project-setup`](./engineering/project-setup/SKILL.md) | 探测并持久化工程 Profile。 |
-| [`verification-setup`](./engineering/verification-setup/SKILL.md) | 从仓库证据建立或刷新本地验证方法。 |
+| [`verification-setup`](./engineering/verification-setup/SKILL.md) | 从仓库证据盘点、建立或刷新本地验证方法。 |
 | [`domain-modeling`](./engineering/domain-modeling/SKILL.md) | 术语表与长期架构决策。 |
 | [`codebase-design`](./engineering/codebase-design/SKILL.md) | 深模块、缝与依赖方向的共用词汇。 |
 | [`review-architecture`](./engineering/review-architecture/SKILL.md) | 只读架构符合性审查与候选发现。 |

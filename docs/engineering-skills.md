@@ -37,7 +37,7 @@
 
 Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链接和读取条件。Profile 定位项目知识与验证方法，不保存当前任务契约或运行结果，未知字段、已确认设置和旧配置迁移按[Profile 约定](../engineering/project-setup/references/profile.md)处理。缺少 Profile 或字段为 `auto` 时继续发现，显式入口失效或冲突须报告。
 
-[verification-setup](../engineering/verification-setup/SKILL.md) 复用仓库工具，创建或刷新项目本地验证方法并实际试运行，[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
+[verification-setup](../engineering/verification-setup/SKILL.md) 有两种范围：只盘点现有验证方法及其限制，不创建也不运行；或复用仓库工具，创建或刷新项目本地验证方法并实际试运行。[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
 
 ## 行为规格
 
@@ -99,7 +99,7 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 | 当前目标 | 入口与职责 |
 | --- | --- |
-| 创建或维护项目验证方法、执行步骤和证据说明 | 使用 [verification-setup](../engineering/verification-setup/SKILL.md) 复用已有工具，生成或刷新本地 Skill，并记录实际试运行覆盖。 |
+| 创建或维护项目验证方法、执行步骤和证据说明 | 使用 [verification-setup](../engineering/verification-setup/SKILL.md)。只盘点时报告方法与限制；建立或维护时生成或刷新本地 Skill，并记录实际试运行覆盖。 |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
 | 用户手动调用，理解当前代码、数据或控制流如何运行 | 使用 [how](../engineering/how/SKILL.md) 解释当前事实，不判断目标设计。 |

@@ -60,7 +60,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | Skill | 范围及可修改产物 | 决策与停止点 | 结论依据 |
 | --- | --- | --- | --- |
 | project-setup | 稳定 Profile、AGENTS.md 入口及获准迁移 | 固化已确认配置，不建设验证工具与方法，也不决定验收 | 项目已有约定、源文件及用户选择 |
-| verification-setup | 本地验证方法、必要辅助脚本、验证导航和摘要 | 创建/刷新并试运行方法，将依赖、CI 或产品变更另交实现 | 实际启动、驱动、观察、清理与保留证据 |
+| verification-setup | 本地验证方法、必要辅助脚本、验证导航和摘要 | 盘点方法与限制；或创建/刷新并试运行方法，将依赖、CI 或产品变更另交实现 | 盘点：依据配置，标明未执行；建立：实际启动、驱动、观察、清理与保留证据 |
 | improve-agents-md | 获准的项目指令修改 | 判断指令是否有依据，不自行重配 Profile | 仓库规则、真实命令与适用范围 |
 | find-docs | 只读文档检索 | 回答指定产品/版本的问题，不开展完整选型 | 官方资料、明确版本、未执行限制 |
 | tech-research | 有边界的技术调研 | 提供推荐和采用条件，不直接实施 | 官方/工程资料、现状约束、已执行实验与推断区分 |
@@ -109,7 +109,7 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 ## 已收敛的职责
 
 - Profile 字段语义、读取和迁移集中在 project-setup 的[引用说明](../engineering/project-setup/references/profile.md)，使用方读取相关设置，不绑定 AGENTS.md 内嵌格式，并保留旧持久化配置直到获准迁移。
-- verification-setup 维护方法和能力摘要，verify 判断当前 AC 的充分证据。没有另一套验证命令配置或强制工具选择。
+- verification-setup 盘点并维护方法和能力摘要，verify 只为当前 AC 查找方法并判断证据是否充分。没有另一套验证命令配置或强制工具选择。
 - verify 保留当前证据可信度检查，test-audit 保留系统测试价值审计，code-review 保留改动风险判断，不让任何一个报告替代另一个角色的验收责任。
 - implement 已负责当前变化造成的必要简化，simplify 检查仍存在且有证据的问题。Loop 保留已有最终 simplify 角色契约，不新增逐 ticket 审计。
 - Loop 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../engineering/loop/references/delivery-review.md)，不新增状态字段。
