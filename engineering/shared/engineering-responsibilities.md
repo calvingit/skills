@@ -145,7 +145,7 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 
 ## 文档归属
 
-使用指南（[engineering-skills.md](engineering-skills.md)）和本文放在 `engineering/shared/`，`docs` 维护插件安装、发版和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示只以 SVG 保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+使用指南（[engineering-skills.md](engineering-skills.md)）和本文放在 `engineering/shared/`，`docs` 维护插件安装、发版和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示的 JSON 源文件与 SVG 一起保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
 
 ## 已收敛的职责
 
