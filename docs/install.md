@@ -44,7 +44,7 @@ enabled = true
 
 ## 更新
 
-插件按安装时的提交缓存，仓库推送后不会自己更新。
+插件按安装时的版本缓存，仓库推送后不会自己更新。发版流程见 [releasing.md](./releasing.md)。
 
 **Claude Code**
 
@@ -53,7 +53,7 @@ claude plugin marketplace update calvingit
 claude plugin update calvin-skills@calvingit
 ```
 
-更新后重启会话，或在会话里运行 `/reload-plugins`。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认是关的。`.claude-plugin/plugin.json` 故意不写 `version`，这样 Claude Code 按提交判断有没有新版本。写死版本号的话，版本号不变就收不到更新。
+更新后重启会话，或在会话里运行 `/reload-plugins`。Claude Code 按 `version` 判断有没有新版本，只有发版改了版本号才会更新，平时推到 main 的提交不会推给已安装的用户。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认是关的。
 
 **Codex**
 

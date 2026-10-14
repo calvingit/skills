@@ -1,6 +1,7 @@
 {
   "name": "calvin-skills",
   "displayName": "Calvin Skills",
+  "version": "3.0.0",
   "description": "Engineering workflow, backend, documents and work skills for coding agents.",
   "author": { "name": "calvingit" },
   "homepage": "https://github.com/calvingit/skills",
