@@ -1,6 +1,6 @@
 ---
 name: graph-workflow
-description: Advance a confirmed ticket dependency graph through implementation, evidence inspection, and state transitions, coordinating execution with native workers. Not an agent runtime or orchestration framework.
+description: Advance a confirmed ticket dependency graph through implementation, evidence inspection, and execution-state transitions, coordinating workflow progression with native workers. Not an agent runtime or orchestration framework.
 ---
 
 # Graph Workflow

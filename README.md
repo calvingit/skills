@@ -32,14 +32,14 @@
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
 | [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
 | [`work/`](./work/) | 跨领域工具、会话辅助与学习 |
-| [`docs/`](./docs/) | Engineering 使用总览、职责、Graph Workflow/Runtime、Kernel 与图示 |
+| [`docs/`](./docs/) | 插件安装与发版、Graph Workflow/Runtime 说明与图示（使用指南和职责在 `engineering/shared/`） |
 | [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
 
 许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
 
 ## 如何选用（Engineering 速查）
 
-完整规则见 [`docs/engineering-skills.md`](./docs/engineering-skills.md)。按当前目标选入口，不必走完所有阶段：
+完整规则见 [`engineering/shared/engineering-skills.md`](./engineering/shared/engineering-skills.md)。按当前目标选入口，不必走完所有阶段：
 
 | 当前状态 | 入口 |
 | --- | --- |
@@ -124,7 +124,7 @@
 
 ## 文档与图示
 
-- [使用总览与选择入口](./docs/engineering-skills.md)
+- [使用指南与选择入口](./engineering/shared/engineering-skills.md)
 - [职责与产物归属](./engineering/shared/engineering-responsibilities.md)
 - [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)
 - [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)

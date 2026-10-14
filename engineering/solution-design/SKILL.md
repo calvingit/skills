@@ -1,6 +1,6 @@
 ---
 name: solution-design
-description: "Design the technical solution in HLD.md from a confirmed SPEC and existing system constraints: lock shared module duties, types, interfaces, and integration constraints without widening scope. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
+description: "Design the technical solution in HLD.md from a confirmed SPEC and existing system constraints: lock shared design decisions on module duties, types, interfaces, and integration constraints without widening scope. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
 ---
 
 # Solution Design

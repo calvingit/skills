@@ -2,6 +2,47 @@
 
 维护现有 Engineering Skills 的职责划分、产物写入范围和结论依据。暂不新增全局 Skill、通用编排层或 Runtime，优先组合已有能力和项目方法。项目本地验证入口属于项目知识，不等于增加全局 Skill。恢复新增前，需以真实任务说明现有职责无法承接的能力缺口。
 
+## 核心原则
+
+> A Skill owns decisions and artifacts within its responsibility. A Skill must respect upstream contracts and downstream boundaries.
+
+每个 Skill 只在自己的职责内做决定、写产物；上游已确认的契约不能改，下游的工作不能代做。遇到超出职责的问题，交回调用方或负责的 Skill。
+
+## 职责地图
+
+主流程是 grilling → to-spec → solution-design → to-tickets → graph-workflow → ticket-implement → verify。各入口按需组合，不是必经阶段；何时使用哪个入口见[使用指南](engineering-skills.md)。
+
+| Skill | 负责 | 不负责 |
+| --- | --- | --- |
+| `grilling` | 追问到关键选择确定，记录用户确认的决定 | 替用户做需求选择；写 SPEC、设计或实现 |
+| `to-spec` | 把已确认需求写成 `SPEC.md`（R / AC），按需维护 ACCEPTANCE | 设计内部实现；补写未决的业务决定 |
+| `solution-design` | 根据 SPEC、现有代码和约束设计共享技术方案，写 `HLD.md` | 改 SPEC 含义；拆票；局部实现细节 |
+| `to-tickets` | 用脚本创建或协调 `tickets/*.md`，确定拆分与真实依赖 | 引入新需求或设计；领取和执行 ticket |
+| `graph-workflow` | 选 ticket、派发原生 worker、核对证据、用状态命令写入 ticket 状态和交付记录 | 改产品代码；管理 Runtime 会话 |
+| `ticket-implement` | 在约定写范围内实现一张 ticket，补必要测试，报告实际自检 | 改 SPEC / HLD / tickets；调度其他任务 |
+| `quick-implement` | 无执行图时由主 Agent 实现单一范围，再派发 simplify、verify、code-review 收尾 | 建立或维护执行图；已有图时不使用 |
+| `verify` | 独立逐条判断 AC 证据，输出 PASS / FAIL / NOT VERIFIED | 修复问题；改 ticket 状态；调度 Agent |
+
+## 产物归属速查
+
+下表只列主流程产物的写入方，权威来源和下游使用规则见[事实与产物归属](#事实与产物归属)。
+
+| 产物 | 写入方 |
+| --- | --- |
+| 需求决定（`decisions.md`） | 用户确认，`grilling` 记录 |
+| `SPEC.md` | `to-spec` |
+| 技术方案（`HLD.md`） | `solution-design` |
+| `tickets/*.md` 契约与依赖 | `to-tickets`（create / reconcile 命令） |
+| ticket 状态、attempt 与 `.loop/` 交付记录 | `graph-workflow`（`update-status` 命令） |
+| 源代码与仓库测试 | 有图时为 `ticket-implement` worker，无图时为 `quick-implement` |
+| 验证证据与逐 AC 结论 | `verify`（只写调用方允许的隔离资源） |
+
+## 边界示例
+
+- **实现不做设计**：`ticket-implement` 发现共享设计不成立时，不自行改接口或 HLD，而是把冲突报告给调用方；`graph-workflow` 暂停受影响的工作，交回 `solution-design` 修订，再由 `to-tickets` 协调执行图。
+- **工作流不改代码**：`graph-workflow` 需要修正时不直接改源代码，而是记录 correction attempt，派发 worker 加载 `ticket-implement` 处理。
+- **验证不修复**：`verify` 发现缺陷只报告结论和证据，不改代码。调用方（`graph-workflow` 或 `quick-implement`）据此安排修正：有图时交给 `ticket-implement`，修正后重新验证受影响的证据。
+
 ## 任务契约与六类边界
 
 任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](task-contract.md)，各 Skill 无需重复这些定义。六类边界是[跨 Skill 不变量基线](ENGINEERING_KERNEL.md)在工作流层的角色化表述；不变量本身不由本文档改写。
@@ -26,7 +67,7 @@
 
 仅用户手动触发的 Skill（当前明确包括 `how`、`why`）不得由其他 Skill 通过 Skill tool 代为拉起；需要时告诉用户自己运行。Human Entry Point 在已授权工作流里仍可按交接继续下游（不必逐步让用户重输名称），继续时用 Skill tool 调用，不要散文式 `run /xxx`。
 
-审计发现并修正：`graph-workflow`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`ticket-implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
+审计发现并修正：`graph-workflow`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`ticket-implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。`to-tickets → graph-workflow` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
 
 ## 事实与产物归属
 
@@ -104,7 +145,7 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 
 ## 文档归属
 
-`docs` 维护使用总览、跨 Skill 职责和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示源文件与导出文件成套保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+使用指南（[engineering-skills.md](engineering-skills.md)）和本文放在 `engineering/shared/`，`docs` 维护插件安装、发版和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示源文件与导出文件成套保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
 
 ## 已收敛的职责
 
