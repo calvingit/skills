@@ -895,15 +895,15 @@ rect.c-bg-rect { fill: var(--bg); }
           <text x="149" y="282" class="t-muted" font-size="8" text-anchor="middle">分类需求与设计决策</text>
         </g>
 
-        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="solution-design" tabindex="0" role="button" aria-label="聚焦solution-design，共享设计 + 按需评审, 需求与设计" aria-pressed="false" data-node-kind="backend" data-node-sublabel="共享设计 + 按需评审" data-node-context="需求与设计">
-          <title>solution-design · 共享设计 + 按需评审 · 需求与设计</title>
+        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="solution-design" tabindex="0" role="button" aria-label="聚焦solution-design，方案设计 + 按需评审, 需求与设计" aria-pressed="false" data-node-kind="backend" data-node-sublabel="方案设计 + 按需评审" data-node-context="需求与设计">
+          <title>solution-design · 方案设计 + 按需评审 · 需求与设计</title>
           <rect x="74" y="694" width="150" height="52" rx="8" class="c-mask"/>
           <rect x="74" y="694" width="150" height="52" rx="8" class="c-backend" data-animate="node" style="--step: 5; --flow-node-name: archify-relay-node-9;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(80 700) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
           <text data-node-label="" x="149" y="715" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">solution-design</text>
-          <text x="149" y="732" class="t-muted" font-size="8" text-anchor="middle">共享设计 + 按需评审</text>
+          <text x="149" y="732" class="t-muted" font-size="8" text-anchor="middle">方案设计 + 按需评审</text>
         </g>
 
         <g id="node-spec" data-node-id="spec" data-node-label="SPEC.md" tabindex="0" role="button" aria-label="聚焦SPEC.md，规范性需求来源, 需求与设计" aria-pressed="false" data-node-kind="database" data-node-sublabel="规范性需求来源" data-node-tag="ARTIFACT" data-node-context="需求与设计">
@@ -946,15 +946,15 @@ rect.c-bg-rect { fill: var(--bg); }
         <text x="149" y="442" class="t-backend" font-size="7" text-anchor="middle">OWNER</text>
         </g>
 
-        <g id="node-contract_check" data-node-id="contract_check" data-node-label="需要共享设计？" tabindex="0" role="button" aria-label="聚焦需要共享设计？，单一范围也可能需要 HLD, 需求与设计" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一范围也可能需要 HLD" data-node-tag="DECISION" data-node-context="需求与设计">
-          <title>需要共享设计？ · 单一范围也可能需要 HLD · 需求与设计 · DECISION</title>
+        <g id="node-contract_check" data-node-id="contract_check" data-node-label="需要方案设计？" tabindex="0" role="button" aria-label="聚焦需要方案设计？，单一范围也可能需要 HLD, 需求与设计" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一范围也可能需要 HLD" data-node-tag="DECISION" data-node-context="需求与设计">
+          <title>需要方案设计？ · 单一范围也可能需要 HLD · 需求与设计 · DECISION</title>
           <rect x="319.6" y="536" width="118" height="68" rx="8" class="c-mask"/>
           <rect x="319.6" y="536" width="118" height="68" rx="8" class="c-security" data-animate="node" style="--step: 9; --flow-node-name: archify-relay-node-5;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(325.6 542) scale(0.6875)">
             <path d="M8 2.2 13 4v3.5c0 3.1-1.8 5.4-5 6.5-3.2-1.1-5-3.4-5-6.5V4Z"/>
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
-          <text data-node-label="" x="384.8" y="557" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">需要共享设计？</text>
+          <text data-node-label="" x="384.8" y="557" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">需要方案设计？</text>
           <text x="378.6" y="574" class="t-muted" font-size="8" text-anchor="middle">单一范围也可能需要 HLD</text>
         <text x="378.6" y="592" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
@@ -1060,8 +1060,8 @@ rect.c-bg-rect { fill: var(--bg); }
           <text x="149" y="1288" class="t-muted" font-size="8" text-anchor="middle">独立逐 AC 证据判断</text>
         </g>
 
-        <g id="node-execution_check" data-node-id="execution_check" data-node-label="已有或需要执行图？" tabindex="0" role="button" aria-label="聚焦已有或需要执行图？，分别判断图与共享设计, 执行与交付" aria-pressed="false" data-node-kind="security" data-node-sublabel="分别判断图与共享设计" data-node-tag="DECISION" data-node-context="执行与交付">
-          <title>已有或需要执行图？ · 分别判断图与共享设计 · 执行与交付 · DECISION</title>
+        <g id="node-execution_check" data-node-id="execution_check" data-node-label="已有或需要执行图？" tabindex="0" role="button" aria-label="聚焦已有或需要执行图？，分别判断图与方案设计, 执行与交付" aria-pressed="false" data-node-kind="security" data-node-sublabel="分别判断图与方案设计" data-node-tag="DECISION" data-node-context="执行与交付">
+          <title>已有或需要执行图？ · 分别判断图与方案设计 · 执行与交付 · DECISION</title>
           <rect x="299.6" y="852" width="158" height="68" rx="8" class="c-mask"/>
           <rect x="299.6" y="852" width="158" height="68" rx="8" class="c-security" data-animate="node" style="--step: 12; --flow-node-name: archify-relay-node-8;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(305.6 858) scale(0.6875)">
@@ -1069,7 +1069,7 @@ rect.c-bg-rect { fill: var(--bg); }
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
           <text data-node-label="" x="378.6" y="873" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">已有或需要执行图？</text>
-          <text x="378.6" y="890" class="t-muted" font-size="8" text-anchor="middle">分别判断图与共享设计</text>
+          <text x="378.6" y="890" class="t-muted" font-size="8" text-anchor="middle">分别判断图与方案设计</text>
         <text x="378.6" y="908" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 

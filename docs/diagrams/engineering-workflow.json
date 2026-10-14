@@ -31,7 +31,7 @@
           "high_level_design",
           "execution_check"
         ],
-        "note": "单一范围也可能需要 HLD，共享设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。"
+        "note": "单一范围也可能需要 HLD，方案设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。"
       },
       {
         "id": "delivery-path",
@@ -144,7 +144,7 @@
     {
       "id": "contract_check",
       "type": "security",
-      "label": "需要共享设计？",
+      "label": "需要方案设计？",
       "sublabel": "单一范围也可能需要 HLD",
       "tag": "DECISION",
       "width": 118,
@@ -156,7 +156,7 @@
       "id": "high_level_design",
       "type": "backend",
       "label": "solution-design",
-      "sublabel": "共享设计 + 按需评审",
+      "sublabel": "方案设计 + 按需评审",
       "width": 150,
       "lane": "req",
       "col": 0,
@@ -166,7 +166,7 @@
       "id": "execution_check",
       "type": "security",
       "label": "已有或需要执行图？",
-      "sublabel": "分别判断图与共享设计",
+      "sublabel": "分别判断图与方案设计",
       "tag": "DECISION",
       "width": 158,
       "lane": "exec",
@@ -481,7 +481,7 @@
       "items": [
         "分别判断不确定性、影响范围和验证难度，不按行数或任务大小选择流程",
         "普通局部修改且已有充分检查时，可以直接实现",
-        "共享设计与执行图分别判断，单一范围也可能需要 HLD",
+        "方案设计与执行图分别判断，单一范围也可能需要 HLD",
         "需要 HLD 而缺少 SPEC 时，先由 to-spec 固化已确认需求",
         "已有有效图继续 Graph Workflow，规划交接不扩大实现或 Git 授权"
       ]
@@ -491,7 +491,7 @@
       "title": "变更路由",
       "items": [
         "需求决策未定时使用 grilling，确认后由 to-spec 修订 SPEC",
-        "共享设计变化由 solution-design 处理，不改 SPEC",
+        "方案设计变化由 solution-design 处理，不改 SPEC",
         "执行拆分变化由 to-tickets 协调，只更新受影响部分",
         "Graph Workflow 先停止派发并由 Runtime 确认写入方已停止，保留部分结果后修订上游"
       ]
@@ -509,7 +509,7 @@
       "title": "决策所有权",
       "items": [
         "业务行为和验收由用户确认，to-spec 维护需求快照",
-        "技术约束进入 SPEC，共享设计和长期方向由 HLD 及其评审处理",
+        "技术约束进入 SPEC，方案设计和长期方向由 HLD 及其评审处理",
         "局部实现由 Agent 决定，任务拆分由 to-tickets 维护"
       ]
     },
