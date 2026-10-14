@@ -6,9 +6,9 @@
 
 ## 安装
 
-### 插件安装（Claude Code / Cursor / Codex）
+### 插件安装（Claude Code / Cursor / Codex / ZCode）
 
-整个仓库可作为插件 `calvin-skills` 安装，安装和更新步骤见 [`docs/install.md`](./docs/install.md)。例如 Claude Code：`/plugin marketplace add calvingit/skills` 后 `/plugin install calvin-skills@calvingit`。
+整个仓库可作为插件 `calvin-skills` 安装，安装和更新步骤见 [`docs/install.md`](./docs/install.md)。例如 Claude Code：`/plugin marketplace add calvingit/skills` 后 `/plugin install calvin-skills@calvingit`；ZCode 在 设置 → 插件 → 创建 → 添加插件市场 里填 `calvingit/skills`。
 
 ### 手动安装
 

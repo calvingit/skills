@@ -6,6 +6,7 @@
    - `.claude-plugin/plugin.json`
    - `.cursor-plugin/plugin.json`
    - `.codex-plugin/plugin.json`
+   - `.claude-plugin/marketplace.json` 里 calvin-skills 条目的 `version`（ZCode 拿它和已安装版本比较）
 2. 跑检查：
 
    ```bash
@@ -28,4 +29,4 @@
    gh release create vX.Y.Z --title vX.Y.Z --notes-file notes.md
    ```
 
-Claude Code 只在版本号变化时才会更新，忘了改版本号，用户就收不到这次发布。
+Claude Code 和 ZCode 只在版本号变化时才会更新，忘了改版本号，用户就收不到这次发布。Codex 和 Cursor 不看版本号，更新时直接拿 main 的最新提交，所以推到 main 的改动不等发版就会到这两家用户手里。

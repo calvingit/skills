@@ -7,6 +7,7 @@
 | Claude Code | `.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json` |
 | Cursor | `.cursor-plugin/plugin.json` |
 | Codex | `.codex-plugin/plugin.json`、`.agents/plugins/marketplace.json` |
+| ZCode | 复用 `.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json` |
 
 ## Claude Code
 
@@ -42,6 +43,14 @@ codex plugin marketplace add calvingit/skills
 enabled = true
 ```
 
+## ZCode
+
+ZCode 找不到 `.zcode-plugin/plugin.json` 时会读 `.claude-plugin/plugin.json`，所以不需要单独的配置。
+
+1. 打开任意工作区，进入 设置 → 插件。
+2. 点右上角 创建 → 添加插件市场，填 `calvingit/skills`。想用本地代码测试，就填仓库克隆的本地路径。
+3. 在 个人 分段找到 calvin-skills，点 安装。
+
 ## 更新
 
 插件按安装时的版本缓存，仓库推送后不会自己更新。发版流程见 [releasing.md](./releasing.md)。
@@ -75,8 +84,12 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 团队市场（Teams / Enterprise）可以在 Dashboard → Plugins & MCPs → Marketplace Settings 里打开 Enable Auto Refresh。仓库需要装 Cursor GitHub App，推送后最多 10 分钟同步到最新提交。
 
+**ZCode**
+
+在 设置 → 插件 的市场源面板里刷新 calvingit，再到 管理已安装 点 检查更新，有新版本时在插件详情页底部更新。ZCode 比较的是市场条目里的 `version` 和已安装插件的 `version`，只有发版才会提示更新。
+
 ## 实测结果
 
-三个工具都实测过：45 个 Skill 都能识别，`engineering/shared/` 装好后仍在原来的相对位置，`.agents/skills/verify-engineering` 没有被带进插件，`create-graph` 和 `frontier` 能从安装目录直接运行。
+Claude Code、Codex、Cursor 都实测过（ZCode 还没有）：45 个 Skill 都能识别，`engineering/shared/` 装好后仍在原来的相对位置，`.agents/skills/verify-engineering` 没有被带进插件，`create-graph` 和 `frontier` 能从安装目录直接运行。
 
 旧的手动安装方式（链接单个 Skill 目录）见 README。

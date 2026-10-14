@@ -10,6 +10,7 @@
     {
       "name": "calvin-skills",
       "source": "./",
+      "version": "3.0.0",
       "description": "Engineering workflow, backend, documents and work skills for coding agents."
     }
   ]
