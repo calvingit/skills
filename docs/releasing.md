@@ -2,16 +2,17 @@
 
 版本号按 semver，从 v3.0.0 开始（对应 Ticket v3）。不兼容的改动升主版本，新增能力升次版本，修正升修订号。
 
-1. 把三个插件配置里的 `version` 改成同一个新版本：
+1. 把下面五处的 `version` 改成同一个新版本：
    - `.claude-plugin/plugin.json`
    - `.cursor-plugin/plugin.json`
    - `.codex-plugin/plugin.json`
+   - `.zcode-plugin/plugin.json`
    - `.claude-plugin/marketplace.json` 里 calvin-skills 条目的 `version`（ZCode 拿它和已安装版本比较）
 2. 跑检查：
 
    ```bash
    claude plugin validate .
-   python3 engineering/shared/check.py
+   python3 scripts/check_repo.py
    ```
 
 3. 提交并推到 main，然后打标签：
