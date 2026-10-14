@@ -19,6 +19,12 @@ CLI 等价命令：`claude plugin marketplace add calvingit/skills`、`claude pl
 
 ## Cursor
 
+```bash
+cursor-agent plugin marketplace add https://github.com/calvingit/skills
+```
+
+然后在 `cursor-agent` 交互界面的 `/plugins` → Marketplace 里安装 Calvin Skills（命令行没有安装子命令）。也可以：
+
 - 个人本地：把仓库克隆或链接到 `~/.cursor/plugins/local/calvin-skills`，重启 Cursor。
 - 团队（Teams / Enterprise）：Dashboard → Plugins → Import from Repo，填 `https://github.com/calvingit/skills`。
 - 公开发布需提交到 <https://cursor.com/marketplace/publish> 审核。
@@ -36,13 +42,41 @@ codex plugin marketplace add calvingit/skills
 enabled = true
 ```
 
-## 尚未实测的点
+## 更新
 
-以下行为官方文档没有写清楚，需要在真实安装中确认：
+插件按安装时的提交缓存，仓库推送后不会自己更新。
 
-1. **Codex 多路径 skills**：`.codex-plugin/plugin.json` 的 `skills` 是否接受数组、是否把分类目录当作 Skill 父目录扫描。
-2. **Cursor 目录扫描**：`skills` 填分类目录时，是否会扫描其下的 `<name>/SKILL.md`。不行就改为逐个列出 Skill 目录。
-3. **相对路径是否保留**：Cursor 和 Codex 安装时是否整库复制，`engineering/*/SKILL.md` 到 `../shared/`（含 `engineering/shared/` 下脚本）的相对路径装好后是否仍然有效。
-4. 确认 `.agents/skills/verify-engineering` 没有被任一工具带进插件。
+**Claude Code**
+
+```bash
+claude plugin marketplace update calvingit
+claude plugin update calvin-skills@calvingit
+```
+
+更新后重启会话，或在会话里运行 `/reload-plugins`。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认是关的。`.claude-plugin/plugin.json` 故意不写 `version`，这样 Claude Code 按提交判断有没有新版本。写死版本号的话，版本号不变就收不到更新。
+
+**Codex**
+
+```bash
+codex plugin marketplace upgrade calvingit
+codex plugin add calvin-skills@calvingit
+```
+
+**Cursor**
+
+个人市场不会自动更新，重启、`cursor-agent plugin marketplace update` 或在 `/plugins` 里重装都还停在原来的提交。要更新只能先删掉市场再加回来，然后重新安装：
+
+```bash
+cursor-agent plugin marketplace remove calvingit
+cursor-agent plugin marketplace add https://github.com/calvingit/skills
+```
+
+删市场会同时卸载插件，所以加回来后要在 `/plugins` → Marketplace 里再装一次 Calvin Skills。
+
+团队市场（Teams / Enterprise）可以在 Dashboard → Plugins & MCPs → Marketplace Settings 里打开 Enable Auto Refresh。仓库需要装 Cursor GitHub App，推送后最多 10 分钟同步到最新提交。
+
+## 实测结果
+
+三个工具都实测过：45 个 Skill 都能识别，`engineering/shared/` 装好后仍在原来的相对位置，`.agents/skills/verify-engineering` 没有被带进插件，`create-graph` 和 `frontier` 能从安装目录直接运行。
 
 旧的手动安装方式（链接单个 Skill 目录）见 README。
