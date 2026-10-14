@@ -45,7 +45,7 @@
 | Finding | 当前 owner |
 | --- | --- |
 | AGENTS.md 组织和指令维护 | `engineering/improve-agents-md` |
-| 上下文重复、冲突、无效指令 | `global/context-audit` |
+| 上下文重复、冲突、无效指令 | `engineering/context-audit` |
 | 验证方法、环境准备与证据能力 | `engineering/verification-setup` |
 | Profile 或稳定导航 | `engineering/project-setup` |
 | 可确定性检查的重复错误 | 仓库 tooling 维护者；涉及验证方法时组合 verification-setup |

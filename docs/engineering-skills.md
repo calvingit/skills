@@ -111,7 +111,7 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 | 明确要求多维项目审计 | 使用 [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略，由它维护覆盖与报告要求，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | 使用 [improve-agents-md](../engineering/improve-agents-md/SKILL.md)，`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
-文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
+文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接与学习辅助位于 `work/`，上下文审查与外部 Agent CLI 封装位于 `engineering/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
 
 会话级系统性问题先按 [Retro 实验规范](../.agents/skills/verify-engineering/references/retro-evaluation.md)收集真实证据并路由到现有 owner，不新增正式 Skill 或默认交付阶段。
 

@@ -1,6 +1,6 @@
 # Agent Skills
 
-个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和全局会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
+个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和工作会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
 
 > 维护说明见 [`AGENTS.md`](./AGENTS.md)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
 
@@ -16,6 +16,7 @@
    - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
 3. 不要把整库当成单个 Skill 安装。`.agents/skills/verify-engineering` 只用于维护本仓库，一般不必装到其他项目。
 4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`loop`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
+5. 若曾从 `global/` 安装 Skill，需按新路径重装：`context-audit` 与 `agent-tool` 现位于 `engineering/`，其余原 `global/` Skill 现位于 `work/`。
 
 ## 目录
 
@@ -24,7 +25,7 @@
 | [`engineering/`](./engineering/) | 调研、需求、设计、实现、验证、审查与维护（不绑定具体框架） |
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
 | [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
-| [`global/`](./global/) | 跨领域工具、上下文、会话辅助与学习 |
+| [`work/`](./work/) | 跨领域工具、会话辅助与学习 |
 | [`docs/`](./docs/) | Engineering 使用总览、职责、Loop/Runtime、Kernel 与图示 |
 | [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
 
@@ -73,6 +74,8 @@
 | [`how`](./engineering/how/SKILL.md) | 用户手动调用：解释当前代码如何运行。 |
 | [`why`](./engineering/why/SKILL.md) | 用户手动调用：追查设计或限制成因。 |
 | [`improve-agents-md`](./engineering/improve-agents-md/SKILL.md) | 创建或优化多工具适用的 AGENTS.md。 |
+| [`context-audit`](./engineering/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
+| [`agent-tool`](./engineering/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
 | [`fuck-my-shit-mountain`](./engineering/fuck-my-shit-mountain/SKILL.md) | Project Audit：多维证据审计；仅显式调用（目录名保持兼容，界面显示名为 Project Audit）。 |
 
 共享契约与状态工具见 [`engineering/shared/`](./engineering/shared/)（含 `check.py`、ticket graph）。跨 Skill 导航另见 [`docs/`](./docs/)。
@@ -91,18 +94,16 @@
 
 `backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。本仓库后端 Skill 的维护评估见 [verify-engineering](./.agents/skills/verify-engineering/SKILL.md)。
 
-## Global Skills
+## Work Skills
 
 | Skill | 用途 |
 | --- | --- |
-| [`context-audit`](./global/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
-| [`explain-that`](./global/explain-that/SKILL.md) | 解释指定的局部内容，或用更少术语重述上一条完整回复。 |
-| [`handoff`](./global/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
-| [`prompt-optimizer`](./global/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
-| [`show-me`](./global/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
-| [`tavily-search`](./global/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
-| [`teach`](./global/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
-| [`agent-tool`](./global/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
+| [`explain-that`](./work/explain-that/SKILL.md) | 解释指定的局部内容，或用更少术语重述上一条完整回复。 |
+| [`handoff`](./work/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
+| [`prompt-optimizer`](./work/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
+| [`show-me`](./work/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
+| [`tavily-search`](./work/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
+| [`teach`](./work/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
 
 ## Documents Skills
 
