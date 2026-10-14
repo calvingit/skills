@@ -1,7 +1,7 @@
 interface:
   display_name: "To Spec"
-  short_description: "Create or amend a requirement SPEC, and judge whether HLD or an execution graph is next"
-  default_prompt: "Use $to-spec to create or amend SPEC.md from requirement authority, keep requirement constraints distinct from high-level design, and judge whether downstream work needs an HLD or an execution graph."
+  short_description: "Create or amend a requirement SPEC, and judge whether a solution design or an execution graph is next"
+  default_prompt: "Use $to-spec to create or amend SPEC.md from requirement authority, keep requirement constraints distinct from solution design, and judge whether downstream work needs a solution design (stored as HLD.md) or an execution graph."
 
 policy:
   allow_implicit_invocation: false

@@ -1,40 +1,57 @@
-# Engineering Skills 维护说明
+# Engineering Skills 维护规范
 
-面向本仓库维护者。职责、调用关系和入口选择分别见[职责与边界](engineering-responsibilities.md)、[调用关系](engineering-invocation.md)和[使用指南](engineering-skills.md)。
+本文只约束如何治理这套 Skills：什么时候新增、合并或删除，Kernel 怎样演进，改动后如何验证，以及如何做 Retro 和实验。单个 Skill 怎么用、Runtime 生命周期、项目配置和业务规则不在这里，分别见各 Skill、[职责与边界](engineering-responsibilities.md)、[调用关系](engineering-invocation.md)和[使用指南](engineering-skills.md)。
 
-## 收敛期约定
+## 新增 Skill 的标准
 
-维护现有 Engineering Skills 的职责划分、产物写入范围和结论依据。暂不新增全局 Skill、通用编排层或 Runtime，优先组合已有能力和项目方法。项目本地验证入口属于项目知识，不等于增加全局 Skill。恢复新增前，需以真实任务说明现有职责无法承接的能力缺口。
+Engineering Skills 处于收敛期：暂停新增全局工程 Skill，不新增通用编排层、Runtime 抽象或 CI（不添加 `.github/workflows`），优先修正已有职责、项目配置和工具入口。
 
-## 设计原则
+只有真实任务证明现有职责无法承接某项能力时，才提出新增方案。新增的 Skill 须满足：
 
-- 通用优先，项目实现细节、领域术语、ADR、Git 规则和测试约定由目标仓库维护。
-- 每个 Skill 有明确的判断目标和停止点，可以围绕不同目标检查同一份代码或测试。
-- 通过组合复用规则，不复制另一 Skill 的执行细节。各 Skill 不再复制完整的流程路由表，只保留本 Skill 的硬性停止条件。
-- 能由确定性机制可靠保证的约束，不交给 Agent 记忆和判断。
-- 以确认需求、代码、实际观察和独立报告为依据，不把自报或命令成功当成完成证明。
-- Runtime 管理会话与 worker 生命周期，Engineering Skills 管理需求、设计、执行图和交付判断。
+- 原子、独立：有自己的判断目标和停止点，单独安装也能使用，不依赖另一个 Skill 的内部细节。
+- 通用：不绑定语言、框架或 Agent Runtime；项目实现细节、领域术语、ADR、Git 规则和测试约定由目标仓库维护。
+- 不是项目知识：项目本地的验证入口属于项目，不等于增加全局 Skill。
+
+## 合并、精简与删除
+
+- 判断目标和停止点不同的 Skill 保留，不因检查同一份代码或测试就合并。
+- 通过组合复用规则，不复制另一 Skill 的执行细节；各 Skill 不复制完整的流程路由表，只保留本 Skill 的硬性停止条件。
+- 精简时不能静默删掉已确认的能力，例如自动记录 decisions、术语对齐和 ADR。
+- 新增限制必须对应明确需求或已观察到的问题；通用常识、重复要求、分类教学和假设性防护不进入正文。
+- 重复出现且可确定性判断的问题，先考虑用 script、schema、lint、test 或 metadata 约束，不继续往 SKILL.md 叠加提示词；只有需要上下文判断或跨 Runtime 解释的规则才写成文字。不要为了一次偶发输出引入新工具。
+- 优先修正有问题的局部，不因一次输出不理想就重写整体流程，也不以行数作为质量指标。
 
 ## 上游适配
 
-对于源自 Matt Pocock 的 Skill，以上游原版为基础，只添加 Engineering Skills 确有需要的适配。自行设计的 Skill 不强行套用上游结构。
+源自 Matt Pocock 的 Skill 以上游原版为基础，只添加确有需要的适配；自行设计的 Skill 不强行套用上游结构。改动前先核对原文，保留核心机制、关键术语和交互节奏，记录来源与适配理由。适配集中在项目约定、文档位置、必要的技能组合和 Runtime 能力差异。
 
-- 保留原版的核心机制、关键术语和交互节奏，改动前先核对原文，记录来源与适配理由。
-- 适配集中在项目约定、文档位置、必要的技能组合及 Runtime 能力差异，不把下游流程说明塞进每个 Skill。
-- 新增限制必须对应明确需求或已观察到的问题。通用常识、重复要求、分类教学和假设性防护不进入正文。
-- 对重复出现且可确定性判断的问题，先考虑能否通过 script、schema、lint、test、validation 或 metadata 编码约束。结构化约束能够更可靠、更低成本地防止问题时，不要继续往 SKILL.md 叠加提示词。只有需要上下文判断、权衡或跨 Runtime 通用解释的规则才保留为 prose。不要为了消除一次偶发输出就引入新的工具或自动化机制。
-- 通过组合复用已有规则，不复制另一 Skill 的细节，精简时也不能静默删掉已确认的能力，例如自动记录 decisions、术语对齐和 ADR。
-- 优先修正有问题的局部，不要因一次输出不理想反复重写整体流程，也不以行数作为质量指标。
-- 声称效果改善前，用相同任务、模型和上下文比较关键遗漏、无效追问、用户纠正及阅读负担。静态检查只能证明格式与规则一致，不能证明实际效果更好。
+现有适配记录：
 
-当前 grilling 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)，保留 design tree、frontier 和 round，以及每轮批量提出整个 frontier 的机制。本地适配包括紧凑的快捷回复格式、通用事实调查、项目内决策记录，以及与 domain-modeling 组合写入术语和 ADR。尚未完成行为对比验证。
+- grilling 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)，保留 design tree、frontier、round 和每轮批量提出整个 frontier 的机制；本地增加快捷回复格式、通用事实调查、项目内决策记录，以及与 domain-modeling 组合写入术语和 ADR。尚未做行为对比验证。
+- tdd 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)，保留行为测试与逐步反馈；2026-09-26 核对上游后，取消逐个测试边界的重复确认，技术测试边界不写入 SPEC，允许 Green 后局部重构，并要求预期值有独立依据。尚未替代真实项目中的长期效果评估。
 
-TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)适配，保留行为测试与逐步反馈。2026-09-26 核对上游后，按本仓库已确认的职责调整：取消逐个测试边界的重复确认，技术测试边界不写入 SPEC；允许 Green 后按需做局部重构；判断预期值的独立依据，不把字面量视为天然可信，也不把公式视为天然无效。较大设计变更仍交回调用方处理。这些调整不替代真实项目中的长期效果评估。
+## Kernel 演进
 
-会话级系统性问题先按 [Retro 实验规范](../../.agents/skills/verify-engineering/references/retro-evaluation.md)收集真实证据，只观察、诊断并路由给现有 owner；没有新增正式 retro Skill，也不自动进入交付流程。
+[Engineering Kernel](ENGINEERING_KERNEL.md) 只收录跨 Skill 的不变量。修改 Kernel 须有真实的不变量错误或缺口，并说明受影响的 Skill；不确定时先报告，不顺手改。Kernel 不代替项目契约、角色写入边界或强制门禁，也不能作为删减既有门禁的文字依据，门禁的改变须有行为证据。
 
-## 验证边界
+## 文字约定
 
-图、attempt、事务和交付快照由现有 `python3 engineering/shared/check.py` 检查，Profile 迁移、按需读取及验收证据选择另用隔离任务演练。审阅文档不能证明 Runtime 生命周期、真实项目 GUI 质量、长期 token 或耗时改善，这些效果需后续真实任务记录支持。
+文档用自然的中文，避免 AI 腔、翻译腔和模板化表达（可用 `unslop` 检查）；SKILL.md 正文沿用各自现有语言。
 
-本仓库的检查与行为评估入口是 [verify-engineering](../../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
+## 验证
+
+| 改动 | 方法 | 能证明什么 |
+| --- | --- | --- |
+| 任何文档或 Skill | `python3 scripts/check_repo.py`（本地链接与锚点、SKILL.md frontmatter、`agents/openai.yaml` 基本格式，再运行状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .` | 只证明格式和引用有效，不证明路由、约束强度或 Runtime 加载 |
+| 状态脚本（ticket graph、事务、CLI、交付快照） | `python3 engineering/shared/check.py`，测试在 `engineering/shared/tests/`；协议与回放场景见[状态工具验收边界](../../docs/evaluation/state-tools.md) | 临时仓库上的图、CLI 和快照行为，不执行真实 Agent 生命周期 |
+| 较大的流程改动：任务契约、路由、产物归属、验证判断 | 在隔离目录用当前候选 Skill 演练[工程机制行为场景](../../docs/evaluation/engineering-system-evaluation.md)，检查实际决定、文件和观察 | 只覆盖演练过的场景 |
+| 后端 Skill | 选用[后端行为场景与历史评估](../../docs/evaluation/backend-skills-evaluation.md) | 文本演练不等于真实数据库测试 |
+
+按改动风险选择，不必每次跑全部。演练时记录候选（`HEAD` 加未提交改动）、实际命令、退出码、关键输出和覆盖缺口；只给执行者原始请求和输入，不附期望答案；验收用独立上下文。缺少前提（如 Python 3.10+、Git）时报告，不静默安装。
+
+审阅文档不能证明 Runtime 生命周期、真实项目 GUI 质量或长期 token / 耗时改善；声称效果改善前，用相同任务、模型和上下文比较关键遗漏、无效追问、用户纠正和阅读负担。
+
+## Retro 与实验
+
+- 会话级系统性问题按 [Retro 实验规范](../../docs/evaluation/retro-evaluation.md)收集真实证据，只观察、诊断并路由给现有负责方；没有正式 retro Skill，也不自动进入交付流程。
+- 固定三角色收尾与按风险选角色的比较，按[收尾角色实验](../../docs/evaluation/closeout-role-experiment.md)进行；取得证据并经评审前，现有收尾要求不变。

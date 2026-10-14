@@ -1,6 +1,6 @@
 # 以插件方式安装
 
-仓库根目录就是一个插件 `calvin-skills`（marketplace `calvingit`），包含 `engineering/`、`backend/`、`documents/`、`work/` 下的全部 Skill。`.agents/skills/verify-engineering` 只用于维护本仓库，不在插件内。
+仓库根目录就是一个插件 `calvin-skills`（marketplace `calvingit`），包含 `engineering/`、`backend/`、`documents/`、`work/` 下的全部 Skill。`docs/`、`scripts/` 等维护文件不是 Skill，不会被识别为插件内容。
 
 | 工具 | 配置文件 |
 | --- | --- |
@@ -90,6 +90,6 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 ## 实测结果
 
-Claude Code、Codex、Cursor 都实测过（ZCode 还没有）：45 个 Skill 都能识别，`engineering/shared/` 装好后仍在原来的相对位置，`.agents/skills/verify-engineering` 没有被带进插件，`create-graph` 和 `frontier` 能从安装目录直接运行。
+Claude Code、Codex、Cursor 都实测过（ZCode 还没有）：45 个 Skill 都能识别，`engineering/shared/` 装好后仍在原来的相对位置，`create-graph` 和 `frontier` 能从安装目录直接运行。
 
 旧的手动安装方式（链接单个 Skill 目录）见 README。

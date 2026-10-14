@@ -15,7 +15,7 @@ Graph Workflow 直接读取审查结果字符串并根据内容作判断，脚�
 
 一次 Graph Workflow run 是逻辑上的 execution session。Manager 负责连续编排 tickets，所有实现和修正 attempt 都由 Runtime 原生 worker 执行，worker 上下文可按连续性需要复用或更换。Manager 通过状态命令修改图，worker 修改产品代码但不修改上游需求、tickets 或 Git 历史。
 
-交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文，必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC/HLD 和 ticket。
+交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文，必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC、技术方案和 ticket。
 
 普通实现必须委派给 Runtime 原生 worker，默认串行，并按实际能力复用上下文。并行需要先确认契约、写入和可变资源独立，Runtime worktree 不会消除共享服务或设计冲突。交接输入见[委派说明](../engineering/graph-workflow/references/context-and-delegation.md)。
 
@@ -43,7 +43,7 @@ python3 engineering/graph-workflow/scripts/update-status complete /path/to/task 
 
 `.loop/` 仍位于任务目录，与 `SPEC.md`、`tickets/` 同级。现有图锁和临时事务目录也按任务隔离。脚本不建立项目级共享运行状态。
 
-将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.md`。v3 不兼容旧 JSON Ticket；v2 任务在旧工具链执行完成并归档后再采用 v3，可选 ACCEPTANCE / HLD 不作为额外前置要求。所有状态写入（start / retry / block / unblock / complete / reopen）、事务恢复和最终交付都走 `update-status`，每次写入都返回更新后的图，Graph Workflow 直接用它决定下一张 ticket，不必再跑一次 `frontier`。各输入的必需字段与示例由上面的参考资料维护。
+将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.md`。v3 不兼容旧 JSON Ticket；v2 任务在旧工具链执行完成并归档后再采用 v3，可选的 ACCEPTANCE 和技术方案（`HLD.md`）不作为额外前置要求。所有状态写入（start / retry / block / unblock / complete / reopen）、事务恢复和最终交付都走 `update-status`，每次写入都返回更新后的图，Graph Workflow 直接用它决定下一张 ticket，不必再跑一次 `frontier`。各输入的必需字段与示例由上面的参考资料维护。
 
 正常状态流转是 open → in_progress → done，ready / blocked 是计算结果，`superseded` 由需求协调产生。Graph Workflow 在执行期间写图，worker 不写票据。ticket complete 表示 Graph Workflow 已确认全部本地 AC 有充分证据、本地检查实际成功，且没有未解决的阻断问题或必需的未验证范围，实际 review 原文可选。ticket done 不代表最终交付通过。
 
@@ -81,4 +81,4 @@ python3 <graph-workflow-skill>/scripts/frontier <task-dir>
 
 仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
 
-状态脚本的验收边界与 Graph Workflow 回放场景由本仓库的[本地验证方法](../.agents/skills/verify-engineering/SKILL.md)按需引用。Runtime 行为需真实工作流证据。
+状态脚本的验收边界与 Graph Workflow 回放场景见[状态工具验收边界](evaluation/state-tools.md)。Runtime 行为需真实工作流证据。

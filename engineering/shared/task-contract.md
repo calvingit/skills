@@ -1,6 +1,6 @@
 # Task Contract
 
-A contract is the confirmed goal, bounds and completion basis of a task, not a required file or a new state machine. Use it when handing work across skills or contexts; a simple task can keep it in the conversation. Existing SPEC, ACCEPTANCE, HLD, tickets and project instructions retain their own responsibilities.
+A contract is the confirmed goal, bounds and completion basis of a task, not a required file or a new state machine. Use it when handing work across skills or contexts; a simple task can keep it in the conversation. Existing SPEC, ACCEPTANCE, solution design (`HLD.md`), tickets and project instructions retain their own responsibilities.
 
 ## Resolve the contract
 
@@ -43,10 +43,10 @@ Evidence planning happens before implementation: relate each AC to an observable
 
 ## Amendment stop-write protocol
 
-When amending an upstream authority (SPEC, HLD, or ticket graph) while Graph Workflow execution may be active, follow this shared order. Product-specific delta rules stay in each skill's `references/amendment.md`.
+When amending an upstream authority (SPEC, solution design, or ticket graph) while Graph Workflow execution may be active, follow this shared order. Product-specific delta rules stay in each skill's `references/amendment.md`.
 
 1. **Stop writers** — When a graph exists, have `graph-workflow` stop task dispatch, interrupt workers through Runtime, preserve partial receipts, and block active attempts. Changing graph state alone does not stop a writer. Reconciliation rejects graphs with in-progress attempts.
-2. **Confirm impact** — Show the user the authority delta and the possibly affected downstream (HLD / tickets / evidence) before writing.
+2. **Confirm impact** — Show the user the authority delta and the possibly affected downstream (solution design / tickets / evidence) before writing.
 3. **Write authority** — Update only the responsible source after confirmation (or after that skill's own review gate when it applies).
 4. **Reconcile** — Hand off to the next owner (`solution-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
 

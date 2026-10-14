@@ -1,7 +1,7 @@
 interface:
   display_name: "Quick Implement"
-  short_description: "Implement and verify a single scope under SPEC and optional HLD, with no execution graph"
-  default_prompt: "Use $quick-implement to read the confirmed SPEC.md and optional HLD.md, re-investigate the current code, and finish implementation, verification, and review."
+  short_description: "Implement and verify a single scope under SPEC and an optional solution design, with no execution graph"
+  default_prompt: "Use $quick-implement to read the confirmed SPEC.md and the optional solution design (HLD.md), re-investigate the current code, and finish implementation, verification, and review."
 
 policy:
   allow_implicit_invocation: false

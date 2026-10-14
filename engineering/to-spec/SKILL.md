@@ -20,7 +20,7 @@ Create when there is no SPEC. Amend the same file when an existing SPEC's requir
 - compatibility constraints
 - observable acceptance
 
-Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived high-level design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
+Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived solution design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
 `HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `solution-design`.
 
@@ -61,7 +61,7 @@ If this session has not already looked enough, before writing the SPEC find:
 - Which existing public surfaces expose similar behaviour and authoritative expected results.
 - The user's existing workspace changes, so they are not overwritten or silently absorbed into the spec.
 
-Use the project's domain language. Stop once scope, public contracts, and acceptance bounds are determined. Do not enter high-level design or implementation.
+Use the project's domain language. Stop once scope, public contracts, and acceptance bounds are determined. Do not enter solution design or implementation.
 
 ### 3. Decide the acceptance seams
 

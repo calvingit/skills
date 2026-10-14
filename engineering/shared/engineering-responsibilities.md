@@ -8,6 +8,8 @@
 
 每个 Skill 只在自己的职责内做决定、写产物；上游已确认的契约不能改，下游的工作不能代做。遇到超出职责的问题，交回调用方或负责的 Skill。
 
+Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和 worker 的生命周期。各角色保留已确认需求、独立验收和状态约束，不复制另一角色的执行协议。
+
 ## 职责地图
 
 | Skill | 负责 | 不负责 |
@@ -116,4 +118,4 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 
 ## 文档归属
 
-本文（谁负责什么）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `engineering/shared/`，维护规范见[维护说明](maintenance.md)，`docs` 维护插件安装、发版和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示的 JSON 源文件与 SVG 一起保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+本文（谁负责什么）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `engineering/shared/`，治理规则见[维护规范](maintenance.md)，仓库入口是根目录 README。`docs/` 维护插件安装、发版和 Graph Workflow / Runtime 关系，`docs/evaluation/` 保存仓库验证场景和历史评估记录，`scripts/` 放仓库检查脚本；具体执行规则、格式与示例由所属 Skill 及其参考资料维护。图示的 JSON 源文件与 SVG 一起保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。

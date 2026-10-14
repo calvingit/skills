@@ -26,8 +26,6 @@
 
 [OpenAI 的调用策略说明](https://learn.chatgpt.com/docs/build-skills#optional-metadata)规定 `agents/openai.yaml` 中 `policy.allow_implicit_invocation: false` 禁用隐式调用，保留显式调用；它不表示 human-only，也不授予 worker 调度权限。上表的入口和角色显式设为 `false`；`debug` 显式为 `true`；`tdd`、`domain-modeling` 未设置 policy，使用该宿主的默认隐式策略。其他 Skills 保持各自现有策略，上表不是全仓强制重分类。
 
-此前审计发现：`graph-workflow`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用；`ticket-implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。
-
 ### 三种写法
 
 - **方法引用**：如 ticket-implement 中加载 `tdd`，表示在当前实现职责内采用该方法，不另启交付流程，也不因此创建 worker。写成 `Call the Skill tool with "tdd"`，不要写成散文式的 `run /tdd`。
@@ -51,18 +49,18 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 
 ### graph-workflow
 
-- 可以派发原生 worker 加载 `ticket-implement`（实现与修正）、`verify`、`code-review` 和 `simplify`（最终收尾），三个收尾角色的分工见[收尾角色](closeout-roles.md)。
-- 不得修改源代码；需要修正时记录 correction attempt，再派发 `ticket-implement`。
-- 收到 `verify` 或 `code-review` 的问题后，由它判断影响并重新派发修正和受影响的复验；需求或技术方案冲突交回对应上游 Skill。
+- graph-workflow 不在自己的上下文里内联执行这些 Skill，而是为每个角色派发原生 worker：`ticket-implement` 负责实现与修正，`simplify`、`verify`、`code-review` 负责最终收尾。三个收尾角色的分工见[收尾角色](closeout-roles.md)。
+- 它自己只写 ticket 状态、attempt 和 `.loop/` 交付记录，不修改源代码；需要修正时记录 correction attempt，再派发 `ticket-implement`。
+- 收到 `verify` 或 `code-review` 的问题后，由它判断影响，重新派发修正和受影响的复验；需求或技术方案冲突交回对应上游 Skill。
 
 ### ticket-implement
 
 - 可以在约定写范围内修改代码和测试，并按需组合 `tdd`、`codebase-design` 等方法。
-- 不得修改 SPEC、技术方案或 ticket 范围，也不调度其他任务。
-- 发现需求、设计或范围冲突时，报告给调用方，不自行解决。
+- 不得修改 SPEC、ACCEPTANCE、技术方案、tickets 或 Git 历史，也不调度其他任务。
+- 发现需求、设计或范围问题时报告给调用方，由调用方交回上游负责方，不自行解决。
 
 ### verify
 
-- 可以检查代码、运行测试、在调用方允许的隔离资源中建立探针，并报告证据和逐 AC 结论。
-- 不得修复代码，也不得修改验收条件、ticket 状态或调度 Agent。
+- 可以检查代码、运行测试，并在调用方允许的隔离资源中建立探针、临时测试和证据文件。
+- 不得修改交付的代码、仓库测试或验收条件，不自行修复问题，也不改 ticket 状态或调度 Agent。
 - 发现的缺陷、契约冲突和能力缺口返回给调用方；修复后由调用方重新派发验证。

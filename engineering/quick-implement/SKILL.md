@@ -7,9 +7,9 @@ description: Implement a single confirmed scope in the main agent, then delegate
 
 Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
-quick-implement 是无需执行图的小范围入口，不替代 graph-workflow。
+quick-implement is a convenience entry point for small scoped changes. It is not a replacement workflow coordinator.
 
-Quick means no execution graph. It does not mean skipping high-level design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
+Quick means no execution graph. It does not mean skipping solution-design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
 
 ## Entry
 
@@ -21,7 +21,12 @@ Hard stops (do not bypass):
 - Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
 - Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`HLD.md`) → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
 
-Complex work escalates along to-spec → solution-design → to-tickets → graph-workflow, starting at the first step whose artifact is missing or affected; confirmed or unneeded steps are not redone.
+Escalate complex work to the owner of what is missing, starting at the first missing step; confirmed or unneeded steps are not redone:
+
+- Missing requirement decisions → Call the Skill tool with "grilling" (load-bearing technical fog → "wayfinding").
+- Missing or outdated spec → Call the Skill tool with "to-spec".
+- Missing shared solution design → Call the Skill tool with "solution-design".
+- Several tasks with dependencies → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
 
 ## Investigate and plan
 

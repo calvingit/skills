@@ -1,7 +1,7 @@
 interface:
   display_name: "Solution Design"
   short_description: "Smallest increment of shared technical design on the architecture already there, from a confirmed SPEC"
-  default_prompt: "Use $solution-design to read the confirmed SPEC.md, search related implementations and call chains, and create or amend a minimal-increment HLD.md on the existing architecture."
+  default_prompt: "Use $solution-design to read the confirmed SPEC.md, search related implementations and call chains, and create or amend a minimal-increment solution design, stored as HLD.md, on the existing architecture."
 
 policy:
   allow_implicit_invocation: false

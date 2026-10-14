@@ -2,9 +2,9 @@
 
 个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和工作会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
 
-> 维护说明见 [`AGENTS.md`](./AGENTS.md)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
+> 本 README 是仓库唯一入口。维护前先读[维护规则](#maintenance-rules维护规则)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
 
-## 安装
+## Getting Started（安装）
 
 ### 插件安装（Claude Code / Cursor / Codex / ZCode）
 
@@ -20,7 +20,7 @@
 2. 按需把 Skill 目录链接到 Agent 的 skills 根目录（文件夹名保持不变），例如：
    - Claude Code / 兼容实现：`~/.claude/skills/<skill-name> -> <repo>/<category>/<skill-name>`
    - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
-3. 不要把整库当成单个 Skill 安装。`.agents/skills/verify-engineering` 只用于维护本仓库，一般不必装到其他项目。
+3. 不要把整库当成单个 Skill 安装。`docs/`、`scripts/` 只用于维护本仓库，不是 Skill。
 4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`graph-workflow`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
 5. 若曾从 `global/` 安装 Skill，需按新路径重装：`context-audit` 与 `agent-tool` 现位于 `engineering/`，其余原 `global/` Skill 现位于 `work/`。
 
@@ -32,26 +32,14 @@
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
 | [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
 | [`work/`](./work/) | 跨领域工具、会话辅助与学习 |
-| [`docs/`](./docs/) | 插件安装与发版、Graph Workflow/Runtime 说明与图示（使用指南和职责在 `engineering/shared/`） |
-| [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
+| [`docs/`](./docs/) | 插件安装与发版、Graph Workflow/Runtime 说明、图示和仓库评估记录（`docs/evaluation/`） |
+| [`scripts/`](./scripts/) | 仓库检查脚本 |
 
 许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
 
-## 如何选用（Engineering 速查）
+## Skills Overview
 
-完整规则见 [`engineering/shared/engineering-skills.md`](./engineering/shared/engineering-skills.md)。按当前目标选入口，不必走完所有阶段：
-
-| 当前状态 | 入口 |
-| --- | --- |
-| 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
-| 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
-| 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
-| 多模块方案设计约束 | [`solution-design`](./engineering/solution-design/SKILL.md) |
-| 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`graph-workflow`](./engineering/graph-workflow/SKILL.md) |
-| 单一范围、无执行图 | [`quick-implement`](./engineering/quick-implement/SKILL.md) |
-| 缺可重复验证方法 | [`verification-setup`](./engineering/verification-setup/SKILL.md) |
-
-## Engineering Skills
+### Engineering Skills
 
 | Skill | 用途 |
 | --- | --- |
@@ -86,7 +74,7 @@
 
 共享契约与状态工具见 [`engineering/shared/`](./engineering/shared/)（含 `check.py`、ticket graph）。跨 Skill 导航另见 [`docs/`](./docs/)。
 
-## Backend Skills
+### Backend Skills
 
 | Skill | 用途 |
 | --- | --- |
@@ -98,9 +86,9 @@
 | [`redis-best-practices`](./backend/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
 | [`mongodb-best-practices`](./backend/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
 
-`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。本仓库后端 Skill 的维护评估见 [verify-engineering](./.agents/skills/verify-engineering/SKILL.md)。
+`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。本仓库后端 Skill 的维护评估见[后端评估记录](./docs/evaluation/backend-skills-evaluation.md)。
 
-## Work Skills
+### Work Skills
 
 | Skill | 用途 |
 | --- | --- |
@@ -111,7 +99,7 @@
 | [`tavily-search`](./work/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
 | [`teach`](./work/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
 
-## Documents Skills
+### Documents Skills
 
 以文档或说明性文本本身为处理对象。工程决策、技术资料查询和会话状态管理仍由各自的 Skill 负责。
 
@@ -122,15 +110,44 @@
 | [`url-to-markdown`](./documents/url-to-markdown/SKILL.md) | 将公开网页转换为本地 Markdown 文件。 |
 | [`terminology-zh`](./documents/terminology-zh/SKILL.md) | 审校中文技术术语并同步多载体表达。 |
 
-## 文档与图示
+## Engineering Kernel
 
-- [Engineering Responsibilities：谁负责什么](./engineering/shared/engineering-responsibilities.md)
-- [Engineering Invocation：谁可以调用谁](./engineering/shared/engineering-invocation.md)
-- [Engineering Skills Guide：什么时候选哪个入口](./engineering/shared/engineering-skills.md)
-- [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)
-- [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)
-- [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)
+[Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md) 是跨 Skill 的不变量基线（范围、知识、决策、行动、证据）。它不代替项目契约、角色写入边界或强制门禁。
+
+## Responsibilities（职责）
+
+[Engineering Responsibilities](./engineering/shared/engineering-responsibilities.md) 回答“谁负责什么”：每个 Skill 能做哪些决定、写哪些产物、哪些事实以谁为准。跨 Skill 交接的目标、范围、验收和边界见[任务契约](./engineering/shared/task-contract.md)。
+
+## Invocation Contract（调用关系）
+
+[Engineering Invocation](./engineering/shared/engineering-invocation.md) 回答“谁可以调用谁”：用户入口、受调度角色和辅助能力三类，以及 graph-workflow、ticket-implement、verify 的调用规则。Graph Workflow 与 Runtime 的关系见 [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)。
+
+## Skill Selection（如何选用）
+
+完整规则见 [Engineering Skills Guide](./engineering/shared/engineering-skills.md)。按当前目标选入口，不必走完所有阶段：
+
+| 当前状态 | 入口 |
+| --- | --- |
+| 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
+| 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
+| 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
+| 多模块方案设计约束 | [`solution-design`](./engineering/solution-design/SKILL.md) |
+| 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`graph-workflow`](./engineering/graph-workflow/SKILL.md) |
+| 单一范围、无执行图 | [`quick-implement`](./engineering/quick-implement/SKILL.md) |
+| 缺可重复验证方法 | [`verification-setup`](./engineering/verification-setup/SKILL.md) |
+
+入口按风险选择的规则见[流程选择](./engineering/shared/workflow-policy.md)。
 
 [![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](./docs/diagrams/engineering-workflow.svg)
 
 [![本地 Ticket 生命周期](./docs/diagrams/ticket-lifecycle.svg)](./docs/diagrams/ticket-lifecycle.svg)
+
+## Maintenance Rules（维护规则）
+
+完整治理规则见 [Maintenance](./engineering/shared/maintenance.md)。要点：
+
+- 收敛期：暂停新增全局工程 Skill，只有真实任务证明现有职责无法承接时才提出新增；新增的 Skill 须原子、独立、不绑定 Runtime。
+- 不新增 Runtime 抽象、通用编排层，也不添加 CI（`.github/workflows`）。
+- 文档用自然的中文，避免 AI 腔和翻译腔。
+- 维护某个 Skill 时只读相关文档，普通修改不要求预读全部 Skills 或建立完整 SPEC / tickets。
+- 提交前运行 `python3 scripts/check_repo.py`（链接、Skill 元数据，并调用 `engineering/shared/check.py` 跑状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .`。这些检查不能代替 Skill 行为、GUI 或 Runtime 验证，较大流程改动按维护规则做行为演练。

@@ -18,7 +18,7 @@ The `verify` sub-agent follows the task's project verification entry, `verificat
 
 ## Review
 
-After verification (or after the caller's prescribed order), spawn a dedicated native `code-review` sub-agent, separate from the `simplify` and `verify` sub-agents (Call the Skill tool with "code-review", or pass its resolved `SKILL.md`). Consume its actual Markdown report; a main-agent self-check does not satisfy this gate. Pass baseline, pre-existing edits, SPEC, HLD when present, the scope actually implemented, the simplification and verification reports, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. After required fixes, re-run affected verification and review in separate sub-agents.
+After verification (or after the caller's prescribed order), spawn a dedicated native `code-review` sub-agent, separate from the `simplify` and `verify` sub-agents (Call the Skill tool with "code-review", or pass its resolved `SKILL.md`). Consume its actual Markdown report; a main-agent self-check does not satisfy this gate. Pass baseline, pre-existing edits, SPEC, the solution design (`HLD.md`) when present, the scope actually implemented, the simplification and verification reports, and the actual command records. Pass a separate `ACCEPTANCE.md` when it exists. After required fixes, re-run affected verification and review in separate sub-agents.
 
 Use one reviewer by default. Only for high-impact changes with unresolved, under-evidenced judgements, or an explicit user request for a panel, may the caller dispatch 2–3 independent reviewers on the same scope and synthesize their findings against the evidence.
 

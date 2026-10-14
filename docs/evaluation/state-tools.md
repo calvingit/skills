@@ -24,7 +24,7 @@ python3 engineering/shared/check.py
 
 ## Graph Workflow 场景审查
 
-以下场景用于工作流回放或静态规则审查，静态审查不证明 Runtime 实际行为。执行边界见 [Graph Workflow](../../../../engineering/graph-workflow/SKILL.md)，原生执行生命周期遵循 Runtime。
+以下场景用于工作流回放或静态规则审查，静态审查不证明 Runtime 实际行为。执行边界见 [Graph Workflow](../../engineering/graph-workflow/SKILL.md)，原生执行生命周期遵循 Runtime。
 
 | 场景 | 预期 |
 | --- | --- |

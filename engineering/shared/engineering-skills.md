@@ -116,4 +116,4 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 [![本地 Ticket 生命周期](../../docs/diagrams/ticket-lifecycle.svg)](../../docs/diagrams/ticket-lifecycle.svg)
 
-维护本仓库时的约定见[维护说明](maintenance.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。
+维护本仓库时的约定见[维护规范](maintenance.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。
