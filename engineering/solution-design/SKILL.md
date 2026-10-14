@@ -5,17 +5,17 @@ description: "Design the technical solution in HLD.md from a confirmed SPEC and 
 
 # Solution Design
 
-Take a confirmed `SPEC.md` and current codebase facts, and form the high-level technical design for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
+Take a confirmed `SPEC.md` and current codebase facts, and form the technical solution and its design decisions for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
 
-`HLD.md` is the final authority for the delivery's shared technical design. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
+The solution design is the final authority for the delivery's shared design decisions; current projects record it in `HLD.md`. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
 
-Consume the requirement-owned [Task Contract](../shared/task-contract.md); inherit goal, scope, AC and authority by reference. HLD owns the derived shared design and its verification seams, not another acceptance or permission definition. Apply the [workflow policy](../shared/workflow-policy.md) independently of task size or ticket count.
+Consume the requirement-owned [Task Contract](../shared/task-contract.md); inherit goal, scope, AC and authority by reference. The solution design owns the derived shared decisions and their verification seams, not another acceptance or permission definition. Apply the [workflow policy](../shared/workflow-policy.md) independently of task size or ticket count.
 
 ## Authority and bounds
 
 SPEC owns required behaviour and acceptance, including external API fields,
-protocol contracts and backend-defined states. HLD derives the shared technical
-design: module duties, types, internal Interfaces, dependency direction, flow,
+protocol contracts and backend-defined states. The solution design derives the shared technical
+decisions: module duties, types, internal Interfaces, dependency direction, flow,
 state/error semantics and integration/migration constraints. Tickets derive the
 execution split; implementation owns unconstrained local details.
 
@@ -45,9 +45,9 @@ Stop once the evidence is enough to lock design several implementations must sha
 
 When adding or materially changing a shared Interface, callback convention, or cross-module entry point, sketch how one or two representative production callers should use it before locking the contract. Those callers are existing or soon-to-connect real call sites, not tests or demos. Derive the Interface from caller-visible intent, inputs, outputs, failure and lifecycle semantics. Do not treat the sketch as an implementation recipe, and do not specify private helpers or local control flow. Do not pre-build an Interface with no intended real caller; a call-shape sketch for callers that will attach is allowed and does not require production references before the contract lands.
 
-## When an HLD is required
+## When a solution design is required
 
-Read the full SPEC, applicable agent instructions, architecture / domain docs, ADRs, related code, and call chains first. An HLD is required if any of these hold:
+Read the full SPEC, applicable agent instructions, architecture / domain docs, ADRs, related code, and call chains first. A recorded solution design is required if any of these hold:
 
 - Several modules, callers, or implementation tasks must share types, enums, schemas, events, error models, or callback conventions.
 - A public or cross-module Interface, ownership, dependency direction, or stable Seam must be added or changed.
@@ -55,9 +55,9 @@ Read the full SPEC, applicable agent instructions, architecture / domain docs, A
 - Expand-then-contract, data migration, a compatibility window, or an explicit integration order is required.
 - The user or project rules explicitly require a technical constraint several implementations share.
 
-Ticket count is not the test. A single execution unit may still need an HLD; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
+Ticket count is not the test. A single execution unit may still need a solution design; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
 
-Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. For requirement conflicts or load-bearing technical fog, follow the [workflow policy](../shared/workflow-policy.md). HLD-specific stop: return upstream only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance.
+Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. For requirement conflicts or load-bearing technical fog, follow the [workflow policy](../shared/workflow-policy.md). Solution-design stop: return upstream only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance.
 
 ## Design Review Gate
 
@@ -77,8 +77,8 @@ Do not ask about local helper extraction, private methods, file layout, or other
 
 ## Modes
 
-- **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
-- **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
+- **Create**: a solution design is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
+- **Amendment**: `HLD.md` exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
 When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, Call the Skill tool with "to-tickets" for only the affected execution impact.
 
@@ -92,18 +92,18 @@ Write confirmed decisions under `## Design Decisions` in `HLD.md` using the exac
 
 Do not create a separate `design-decisions.md`.
 
-HLD owns **Verification Seams**: where technical correctness can be checked, such as a repository integration test or event contract test. Relate each seam to D IDs, technical invariants, and relevant SPEC acceptance; state the check level and expected evidence. SPEC Acceptance Seams remain public observations. `verify` chooses and executes concrete checks against the implementation.
+The solution design owns **Verification Seams**: where technical correctness can be checked, such as a repository integration test or event contract test. Relate each seam to D IDs, technical invariants, and relevant SPEC acceptance; state the check level and expected evidence. SPEC Acceptance Seams remain public observations. `verify` chooses and executes concrete checks against the implementation.
 
-Keep integration order as technical prerequisites, not ticket IDs, assignments, or a task list. HLD defines shared design; tickets derive the execution graph.
+Keep integration order as technical prerequisites, not ticket IDs, assignments, or a task list. The solution design defines shared decisions; tickets derive the execution graph.
 
 ## Handoff
 
-Report the HLD path, D IDs, local implementation space, unverified items and
+Report the `HLD.md` path, D IDs, local implementation space, unverified items and
 downstream impact. Select execution using the [workflow policy](../shared/workflow-policy.md);
 when an existing graph is affected by amendment, Call the Skill tool with "to-tickets".
 Once the selected planning skill's entry conditions hold, Call the Skill tool with
 that skill name — do not ask the user to type it again. Implementation still
 requires current authorization.
 
-This skill writes HLD only: ticket splitting, product implementation and UI/UX,
+This skill writes the solution design (`HLD.md`) only: ticket splitting, product implementation and UI/UX,
 visual or interaction drafts keep their existing owners.

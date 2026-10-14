@@ -107,7 +107,7 @@ After consistency holds, write into the task directory. Report acceptance seams,
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
 After confirming the SPEC, apply the [workflow policy](../shared/workflow-policy.md).
-Use [HLD entry conditions](../solution-design/SKILL.md#when-an-hld-is-required)
+Use [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required)
 to judge shared design independently of execution decomposition. A required HLD
 must precede implementation; otherwise report `hld_not_required` with its basis.
 Identify known observation methods or gaps without putting test recipes in SPEC.

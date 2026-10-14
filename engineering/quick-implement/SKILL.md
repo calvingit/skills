@@ -7,6 +7,8 @@ description: Implement a single confirmed scope in the main agent, then delegate
 
 Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
+quick-implement 是无需执行图的小范围入口，不替代 graph-workflow。
+
 Quick means no execution graph. It does not mean skipping high-level design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
 
 ## Entry
@@ -17,13 +19,15 @@ Hard stops (do not bypass):
 
 - A ticket graph already exists → do not use this skill; Call the Skill tool with "graph-workflow".
 - Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
-- Unclear goal/scope/result, missing shared design across modules, or HLD conflict/gap → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
+- Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`HLD.md`) → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
+
+Complex work escalates along to-spec → solution-design → to-tickets → graph-workflow, starting at the first step whose artifact is missing or affected; confirmed or unneeded steps are not redone.
 
 ## Investigate and plan
 
 1. Record `HEAD`, staged / unstaged / untracked state, and a baseline. Protect existing edits.
 2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant Profile entries via [Profile resolution](../project-setup/references/profile.md#resolve-and-load); otherwise keep discovering what is already there.
-3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Call the Skill tool with "codebase-design" (or use local detailed design) only for module internals, private helpers, file layout, and algorithms inside the local implementation space.
+3. Form the smallest implementation for this delivery. Shared contracts the solution design already locked must be obeyed. Call the Skill tool with "codebase-design" (or use local detailed design) only for module internals, private helpers, file layout, and algorithms inside the local implementation space.
    Before implementing, relate each AC to a sufficient project method, prerequisites and coverage limits. Reuse existing guidance; route necessary method/test capability work within authority and keep uncovered criteria visible. No separate evidence-plan file is required.
 4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and Call the Skill tool once for the fitting owner among "grilling", "wayfinding", and "to-spec". Technical design several implementations share → Call the Skill tool with "solution-design".
 
@@ -48,7 +52,7 @@ Close-out requires three separate independent judgements — simplification revi
 
 ## Boundaries
 
-- Do not edit SPEC / HLD to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; high-level technical design changes → Call the Skill tool with "solution-design".
+- Do not edit SPEC or the solution design (`HLD.md`) to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; solution design changes → Call the Skill tool with "solution-design".
 - Do not create tickets, maintain an execution graph, or schedule other work units.
 - Do not re-delegate this whole job to another implementer. Reviewers and other specialised roles still run under their own skills.
 - Do not overwrite existing edits. Do not swallow errors.

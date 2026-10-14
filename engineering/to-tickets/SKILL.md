@@ -25,7 +25,7 @@ Cite existing acceptance meaning. Derive delivery acceptance targets from the ci
 ## Inputs
 
 1. Read the full `SPEC.md`: Goal, requirements, bounds, acceptance, Out of scope, and decision basis. Do not guess scope from headings.
-2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [HLD entry conditions](../solution-design/SKILL.md#when-an-hld-is-required); Call the Skill tool with "solution-design" when they hold.
+2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required); Call the Skill tool with "solution-design" when they hold.
 3. Investigate the target repo, applicable `AGENTS.md`, domain vocabulary, ADRs, related call chains, and existing task conventions only when those facts would change a ticket's outcome, grain, or dependencies. Do not explore just to split tickets.
 4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance → Call the Skill tool with "grilling", or with "to-spec". High-level technical gaps → Call the Skill tool with "solution-design". Do not write assumptions as tickets.
 

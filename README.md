@@ -58,10 +58,10 @@
 | [`grilling`](./engineering/grilling/SKILL.md) | 访谈收敛尚未决定的需求与选择。 |
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话理清依赖决策与探索路径。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 把已确认需求写成规范性 SPEC。 |
-| [`solution-design`](./engineering/solution-design/SKILL.md) | 对照 SPEC 与代码库产出或修订 HLD。 |
+| [`solution-design`](./engineering/solution-design/SKILL.md) | 对照 SPEC 与代码库确定或修订技术方案和设计决策。 |
 | [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图。 |
 | [`graph-workflow`](./engineering/graph-workflow/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
-| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 单一范围实现，并收尾验证与审查。 |
+| [`quick-implement`](./engineering/quick-implement/SKILL.md) | 无需执行图的小范围入口，不替代 graph-workflow；实现后收尾验证与审查。 |
 | [`ticket-implement`](./engineering/ticket-implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
 | [`tdd`](./engineering/tdd/SKILL.md) | 用红-绿-重构驱动单个行为。 |
 | [`verify`](./engineering/verify/SKILL.md) | 独立按 AC 判断 PASS/FAIL/NOT VERIFIED。 |
@@ -124,8 +124,9 @@
 
 ## 文档与图示
 
-- [使用指南与选择入口](./engineering/shared/engineering-skills.md)
-- [职责与产物归属](./engineering/shared/engineering-responsibilities.md)
+- [Engineering Responsibilities：谁负责什么](./engineering/shared/engineering-responsibilities.md)
+- [Engineering Invocation：谁可以调用谁](./engineering/shared/engineering-invocation.md)
+- [Engineering Skills Guide：什么时候选哪个入口](./engineering/shared/engineering-skills.md)
 - [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)
 - [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)
 - [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)

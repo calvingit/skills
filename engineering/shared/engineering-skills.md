@@ -1,6 +1,6 @@
 # Engineering Skills 使用指南
 
-本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](ENGINEERING_KERNEL.md)。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文只回答“什么时候选哪个入口”。谁负责什么见[职责与边界](engineering-responsibilities.md)，谁可以调用谁见[调用关系](engineering-invocation.md)，具体执行规则由各 Skill 维护。
 
 ## 按阶段选择
 
@@ -8,22 +8,13 @@
 | --- | --- | --- |
 | 需求 | 还有影响行为的选择没定 | [grilling](../grilling/SKILL.md)：把决定问清楚并记录 |
 | 需求 | 需求已确认，需要持久化 | [to-spec](../to-spec/SKILL.md)：写 `SPEC.md` |
-| 设计 | 多个模块或实现要共享技术约束 | [solution-design](../solution-design/SKILL.md)：输入 SPEC、现有代码和约束，输出技术方案（`HLD.md` 中的设计决定） |
+| 设计 | 多个模块或实现要共享技术约束 | [solution-design](../solution-design/SKILL.md)：输入 SPEC、现有代码和约束，确定技术方案和设计决策 |
 | 执行 | 多个相关改动，有依赖或要统一调度 | [to-tickets](../to-tickets/SKILL.md) 拆票，再由 [graph-workflow](../graph-workflow/SKILL.md) 推进 |
 | 执行 | 执行图中的单张 ticket | [ticket-implement](../ticket-implement/SKILL.md)，通常由 graph-workflow 派发 |
 | 执行 | 范围单一、无需执行图 | [quick-implement](../quick-implement/SKILL.md) |
 | 验证 | 需要独立证据判断 AC | [verify](../verify/SKILL.md) |
 
 技术路径不清楚、需要跨会话调查时先用 [wayfinding](../wayfinding/SKILL.md)；验收缺少可用的验证方法时用 [verification-setup](../verification-setup/SKILL.md)。下面「选择入口」给出更完整的判断条件。
-
-## 设计原则
-
-- 通用优先，项目实现细节、领域术语、ADR、Git 规则和测试约定由目标仓库维护。
-- 每个 Skill 有明确的判断目标和停止点，可以围绕不同目标检查同一份代码或测试。
-- 通过组合复用规则，不复制另一 Skill 的执行细节。
-- 能由确定性机制可靠保证的约束，不交给 Agent 记忆和判断。
-- 以确认需求、代码、实际观察和独立报告为依据，不把自报或命令成功当成完成证明。
-- Runtime 管理会话与 worker 生命周期，Engineering Skills 管理需求、设计、执行图和交付判断。
 
 ## 选择入口
 
@@ -34,16 +25,14 @@
 | 需求、边界或验收未收敛 | [grilling](../grilling/SKILL.md) |
 | 技术路径存在需要跨会话调查的迷雾 | [wayfinding](../wayfinding/SKILL.md) |
 | 需求已收敛且需要持久化规范 | [to-spec](../to-spec/SKILL.md) |
-| 多个模块、调用方或实现任务需要方案设计约束 | [solution-design](../solution-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
+| 多个模块、调用方或实现任务需要方案设计约束 | [solution-design](../solution-design/SKILL.md)，单一执行范围也可能需要技术方案。 |
 | 需要多个执行单元、依赖或统一调度 | [to-tickets](../to-tickets/SKILL.md) → [graph-workflow](../graph-workflow/SKILL.md) |
-| 单一范围、无需执行图 | [quick-implement](../quick-implement/SKILL.md)，简单局部修改可以直接处理。 |
+| 单一范围、无需执行图 | [quick-implement](../quick-implement/SKILL.md)，quick-implement 是无需执行图的小范围入口，不替代 graph-workflow；简单局部修改可以直接处理。 |
 | 当前验收缺少充分、可重复的验证方法 | 先查找已有方法，再按需使用 [verification-setup](../verification-setup/SKILL.md)。 |
 
-各入口按需组合，不构成必经阶段。实现前以已确认的 AC 明确观察方法、前置条件和覆盖限制，会话中的简要说明或已有任务记录即可。安全且不受影响的工作可以继续，证据缺口不能写成通过。契约的来源、继承和授权规则见[任务契约](task-contract.md)。
+各入口按需组合，不构成必经阶段。已有执行图时继续走 graph-workflow；`quick-implement` 中途发现需要多个执行单元、共享设计或尚未确认的需求时，复杂工作升级为 to-spec → solution-design → to-tickets → graph-workflow，从第一个缺失的环节开始，已确认或不需要的环节不重做。契约的来源、继承和授权规则见[任务契约](task-contract.md)。
 
-各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，方案设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
-
-调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](engineering-responsibilities.md#调用契约invocation-contract)。
+入口之间如何交接、哪些 Skill 可以派发哪些角色，见[调用关系](engineering-invocation.md)。
 
 ## 项目准备
 
@@ -55,30 +44,24 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 ## 行为规格
 
-`to-spec` 以 AC 表达已确认行为；AC 已明确时无需实例。边界和分支优先用简短 Example，需要上下文的状态、权限等行为才用 Given / When / Then。实例只消除歧义，不补写未知业务决策，也不引入完整 BDD 流程。选择和停止规则见 [to-spec](../to-spec/SKILL.md#select-behaviour-examples-only-when-useful)。
+需求已确认、只是表达有歧义时，在 [to-spec](../to-spec/SKILL.md#select-behaviour-examples-only-when-useful) 中按需补充 Example 或 Given / When / Then；行为本身还没定时先用 `grilling`。新增实例不要求独立 ACCEPTANCE、执行状态或更多测试，各方如何使用实例见[职责与边界](engineering-responsibilities.md#行为实例的归属)。
 
-Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 AC 判断证据；新增实例本身不要求独立 ACCEPTANCE、执行状态或更多测试。
+## 实现、测试与验收
 
-## 实现、测试与验收的组织
-
-| 能力 | 主要责任 |
+| 情况 | 使用 |
 | --- | --- |
-| [ticket-implement](../ticket-implement/SKILL.md) | 实现当前行为、补必要测试与局部简化，报告实际自检结果和缺口。 |
-| [tdd](../tdd/SKILL.md) | 在实现中采用 Red → Green → Refactor 小步循环。 |
-| [verify](../verify/SKILL.md) | 独立逐条判断 AC 与证据，输出 PASS / FAIL / NOT VERIFIED。 |
-| [code-review](../code-review/SKILL.md) | 检查具体缺陷、回归风险和无必要复杂度。 |
-| [test-audit](../test-audit/SKILL.md) | 按需系统审计指定测试的有效性、独有保护和维护成本。 |
-| [graph-workflow](../graph-workflow/SKILL.md) | 派发 ticket、处理反馈、维护状态并判断最终交付。 |
+| 实现执行图中的一张 ticket | [ticket-implement](../ticket-implement/SKILL.md)，通常由 graph-workflow 派发 |
+| 实现中适合测试先行的单个行为 | [tdd](../tdd/SKILL.md)，Red → Green → Refactor |
+| 需要独立判断 AC 是否满足 | [verify](../verify/SKILL.md) |
+| 审查具体缺陷、回归风险和无必要复杂度 | [code-review](../code-review/SKILL.md) |
+| 系统审计指定测试的有效性和维护成本 | [test-audit](../test-audit/SKILL.md)，按需使用，不是交付门 |
+| 推进执行图、处理反馈并完成最终交付 | [graph-workflow](../graph-workflow/SKILL.md) |
 
-项目验证方法提供执行能力，需求定义预期行为，实现者和验证者选择足够的检查。验证方法试运行成功、本地测试通过和任务验收通过分别有不同的证据要求，独立验收的理由见 [Verify 证据说明](../verify/references/evidence.md)。GUI 行为、视觉符合性和交互体验须分别有对应证据。
-
-`verify` 自己判断当前 AC 的证据可信度，`test-audit` 不替代这项责任，也不自动成为交付门。缺失的仓库测试交给实现方，失效的验证方法交给 verification-setup，环境或权限存在缺口时，说明解除条件。修复后即使产品代码未变，也要重新判断受影响的证据。
-
-单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Graph Workflow 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。首次收尾覆盖全量改动；correction 默认仅定向重验受影响 AC、原 regression 并执行项目 mandatory gates，独立 targeted review 检查累积修正，复核其他 AC 证据仍有效。实际影响扩大才升级 broad review，具体规则见[最终验收](../graph-workflow/references/delivery-review.md)。状态命令、部署要求及 Runtime 边界见 [Graph Workflow 说明](../../docs/graph-workflow-runtime.md)。
+验证方法试运行成功、本地测试通过和任务验收通过需要不同的证据，理由见 [Verify 证据说明](../verify/references/evidence.md)。缺少可重复的验证方法时用 verification-setup，缺少仓库测试时交给实现方。`quick-implement` 和 graph-workflow 的收尾都需要独立的 simplify、verify 和 code-review，分工见[收尾角色](closeout-roles.md)，correction 的复验范围见[最终验收](../graph-workflow/references/delivery-review.md)，状态命令和 Runtime 边界见 [Graph Workflow 说明](../../docs/graph-workflow-runtime.md)。
 
 ## 产物入口
 
-简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](engineering-responsibilities.md#事实与产物归属)。
+简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入方和下游使用规则见[事实与产物归属](engineering-responsibilities.md#事实与产物归属)。
 
 | 产物 | 入口 |
 | --- | --- |
@@ -86,7 +69,7 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 | 访谈 `decisions.md`、术语与 ADR | [grilling](../grilling/SKILL.md) 组合 [domain-modeling](../domain-modeling/SKILL.md) |
 | `SPEC.md` | [to-spec](../to-spec/SKILL.md) |
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
-| 共享技术设计 `HLD.md` | [solution-design](../solution-design/SKILL.md) |
+| 技术方案与设计决策（当前项目可能存储为 `HLD.md`） | [solution-design](../solution-design/SKILL.md) |
 | `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../to-tickets/SKILL.md) |
 | attempt、已接受证据与最终交付记录 | [graph-workflow](../graph-workflow/SKILL.md) |
 
@@ -98,12 +81,12 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 | 变化 | 负责入口 | 后续 |
 | --- | --- | --- |
-| 产品选择、外部行为、范围、权限、兼容策略或验收仍有开放决定 | `grilling` → `to-spec` Amendment | 重新判断受影响的 HLD / tickets。 |
-| 已确认需求发生规范性变化 | `to-spec` Amendment | 同步受影响的 HLD / tickets。 |
-| SPEC 含义不变，只改变共享技术设计 | `solution-design` Amendment | 由 `to-tickets` 协调受影响的执行图。 |
-| SPEC / HLD 不变，只改变拆票或依赖 | `to-tickets` | 只更新执行图。 |
-| 仅有执行状态或验证证据变化 | 执行方（有图时为 `graph-workflow`） | 只更新执行记录，不修改 SPEC / HLD。 |
-| 实现发现需求或 HLD 无法成立 | `graph-workflow` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
+| 产品选择、外部行为、范围、权限、兼容策略或验收仍有开放决定 | `grilling` → `to-spec` Amendment | 重新判断受影响的技术方案 / tickets。 |
+| 已确认需求发生规范性变化 | `to-spec` Amendment | 同步受影响的技术方案 / tickets。 |
+| SPEC 含义不变，只改变技术方案或设计决策 | `solution-design` Amendment | 由 `to-tickets` 协调受影响的执行图。 |
+| SPEC 与技术方案不变，只改变拆票或依赖 | `to-tickets` | 只更新执行图。 |
+| 仅有执行状态或验证证据变化 | 执行方（有图时为 `graph-workflow`） | 只更新执行记录，不修改 SPEC 或技术方案。 |
+| 实现发现需求或技术方案无法成立 | `graph-workflow` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
 
 只同步受影响的下游，并核对保留的契约和证据在新依据下仍然适用。需求变化通过协调或修正交付处理，保留历史 done。`reopen` 仅用于原依据未变而原交付未满足的缺陷。执行中的写入方须先由 Runtime 停止，再修订上游和协调图。
 
@@ -127,12 +110,10 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接与学习辅助位于 `work/`，上下文审查与外部 Agent CLI 封装位于 `engineering/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
 
-会话级系统性问题先按 [Retro 实验规范](../../.agents/skills/verify-engineering/references/retro-evaluation.md)收集真实证据并路由到现有 owner，不新增正式 Skill 或默认交付阶段。
-
-## 图示与仓库维护
+## 图示
 
 [![Engineering Skills 工作流](../../docs/diagrams/engineering-workflow.svg)](../../docs/diagrams/engineering-workflow.svg)
 
 [![本地 Ticket 生命周期](../../docs/diagrams/ticket-lifecycle.svg)](../../docs/diagrams/ticket-lifecycle.svg)
 
-维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
+维护本仓库时的约定见[维护说明](maintenance.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。
