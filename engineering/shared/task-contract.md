@@ -20,7 +20,7 @@ When a SPEC exists, it is the normative engineering requirement snapshot for dow
 
 ## Six boundaries
 
-These boundaries are the workflow-level expression of the cross-skill [engineering kernel](../../docs/ENGINEERING_KERNEL.md); the kernel holds the invariants, this contract keeps their task-level meaning and does not replace them.
+These boundaries are the workflow-level expression of the cross-skill [engineering kernel](ENGINEERING_KERNEL.md); the kernel holds the invariants, this contract keeps their task-level meaning and does not replace them.
 
 | Boundary | Enforced meaning |
 | --- | --- |
@@ -50,4 +50,4 @@ When amending an upstream authority (SPEC, HLD, or ticket graph) while Loop exec
 3. **Write authority** — Update only the responsible source after confirmation (or after that skill's own review gate when it applies).
 4. **Reconcile** — Hand off to the next owner (`high-level-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
 
-The [ownership matrix](../../docs/engineering-responsibilities.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.
+The [ownership matrix](engineering-responsibilities.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.

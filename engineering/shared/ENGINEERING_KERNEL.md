@@ -1,6 +1,6 @@
 # Engineering Kernel
 
-已确认工程边界；来源、五问测试与删除风险见 [规则审计](engineering-kernel-audit.md)。
+已确认工程边界；来源、五问测试与删除风险见 [规则审计](../../docs/engineering-kernel-audit.md)。
 边界不指定模型、宿主、技术栈、工具、文档格式或执行顺序。
 项目定义契约，Skill 承担方法与判断，Runtime / 工具提供相应控制。
 

@@ -4,7 +4,7 @@
 
 ## 任务契约与六类边界
 
-任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](../engineering/shared/task-contract.md)，各 Skill 无需重复这些定义。六类边界是[跨 Skill 不变量基线](ENGINEERING_KERNEL.md)在工作流层的角色化表述；不变量本身不由本文档改写，来源、角色映射与冲突判断见[规则审计](engineering-kernel-audit.md)，实施和验证见[迁移记录](kernel-migration-plan.md)。
+任务契约统一描述目标、范围、验收条件、决策边界和证据要求，并按需明确授权与恢复条件。它是逻辑模型，这些信息可以保留在会话或已有 SPEC / ACCEPTANCE / HLD / tickets 中，无需新建契约文件。执行、继承与变更规则见[任务契约（Task Contract）](task-contract.md)，各 Skill 无需重复这些定义。六类边界是[跨 Skill 不变量基线](ENGINEERING_KERNEL.md)在工作流层的角色化表述；不变量本身不由本文档改写，来源、角色映射与冲突判断见[规则审计](../../docs/engineering-kernel-audit.md)，实施和验证见[迁移记录](../../docs/kernel-migration-plan.md)。
 
 ## 调用契约（Invocation Contract）
 
@@ -51,7 +51,7 @@
 
 Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example 仅作为 AC 的具体实例，不产生新业务规则。已确认行为的表达由 `to-spec` 负责，答案会改变业务行为的未决选择由 `grilling` 澄清。简单任务沿用已确认会话中的 AC，不强制建立 SPEC。
 
-实例仅在消除歧义时添加，选择与停止规则见 [to-spec](../engineering/to-spec/SKILL.md#select-behaviour-examples-only-when-useful)。`tdd` 按行为风险与项目验证能力选择测试，不按实例数量生成测试；`verify` 判断 Evidence 是否充分支持 AC，不以场景执行完毕代替验收。不新增 Scenario ID、状态或追踪矩阵；保留 Requirement → AC、Ticket → AC、Evidence → AC。
+实例仅在消除歧义时添加，选择与停止规则见 [to-spec](../to-spec/SKILL.md#select-behaviour-examples-only-when-useful)。`tdd` 按行为风险与项目验证能力选择测试，不按实例数量生成测试；`verify` 判断 Evidence 是否充分支持 AC，不以场景执行完毕代替验收。不新增 Scenario ID、状态或追踪矩阵；保留 Requirement → AC、Ticket → AC、Evidence → AC。
 
 ## 职责审计
 
@@ -108,18 +108,18 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 
 ## 已收敛的职责
 
-- Profile 字段语义、读取和迁移集中在 project-setup 的[引用说明](../engineering/project-setup/references/profile.md)，使用方读取相关设置，不绑定 AGENTS.md 内嵌格式，并保留旧持久化配置直到获准迁移。
+- Profile 字段语义、读取和迁移集中在 project-setup 的[引用说明](../project-setup/references/profile.md)，使用方读取相关设置，不绑定 AGENTS.md 内嵌格式，并保留旧持久化配置直到获准迁移。
 - verification-setup 盘点并维护方法和能力摘要，verify 只为当前 AC 查找方法并判断证据是否充分。没有另一套验证命令配置或强制工具选择。
 - verify 保留当前证据可信度检查，test-audit 保留系统测试价值审计，code-review 保留改动风险判断，不让任何一个报告替代另一个角色的验收责任。
 - implement 已负责当前变化造成的必要简化，simplify 检查仍存在且有证据的问题。Loop 保留已有最终 simplify 角色契约，不新增逐 ticket 审计。
-- Loop 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../engineering/loop/references/delivery-review.md)，不新增状态字段。
+- Loop 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../loop/references/delivery-review.md)，不新增状态字段。
 - Loop 删除固定无活动阈值、soft-ping 协议、活动时间及性能台账，不再要求固定 context 文件对，但保留原生 worker 执行、独立最终角色、证据失效重验和停止旧写入方的要求。
 - codebase-design 的分析术语限定在设计讨论中，不要求项目把 service/API 等既有名称改成通用词汇。
 - 其他现有入口有不同的判断目标和停止点，本轮保留，不因检查同一份代码就合并。
 
-领域语言默认模板使用 [GLOSSARY-FORMAT.md](../engineering/domain-modeling/GLOSSARY-FORMAT.md)，保留项目既有 CONTEXT / DOMAIN / TERMS 等 authority。`project_context`、`domain_glossary` 和 ADR 分别定位项目背景、领域词汇与架构决策。
+领域语言默认模板使用 [GLOSSARY-FORMAT.md](../domain-modeling/GLOSSARY-FORMAT.md)，保留项目既有 CONTEXT / DOMAIN / TERMS 等 authority。`project_context`、`domain_glossary` 和 ADR 分别定位项目背景、领域词汇与架构决策。
 
-Session-level 反馈先使用仓库本地的 [Retro 实验规范](../.agents/skills/verify-engineering/references/retro-evaluation.md)，只观察、诊断并路由给现有 owner；没有新增正式 retro Skill，也不自动进入交付流程。
+Session-level 反馈先使用仓库本地的 [Retro 实验规范](../../.agents/skills/verify-engineering/references/retro-evaluation.md)，只观察、诊断并路由给现有 owner；没有新增正式 retro Skill，也不自动进入交付流程。
 
 ## 验证边界
 

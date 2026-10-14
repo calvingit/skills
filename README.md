@@ -119,9 +119,9 @@
 ## 文档与图示
 
 - [使用总览与选择入口](./docs/engineering-skills.md)
-- [职责与产物归属](./docs/engineering-responsibilities.md)
+- [职责与产物归属](./engineering/shared/engineering-responsibilities.md)
 - [Loop 与 Runtime](./docs/loop-runtime.md)
-- [Engineering Kernel](./docs/ENGINEERING_KERNEL.md)
+- [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)
 - [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)
 
 [![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/engineering-workflow.html)

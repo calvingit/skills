@@ -1,6 +1,6 @@
 # Engineering Skills
 
-本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](ENGINEERING_KERNEL.md)。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](../engineering/shared/engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](../engineering/shared/ENGINEERING_KERNEL.md)。
 
 ## 设计原则
 
@@ -29,7 +29,7 @@
 
 各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，共享设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
 
-调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](engineering-responsibilities.md#调用契约invocation-contract)。
+调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](../engineering/shared/engineering-responsibilities.md#调用契约invocation-contract)。
 
 ## 项目准备
 
@@ -64,7 +64,7 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 ## 产物入口
 
-简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](engineering-responsibilities.md#事实与产物归属)。
+简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](../engineering/shared/engineering-responsibilities.md#事实与产物归属)。
 
 | 产物 | 入口 |
 | --- | --- |
@@ -121,4 +121,4 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 [![本地 Ticket 生命周期](diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
 
-维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](../engineering/shared/workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](../engineering/shared/closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](../engineering/shared/task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
+维护 Skill 时按需读取[职责与边界](../engineering/shared/engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](../engineering/shared/workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](../engineering/shared/closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](../engineering/shared/task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
