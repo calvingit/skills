@@ -31,11 +31,11 @@ class WorkflowCliTests(unittest.TestCase):
     def test_documented_delivery_inputs_complete_a_ticket(self):
         self.test_documented_create_request_runs_with_new_spec_shape()
         root = Path(__file__).resolve().parents[2]
-        doc = (root / 'loop/references/script-inputs.md').read_text()
+        doc = (root / 'graph-workflow/references/script-inputs.md').read_text()
         samples = [part.split('```', 1)[0] for part in doc.split('```json\n')[1:]]
         start, complete = map(json.loads, samples[:2])
         for script, operation, request in [('update-status', 'start', start), ('update-status', 'complete', complete)]:
-            result = subprocess.run([sys.executable, str(root / 'loop/scripts' / script), operation, str(self.task), 'T001', '--input', '-'], input=json.dumps(request), capture_output=True, text=True)
+            result = subprocess.run([sys.executable, str(root / 'graph-workflow/scripts' / script), operation, str(self.task), 'T001', '--input', '-'], input=json.dumps(request), capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         ticket = read_ticket(next((self.task / 'tickets').glob('*.md')))
         self.assertEqual(ticket['lifecycle']['phase'], 'done')

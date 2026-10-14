@@ -37,7 +37,7 @@ Read [amendment rules](amendment.md) first. Request: `{"reason":"confirmed upstr
 | `replace_dependency` | `ticket_id`, `from`, `to` |
 | `retain_contract` | `ticket_id`, `reason`, `expected_authority` |
 
-Loop must stop writers and block active attempts before reconciliation. Completed contracts are not rewritten. Reconciliation is graph maintenance, not retry or Agent dispatch.
+Graph Workflow must stop writers and block active attempts before reconciliation. Completed contracts are not rewritten. Reconciliation is graph maintenance, not retry or Agent dispatch.
 
 ## Validate
 
@@ -45,5 +45,5 @@ Loop must stop writers and block active attempts before reconciliation. Complete
 python3 <to-tickets-skill>/scripts/validate-graph <task-dir>
 ```
 
-Graph transaction recovery is available through `loop`'s `update-status recover` command.
+Graph transaction recovery is available through `graph-workflow`'s `update-status recover` command.
 

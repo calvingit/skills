@@ -19,12 +19,12 @@ Use qualitative facts, not line count, file count or small/medium/large labels. 
 | Confirmed local behaviour, limited impact, sufficient existing checks | Direct implementation and proportionate verification for an ordinary change; `quick-implement` for a confirmed single scope requiring its close-out contract. |
 | Unsettled behaviour, scope or acceptance choice | `grilling`; persist through `to-spec` only when requirements need sharing/versioning or an existing SPEC needs amendment. |
 | A load-bearing technical path needs investigation across sessions | `wayfinding`; ordinary code investigation does not require it. |
-| Shared types, interfaces, state/error semantics, ownership, dependency direction, migration or integration decisions | `high-level-design`, independently of ticket count. An HLD's entry conditions still apply. |
-| Several claimable delivery slices, real dependencies or scheduling across contexts | `to-tickets` → `loop`. An existing graph stays on this route; do not bypass its lifecycle with quick implementation. |
-| No sufficient repeatable method for the required observation, or a stale recipe | Discover existing checks first; use `verification-setup` for necessary recipe/harness work, `implement` for missing repository-test/product capability, within authority. |
+| Shared types, interfaces, state/error semantics, ownership, dependency direction, migration or integration decisions | `solution-design`, independently of ticket count. An HLD's entry conditions still apply. |
+| Several claimable delivery slices, real dependencies or scheduling across contexts | `to-tickets` → `graph-workflow`. An existing graph stays on this route; do not bypass its lifecycle with quick implementation. |
+| No sufficient repeatable method for the required observation, or a stale recipe | Discover existing checks first; use `verification-setup` for necessary recipe/harness work, `ticket-implement` for missing repository-test/product capability, within authority. |
 | Wide impact or hard-to-observe behaviour | Plan stronger relevant evidence and review. Identify environment/permission limits; extra planning alone does not establish acceptance. |
 
-These conditions combine. A single scope may need HLD; several independent slices may not. Existing sufficient verification methods need no setup. Low risk does not waive project gates, and the selection policy never removes `quick-implement` or Loop's required independent close-out roles. When an explicitly requested route cannot meet its own conditions, explain and resolve that mismatch rather than silently switching modes.
+These conditions combine. A single scope may need HLD; several independent slices may not. Existing sufficient verification methods need no setup. Low risk does not waive project gates, and the selection policy never removes `quick-implement` or Graph Workflow's required independent close-out roles. When an explicitly requested route cannot meet its own conditions, explain and resolve that mismatch rather than silently switching modes.
 
 ## Reassess on new facts
 

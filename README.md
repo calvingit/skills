@@ -21,7 +21,7 @@
    - Claude Code / 兼容实现：`~/.claude/skills/<skill-name> -> <repo>/<category>/<skill-name>`
    - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
 3. 不要把整库当成单个 Skill 安装。`.agents/skills/verify-engineering` 只用于维护本仓库，一般不必装到其他项目。
-4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`loop`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
+4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`graph-workflow`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
 5. 若曾从 `global/` 安装 Skill，需按新路径重装：`context-audit` 与 `agent-tool` 现位于 `engineering/`，其余原 `global/` Skill 现位于 `work/`。
 
 ## 目录
@@ -32,7 +32,7 @@
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
 | [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
 | [`work/`](./work/) | 跨领域工具、会话辅助与学习 |
-| [`docs/`](./docs/) | Engineering 使用总览、职责、Loop/Runtime、Kernel 与图示 |
+| [`docs/`](./docs/) | Engineering 使用总览、职责、Graph Workflow/Runtime、Kernel 与图示 |
 | [`.agents/skills/`](./.agents/skills/) | 本仓库维护用验证 Skill（不对外安装） |
 
 许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
@@ -46,8 +46,8 @@
 | 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
 | 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
 | 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
-| 多模块共享设计约束 | [`high-level-design`](./engineering/high-level-design/SKILL.md) |
-| 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`loop`](./engineering/loop/SKILL.md) |
+| 多模块共享设计约束 | [`solution-design`](./engineering/solution-design/SKILL.md) |
+| 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`graph-workflow`](./engineering/graph-workflow/SKILL.md) |
 | 单一范围、无执行图 | [`quick-implement`](./engineering/quick-implement/SKILL.md) |
 | 缺可重复验证方法 | [`verification-setup`](./engineering/verification-setup/SKILL.md) |
 
@@ -58,11 +58,11 @@
 | [`grilling`](./engineering/grilling/SKILL.md) | 访谈收敛尚未决定的需求与选择。 |
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话理清依赖决策与探索路径。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 把已确认需求写成规范性 SPEC。 |
-| [`high-level-design`](./engineering/high-level-design/SKILL.md) | 对照 SPEC 与代码库产出或修订 HLD。 |
+| [`solution-design`](./engineering/solution-design/SKILL.md) | 对照 SPEC 与代码库产出或修订 HLD。 |
 | [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图。 |
-| [`loop`](./engineering/loop/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
+| [`graph-workflow`](./engineering/graph-workflow/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
 | [`quick-implement`](./engineering/quick-implement/SKILL.md) | 单一范围实现，并收尾验证与审查。 |
-| [`implement`](./engineering/implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
+| [`ticket-implement`](./engineering/ticket-implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
 | [`tdd`](./engineering/tdd/SKILL.md) | 用红-绿-重构驱动单个行为。 |
 | [`verify`](./engineering/verify/SKILL.md) | 独立按 AC 判断 PASS/FAIL/NOT VERIFIED。 |
 | [`code-review`](./engineering/code-review/SKILL.md) | 审查缺陷、回归与无必要复杂度。 |
@@ -126,7 +126,7 @@
 
 - [使用总览与选择入口](./docs/engineering-skills.md)
 - [职责与产物归属](./engineering/shared/engineering-responsibilities.md)
-- [Loop 与 Runtime](./docs/loop-runtime.md)
+- [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)
 - [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)
 - [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)
 

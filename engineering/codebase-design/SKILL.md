@@ -62,7 +62,7 @@ When dependency category changes how a cluster should deepen, read [DEEPENING.md
 ## Boundaries
 
 - Whether the current architecture is sound, matches project constraints, or has architecture debt: `review-architecture`.
-- Confirmed SPEC that needs shared design across modules, callers, or implementation tasks, written to `HLD.md`: `high-level-design`.
+- Confirmed SPEC that needs shared design across modules, callers, or implementation tasks, written to `HLD.md`: `solution-design`.
 - Requirements or behaviour still open: `grilling`.
 - Bug root cause: `debug`.
 - Shrinking a behaviour-preserving diff: `simplify`.

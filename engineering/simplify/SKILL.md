@@ -7,7 +7,7 @@ description: "Review or remove complexity in existing code or the current diff t
 
 Reduce the concepts, state, contracts, and implementation paths the codebase must keep consistent over time. Deleting lines is a result, not the goal; finding nothing safe to delete is a valid result.
 
-Look for complexity without a current production responsibility, especially maintenance created by legacy leftovers, AI coding, test convenience, expired migrations, and speculative extensibility. This skill investigates complexity that already exists. It does not clean up old paths that `implement` should have removed as part of the current change.
+Look for complexity without a current production responsibility, especially maintenance created by legacy leftovers, AI coding, test convenience, expired migrations, and speculative extensibility. This skill investigates complexity that already exists. It does not clean up old paths that `ticket-implement` should have removed as part of the current change.
 
 ## Modes
 

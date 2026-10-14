@@ -12,21 +12,21 @@
 
 | 类别 | 隐式选择 | 显式调度 | 本轮对齐的 Skills |
 | --- | --- | --- | --- |
-| Human Entry Point（用户工作流入口） | 不允许模型仅凭任务匹配自行启动 | 用户启动；已授权工作流可按明确交接继续下游入口，不必逐步要求用户重新输入名称。不得因此扩展授权。 | `grilling`、`to-spec`、`to-tickets`、`wayfinding`、`loop`、`project-setup`、`verification-setup`、`improve-agents-md` |
-| Orchestrated Role（受调度角色） | 不允许自由选择 | 用户可直接调用；已授权 orchestrator 可显式指定角色和范围，通过 Runtime 派发。 | `implement`、`verify`、`code-review`、`simplify` |
+| Human Entry Point（用户工作流入口） | 不允许模型仅凭任务匹配自行启动 | 用户启动；已授权工作流可按明确交接继续下游入口，不必逐步要求用户重新输入名称。不得因此扩展授权。 | `grilling`、`to-spec`、`to-tickets`、`wayfinding`、`graph-workflow`、`project-setup`、`verification-setup`、`improve-agents-md` |
+| Orchestrated Role（受调度角色） | 不允许自由选择 | 用户可直接调用；已授权 orchestrator 可显式指定角色和范围，通过 Runtime 派发。 | `ticket-implement`、`verify`、`code-review`、`simplify` |
 | Model-discoverable Helper（模型可主动选择的辅助能力） | 允许在当前任务与权限内按需选择 | 也可由用户或调用方明确指定 | `debug`；`tdd` 和 `domain-modeling` 作为实现/领域方法按需组合 |
 
 [OpenAI 的调用策略说明](https://learn.chatgpt.com/docs/build-skills#optional-metadata)规定 `agents/openai.yaml` 中 `policy.allow_implicit_invocation: false` 禁用隐式调用，保留显式调用；它不表示 human-only，也不授予 worker 调度权限。上表入口和角色显式设为 `false`；`debug` 显式为 `true`；`tdd`、`domain-modeling` 未设置 policy，使用该宿主的默认隐式策略。其他 Skills 保持各自现有策略，本表不是全仓强制重分类。
 
 需区分三种表达：
 
-- **方法引用**：如 implement 中加载 `tdd`，表示在当前实现职责内采用该方法，不另启交付流程或当然创建 worker。要加载另一 Skill 的规程时，写成 `Call the Skill tool with "tdd"`，不要写成散文式的 `run /tdd`。
-- **角色派发**：如 `loop → native worker → implement / verify`，由 Manager 明确指定 Skill、输入、范围、候选与证据要求，worker 加载相应指令；独立角色要求不能用同一执行者自检代替。派发时同样点名 Skill（含 Skill tool 或把已解析的 `SKILL.md` 交给 worker），不要只丢一个斜杠命令指望宿主猜。
+- **方法引用**：如 ticket-implement 中加载 `tdd`，表示在当前实现职责内采用该方法，不另启交付流程或当然创建 worker。要加载另一 Skill 的规程时，写成 `Call the Skill tool with "tdd"`，不要写成散文式的 `run /tdd`。
+- **角色派发**：如 `graph-workflow → native worker → ticket-implement / verify`，由 Manager 明确指定 Skill、输入、范围、候选与证据要求，worker 加载相应指令；独立角色要求不能用同一执行者自检代替。派发时同样点名 Skill（含 Skill tool 或把已解析的 `SKILL.md` 交给 worker），不要只丢一个斜杠命令指望宿主猜。
 - **Skill 调用**：让宿主加载明确指定的 Skill，或按其 policy 隐式发现。操作性步骤写成 `Call the Skill tool with "grilling"`（一次一个名字；要两个就写两次）。导航表、README、只给人类看的路由说明可以继续用 Skill 名作标签，那不算调用。普通文档提及 Skill 名不证明实际调用成功。其他 Runtime 是否识别 metadata、worker 是否加载指令，须按实际能力验证，不从 YAML 推断。
 
 仅用户手动触发的 Skill（当前明确包括 `how`、`why`）不得由其他 Skill 通过 Skill tool 代为拉起；需要时告诉用户自己运行。Human Entry Point 在已授权工作流里仍可按交接继续下游（不必逐步让用户重输名称），继续时用 Skill tool 调用，不要散文式 `run /xxx`。
 
-审计发现并修正：`loop`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
+审计发现并修正：`graph-workflow`、`code-review` 原缺少调用 policy，`simplify` 原未设置该字段，现均显式关闭隐式调用。`ticket-implement`、`verify` 及上表其余入口原有的 `false` 保持；`how` / `why` 保持仅手动触发。`to-tickets → loop` 仍以用户已授权实现为前提；debug 对 simplify 的按需调用仍需明确范围和修改授权。
 
 ## 事实与产物归属
 
@@ -36,10 +36,10 @@
 | --- | --- | --- | --- |
 | 需求、目标、任务范围、SPEC AC | 简单任务使用经确认的会话内容，保存为文档后，以 SPEC 中的工程需求快照为准 | 用户确认需求选择，由 `to-spec` 维护快照 | HLD、tickets、实现与验收引用当前快照，新输入改变快照时先修订 SPEC。 |
 | 独立维护版本的验收场景与证据规则 | 按需建立的 ACCEPTANCE | `to-spec` | 场景引用 SPEC R / AC，不再维护另一份同名 AC 定义，与 SPEC 有冲突时，停止受影响的工作并交回负责方。 |
-| 交付共享技术设计 | 交付设计以 HLD 为准，长期项目决策由已有架构文档 / ADR 维护 | 交付设计由 `high-level-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，HLD 不自行取代长期约束，也不反向修改需求。 |
+| 交付共享技术设计 | 交付设计以 HLD 为准，长期项目决策由已有架构文档 / ADR 维护 | 交付设计由 `solution-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，HLD 不自行取代长期约束，也不反向修改需求。 |
 | 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
-| ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `loop` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
-| 最终交付候选与状态 | `.loop/delivery.json` | `loop` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
+| ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `graph-workflow` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
+| 最终交付候选与状态 | `.loop/delivery.json` | `graph-workflow` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
 | 项目稳定工程知识与导航 | 使用已有项目指令、术语表和架构资料，通过 Profile 定位来源 | 项目资料由各自的维护者负责，`project-setup` 维护 Profile | 按需引用，不把当前任务、运行结果或授权复制进 Profile。 |
 | 可执行验证方法与能力范围 | 现有项目脚本 / CI / 本地验证 Skill | 项目工具由其维护者负责，`verification-setup` 维护方法与导航摘要 | Profile 只提供链接和摘要，方法说明不成为需求来源，冒烟检查记录也不作为当前任务已通过验收的依据。 |
 | 当前候选的实际观察与审查结论 | 原执行者的命令记录、产物、verify / review 原文 | 实现者、验证者与审查者分别记录，由调用方判断适用性 | 状态脚本保存接受的事实，不解析报告、证明真实性或认证独立性。 |
@@ -67,11 +67,11 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | grilling | 访谈及 decisions.md，并组合记录术语/ADR | 重要需求选择由用户决定，grilling 不决定局部实现，也不重写下游 | 当前事实、用户确认、未决 frontier |
 | wayfinding | MAP.md 与决策文件 | 解决跨会话依赖决策，不交付产品 | 可追溯答案、调查或实验，HITL 不由 Agent 代答 |
 | to-spec | SPEC、按需 ACCEPTANCE | 维护确认需求和验收语义，不设计内部实现 | 需求 authority、确认决策、外部契约 |
-| high-level-design | HLD | 决定共享设计，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
+| solution-design | HLD | 决定共享设计，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
 | to-tickets | 通过脚本创建/协调 tickets | 决定交付拆分与真实依赖，不引入新需求/设计 | 已确认 SPEC/HLD、覆盖及图校验 |
 | quick-implement | 单一目标实现、自检与收尾 | 不使用执行图，既有独立收尾规则仍适用 | 当前契约、真实 diff、自检与独立报告 |
-| implement | 当前 ticket 的代码、必要测试和局部简化 | 决定局部实现，将契约问题交回调用方 | 已确认行为、项目方法和实际本地检查 |
-| loop | attempt、状态、报告及交付记录 | 选工作、调用角色、判断结果、流转状态，不管理 Runtime | 全部相关 AC 证据、原始报告、有效候选快照 |
+| ticket-implement | 当前 ticket 的代码、必要测试和局部简化 | 决定局部实现，将契约问题交回调用方 | 已确认行为、项目方法和实际本地检查 |
+| graph-workflow | attempt、状态、报告及交付记录 | 选工作、调用角色、判断结果、流转状态，不管理 Runtime | 全部相关 AC 证据、原始报告、有效候选快照 |
 | verify | 只读验收，以及获准隔离资源中的探针/证据 | 逐条报告 PASS / FAIL / NOT VERIFIED，不修复或改状态 | 需求独立预期、可观察执行、证据可信度与覆盖限制 |
 | code-review | 只读改动审查 | 找具体缺陷、回归和无必要复杂度，不代替逐条验收 | 可达场景、调用/保护/测试与反证 |
 | test-audit | 指定测试审计，以及获准的限定清理 | 给出保留/合并/重写/删除建议，不成为固定交付门 | 独立预期、真实执行、独有保护与维护成本 |
@@ -104,16 +104,16 @@ TDD 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skill
 
 ## 文档归属
 
-`docs` 维护使用总览、跨 Skill 职责和 Loop / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示源文件与导出文件成套保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+`docs` 维护使用总览、跨 Skill 职责和 Graph Workflow / Runtime 关系，具体执行规则、格式与示例由所属 Skill 及其参考资料维护。仓库验证场景和历史评估记录由本地验证 Skill 引用，图示源文件与导出文件成套保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
 
 ## 已收敛的职责
 
 - Profile 字段语义、读取和迁移集中在 project-setup 的[引用说明](../project-setup/references/profile.md)，使用方读取相关设置，不绑定 AGENTS.md 内嵌格式，并保留旧持久化配置直到获准迁移。
 - verification-setup 盘点并维护方法和能力摘要，verify 只为当前 AC 查找方法并判断证据是否充分。没有另一套验证命令配置或强制工具选择。
 - verify 保留当前证据可信度检查，test-audit 保留系统测试价值审计，code-review 保留改动风险判断，不让任何一个报告替代另一个角色的验收责任。
-- implement 已负责当前变化造成的必要简化，simplify 检查仍存在且有证据的问题。Loop 保留已有最终 simplify 角色契约，不新增逐 ticket 审计。
-- Loop 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../loop/references/delivery-review.md)，不新增状态字段。
-- Loop 删除固定无活动阈值、soft-ping 协议、活动时间及性能台账，不再要求固定 context 文件对，但保留原生 worker 执行、独立最终角色、证据失效重验和停止旧写入方的要求。
+- ticket-implement 已负责当前变化造成的必要简化，simplify 检查仍存在且有证据的问题。Graph Workflow 保留已有最终 simplify 角色契约，不新增逐 ticket 审计。
+- Graph Workflow 首次交付执行全量 simplify、独立逐 AC verify 和 broad code-review；correction 默认定向重验和审查，同时执行 mandatory gates、确认其余 AC 证据仍有效。实际影响扩大时升级 broad review，规则只维护在[最终验收](../graph-workflow/references/delivery-review.md)，不新增状态字段。
+- Graph Workflow 删除固定无活动阈值、soft-ping 协议、活动时间及性能台账，不再要求固定 context 文件对，但保留原生 worker 执行、独立最终角色、证据失效重验和停止旧写入方的要求。
 - codebase-design 的分析术语限定在设计讨论中，不要求项目把 service/API 等既有名称改成通用词汇。
 - 其他现有入口有不同的判断目标和停止点，本轮保留，不因检查同一份代码就合并。
 

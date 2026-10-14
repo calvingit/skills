@@ -17,7 +17,7 @@ These labels help choose a flow; they are not Skill tool calls by themselves. Fu
 
 - Destination known, user decisions still open → `grilling`
 - Destination known, dependent decisions will not converge in one session → this skill
-- Requirements settled, remaining uncertainty is technical structure → `high-level-design`
+- Requirements settled, remaining uncertainty is technical structure → `solution-design`
 - Unknown facts need investigation rather than decisions → research
 - Decisions resolved, a build contract is needed → `to-spec`
 

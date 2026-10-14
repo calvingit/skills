@@ -1,6 +1,6 @@
 # Close-out roles
 
-Shared rules for the three independent close-out judgements used by `quick-implement` and `loop`. Role separation and evidence consumption live here; worker creation, waiting, and context assignment belong to Runtime. Workflow-specific sequencing (receipts, delivery-prepare, correction closeout, broaden triggers) stays in each caller.
+Shared rules for the three independent close-out judgements used by `quick-implement` and `graph-workflow`. Role separation and evidence consumption live here; worker creation, waiting, and context assignment belong to Runtime. Workflow-specific sequencing (receipts, delivery-prepare, correction closeout, broaden triggers) stays in each caller.
 
 Whether to select roles by risk instead of running all three is a separate behaviour decision; both callers currently require all three on initial closeout.
 

@@ -1,9 +1,9 @@
 ---
-name: high-level-design
-description: "Create or amend HLD.md from a confirmed SPEC: lock shared module duties, types, interfaces, and integration constraints. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
+name: solution-design
+description: "Design the technical solution in HLD.md from a confirmed SPEC and existing system constraints: lock shared module duties, types, interfaces, and integration constraints without widening scope. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
 ---
 
-# High-Level Design
+# Solution Design
 
 Take a confirmed `SPEC.md` and current codebase facts, and form the high-level technical design for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
 

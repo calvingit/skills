@@ -57,7 +57,7 @@ not the repository.
 Do not modify product code, generate HLD, split tickets, or start another
 workflow.
 Present the shortlist and wait for the user's selection. After a selection,
-the caller can choose `grilling`, `codebase-design`, `high-level-design`, or
+the caller can choose `grilling`, `codebase-design`, `solution-design`, or
 another appropriate next step.
 
 An ordinary architecture review may mention a local improvement opportunity,

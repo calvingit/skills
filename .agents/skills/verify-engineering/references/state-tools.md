@@ -1,6 +1,6 @@
 # 状态脚本验收边界
 
-Skill 内的状态脚本只管理 tickets 和交付进度。Agent 的创建、等待、中断与会话恢复属于当前 Runtime，业务结果由 Loop 阅读并判断。
+Skill 内的状态脚本只管理 tickets 和交付进度。Agent 的创建、等待、中断与会话恢复属于当前 Runtime，业务结果由 Graph Workflow 阅读并判断。
 
 ## 必须满足
 
@@ -22,9 +22,9 @@ python3 engineering/shared/check.py
 
 覆盖图状态、需求变更、任意 Markdown 原文存储、最终快照失效、CLI 参数错误和脱离仓库目录的脚本调用。Runtime subagent 行为由实际工作流验证，不用脚本测试代替。
 
-## Loop 场景审查
+## Graph Workflow 场景审查
 
-以下场景用于工作流回放或静态规则审查，静态审查不证明 Runtime 实际行为。执行边界见 [Loop](../../../../engineering/loop/SKILL.md)，原生执行生命周期遵循 Runtime。
+以下场景用于工作流回放或静态规则审查，静态审查不证明 Runtime 实际行为。执行边界见 [Graph Workflow](../../../../engineering/graph-workflow/SKILL.md)，原生执行生命周期遵循 Runtime。
 
 | 场景 | 预期 |
 | --- | --- |

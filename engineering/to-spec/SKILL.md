@@ -22,7 +22,7 @@ Create when there is no SPEC. Amend the same file when an existing SPEC's requir
 
 Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived high-level design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
-`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `high-level-design`.
+`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `solution-design`.
 
 ## Entry
 
@@ -32,8 +32,8 @@ Unsettled requirements or technical fog: follow the [workflow policy](../shared/
 
 SPEC-specific stops:
 
-- When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
-- Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and, after the SPEC is confirmed, Call the Skill tool with "high-level-design".
+- When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `solution-design`.
+- Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and, after the SPEC is confirmed, Call the Skill tool with "solution-design".
 - Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
 
 ## Modes
@@ -107,7 +107,7 @@ After consistency holds, write into the task directory. Report acceptance seams,
 Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
 After confirming the SPEC, apply the [workflow policy](../shared/workflow-policy.md).
-Use [HLD entry conditions](../high-level-design/SKILL.md#when-an-hld-is-required)
+Use [HLD entry conditions](../solution-design/SKILL.md#when-an-hld-is-required)
 to judge shared design independently of execution decomposition. A required HLD
 must precede implementation; otherwise report `hld_not_required` with its basis.
 Identify known observation methods or gaps without putting test recipes in SPEC.
@@ -115,7 +115,7 @@ This skill forecasts whether several execution units are likely, not their count
 or split.
 
 When the selected planning skill's entry conditions hold, Call the Skill tool
-with that skill name. Call the Skill tool with "quick-implement", or with "loop",
+with that skill name. Call the Skill tool with "quick-implement", or with "graph-workflow",
 only when implementation is authorized; otherwise finish with the required planning
 artifacts. Missing authority, unsettled requirements or load-bearing feasibility
 gaps return to their owner.

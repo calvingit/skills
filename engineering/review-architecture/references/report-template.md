@@ -10,7 +10,7 @@ Write the report where the target repo already puts task / review artifacts. Wit
 - Coverage: <covered areas and what was left out>
 - Result: <critical/high/medium/low findings / no findings / needs more evidence>
 - Top finding: <ID, theme, severity>
-- Next: <codebase-design / grilling / to-spec / high-level-design / simplify / observe>
+- Next: <codebase-design / grilling / to-spec / solution-design / simplify / observe>
 
 ## Review Basis
 - Question: <architecture question this round answers>

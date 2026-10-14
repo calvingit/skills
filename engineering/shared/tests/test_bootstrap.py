@@ -1,7 +1,7 @@
 from pathlib import Path
 import sys
 ENGINEERING = Path(__file__).resolve().parents[2]
-for path in (ENGINEERING / 'shared', ENGINEERING / 'to-tickets/scripts', ENGINEERING / 'loop/scripts'):
+for path in (ENGINEERING / 'shared', ENGINEERING / 'to-tickets/scripts', ENGINEERING / 'graph-workflow/scripts'):
     sys.path.insert(0, str(path))
 
 from ticket_graph import frontmatter as _frontmatter

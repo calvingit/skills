@@ -16,4 +16,4 @@ An amendment re-evaluates only affected seams. Keep testing decisions that still
 
 Show the requirement delta, spec impact, and possibly affected HLD decisions / tickets first. Follow the shared stop-write protocol before writing when a graph exists. Update in place after confirmation, then report kept, added, or removed R / AC IDs.
 
-When an HLD exists, `high-level-design` syncs affected Ds first, then `to-tickets` coordinates the graph. Do not edit downstream artifacts.
+When an HLD exists, `solution-design` syncs affected Ds first, then `to-tickets` coordinates the graph. Do not edit downstream artifacts.

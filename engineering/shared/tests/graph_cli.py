@@ -12,15 +12,15 @@ def invoke(script, args):
 
 def invoke_loop(args):
     operation, *rest = args
-    return invoke(E / 'loop/scripts' / ('frontier' if operation == 'status' else 'update-status'), rest if operation == 'status' else args)
+    return invoke(E / 'graph-workflow/scripts' / ('frontier' if operation == 'status' else 'update-status'), rest if operation == 'status' else args)
 
 def main(args):
     operation, *rest = args
     if operation in ['create-batch', 'reconcile-batch']:
         return invoke(E / 'to-tickets/scripts/create-graph', args)
     if operation in ['inspect', 'list', 'show']:
-        return invoke(E / 'loop/scripts/graph-query', args)
-    return invoke(E / 'loop/scripts/update-status', args)
+        return invoke(E / 'graph-workflow/scripts/graph-query', args)
+    return invoke(E / 'graph-workflow/scripts/update-status', args)
 
 if __name__ == '__main__':
     raise SystemExit(main(sys.argv[1:]))

@@ -20,8 +20,8 @@
 | 需求、边界或验收未收敛 | [grilling](../engineering/grilling/SKILL.md) |
 | 技术路径存在需要跨会话调查的迷雾 | [wayfinding](../engineering/wayfinding/SKILL.md) |
 | 需求已收敛且需要持久化规范 | [to-spec](../engineering/to-spec/SKILL.md) |
-| 多个模块、调用方或实现任务需要共享设计约束 | [high-level-design](../engineering/high-level-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
-| 需要多个执行单元、依赖或统一调度 | [to-tickets](../engineering/to-tickets/SKILL.md) → [loop](../engineering/loop/SKILL.md) |
+| 多个模块、调用方或实现任务需要共享设计约束 | [solution-design](../engineering/solution-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
+| 需要多个执行单元、依赖或统一调度 | [to-tickets](../engineering/to-tickets/SKILL.md) → [graph-workflow](../engineering/graph-workflow/SKILL.md) |
 | 单一范围、无需执行图 | [quick-implement](../engineering/quick-implement/SKILL.md)，简单局部修改可以直接处理。 |
 | 当前验收缺少充分、可重复的验证方法 | 先查找已有方法，再按需使用 [verification-setup](../engineering/verification-setup/SKILL.md)。 |
 
@@ -49,18 +49,18 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 | 能力 | 主要责任 |
 | --- | --- |
-| [implement](../engineering/implement/SKILL.md) | 实现当前行为、补必要测试与局部简化，报告实际自检结果和缺口。 |
+| [ticket-implement](../engineering/ticket-implement/SKILL.md) | 实现当前行为、补必要测试与局部简化，报告实际自检结果和缺口。 |
 | [tdd](../engineering/tdd/SKILL.md) | 在实现中采用 Red → Green → Refactor 小步循环。 |
 | [verify](../engineering/verify/SKILL.md) | 独立逐条判断 AC 与证据，输出 PASS / FAIL / NOT VERIFIED。 |
 | [code-review](../engineering/code-review/SKILL.md) | 检查具体缺陷、回归风险和无必要复杂度。 |
 | [test-audit](../engineering/test-audit/SKILL.md) | 按需系统审计指定测试的有效性、独有保护和维护成本。 |
-| [loop](../engineering/loop/SKILL.md) | 派发 ticket、处理反馈、维护状态并判断最终交付。 |
+| [graph-workflow](../engineering/graph-workflow/SKILL.md) | 派发 ticket、处理反馈、维护状态并判断最终交付。 |
 
 项目验证方法提供执行能力，需求定义预期行为，实现者和验证者选择足够的检查。验证方法试运行成功、本地测试通过和任务验收通过分别有不同的证据要求，独立验收的理由见 [Verify 证据说明](../engineering/verify/references/evidence.md)。GUI 行为、视觉符合性和交互体验须分别有对应证据。
 
 `verify` 自己判断当前 AC 的证据可信度，`test-audit` 不替代这项责任，也不自动成为交付门。缺失的仓库测试交给实现方，失效的验证方法交给 verification-setup，环境或权限存在缺口时，说明解除条件。修复后即使产品代码未变，也要重新判断受影响的证据。
 
-单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Loop 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。首次收尾覆盖全量改动；correction 默认仅定向重验受影响 AC、原 regression 并执行项目 mandatory gates，独立 targeted review 检查累积修正，复核其他 AC 证据仍有效。实际影响扩大才升级 broad review，具体规则见[最终验收](../engineering/loop/references/delivery-review.md)。状态命令、部署要求及 Runtime 边界见 [Loop 说明](loop-runtime.md)。
+单一范围进入 `quick-implement` 时，保留其专用 simplify Review、独立 verify 和 code-review 收尾要求，简化候选只有在用户明确授权后才修改。进入 Graph Workflow 后，每张 ticket 由原生 worker 实现和本地检查，ticket done 放行依赖，最终交付仍需专用 simplify、独立 verify / code-review 和有效快照。首次收尾覆盖全量改动；correction 默认仅定向重验受影响 AC、原 regression 并执行项目 mandatory gates，独立 targeted review 检查累积修正，复核其他 AC 证据仍有效。实际影响扩大才升级 broad review，具体规则见[最终验收](../engineering/graph-workflow/references/delivery-review.md)。状态命令、部署要求及 Runtime 边界见 [Graph Workflow 说明](graph-workflow-runtime.md)。
 
 ## 产物入口
 
@@ -72,9 +72,9 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 | 访谈 `decisions.md`、术语与 ADR | [grilling](../engineering/grilling/SKILL.md) 组合 [domain-modeling](../engineering/domain-modeling/SKILL.md) |
 | `SPEC.md` | [to-spec](../engineering/to-spec/SKILL.md) |
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../engineering/to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
-| 共享技术设计 `HLD.md` | [high-level-design](../engineering/high-level-design/SKILL.md) |
+| 共享技术设计 `HLD.md` | [solution-design](../engineering/solution-design/SKILL.md) |
 | `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../engineering/to-tickets/SKILL.md) |
-| attempt、已接受证据与最终交付记录 | [loop](../engineering/loop/SKILL.md) |
+| attempt、已接受证据与最终交付记录 | [graph-workflow](../engineering/graph-workflow/SKILL.md) |
 
 领域术语默认模板见 [Glossary 格式](../engineering/domain-modeling/GLOSSARY-FORMAT.md)；既有 `CONTEXT.md`、`DOMAIN.md`、`TERMS.md` 等仍可作为 authority，不强制迁移。项目背景、领域词汇和架构决策分别使用各自来源。
 
@@ -86,10 +86,10 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 | --- | --- | --- |
 | 产品选择、外部行为、范围、权限、兼容策略或验收仍有开放决定 | `grilling` → `to-spec` Amendment | 重新判断受影响的 HLD / tickets。 |
 | 已确认需求发生规范性变化 | `to-spec` Amendment | 同步受影响的 HLD / tickets。 |
-| SPEC 含义不变，只改变共享技术设计 | `high-level-design` Amendment | 由 `to-tickets` 协调受影响的执行图。 |
+| SPEC 含义不变，只改变共享技术设计 | `solution-design` Amendment | 由 `to-tickets` 协调受影响的执行图。 |
 | SPEC / HLD 不变，只改变拆票或依赖 | `to-tickets` | 只更新执行图。 |
-| 仅有执行状态或验证证据变化 | 执行方（有图时为 `loop`） | 只更新执行记录，不修改 SPEC / HLD。 |
-| 实现发现需求或 HLD 无法成立 | `loop` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
+| 仅有执行状态或验证证据变化 | 执行方（有图时为 `graph-workflow`） | 只更新执行记录，不修改 SPEC / HLD。 |
+| 实现发现需求或 HLD 无法成立 | `graph-workflow` 先暂停执行，再交还对应上游 Skill | 完成修订并协调执行图后恢复。 |
 
 只同步受影响的下游，并核对保留的契约和证据在新依据下仍然适用。需求变化通过协调或修正交付处理，保留历史 done。`reopen` 仅用于原依据未变而原交付未满足的缺陷。执行中的写入方须先由 Runtime 停止，再修订上游和协调图。
 

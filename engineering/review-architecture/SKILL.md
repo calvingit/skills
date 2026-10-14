@@ -101,5 +101,5 @@ This skill stops at the review conclusion. If the user chooses to act on a findi
 - Need a target Module / Interface / Seam → `codebase-design`
 - Requirements or trade-offs still open → `grilling`
 - Need a formal task contract → `to-spec`
-- Plan already clear → `to-spec`, then `high-level-design` when several implementations must share design, then `quick-implement` or `loop` by scope
+- Plan already clear → `to-spec`, then `solution-design` when several implementations must share design, then `quick-implement` or `graph-workflow` by scope
 - Goal is only to delete proven-unnecessary complexity → `simplify`

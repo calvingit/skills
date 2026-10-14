@@ -22,7 +22,7 @@ Classify unresolved choices before asking:
 | Choice | Owner and record |
 | --- | --- |
 | User-visible behaviour, scope, acceptance, compatibility or permissions, including external API fields, protocol limits and backend-defined states | User decides; confirmed requirements become SPEC input. |
-| Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `high-level-design` review. Existing external-contract semantics remain requirements. |
+| Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `solution-design` review. Existing external-contract semantics remain requirements. |
 | Private methods, file layout, local helpers or internal refactoring | Agent decides; do not ask the user. |
 
 A Scenario cannot settle an unconfirmed business choice: if alternative answers change behaviour (for example, soft versus permanent account deletion or recovery), resolve the choice here. Concrete examples of already settled behaviour belong to `to-spec`.

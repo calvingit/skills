@@ -15,9 +15,9 @@ Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC
 
 Hard stops (do not bypass):
 
-- A ticket graph already exists → do not use this skill; Call the Skill tool with "loop".
-- Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "loop".
-- Unclear goal/scope/result, missing shared design across modules, or HLD conflict/gap → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `high-level-design` as fits. Do not silently change a shared contract while implementing.
+- A ticket graph already exists → do not use this skill; Call the Skill tool with "graph-workflow".
+- Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
+- Unclear goal/scope/result, missing shared design across modules, or HLD conflict/gap → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
 
 ## Investigate and plan
 
@@ -25,7 +25,7 @@ Hard stops (do not bypass):
 2. Discover repo guidance, coding standards, domain vocabulary, long-lived decisions, related code, call chains, error paths, tests, and config. Read only relevant Profile entries via [Profile resolution](../project-setup/references/profile.md#resolve-and-load); otherwise keep discovering what is already there.
 3. Form the smallest implementation for this delivery. Shared contracts the HLD already locked must be obeyed. Call the Skill tool with "codebase-design" (or use local detailed design) only for module internals, private helpers, file layout, and algorithms inside the local implementation space.
    Before implementing, relate each AC to a sufficient project method, prerequisites and coverage limits. Reuse existing guidance; route necessary method/test capability work within authority and keep uncovered criteria visible. No separate evidence-plan file is required.
-4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and Call the Skill tool once for the fitting owner among "grilling", "wayfinding", and "to-spec". Technical design several implementations share → Call the Skill tool with "high-level-design".
+4. New facts that would change behaviour, public contracts, permissions, acceptance, or scope → stop and Call the Skill tool once for the fitting owner among "grilling", "wayfinding", and "to-spec". Technical design several implementations share → Call the Skill tool with "solution-design".
 
 ## Implementation loop
 
@@ -48,7 +48,7 @@ Close-out requires three separate independent judgements — simplification revi
 
 ## Boundaries
 
-- Do not edit SPEC / HLD to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; high-level technical design changes → Call the Skill tool with "high-level-design".
+- Do not edit SPEC / HLD to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; high-level technical design changes → Call the Skill tool with "solution-design".
 - Do not create tickets, maintain an execution graph, or schedule other work units.
 - Do not re-delegate this whole job to another implementer. Reviewers and other specialised roles still run under their own skills.
 - Do not overwrite existing edits. Do not swallow errors.

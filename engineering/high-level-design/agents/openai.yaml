@@ -1,7 +1,0 @@
-interface:
-  display_name: "High-Level Design"
-  short_description: "Smallest increment of shared technical design on the architecture already there, from a confirmed SPEC"
-  default_prompt: "Use $high-level-design to read the confirmed SPEC.md, search related implementations and call chains, and create or amend a minimal-increment HLD.md on the existing architecture."
-
-policy:
-  allow_implicit_invocation: false

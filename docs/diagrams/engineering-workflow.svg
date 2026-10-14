@@ -4807,7 +4807,7 @@
     }
   ]]></style><rect width="100%" height="100%" fill="#020617"/>
         <title id="archify-diagram-title">Engineering Skills 工作流</title>
-        <desc id="archify-diagram-description">先核对已确认契约，并分别判断不确定性、影响范围和验证难度，需求未定时使用 grilling，关键技术路径需跨会话调查时使用 wayfinding。 单一范围也可能需要 HLD，共享设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。 单一范围且无图时使用 quick-implement，已有有效图继续 Loop，最终交付须有全部适用 AC 证据，以及各流程必需的简化、独立 verify 和 code-review。 交付收尾：quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改，Loop：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审，所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围。</desc>
+        <desc id="archify-diagram-description">先核对已确认契约，并分别判断不确定性、影响范围和验证难度，需求未定时使用 grilling，关键技术路径需跨会话调查时使用 wayfinding。 单一范围也可能需要 HLD，共享设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。 单一范围且无图时使用 quick-implement，已有有效图继续 Graph Workflow，最终交付须有全部适用 AC 证据，以及各流程必需的简化、独立 verify 和 code-review。 交付收尾：quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改，Graph Workflow：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审，所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围。</desc>
         <!-- Definitions -->
         <defs>
           <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
@@ -4985,14 +4985,14 @@
         <text data-detail="fine" x="676.6" y="744" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
-        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="high-level-design" tabindex="0" role="button" aria-label="聚焦high-level-design，共享设计 + 按需评审, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="backend" data-node-sublabel="共享设计 + 按需评审" data-node-context="规范与设计 › 选择执行路径">
-          <title>high-level-design · 共享设计 + 按需评审 · 规范与设计 › 选择执行路径</title>
+        <g id="node-high_level_design" data-node-id="high_level_design" data-node-label="solution-design" tabindex="0" role="button" aria-label="聚焦solution-design，共享设计 + 按需评审, 规范与设计 › 选择执行路径" aria-pressed="false" data-node-kind="backend" data-node-sublabel="共享设计 + 按需评审" data-node-context="规范与设计 › 选择执行路径">
+          <title>solution-design · 共享设计 + 按需评审 · 规范与设计 › 选择执行路径</title>
           <rect x="773.6" y="696" width="124" height="52" rx="6" class="c-mask"/>
           <rect x="773.6" y="696" width="124" height="52" rx="6" class="c-backend" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="backend" class="semantic-sigil s-backend" transform="translate(779.6 702) scale(0.6875)">
             <path d="M6 3 3 8l3 5M10 3l3 5-3 5"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="835.6" y="717" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">high-level-design</text>
+          <text data-node-label="" data-detail-anchor="" x="835.6" y="717" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">solution-design</text>
           <text data-detail="context" x="835.6" y="734" class="t-muted" font-size="8" text-anchor="middle">共享设计 + 按需评审</text>
         </g>
 
@@ -5046,8 +5046,8 @@
         <text data-detail="fine" x="835.6" y="940" class="t-cloud" font-size="7" text-anchor="middle">DONE</text>
         </g>
 
-        <g id="node-loop" data-node-id="loop" data-node-label="loop" tabindex="0" role="button" aria-label="聚焦loop，原生 worker + 证据判断, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="原生 worker + 证据判断" data-node-context="执行与交付 › 选择执行路径">
-          <title>loop · 原生 worker + 证据判断 · 执行与交付 › 选择执行路径</title>
+        <g id="node-loop" data-node-id="loop" data-node-label="graph-workflow" tabindex="0" role="button" aria-label="聚焦graph-workflow，原生 worker + 证据判断, 执行与交付 › 选择执行路径" aria-pressed="false" data-node-kind="messagebus" data-node-sublabel="原生 worker + 证据判断" data-node-context="执行与交付 › 选择执行路径">
+          <title>graph-workflow · 原生 worker + 证据判断 · 执行与交付 › 选择执行路径</title>
           <rect x="755.6" y="1032" width="160" height="52" rx="6" class="c-mask"/>
           <rect x="755.6" y="1032" width="160" height="52" rx="6" class="c-messagebus" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="messagebus" class="semantic-sigil s-messagebus" transform="translate(761.6 1038) scale(0.6875)">
@@ -5056,7 +5056,7 @@
             <circle cx="10.5" cy="8" r="1" class="sigil-fill"/>
             <circle cx="7" cy="11.5" r="1" class="sigil-fill"/>
           </g>
-          <text data-node-label="" data-detail-anchor="" x="835.6" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">loop</text>
+          <text data-node-label="" data-detail-anchor="" x="835.6" y="1053" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">graph-workflow</text>
           <text data-detail="context" x="835.6" y="1070" class="t-muted" font-size="8" text-anchor="middle">原生 worker + 证据判断</text>
         </g>
 
@@ -5166,7 +5166,7 @@
           <rect x="40" y="1170" width="1004" height="88" rx="8" class="c-lane" stroke-width="1"/>
           <text x="54" y="1190" class="t-primary" font-size="10" font-weight="600">交付收尾</text>
           <text x="54" y="1210" class="t-muted" font-size="9">quick-implement：simplify Review、独立 verify 和 code-review，简化候选获明确授权后才修改</text>
-          <text x="54" y="1228" class="t-muted" font-size="9">Loop：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审</text>
+          <text x="54" y="1228" class="t-muted" font-size="9">Graph Workflow：首次全量 simplify / verify / review；修正后定向复验，影响扩大才扩审</text>
           <text x="54" y="1246" class="t-muted" font-size="9">所有适用 AC 和必需门禁通过，必需报告齐全，且没有未解决的高风险问题或必需未验证范围</text>
         </g>
       </svg>

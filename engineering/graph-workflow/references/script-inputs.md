@@ -1,14 +1,14 @@
 # Execution script inputs
 
-Resolve scripts relative to this installed skill, preserving sibling `shared/`. Python 3.10+ on macOS/Linux is sufficient; no global CLI install. `--input` accepts a UTF-8 JSON path or `-` for stdin. Responses are JSON and nonzero exits mean rejection. Loop supplies decisions; scripts only check and record facts.
+Resolve scripts relative to this installed skill, preserving sibling `shared/`. Python 3.10+ on macOS/Linux is sufficient; no global CLI install. `--input` accepts a UTF-8 JSON path or `-` for stdin. Responses are JSON and nonzero exits mean rejection. Graph Workflow supplies decisions; scripts only check and record facts.
 
 ## Attempts and ticket state
 
 ```bash
-python3 <loop-skill>/scripts/frontier <task-dir>
-python3 <loop-skill>/scripts/graph-query show <task-dir> T001
-python3 <loop-skill>/scripts/update-status start <task-dir> T001 --input <request.json>
-python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <request.json>
+python3 <graph-workflow-skill>/scripts/frontier <task-dir>
+python3 <graph-workflow-skill>/scripts/graph-query show <task-dir> T001
+python3 <graph-workflow-skill>/scripts/update-status start <task-dir> T001 --input <request.json>
+python3 <graph-workflow-skill>/scripts/update-status complete <task-dir> T001 --input <request.json>
 ```
 
 | Operation | Required JSON fields |
@@ -30,7 +30,7 @@ python3 <loop-skill>/scripts/update-status complete <task-dir> T001 --input <req
 }
 ```
 
-Loop must inspect the actual baseline, paths and existing changes; empty arrays in this example are not workspace facts. Example complete request:
+Graph Workflow must inspect the actual baseline, paths and existing changes; empty arrays in this example are not workspace facts. Example complete request:
 
 ```json
 {
@@ -40,7 +40,7 @@ Loop must inspect the actual baseline, paths and existing changes; empty arrays 
 }
 ```
 
-Ticket completion is Loop's approval of local acceptance and releases dependencies; it does not pass final delivery. Call it only after confirming no unresolved blockers or required unverified scope. Evidence must cover every current `delivery_acceptance` ID. Optional review must be a nonempty original report from an actual review, never a placeholder for deferred final review. Supply real results, not these illustrative strings. Blocker kinds and other stored fields use the [shared schema](../../shared/ticket-schema.json).
+Ticket completion is Graph Workflow's approval of local acceptance and releases dependencies; it does not pass final delivery. Call it only after confirming no unresolved blockers or required unverified scope. Evidence must cover every current `delivery_acceptance` ID. Optional review must be a nonempty original report from an actual review, never a placeholder for deferred final review. Supply real results, not these illustrative strings. Blocker kinds and other stored fields use the [shared schema](../../shared/ticket-schema.json).
 
 ## Delivery and recovery
 
@@ -48,4 +48,4 @@ Unlike ticket completion, final delivery requires an original independent review
 
 Whole-delivery preparation/completion use `scripts/update-status delivery-prepare|delivery-complete`; see [finalization](delivery-review.md) for the input and required workflow. Queries use `scripts/frontier` or `scripts/graph-query inspect|list|show`. `list` supports `--phase` and `--readiness`.
 
-`python3 <loop-skill>/scripts/update-status recover <task-dir> commit|rollback` recovers interrupted graph transactions. It does not resume an Agent. Upstream graph reconciliation belongs to `to-tickets`, after Loop stops writers.
+`python3 <graph-workflow-skill>/scripts/update-status recover <task-dir> commit|rollback` recovers interrupted graph transactions. It does not resume an Agent. Upstream graph reconciliation belongs to `to-tickets`, after Graph Workflow stops writers.

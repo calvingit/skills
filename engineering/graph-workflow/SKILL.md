@@ -1,20 +1,20 @@
 ---
-name: loop
-description: Advance a confirmed ticket graph through implementation, evidence inspection, and state transitions using native workers.
+name: graph-workflow
+description: Advance a confirmed ticket dependency graph through implementation, evidence inspection, and state transitions, coordinating execution with native workers. Not an agent runtime or orchestration framework.
 ---
 
-# Loop
+# Graph Workflow
 
 Select work, Call the Skill tool with the responsible skill (or pass its resolved `SKILL.md` into a native worker), inspect its result, and record the resulting task state. The Manager owns these decisions; Runtime owns worker creation, waiting, cancellation, and session continuation. State scripts record graph and delivery facts, never launch agents or interpret reports.
 
-Loop's existing execution contract uses Runtime-native workers for implementation and corrections; the Manager does not edit product code. Final simplification, verification, and review use dedicated workers. Do not substitute an external Agent CLI.
+Graph Workflow's existing execution contract uses Runtime-native workers for implementation and corrections; the Manager does not edit product code. Final simplification, verification, and review use dedicated workers. Do not substitute an external Agent CLI.
 
 ## Execute
 
-1. Read `python3 <loop-skill>/scripts/frontier <task-dir>`, the current SPEC, applicable ACCEPTANCE/HLD, relevant tickets, and existing execution records. Resolve their [Task Contract](../shared/task-contract.md) and current source references; check any recorded native execution before dispatching replacement work. Missing optional documents add no prerequisites.
+1. Read `python3 <graph-workflow-skill>/scripts/frontier <task-dir>`, the current SPEC, applicable ACCEPTANCE/HLD, relevant tickets, and existing execution records. Resolve their [Task Contract](../shared/task-contract.md) and current source references; check any recorded native execution before dispatching replacement work. Missing optional documents add no prerequisites.
 2. Resume an in-progress ticket before choosing a ready one. Establish its baseline, pre-existing edits, current attempt, expected change areas, and delivery AC. Use `scripts/update-status start` for a new attempt or `retry` for a scoped correction; each write returns the updated graph, so pick the next ticket from it rather than re-querying. Read [script inputs](references/script-inputs.md) when writing state.
-3. Dispatch a native worker that loads `implement` (Call the Skill tool with "implement", or pass its resolved `SKILL.md`) with the ticket, authoritative inputs, baseline/scope, verification entry, permitted resources, and previous findings. Establish an observation method or visible gap for the delivery AC before implementation; use project methods rather than designing a test strategy in the Manager. Preserve useful continuity; read [delegation inputs](references/context-and-delegation.md) when needed. Run workers serially unless an explicit parallel decision establishes independent contracts, writes, and mutable resources.
-4. Inspect actual changes and the worker's local acceptance evidence for every ticket AC and applicable project gate. `implement` owns development checks; request missing checks or corrections rather than duplicating its test strategy. Per-ticket independent verify/review is optional unless required by the user or project. Record the executor so local checks are not labelled independent verification.
+3. Dispatch a native worker that loads `ticket-implement` (Call the Skill tool with "ticket-implement", or pass its resolved `SKILL.md`) with the ticket, authoritative inputs, baseline/scope, verification entry, permitted resources, and previous findings. Establish an observation method or visible gap for the delivery AC before implementation; use project methods rather than designing a test strategy in the Manager. Preserve useful continuity; read [delegation inputs](references/context-and-delegation.md) when needed. Run workers serially unless an explicit parallel decision establishes independent contracts, writes, and mutable resources.
+4. Inspect actual changes and the worker's local acceptance evidence for every ticket AC and applicable project gate. `ticket-implement` owns development checks; request missing checks or corrections rather than duplicating its test strategy. Per-ticket independent verify/review is optional unless required by the user or project. Record the executor so local checks are not labelled independent verification.
 5. Read text/Markdown reports directly and decide whether to complete, correct, block, or route a contract change. Preserve original reports and command evidence under the task's `.loop/`. Do not infer success from silence or a completion claim; scripts cannot judge prose or report independence.
 6. Record the decision through `scripts/update-status`. A successful mutation returns the updated graph; continue from it and query again only when it is unclear or stale. Ticket `done` releases dependencies; it does not pass final delivery. Continue until final delivery passes, the user stops work, or progress requires unavailable external input/capability.
 
@@ -24,9 +24,9 @@ Use `verify`'s [verdict definitions](../verify/SKILL.md#verdicts). Preserve find
 
 | Result / conflict | Next action |
 | --- | --- |
-| Observed defect against an unchanged contract | Send the finding to `implement`, record a correction attempt, and recheck affected evidence. Use `reopen` for a completed ticket only when graph rules permit it; otherwise request a corrective ticket. |
+| Observed defect against an unchanged contract | Send the finding to `ticket-implement`, record a correction attempt, and recheck affected evidence. Use `reopen` for a completed ticket only when graph rules permit it; otherwise request a corrective ticket. |
 | Environment, permission, dependency, or external gap | Record a blocker with its release condition; resume only after confirming release evidence. Do not repeatedly retry an unresolved blocker. |
-| Inadequate verification method | Try a sufficient existing read-only method; route required harness work to `verification-setup` or missing repository-test work to `implement`, within caller authority. A gap alone does not prove a product defect. |
+| Inadequate verification method | Try a sufficient existing read-only method; route required harness work to `verification-setup` or missing repository-test work to `ticket-implement`, within caller authority. A gap alone does not prove a product defect. |
 | Requirement or shared-design conflict | Return it to the owning upstream skill; do not modify product code to satisfy an unconfirmed or incorrect expectation. |
 | Missing or unclear required report | Retrieve or clarify the original result; keep the required stage incomplete. |
 
@@ -36,7 +36,7 @@ Changes to code, requirements, tests, fixtures, snapshots, verification configur
 
 ## State and execution boundaries
 
-Resolve `<loop-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status`. Tickets are Markdown; never hand-edit their frontmatter. `recover` repairs a graph transaction, not an Agent session.
+Resolve `<graph-workflow-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status`. Tickets are Markdown; never hand-edit their frontmatter. `recover` repairs a graph transaction, not an Agent session.
 
 Keep `.loop/` in the task directory next to SPEC and tickets. It contains attempts, reports, command logs, and delivery inputs; it is not project configuration or a place for product code/tests. Use existing source links and brief handoff notes when needed, without mandatory context files, timing ledgers, Agent pools, heartbeat services, or another execution state machine.
 
@@ -48,6 +48,6 @@ Use Runtime's native lifecycle and configured limits. A wait returning without a
 
 Before changing shared requirements/design or reconciling tickets, pause dispatch, stop active writers through Runtime, confirm they stopped, preserve partial results, and block affected attempts. Changing graph state alone does not stop a worker.
 
-For unsettled choices Call the Skill tool with "grilling"; for normative requirements with "to-spec"; for shared design with "high-level-design"; for graph-only changes with "to-tickets". Keep unaffected contracts/evidence and historical done records; changed behaviour needs amendment/correction tickets rather than reopening an old contract.
+For unsettled choices Call the Skill tool with "grilling"; for normative requirements with "to-spec"; for shared design with "solution-design"; for graph-only changes with "to-tickets". Keep unaffected contracts/evidence and historical done records; changed behaviour needs amendment/correction tickets rather than reopening an old contract.
 
 When `delivery_ready` is true, continue with [finalization](references/delivery-review.md) in the same run. Initial closeout covers the full change set; after corrections, default to targeted independent verification/review plus mandatory project gates, retaining still-valid evidence for all current SPEC AC. Broaden review only when material impact invalidates its prior basis; returning to `delivery_ready` alone does not restart full finalization. Report completion only when `frontier` shows `delivery_review.state: passed`. Runtime ending does not promise background continuation. Commit or push only when explicitly authorised.

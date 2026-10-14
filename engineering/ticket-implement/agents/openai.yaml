@@ -1,0 +1,7 @@
+interface:
+  display_name: "Ticket Implement"
+  short_description: "Implement the current ticket within Graph Workflow's allowed write scope"
+  default_prompt: "Use $ticket-implement to implement the given ticket contract within the allowed write scope and return a readable Markdown account of changes and unresolved issues."
+
+policy:
+  allow_implicit_invocation: false

@@ -2,15 +2,15 @@
 
 Read when the graph reports `delivery_ready: true`. Historical completed tickets do not prove the final implementation meets the latest requirements. Distinguish initial closeout from rechecking corrections; returning to `delivery_ready` does not restart every finalization role.
 
-Shared role rules for dedicated `simplify`, `verify`, and `code-review` judgements, independence, and panel rules: [close-out roles](../../shared/closeout-roles.md). This file owns Loop sequencing, delivery-prepare, correction closeout, and broaden triggers.
+Shared role rules for dedicated `simplify`, `verify`, and `code-review` judgements, independence, and panel rules: [close-out roles](../../shared/closeout-roles.md). This file owns Graph Workflow sequencing, delivery-prepare, correction closeout, and broaden triggers.
 
 ## Initial closeout
 
 1. Dispatch dedicated `simplify` on the complete change set after all tickets pass local acceptance and record its conclusion. Remove only unnecessary complexity in the current scope; do not expand product requirements.
-2. After simplification stops writing, run `python3 <loop-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>` to record the current requirement, graph, and code snapshot under `.loop/delivery.json` before independent verification and review.
+2. After simplification stops writing, run `python3 <graph-workflow-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>` to record the current requirement, graph, and code snapshot under `.loop/delivery.json` before independent verification and review.
 3. Dispatch dedicated `verify` to check every current SPEC AC, including cross-ticket integration and mandatory project gates. Reuse prior evidence only when its meaning, code, dependencies, and environment remain applicable.
 4. Dispatch a separate dedicated `code-review` on the complete final change set and evidence, including interactions and regressions from amendments. Read its Markdown directly. Do not ask for a schema or translate its findings into fields.
-5. Address required findings before marking the task complete. For defects in unchanged requirements, use `reopen` only when the graph permits it; otherwise Call the Skill tool with "to-tickets" for corrective tickets, preserving dependent completed tickets and valid evidence. Resume Loop execution for the corrections, then use correction closeout below. Missing evidence or conflicting requirements need resolution. Apart from the scoped simplify step above, do not fix product code inside finalization.
+5. Address required findings before marking the task complete. For defects in unchanged requirements, use `reopen` only when the graph permits it; otherwise Call the Skill tool with "to-tickets" for corrective tickets, preserving dependent completed tickets and valid evidence. Resume Graph Workflow execution for the corrections, then use correction closeout below. Missing evidence or conflicting requirements need resolution. Apart from the scoped simplify step above, do not fix product code inside finalization.
 
 ## Correction closeout
 
@@ -35,10 +35,10 @@ Condition, null/error handling, mapping, local validation and direct regression 
 
 ## Record completion
 
-Submit `python3 <loop-skill>/scripts/update-status delivery-complete <task-dir> --input <path|->` only after judging delivery acceptable. Keep the existing input shape: `evidence` covers every current SPEC AC, `verification` records actual applicable checks, and `review` is the latest independent report as an original string. For correction closeout, that report must identify the earlier broad report/candidate, the corrected findings, the targeted scope and the applicability of retained review coverage. Retain both reports; do not relabel the old report as a review of new code. `approved` records Loop's judgement, not a parsed reviewer label. The helper checks evidence and snapshot freshness; it neither selects review scope nor performs the review.
+Submit `python3 <graph-workflow-skill>/scripts/update-status delivery-complete <task-dir> --input <path|->` only after judging delivery acceptable. Keep the existing input shape: `evidence` covers every current SPEC AC, `verification` records actual applicable checks, and `review` is the latest independent report as an original string. For correction closeout, that report must identify the earlier broad report/candidate, the corrected findings, the targeted scope and the applicability of retained review coverage. Retain both reports; do not relabel the old report as a review of new code. `approved` records Graph Workflow's judgement, not a parsed reviewer label. The helper checks evidence and snapshot freshness; it neither selects review scope nor performs the review.
 
-Missing required simplify, verify, or code-review results leave finalization incomplete; retrieve or resume the affected role through Runtime while preserving completed tickets and still-valid role results. Follow Loop's execution boundaries before starting overlapping work.
+Missing required simplify, verify, or code-review results leave finalization incomplete; retrieve or resume the affected role through Runtime while preserving completed tickets and still-valid role results. Follow Graph Workflow's execution boundaries before starting overlapping work.
 
 Store reports and command input under the current task's `.loop/` so they do not change the product snapshot. This directory is exclusively execution output; keep requirements, product code, tests, and necessary configuration outside it. The snapshot still includes every ticket file (`tickets/*.md`: frontmatter execution facts and body), so a body edit makes it stale; keep finalization notes in `.loop/` instead of rewriting completed tickets. If code, requirements, graph, or Git HEAD changes, prepare again and recheck affected verification and review. Snapshot invalidation requires reassessment, not automatic broad review. A changed external service or test environment also requires a fresh evidence decision; file fingerprints cannot detect it.
 
-Completion is reported only when `scripts/frontier` shows `delivery_review.state: passed`. Final review continues the same Loop execution; it is not an excuse to stop at `delivery_ready`.
+Completion is reported only when `scripts/frontier` shows `delivery_review.state: passed`. Final review continues the same Graph Workflow execution; it is not an excuse to stop at `delivery_ready`.

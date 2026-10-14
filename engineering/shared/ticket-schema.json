@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:engineering-skills:ticket:v3",
-  "title": "Loop ticket",
+  "title": "Graph Workflow ticket",
   "type": "object",
   "additionalProperties": false,
   "required": [

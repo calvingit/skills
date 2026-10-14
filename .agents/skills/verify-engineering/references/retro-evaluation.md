@@ -8,7 +8,7 @@
 
 | 样本 | 任务 | 重点观察 |
 | --- | --- | --- |
-| Session A | 长时间 Loop / ticket graph 任务 | 上下文压力、worker 启动、review/fix 循环、验证成本、状态转换 |
+| Session A | 长时间 Graph Workflow / ticket graph 任务 | 上下文压力、worker 启动、review/fix 循环、验证成本、状态转换 |
 | Session B | 普通 quick implementation | 导航、测试选择、指令适用性、工具调用 |
 | Session C | GUI / Web / App / E2E 任务 | 验证缺口、视觉证据、交互验证、环境准备 |
 
@@ -52,7 +52,7 @@
 | 领域术语与长期领域文档 | `engineering/domain-modeling` |
 | 实现缺陷与不必要复杂度 | `engineering/code-review` / `engineering/simplify`，修复交给实现方 |
 | 原生 worker 生命周期故障 | Runtime 维护者；保留复现，不在 Skill 内另建 Runtime |
-| Loop 的范围、交接或交付判断 | `engineering/loop` 维护者，限定在已有职责 |
+| Graph Workflow 的范围、交接或交付判断 | `engineering/graph-workflow` 维护者，限定在已有职责 |
 
 实验输出只给建议和路由，不自动编辑 AGENTS.md、构建 harness、修改 Profile 或重写 Skills。对已授权的后续实施，由负责方单独执行并验证；本实验的建议不是新的权限。
 

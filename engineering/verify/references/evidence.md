@@ -30,4 +30,4 @@ Acceptance Criteria 定义预期行为（expected behaviour），不能从实现
 
 测试、fixture、mock、snapshot、golden 和配置都是需要核对来源、执行路径和覆盖范围的证据。测试绿色不能自行保证独立预期正确，行为 E2E、视觉参考、交互时序和真实第三方集成也需要各自充分的观察。
 
-[Verify](../SKILL.md) 维护执行步骤、PASS / FAIL / NOT VERIFIED 的定义和只读边界，[verification-setup](../../verification-setup/SKILL.md) 维护项目方法，专项测试价值审计由 [test-audit](../../test-audit/SKILL.md) 负责。Loop 如何接受证据和改变状态，见 [Loop 的证据决策](../../loop/SKILL.md#decide-from-evidence)，这些角色的判断不能相互替代。
+[Verify](../SKILL.md) 维护执行步骤、PASS / FAIL / NOT VERIFIED 的定义和只读边界，[verification-setup](../../verification-setup/SKILL.md) 维护项目方法，专项测试价值审计由 [test-audit](../../test-audit/SKILL.md) 负责。Graph Workflow 如何接受证据和改变状态，见 [Graph Workflow 的证据决策](../../graph-workflow/SKILL.md#decide-from-evidence)，这些角色的判断不能相互替代。

@@ -1,9 +1,9 @@
 ---
-name: implement
+name: ticket-implement
 description: "Implement one ticket's delivery behaviour within its agreed write scope."
 ---
 
-# Implement
+# Ticket Implement
 
 Use the ticket, requirements, baseline, and write scope supplied by the caller. Implement the simplest correct design, including necessary simplification of complexity this change creates or makes obsolete. Remove unnecessary compatibility, fallback, indirection, duplication, and temporary scaffolding introduced by this change; preserve old behaviour only for a confirmed requirement.
 

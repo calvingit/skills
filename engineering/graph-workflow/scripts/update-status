@@ -6,7 +6,7 @@ from ticket_graph.recovery import recover_transaction
 from ticket_graph.contracts import envelope
 import delivery
 from pathlib import Path
-p = parser("Single entry for Loop's state writes and final delivery evidence; never executes an agent. Each write returns the updated graph.")
+p = parser("Single entry for Graph Workflow's state writes and final delivery evidence; never executes an agent. Each write returns the updated graph.")
 TICKET_OPERATIONS = ['start', 'retry', 'block', 'unblock', 'complete', 'reopen']
 p.add_argument('operation', choices=[*TICKET_OPERATIONS, 'recover', 'delivery-prepare', 'delivery-complete'], help='start/retry open an attempt; complete approves ticket-local acceptance (review optional); delivery-complete requires final independent verification and review')
 task_argument(p)

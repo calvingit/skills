@@ -26,7 +26,7 @@ These boundaries are the workflow-level expression of the cross-skill [engineeri
 | --- | --- |
 | Goal | Declare completion only for the confirmed result and current criteria, including required gates. Ticket completion and final delivery are distinct. |
 | Scope | Work within the confirmed delivery. Expected change areas are not a sandbox; task scope, role write restrictions and Runtime permissions all still apply. Related necessary changes within authority may be reported; unrelated cleanup requires its own scope. |
-| Decision | Choose local implementation details. Return requirement/acceptance changes to `to-spec` (unsettled choices first to `grilling`), shared design changes to `high-level-design`, and graph split/dependency changes to `to-tickets`. |
+| Decision | Choose local implementation details. Return requirement/acceptance changes to `to-spec` (unsettled choices first to `grilling`), shared design changes to `solution-design`, and graph split/dependency changes to `to-tickets`. |
 | Authority | A task, recipe, ticket or tool being available does not grant permission. Carry forward actual user authorization and applicable restrictions; do not ask again for already-authorized work. A downstream role may narrow authority, never expand it. Runtime enforces tools, sandbox and lifecycle. |
 | Evidence | Derive expectations from confirmed requirements, then select sufficient observable checks. Keep source, current candidate, executor, environment and coverage distinguishable. A green gate, setup smoke or implementation self-check does not establish unrelated AC or independent verification. |
 | Recovery | Correct observed defects against an unchanged contract; resolve environment/permission/dependency gaps before another attempt; return contract conflicts to their owner. For a lost acknowledgement or unknown external write result, establish the outcome before repeating the write. Runtime owns process/session recovery; graph recovery repairs graph transactions only. |
@@ -43,11 +43,11 @@ Evidence planning happens before implementation: relate each AC to an observable
 
 ## Amendment stop-write protocol
 
-When amending an upstream authority (SPEC, HLD, or ticket graph) while Loop execution may be active, follow this shared order. Product-specific delta rules stay in each skill's `references/amendment.md`.
+When amending an upstream authority (SPEC, HLD, or ticket graph) while Graph Workflow execution may be active, follow this shared order. Product-specific delta rules stay in each skill's `references/amendment.md`.
 
-1. **Stop writers** — When a graph exists, have `loop` stop task dispatch, interrupt workers through Runtime, preserve partial receipts, and block active attempts. Changing graph state alone does not stop a writer. Reconciliation rejects graphs with in-progress attempts.
+1. **Stop writers** — When a graph exists, have `graph-workflow` stop task dispatch, interrupt workers through Runtime, preserve partial receipts, and block active attempts. Changing graph state alone does not stop a writer. Reconciliation rejects graphs with in-progress attempts.
 2. **Confirm impact** — Show the user the authority delta and the possibly affected downstream (HLD / tickets / evidence) before writing.
 3. **Write authority** — Update only the responsible source after confirmation (or after that skill's own review gate when it applies).
-4. **Reconcile** — Hand off to the next owner (`high-level-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
+4. **Reconcile** — Hand off to the next owner (`solution-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
 
 The [ownership matrix](engineering-responsibilities.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.

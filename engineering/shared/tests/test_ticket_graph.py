@@ -1080,7 +1080,7 @@ class TicketGraphCliTests(unittest.TestCase):
     def test_workflow_contract_docs_are_markdown_only_and_command_aligned(self) -> None:
         paths = [
             REPOSITORY / "README.md",
-            REPOSITORY / "engineering" / "loop" / "SKILL.md",
+            REPOSITORY / "engineering" / "graph-workflow" / "SKILL.md",
             REPOSITORY / "engineering" / "to-tickets" / "SKILL.md",
             REPOSITORY / "engineering" / "shared" / "ticket-schema.json",
             REPOSITORY / "docs" / "diagrams" / "ticket-lifecycle.lifecycle.json",

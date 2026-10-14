@@ -27,7 +27,7 @@ A fast, deterministic, unattended loop is preferable. It is not the bar for star
 
 ## Non-deterministic bugs
 
-The goal is a reproduction rate high enough to distinguish hypotheses. Loop count, parallel stress, timing windows, and injected sleeps are set by the failure. Continue once the evidence can support or kill the current hypothesis. Don't mandate 100 runs, or 50% / 1% as hard thresholds. Record the rate you observed.
+The goal is a reproduction rate high enough to distinguish hypotheses. Graph Workflow count, parallel stress, timing windows, and injected sleeps are set by the failure. Continue once the evidence can support or kill the current hypothesis. Don't mandate 100 runs, or 50% / 1% as hard thresholds. Record the rate you observed.
 
 ## Evidence before a fix
 

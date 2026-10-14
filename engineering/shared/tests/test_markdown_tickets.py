@@ -78,7 +78,7 @@ class MarkdownTicketTests(unittest.TestCase):
         return next((self.task / "tickets").glob(ticket_id + "-*.md"))
 
     def update(self, operation, ticket_id, request):
-        code, payload = run("loop/scripts/update-status", operation, str(self.task), ticket_id, "--input", "-", stdin=json.dumps(request))
+        code, payload = run("graph-workflow/scripts/update-status", operation, str(self.task), ticket_id, "--input", "-", stdin=json.dumps(request))
         self.assertEqual(code, 0, payload)
         return payload
 
@@ -121,7 +121,7 @@ class MarkdownTicketTests(unittest.TestCase):
         md = self.path("T001")
         old = self.task / "tickets/T001-old.json"
         old.write_text(json.dumps({"id": "T001", "schema_version": 2}))
-        code, payload = run("loop/scripts/graph-query", "inspect", str(self.task))
+        code, payload = run("graph-workflow/scripts/graph-query", "inspect", str(self.task))
         self.assertEqual(code, 1)
         self.assertIn("unsupported_ticket_format", {item["code"] for item in payload["problems"]})
         self.assertTrue(md.exists())
@@ -142,13 +142,13 @@ class MarkdownTicketTests(unittest.TestCase):
         for expected, text in cases.items():
             with self.subTest(expected=expected):
                 path.write_text(text)
-                code, payload = run("loop/scripts/graph-query", "inspect", str(self.task))
+                code, payload = run("graph-workflow/scripts/graph-query", "inspect", str(self.task))
                 self.assertEqual(code, 1)
                 self.assertIn(expected.strip(), {p["code"] for p in payload["problems"]})
         path.write_text(good)
         before = path.read_bytes()
         path.write_text(good.replace("schema_version: 3\n", "schema_version: 3\nschema_version: 3\n"))
-        code, _ = run("loop/scripts/update-status", "start", str(self.task), "T001", "--input", "-", stdin=json.dumps(START))
+        code, _ = run("graph-workflow/scripts/update-status", "start", str(self.task), "T001", "--input", "-", stdin=json.dumps(START))
         self.assertEqual(code, 1)
         path.write_bytes(before)
 
@@ -157,7 +157,7 @@ class MarkdownTicketTests(unittest.TestCase):
         self.update("start", "T001", START)
         path = self.path("T001")
         path.write_text(path.read_text().replace("Slice 1 observable.", "Slice 1 changed."))
-        code, payload = run("loop/scripts/frontier", str(self.task))
+        code, payload = run("graph-workflow/scripts/frontier", str(self.task))
         self.assertIn("T001", payload["graph"]["stale_authority"])
 
     # Case F: amendments on Markdown graphs
@@ -177,7 +177,7 @@ class MarkdownTicketTests(unittest.TestCase):
     def test_update_status_runs_outside_repo(self):
         self.create()
         with tempfile.TemporaryDirectory() as elsewhere:
-            code, payload = run("loop/scripts/update-status", "start", str(self.task), "T001",
+            code, payload = run("graph-workflow/scripts/update-status", "start", str(self.task), "T001",
                                 "--input", "-", cwd=elsewhere, stdin=json.dumps(START))
             self.assertEqual(code, 0, payload)
             self.assertEqual(payload["graph"]["in_progress"], ["T001"])
