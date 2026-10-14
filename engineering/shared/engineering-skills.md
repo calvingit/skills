@@ -34,14 +34,14 @@
 | 需求、边界或验收未收敛 | [grilling](../grilling/SKILL.md) |
 | 技术路径存在需要跨会话调查的迷雾 | [wayfinding](../wayfinding/SKILL.md) |
 | 需求已收敛且需要持久化规范 | [to-spec](../to-spec/SKILL.md) |
-| 多个模块、调用方或实现任务需要共享设计约束 | [solution-design](../solution-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
+| 多个模块、调用方或实现任务需要方案设计约束 | [solution-design](../solution-design/SKILL.md)，单一执行范围也可能需要 HLD。 |
 | 需要多个执行单元、依赖或统一调度 | [to-tickets](../to-tickets/SKILL.md) → [graph-workflow](../graph-workflow/SKILL.md) |
 | 单一范围、无需执行图 | [quick-implement](../quick-implement/SKILL.md)，简单局部修改可以直接处理。 |
 | 当前验收缺少充分、可重复的验证方法 | 先查找已有方法，再按需使用 [verification-setup](../verification-setup/SKILL.md)。 |
 
 各入口按需组合，不构成必经阶段。实现前以已确认的 AC 明确观察方法、前置条件和覆盖限制，会话中的简要说明或已有任务记录即可。安全且不受影响的工作可以继续，证据缺口不能写成通过。契约的来源、继承和授权规则见[任务契约](task-contract.md)。
 
-各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，共享设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
+各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，方案设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
 
 调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](engineering-responsibilities.md#调用契约invocation-contract)。
 

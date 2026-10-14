@@ -39,7 +39,7 @@
 
 ## 边界示例
 
-- **实现不做设计**：`ticket-implement` 发现共享设计不成立时，不自行改接口或 HLD，而是把冲突报告给调用方；`graph-workflow` 暂停受影响的工作，交回 `solution-design` 修订，再由 `to-tickets` 协调执行图。
+- **实现不做设计**：`ticket-implement` 发现方案设计不成立时，不自行改接口或 HLD，而是把冲突报告给调用方；`graph-workflow` 暂停受影响的工作，交回 `solution-design` 修订，再由 `to-tickets` 协调执行图。
 - **工作流不改代码**：`graph-workflow` 需要修正时不直接改源代码，而是记录 correction attempt，派发 worker 加载 `ticket-implement` 处理。
 - **验证不修复**：`verify` 发现缺陷只报告结论和证据，不改代码。调用方（`graph-workflow` 或 `quick-implement`）据此安排修正：有图时交给 `ticket-implement`，修正后重新验证受影响的证据。
 
@@ -108,7 +108,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | grilling | 访谈及 decisions.md，并组合记录术语/ADR | 重要需求选择由用户决定，grilling 不决定局部实现，也不重写下游 | 当前事实、用户确认、未决 frontier |
 | wayfinding | MAP.md 与决策文件 | 解决跨会话依赖决策，不交付产品 | 可追溯答案、调查或实验，HITL 不由 Agent 代答 |
 | to-spec | SPEC、按需 ACCEPTANCE | 维护确认需求和验收语义，不设计内部实现 | 需求 authority、确认决策、外部契约 |
-| solution-design | HLD | 决定共享设计，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
+| solution-design | HLD | 决定方案设计，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
 | to-tickets | 通过脚本创建/协调 tickets | 决定交付拆分与真实依赖，不引入新需求/设计 | 已确认 SPEC/HLD、覆盖及图校验 |
 | quick-implement | 单一目标实现、自检与收尾 | 不使用执行图，既有独立收尾规则仍适用 | 当前契约、真实 diff、自检与独立报告 |
 | ticket-implement | 当前 ticket 的代码、必要测试和局部简化 | 决定局部实现，将契约问题交回调用方 | 已确认行为、项目方法和实际本地检查 |

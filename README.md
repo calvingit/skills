@@ -46,7 +46,7 @@
 | 需求、边界或验收未收敛 | [`grilling`](./engineering/grilling/SKILL.md) |
 | 技术路径要跨会话理清 | [`wayfinding`](./engineering/wayfinding/SKILL.md) |
 | 需要持久化规范 | [`to-spec`](./engineering/to-spec/SKILL.md) |
-| 多模块共享设计约束 | [`solution-design`](./engineering/solution-design/SKILL.md) |
+| 多模块方案设计约束 | [`solution-design`](./engineering/solution-design/SKILL.md) |
 | 多执行单元与调度 | [`to-tickets`](./engineering/to-tickets/SKILL.md) → [`graph-workflow`](./engineering/graph-workflow/SKILL.md) |
 | 单一范围、无执行图 | [`quick-implement`](./engineering/quick-implement/SKILL.md) |
 | 缺可重复验证方法 | [`verification-setup`](./engineering/verification-setup/SKILL.md) |
