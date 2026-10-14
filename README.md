@@ -6,6 +6,12 @@
 
 ## 安装
 
+### 插件安装（Claude Code / Cursor / Codex）
+
+整个仓库可作为插件 `calvin-skills` 安装，步骤和尚未实测的点见 [`docs/install.md`](./docs/install.md)。例如 Claude Code：`/plugin marketplace add calvingit/skills` 后 `/plugin install calvin-skills@calvingit`。
+
+### 手动安装
+
 把本仓库里需要的 Skill 目录放到所用 Agent 的 Skills 搜索路径；每个 Skill 是一个含 `SKILL.md` 的独立文件夹。
 
 常见做法：

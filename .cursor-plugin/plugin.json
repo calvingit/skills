@@ -1,0 +1,11 @@
+{
+  "name": "calvin-skills",
+  "displayName": "Calvin Skills",
+  "version": "0.1.0",
+  "description": "Engineering workflow, backend, documents and work skills for coding agents.",
+  "author": { "name": "calvingit" },
+  "repository": "https://github.com/calvingit/skills",
+  "license": "MIT",
+  "keywords": ["skills", "engineering", "workflow"],
+  "skills": ["./engineering/", "./backend/", "./documents/", "./work/"]
+}
