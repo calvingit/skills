@@ -130,6 +130,6 @@
 - [Engineering Kernel](./engineering/shared/ENGINEERING_KERNEL.md)
 - [本仓库验证方法](./.agents/skills/verify-engineering/SKILL.md)
 
-[![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/engineering-workflow.html)
+[![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](./docs/diagrams/engineering-workflow.svg)
 
-[![本地 Ticket 生命周期](./docs/diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
+[![本地 Ticket 生命周期](./docs/diagrams/ticket-lifecycle.svg)](./docs/diagrams/ticket-lifecycle.svg)

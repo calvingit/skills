@@ -131,8 +131,8 @@ Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 A
 
 ## 图示与仓库维护
 
-[![Engineering Skills 工作流](../../docs/diagrams/engineering-workflow.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/engineering-workflow.html)
+[![Engineering Skills 工作流](../../docs/diagrams/engineering-workflow.svg)](../../docs/diagrams/engineering-workflow.svg)
 
-[![本地 Ticket 生命周期](../../docs/diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
+[![本地 Ticket 生命周期](../../docs/diagrams/ticket-lifecycle.svg)](../../docs/diagrams/ticket-lifecycle.svg)
 
 维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
