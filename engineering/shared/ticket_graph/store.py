@@ -91,7 +91,7 @@ def validated_snapshot(
         return [], {}, problems
     authority, authority_problems = authority_index(task_dir)
     graph_problems, coverage = validate_graph(
-        tickets, authority, has_hld=(task_dir / "HLD.md").is_file()
+        tickets, authority, has_solution=(task_dir / "SOLUTION.md").is_file()
     )
     graph_problems = authority_problems + graph_problems
     graph = graph_projection(tickets, valid=not graph_problems, coverage=coverage)
@@ -180,7 +180,7 @@ def commit_graph_transaction(
         transaction.mkdir()
         (staging / "tickets").mkdir(parents=True)
         (backup / "tickets").mkdir(parents=True)
-        for authority_name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
+        for authority_name in ("SPEC.md", "ACCEPTANCE.md", "SOLUTION.md"):
             source = task_dir / authority_name
             if source.is_file():
                 shutil.copy2(source, staging / authority_name)

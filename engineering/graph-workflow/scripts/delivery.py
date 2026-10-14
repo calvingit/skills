@@ -91,7 +91,7 @@ def prepare(task_dir: Path, workspace: Path) -> dict:
     context = {
         'snapshot': token, 'workspace': str(workspace),
         'spec': (task_dir / 'SPEC.md').read_text(),
-        'hld': (task_dir / 'HLD.md').read_text() if (task_dir / 'HLD.md').is_file() else None,
+        'solution': (task_dir / 'SOLUTION.md').read_text() if (task_dir / 'SOLUTION.md').is_file() else None,
         'acceptance': (task_dir / 'ACCEPTANCE.md').read_text() if (task_dir / 'ACCEPTANCE.md').is_file() else None,
         'spec_acceptance': sorted(ids['spec_acceptance']),
         'tickets': {name: parse_ticket(data.decode('utf-8'))[0] for name, data in _graph_files(task_dir).items() if name.startswith('tickets/') and name.endswith('.md')},

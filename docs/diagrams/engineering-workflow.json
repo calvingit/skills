@@ -22,7 +22,7 @@
       },
       {
         "id": "design-path",
-        "label": "概要设计",
+        "label": "技术方案设计",
         "focus": [
           "scope_check",
           "spec",
@@ -31,7 +31,7 @@
           "high_level_design",
           "execution_check"
         ],
-        "note": "单一范围也可能需要 HLD，方案设计检查独立于执行图判断，需要 HLD 而缺少 SPEC 时先由 to-spec 固化已确认需求。"
+        "note": "单一范围也可能需要 SOLUTION，方案设计检查独立于执行图判断，需要 SOLUTION 而缺少 SPEC 时先由 to-spec 固化已确认需求。"
       },
       {
         "id": "delivery-path",
@@ -145,7 +145,7 @@
       "id": "contract_check",
       "type": "security",
       "label": "需要方案设计？",
-      "sublabel": "单一范围也可能需要 HLD",
+      "sublabel": "单一范围也可能需要 SOLUTION",
       "tag": "DECISION",
       "width": 118,
       "lane": "req",
@@ -460,7 +460,7 @@
       "id": "design_needs_spec",
       "from": "contract_check",
       "to": "to_spec",
-      "label": "需 HLD，缺 SPEC",
+      "label": "需 SOLUTION，缺 SPEC",
       "role": "branch",
       "toSide": "bottom",
       "variant": "dashed"
@@ -481,8 +481,8 @@
       "items": [
         "分别判断不确定性、影响范围和验证难度，不按行数或任务大小选择流程",
         "普通局部修改且已有充分检查时，可以直接实现",
-        "方案设计与执行图分别判断，单一范围也可能需要 HLD",
-        "需要 HLD 而缺少 SPEC 时，先由 to-spec 固化已确认需求",
+        "方案设计与执行图分别判断，单一范围也可能需要 SOLUTION",
+        "需要 SOLUTION 而缺少 SPEC 时，先由 to-spec 固化已确认需求",
         "已有有效图继续 Graph Workflow，规划交接不扩大实现或 Git 授权"
       ]
     },
@@ -509,7 +509,7 @@
       "title": "决策所有权",
       "items": [
         "业务行为和验收由用户确认，to-spec 维护需求快照",
-        "技术约束进入 SPEC，方案设计和长期方向由 HLD 及其评审处理",
+        "技术约束进入 SPEC，方案设计和长期方向由 SOLUTION 及其评审处理",
         "局部实现由 Agent 决定，任务拆分由 to-tickets 维护"
       ]
     },

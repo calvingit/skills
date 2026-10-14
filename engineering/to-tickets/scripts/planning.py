@@ -86,7 +86,7 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
         if request_problems:
             return envelope("create-batch", ok=False, problems=request_problems), 1
         authority, authority_problems = authority_index(task_dir)
-        graph_problems, _ = validate_graph(tickets, authority, has_hld=(task_dir / "HLD.md").is_file())
+        graph_problems, _ = validate_graph(tickets, authority, has_solution=(task_dir / "SOLUTION.md").is_file())
         problems = authority_problems + graph_problems
         if problems:
             return envelope("create-batch", ok=False, problems=problems), 1
@@ -288,7 +288,7 @@ def reconcile_batch(
             return envelope("reconcile-batch", ok=False, graph=graph, problems=request_problems), 1
         authority, authority_problems = authority_index(task_dir)
         graph_problems, _ = validate_graph(
-            prospective, authority, has_hld=(task_dir / "HLD.md").is_file()
+            prospective, authority, has_solution=(task_dir / "SOLUTION.md").is_file()
         )
         problems = authority_problems + graph_problems
         if problems:

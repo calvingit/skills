@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Not for HLD, tickets, or implementation.
+description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Not for SOLUTION, tickets, or implementation.
 ---
 
 # To Spec
@@ -20,9 +20,9 @@ Create when there is no SPEC. Amend the same file when an existing SPEC's requir
 - compatibility constraints
 - observable acceptance
 
-Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived solution design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of HLD, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
+Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived solution design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of SOLUTION, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
-`HLD.md`, when it exists, is the high-level technical design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `solution-design`.
+`SOLUTION.md`, when it exists, is the technical solution design derived from the SPEC and codebase facts. It must not change requirement meaning. Shared design across modules, callers, or implementation tasks belongs to `solution-design`.
 
 ## Entry
 
@@ -46,7 +46,7 @@ SPEC-specific stops:
 
 ### 1. Gather confirmed context
 
-Collect the conversation, user docs, finished decisions, and requirement authority. Grilling requirement decisions become requirements or constraints; design concerns go to HLD, glossary entries supply terminology, and ADRs supply historical context. Keep explicit facts, constraints, trade-offs and Out of scope without growing the task to fill a template.
+Collect the conversation, user docs, finished decisions, and requirement authority. Grilling requirement decisions become requirements or constraints; design concerns go to SOLUTION, glossary entries supply terminology, and ADRs supply historical context. Keep explicit facts, constraints, trade-offs and Out of scope without growing the task to fill a template.
 
 Resolve the [Task Contract](../shared/task-contract.md) through these sources. Persist requirement-owned goal, scope, AC and confirmed task boundaries in the existing SPEC sections; link applicable authority and evidence rules instead of creating another contract file or copying project policy. Shared design and concrete verification methods keep their existing owners.
 
@@ -67,7 +67,7 @@ Use the project's domain language. Stop once scope, public contracts, and accept
 
 An **Acceptance Seam** is where requirement completion can be observed: a user-visible interaction, an external contract response such as an API response, or an exported file. For each seam, cite the covered R / AC and expected-result source.
 
-Prefer existing public surfaces. Internal services, repository mocks, database tables, test levels, test files, repository calls, and test implementation recipes belong to HLD / verification, not SPEC. An explicitly required public data artifact is a contract only when its upstream authority says so; do not expose internals merely to test them.
+Prefer existing public surfaces. Internal services, repository mocks, database tables, test levels, test files, repository calls, and test implementation recipes belong to SOLUTION / verification, not SPEC. An explicitly required public data artifact is a contract only when its upstream authority says so; do not expose internals merely to test them.
 
 Choose ordinary observation points from confirmed requirements without another approval step. Return to requirement clarification only if a new public contract, acceptance meaning, or scope decision is needed.
 
@@ -92,8 +92,8 @@ Keep `R → AC` traceability and decidable expected results. AC are the sole beh
 1. Problem, Goal, and Scope describe the same problem and goal.
 2. `R` and `AC` IDs are unique and stable; every in-scope `R` is covered by at least one `AC`.
 3. Each `AC` can be judged on its own and traces to a confirmed requirement or an authoritative expected source.
-4. Every business or external technical constraint has an upstream basis. Explicit API, platform, protocol, backend-state, or compatibility requirements retain their source; derived architecture belongs to HLD.
-5. Acceptance Seams identify observable user-visible or external-contract results and their expected source; test strategy and internal verification seams stay in HLD.
+4. Every business or external technical constraint has an upstream basis. Explicit API, platform, protocol, backend-state, or compatibility requirements retain their source; derived architecture belongs to SOLUTION.
+5. Acceptance Seams identify observable user-visible or external-contract results and their expected source; test strategy and internal verification seams stay in SOLUTION.
 6. Bounds, defaults, Out of Scope, and acceptance do not conflict or silently expand.
 7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
 8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
@@ -102,14 +102,14 @@ Fix what confirmed context or the codebase can fix. Stop and Call the Skill tool
 
 ### 6. Write and hand off
 
-After consistency holds, write into the task directory. Report acceptance seams, business constraints, design concerns, HLD / graph routing, and unverified items.
+After consistency holds, write into the task directory. Report acceptance seams, business constraints, design concerns, SOLUTION / graph routing, and unverified items.
 
-Do not edit HLD, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
+Do not edit SOLUTION, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
 After confirming the SPEC, apply the [workflow policy](../shared/workflow-policy.md).
 Use [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required)
-to judge shared design independently of execution decomposition. A required HLD
-must precede implementation; otherwise report `hld_not_required` with its basis.
+to judge shared design independently of execution decomposition. A required SOLUTION
+must precede implementation; otherwise report `solution_not_required` with its basis.
 Identify known observation methods or gaps without putting test recipes in SPEC.
 This skill forecasts whether several execution units are likely, not their count
 or split.

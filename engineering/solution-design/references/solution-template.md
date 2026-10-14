@@ -1,6 +1,6 @@
-# HLD create
+# Solution create
 
-Read this file when an HLD is required and the task directory has no `HLD.md`. Do not load it when deciding *whether* an HLD is needed.
+Read this file when a SOLUTION is required and the task directory has no `SOLUTION.md`. Do not load it when deciding *whether* a SOLUTION is needed.
 
 ## Process
 
@@ -11,14 +11,14 @@ Read this file when an HLD is required and the task directory has no `HLD.md`. D
 5. For each design point prefer `Reuse`, then `Extend`. `New` or `Replace` only when the existing structure cannot satisfy the SPEC. Those two must say why Reuse / Extend fails, the migration impact, and the control range.
 6. Call the Skill tool with "codebase-design" for load-bearing Module / Interface / Seam points. Compare at most 2–3 real candidates only when evidence cannot lock a single design. Ordinary engineering trade-offs are recommended and decided by this skill.
 7. Assign stable `D1`, `D2`… IDs to each normative high-level decision. Mark change kind, the reference implementation, and which SPEC `R` / `AC`, callers, or modules it constrains.
-8. Check the HLD against the SPEC, project ADRs, current architecture facts, and its own sections. Create the HLD only after a multi-implementer consistency check, with no untreated conflict or unknown that would change the plan.
+8. Check the SOLUTION against the SPEC, project ADRs, current architecture facts, and its own sections. Create the SOLUTION only after a multi-implementer consistency check, with no untreated conflict or unknown that would change the plan.
 
-## HLD.md
+## SOLUTION.md
 
 Keep only sections that apply. Do not invent content to fill the template:
 
 ```markdown
-# <Change title> — High-Level Design
+# <Change title> — Solution Design
 
 ## Context
 
@@ -27,9 +27,13 @@ Keep only sections that apply. Do not invent content to fill the template:
 - Scope: <covered R/AC>
 - Unverified: <items or None>
 
-## Current Architecture
+## Current State
 
 <Call chains, ownership, Interfaces, and constraints relevant to this design. List 1–3 primary reference implementations with path / symbol.>
+
+## Solution
+
+<Technical approach in a few sentences: what changes, where, and why this approach over the alternatives.>
 
 ## Design Decisions
 
@@ -48,7 +52,7 @@ Keep only sections that apply. Do not invent content to fill the template:
 
 - <Module>: <state, rules, external interaction, or stable bound it owns>
 
-## Shared Contracts
+## Interfaces / Contracts
 
 - <shared types, enums, schemas, events, callbacks, Interfaces, error or lifecycle semantics>
 
@@ -64,7 +68,7 @@ Keep only sections that apply. Do not invent content to fill the template:
 
 - <technical prerequisites, migration order, compatibility window, and deletion conditions>
 
-## Verification Strategy
+## Verification Seams
 
 - Verification Seam: <technical check boundary, e.g. repository integration or event contract test>
   - Related: <D IDs and relevant R / AC>
@@ -92,7 +96,7 @@ Do not enumerate every class, file, or method by default. Write a name or signat
 
 - Every design decision has a stable D ID, a change kind, an R / AC or observed code-fact reference, a reason, and trade-offs.
 - The plan prefers reuse or extension of what exists. Every `New` / `Replace` has necessity and a migration bound.
-- Two implementers who do not share an implementation context would still make the same choice on shared types, Interface semantics, ownership, dependency direction, and integration order from SPEC, HLD, and their own tickets alone.
+- Two implementers who do not share an implementation context would still make the same choice on shared types, Interface semantics, ownership, dependency direction, and integration order from SPEC, SOLUTION, and their own tickets alone.
 - Private helpers, local classes, algorithms, and file layout remain in local implementation space. When a decision defines or changes a shared Interface, callback convention, or cross-module entry point, record caller usage before locking the contract; do not invent usage for local-only decisions.
 - Existing architecture problems were not silently expanded into this task's refactor.
 - There is no untreated SPEC conflict the user must decide.

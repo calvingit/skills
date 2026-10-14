@@ -54,7 +54,7 @@ are several candidates, module relationships need a visual comparison, or the
 user asks for an HTML report. The report belongs in the OS temporary directory,
 not the repository.
 
-Do not modify product code, generate HLD, split tickets, or start another
+Do not modify product code, generate SOLUTION, split tickets, or start another
 workflow.
 Present the shortlist and wait for the user's selection. After a selection,
 the caller can choose `grilling`, `codebase-design`, `solution-design`, or

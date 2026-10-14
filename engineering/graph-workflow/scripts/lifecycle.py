@@ -185,7 +185,7 @@ def mutate_ticket(operation, task_dir: Path, ticket_id: str, request):
         if operation == "start":
             bind_authority(task_dir, candidate, "Execution contract confirmed at start.")
         prospective=[candidate if x["id"]==ticket_id else x for x in tickets]
-        authority,authority_issues=authority_index(task_dir); graph_issues,_=validate_graph(prospective,authority,has_hld=(task_dir/"HLD.md").is_file()); issues=authority_issues+graph_issues
+        authority,authority_issues=authority_index(task_dir); graph_issues,_=validate_graph(prospective,authority,has_solution=(task_dir/"SOLUTION.md").is_file()); issues=authority_issues+graph_issues
         if issues and operation != "block":return envelope(operation,ok=False,graph=graph,problems=issues),1
         issues=atomic_write_ticket(task_dir,candidate)
         if issues:return envelope(operation,ok=False,graph=graph,problems=issues),1

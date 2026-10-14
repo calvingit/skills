@@ -128,8 +128,8 @@ class TicketGraphCliTests(unittest.TestCase):
             "## Acceptance Criteria\n\n- **AC1** — Covers: R1. Observable.\n",
             encoding="utf-8",
         )
-        (self.task_dir / "HLD.md").write_text(
-            "# HLD\n\n## Design Decisions\n\n- **D1** — Shared decision.\n",
+        (self.task_dir / "SOLUTION.md").write_text(
+            "# Solution\n\n## Design Decisions\n\n- **D1** — Shared decision.\n",
             encoding="utf-8",
         )
 
@@ -169,7 +169,7 @@ class TicketGraphCliTests(unittest.TestCase):
         shutil.copy2(self.task_dir / "SPEC.md", staging / "SPEC.md")
         if (self.task_dir / "ACCEPTANCE.md").is_file():
             shutil.copy2(self.task_dir / "ACCEPTANCE.md", staging / "ACCEPTANCE.md")
-        shutil.copy2(self.task_dir / "HLD.md", staging / "HLD.md")
+        shutil.copy2(self.task_dir / "SOLUTION.md", staging / "SOLUTION.md")
         relative = ticket_path.relative_to(self.task_dir)
         shutil.copy2(ticket_path, backup / relative)
         (staging / relative).write_text(
@@ -282,11 +282,11 @@ class TicketGraphCliTests(unittest.TestCase):
             <= codes
         )
 
-    def test_current_and_legacy_hld_decision_formats_are_accepted(self) -> None:
+    def test_current_and_legacy_solution_decision_formats_are_accepted(self) -> None:
         for decision in ("- **D1** — Shared decision.", "- **D1:** Shared decision."):
             with self.subTest(decision=decision):
-                (self.task_dir / "HLD.md").write_text(
-                    f"# HLD\n\n## Design Decisions\n\n{decision}\n",
+                (self.task_dir / "SOLUTION.md").write_text(
+                    f"# Solution\n\n## Design Decisions\n\n{decision}\n",
                     encoding="utf-8",
                 )
                 self.write_ticket(canonical_ticket())

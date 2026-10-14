@@ -43,7 +43,7 @@ python3 engineering/graph-workflow/scripts/update-status complete /path/to/task 
 
 `.loop/` 仍位于任务目录，与 `SPEC.md`、`tickets/` 同级。现有图锁和临时事务目录也按任务隔离。脚本不建立项目级共享运行状态。
 
-将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.md`。v3 不兼容旧 JSON Ticket；v2 任务在旧工具链执行完成并归档后再采用 v3，可选的 ACCEPTANCE 和技术方案（`HLD.md`）不作为额外前置要求。所有状态写入（start / retry / block / unblock / complete / reopen）、事务恢复和最终交付都走 `update-status`，每次写入都返回更新后的图，Graph Workflow 直接用它决定下一张 ticket，不必再跑一次 `frontier`。各输入的必需字段与示例由上面的参考资料维护。
+将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.md`。v3 不兼容旧 JSON Ticket；v2 任务在旧工具链执行完成并归档后再采用 v3，可选的 ACCEPTANCE 和技术方案（`SOLUTION.md`）不作为额外前置要求。所有状态写入（start / retry / block / unblock / complete / reopen）、事务恢复和最终交付都走 `update-status`，每次写入都返回更新后的图，Graph Workflow 直接用它决定下一张 ticket，不必再跑一次 `frontier`。各输入的必需字段与示例由上面的参考资料维护。
 
 正常状态流转是 open → in_progress → done，ready / blocked 是计算结果，`superseded` 由需求协调产生。Graph Workflow 在执行期间写图，worker 不写票据。ticket complete 表示 Graph Workflow 已确认全部本地 AC 有充分证据、本地检查实际成功，且没有未解决的阻断问题或必需的未验证范围，实际 review 原文可选。ticket done 不代表最终交付通过。
 

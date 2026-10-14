@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 from .contracts import (
-    HLD_DECISION_RE, SPEC_ACCEPTANCE_RE, SPEC_REQUIREMENT_RE, problem,
+    SOLUTION_DECISION_RE, SPEC_ACCEPTANCE_RE, SPEC_REQUIREMENT_RE, problem,
 )
 
 def extract_ids(path: Path, pattern: re.Pattern[str]) -> tuple[set[str], list[str]]:
@@ -24,7 +24,7 @@ def authority_index(
 ) -> tuple[dict[str, object], list[dict[str, str]]]:
     problems: list[dict[str, str]] = []
     spec = task_dir / "SPEC.md"
-    hld = task_dir / "HLD.md"
+    solution_doc = task_dir / "SOLUTION.md"
     index: dict[str, object] = {
         "requirements": set(), "spec_acceptance": set(), "referenced_design_decisions": set(),
     }
@@ -43,13 +43,13 @@ def authority_index(
             problems.append(problem("authority", "duplicate_requirement", f"SPEC requirement ID is duplicated: {value}", path="SPEC.md"))
         for value in duplicate_acceptance:
             problems.append(problem("authority", "duplicate_spec_acceptance", f"SPEC Acceptance ID is duplicated: {value}", path="SPEC.md"))
-        if hld.is_file():
-            decisions, duplicate_decisions = extract_ids(hld, HLD_DECISION_RE)
+        if solution_doc.is_file():
+            decisions, duplicate_decisions = extract_ids(solution_doc, SOLUTION_DECISION_RE)
             index["referenced_design_decisions"] = decisions
             if not decisions:
-                problems.append(problem("authority", "missing_hld_decisions", "HLD.md has no stable D IDs.", path="HLD.md"))
+                problems.append(problem("authority", "missing_solution_decisions", "SOLUTION.md has no stable D IDs.", path="SOLUTION.md"))
             for value in duplicate_decisions:
-                problems.append(problem("authority", "duplicate_design_decision", f"HLD decision ID is duplicated: {value}", path="HLD.md"))
+                problems.append(problem("authority", "duplicate_design_decision", f"SOLUTION decision ID is duplicated: {value}", path="SOLUTION.md"))
     except (OSError, UnicodeError) as exc:
         problems.append(problem("authority", "unreadable_authority", str(exc)))
     return index, problems
@@ -61,7 +61,7 @@ def authority_fingerprint(task_dir: Path) -> str:
     import hashlib
     import json
     documents = {}
-    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
+    for name in ("SPEC.md", "ACCEPTANCE.md", "SOLUTION.md"):
         path = task_dir / name
         documents[name] = path.read_text(encoding="utf-8").rstrip("\n") if path.is_file() else None
     return hashlib.sha256(json.dumps(documents, sort_keys=True).encode()).hexdigest()

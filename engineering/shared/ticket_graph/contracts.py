@@ -13,7 +13,7 @@ SPEC_REQUIREMENT_RE = re.compile(r"^\d+\.\s+\*\*(R\d+)\*\*\s+[—–-]")
 SPEC_ACCEPTANCE_RE = re.compile(r"^-\s+\*\*(AC\d+)\*\*\s+[—–-]")
 # Accept the current template and the legacy form produced before the template
 # was made explicit: ``- **D1** — ...`` and ``- **D1:** ...``.
-HLD_DECISION_RE = re.compile(r"^-\s+\*\*(D\d+)(?::\*\*|\*\*\s+[—–-])")
+SOLUTION_DECISION_RE = re.compile(r"^-\s+\*\*(D\d+)(?::\*\*|\*\*\s+[—–-])")
 TICKET_ID_RE = re.compile(r"^T[0-9]{3,}$")
 LOCAL_ACCEPTANCE_RE = re.compile(r"^AC[0-9]+$")
 REQUIREMENT_ID_RE = re.compile(r"^R[0-9]+$")

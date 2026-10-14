@@ -5,7 +5,7 @@ description: Implement a single confirmed scope in the main agent, then delegate
 
 # Quick Implement
 
-Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `HLD.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
+Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `SOLUTION.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
 quick-implement is a convenience entry point for small scoped changes. It is not a replacement workflow coordinator.
 
@@ -13,13 +13,13 @@ Quick means no execution graph. It does not mean skipping solution-design checks
 
 ## Entry
 
-Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `HLD.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context. Other entry selection follows the [workflow policy](../shared/workflow-policy.md).
+Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `SOLUTION.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context. Other entry selection follows the [workflow policy](../shared/workflow-policy.md).
 
 Hard stops (do not bypass):
 
 - A ticket graph already exists → do not use this skill; Call the Skill tool with "graph-workflow".
 - Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
-- Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`HLD.md`) → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
+- Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`SOLUTION.md`) → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
 
 Escalate complex work to the owner of what is missing, starting at the first missing step; confirmed or unneeded steps are not redone:
 
@@ -57,11 +57,11 @@ Close-out requires three separate independent judgements — simplification revi
 
 ## Boundaries
 
-- Do not edit SPEC or the solution design (`HLD.md`) to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; solution design changes → Call the Skill tool with "solution-design".
+- Do not edit SPEC or the solution design (`SOLUTION.md`) to fit the implementation. Requirement or acceptance changes → Call the Skill tool with "to-spec"; solution design changes → Call the Skill tool with "solution-design".
 - Do not create tickets, maintain an execution graph, or schedule other work units.
 - Do not re-delegate this whole job to another implementer. Reviewers and other specialised roles still run under their own skills.
 - Do not overwrite existing edits. Do not swallow errors.
 - Model self-report, a single passing test, or an implementation-detail check is not complete acceptance evidence.
 - Do not stuff project rules back into a generic skill.
 
-Output an implementation receipt listing applicable SPEC / ACCEPTANCE / HLD, baseline, pre-existing edits, actual changes, acceptance evidence, verification, simplification when it ran, review result, and unverified items.
+Output an implementation receipt listing applicable SPEC / ACCEPTANCE / SOLUTION, baseline, pre-existing edits, actual changes, acceptance evidence, verification, simplification when it ran, review result, and unverified items.

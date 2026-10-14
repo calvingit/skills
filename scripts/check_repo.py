@@ -15,7 +15,7 @@ SKILL_DIRS = ("engineering", "backend", "documents", "work")
 # Example paths inside templates, not real links.
 IGNORED_LINKS = {
     ("engineering/project-setup/references/profile.md", ".agents/engineering-profile.md"),
-    ("engineering/solution-design/references/hld-template.md", "SPEC.md"),
+    ("engineering/solution-design/references/solution-template.md", "SPEC.md"),
 }
 
 

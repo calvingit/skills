@@ -47,4 +47,4 @@ owner: to-spec
 - Every Example / Scenario cites at least one current SPEC `R` and `AC`, and names expected result and evidence kind. Keep AC definitions in SPEC; this protocol owns scenario detail and evidence rules, not another editable copy of the same AC. Do not add Scenario IDs or a traceability matrix.
 - Include success, failure, cancel, timeout, permission or environment distinctions only when they express confirmed contract behaviour or applicable evidence constraints. Do not invent semantics or expand these categories mechanically.
 - Add machine-readable fields and verification commands only when the task explicitly enables an executable protocol; ordinary acceptance does not require them.
-- HLD owns shared technical constraints. Tickets own execution. This file does not invent acceptance meaning.
+- SOLUTION owns shared technical constraints. Tickets own execution. This file does not invent acceptance meaning.

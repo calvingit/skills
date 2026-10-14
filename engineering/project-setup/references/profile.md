@@ -57,7 +57,7 @@ Omit the Verification table if no meaningful summary is available; never persist
 
 No parser or new configuration schema is required. Existing keys retain their meaning:
 
-- `task_contract` locates task documents; it does not configure the duties or names of SPEC, HLD, or tickets.
+- `task_contract` locates task documents; it does not configure the duties or names of SPEC, SOLUTION, or tickets.
 - `project_context`, `domain_glossary`, and `architecture_authorities` locate stable knowledge. Consumers read only relevant entries.
 - `verification_instructions` points to one guide, local skill, or multi-surface index. The Verification summary links applicable methods without duplicating their instructions.
 - `requirement_authority.mode`: `repository` uses in-repo requirements; `integrated` uses an already-accessible external system; `external-manual` uses the caller's confirmed task snapshot and marks the original source unverified; `auto` discovers per task. `instructions` is an in-repo access/priority entry, not PRD content or a temporary link. Code hosting and requirement authority are independent.

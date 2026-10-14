@@ -858,7 +858,7 @@ rect.c-bg-rect { fill: var(--bg); }
         <!-- Edge paths -->
         <path data-edge-from="scope_check" data-edge-to="to_spec" data-edge-label="需要持久化契约" data-edge-key="0" data-edge-id="already_converged" data-edge-role="" data-composition-points="306.6,277;239.8,277;239.8,370;149,370;149,386" d="M 306.6 277 L 247.8 277 Q 239.8 277 239.8 285 L 239.8 362 Q 239.8 370 231.8 370 L 157 370 Q 149 370 149 378 L 149 386" class="a-emphasis" data-animate="edge" style="--step: 4;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="spec" data-edge-to="contract_check" data-edge-key="1" data-edge-id="check_contract" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="224,570;319.6,570" d="M 224 570 L 319.6 570" class="a-default" data-animate="edge" style="--step: 5;" stroke-width="1.4" marker-end="url(#arrowhead)"/>
-        <path data-edge-from="contract_check" data-edge-to="to_spec" data-edge-label="需 HLD，缺 SPEC" data-edge-key="2" data-edge-id="design_needs_spec" data-edge-role="branch" data-composition-points="319.6,556;237.8,556;237.8,470;156,470;156,454" d="M 319.6 556 L 245.8 556 Q 237.8 556 237.8 548 L 237.8 478 Q 237.8 470 229.8 470 L 164 470 Q 156 470 156 462 L 156 454" class="a-dashed" data-animate="edge" style="--step: 6;" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
+        <path data-edge-from="contract_check" data-edge-to="to_spec" data-edge-label="需 SOLUTION，缺 SPEC" data-edge-key="2" data-edge-id="design_needs_spec" data-edge-role="branch" data-composition-points="319.6,556;237.8,556;237.8,470;156,470;156,454" d="M 319.6 556 L 245.8 556 Q 237.8 556 237.8 548 L 237.8 478 Q 237.8 470 229.8 470 L 164 470 Q 156 470 156 462 L 156 454" class="a-dashed" data-animate="edge" style="--step: 6;" stroke-width="1.4" marker-end="url(#arrowhead-dashed)"/>
         <path data-edge-from="contract_check" data-edge-to="execution_check" data-edge-label="否" data-edge-key="3" data-edge-id="design_not_required" data-composition-routing="workflow-v2-auto" data-edge-role="branch" data-composition-points="378.6,604;378.6,852" d="M 378.6 604 L 378.6 852" class="a-default" data-animate="edge" style="--step: 7;" stroke-width="1.4" marker-end="url(#arrowhead)"/>
         <path data-edge-from="contract_check" data-edge-to="high_level_design" data-edge-label="是" data-edge-key="4" data-edge-id="design_required" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="354.6,604;354.6,720;224,720" d="M 354.6 604 L 354.6 712 Q 354.6 720 346.6 720 L 224 720" class="a-emphasis" data-animate="edge" style="--step: 8;" stroke-width="1.8" marker-end="url(#arrowhead-emphasis)"/>
         <path data-edge-from="high_level_design" data-edge-to="execution_check" data-edge-key="5" data-edge-id="design_to_execution" data-composition-routing="workflow-v2-auto" data-edge-role="" data-composition-points="149,746;149,768;354.6,768;354.6,852" d="M 149 746 L 149 760 Q 149 768 157 768 L 346.6 768 Q 354.6 768 354.6 776 L 354.6 852" class="a-default" data-animate="edge" style="--step: 9;" stroke-width="1.4" marker-end="url(#arrowhead)"/>
@@ -946,8 +946,8 @@ rect.c-bg-rect { fill: var(--bg); }
         <text x="149" y="442" class="t-backend" font-size="7" text-anchor="middle">OWNER</text>
         </g>
 
-        <g id="node-contract_check" data-node-id="contract_check" data-node-label="需要方案设计？" tabindex="0" role="button" aria-label="聚焦需要方案设计？，单一范围也可能需要 HLD, 需求与设计" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一范围也可能需要 HLD" data-node-tag="DECISION" data-node-context="需求与设计">
-          <title>需要方案设计？ · 单一范围也可能需要 HLD · 需求与设计 · DECISION</title>
+        <g id="node-contract_check" data-node-id="contract_check" data-node-label="需要方案设计？" tabindex="0" role="button" aria-label="聚焦需要方案设计？，单一范围也可能需要 SOLUTION, 需求与设计" aria-pressed="false" data-node-kind="security" data-node-sublabel="单一范围也可能需要 SOLUTION" data-node-tag="DECISION" data-node-context="需求与设计">
+          <title>需要方案设计？ · 单一范围也可能需要 SOLUTION · 需求与设计 · DECISION</title>
           <rect x="319.6" y="536" width="118" height="68" rx="8" class="c-mask"/>
           <rect x="319.6" y="536" width="118" height="68" rx="8" class="c-security" data-animate="node" style="--step: 9; --flow-node-name: archify-relay-node-5;" stroke-width="1.5"/>
           <g aria-hidden="true" data-semantic-sigil="security" class="semantic-sigil s-security" transform="translate(325.6 542) scale(0.6875)">
@@ -955,7 +955,7 @@ rect.c-bg-rect { fill: var(--bg); }
             <path d="m5.8 8 1.5 1.5 3-3"/>
           </g>
           <text data-node-label="" x="384.8" y="557" class="t-primary" font-size="11" font-weight="600" text-anchor="middle">需要方案设计？</text>
-          <text x="378.6" y="574" class="t-muted" font-size="8" text-anchor="middle">单一范围也可能需要 HLD</text>
+          <text x="378.6" y="574" class="t-muted" font-size="8" text-anchor="middle">单一范围也可能需要 SOLUTION</text>
         <text x="378.6" y="592" class="t-security" font-size="7" text-anchor="middle">DECISION</text>
         </g>
 
@@ -1093,9 +1093,9 @@ rect.c-bg-rect { fill: var(--bg); }
           <text x="194.4" y="360" class="t-edge-emphasis" font-size="8" text-anchor="middle">需要持久化契约</text>
         </g>
 
-        <g data-edge-from="contract_check" data-edge-to="to_spec" data-edge-label="需 HLD，缺 SPEC" data-edge-key="2" data-edge-id="design_needs_spec">
+        <g data-edge-from="contract_check" data-edge-to="to_spec" data-edge-label="需 SOLUTION，缺 SPEC" data-edge-key="2" data-edge-id="design_needs_spec">
           <rect x="237.70000000000005" y="536" width="82" height="14" rx="3" class="c-mask"/>
-          <text x="278.70000000000005" y="546" class="t-edge-dashed" font-size="8" text-anchor="middle">需 HLD，缺 SPEC</text>
+          <text x="278.70000000000005" y="546" class="t-edge-dashed" font-size="8" text-anchor="middle">需 SOLUTION，缺 SPEC</text>
         </g>
         <g data-edge-from="contract_check" data-edge-to="execution_check" data-edge-label="否" data-edge-key="3" data-edge-id="design_not_required">
           <rect x="363.6" y="718" width="30" height="14" rx="3" class="c-mask"/>

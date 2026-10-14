@@ -93,7 +93,7 @@ def _workspace_revision(workspace_root: Path) -> str | None:
 
 def _graph_files(task_dir: Path) -> dict[str, bytes]:
     files: dict[str, bytes] = {}
-    for name in ("SPEC.md", "ACCEPTANCE.md", "HLD.md"):
+    for name in ("SPEC.md", "ACCEPTANCE.md", "SOLUTION.md"):
         path = task_dir / name
         if path.is_file():
             files[name] = path.read_bytes()

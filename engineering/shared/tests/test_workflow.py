@@ -15,7 +15,7 @@ class WorkflowCliTests(unittest.TestCase):
         self.task = Path(self.temp.name)
         (self.task / 'tickets').mkdir()
         (self.task / 'SPEC.md').write_text('# SPEC\n1. **R1** — Send a message.\n- **AC1** — Visible result.\n')
-        (self.task / 'HLD.md').write_text('# HLD\n- **D1** — Reuse persistence.\n')
+        (self.task / 'SOLUTION.md').write_text('# Solution\n- **D1** — Reuse persistence.\n')
 
     def test_documented_create_request_runs_with_new_spec_shape(self):
         root = Path(__file__).resolve().parents[2]

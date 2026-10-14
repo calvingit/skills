@@ -1,11 +1,11 @@
 ---
 name: to-tickets
-description: Break a confirmed SPEC and optional HLD into tracer-bullet tickets with real dependencies, or sync the graph after an upstream amendment. Not for rewriting requirements, HLD, or implementing code.
+description: Break a confirmed SPEC and optional SOLUTION into tracer-bullet tickets with real dependencies, or sync the graph after an upstream amendment. Not for rewriting requirements, SOLUTION, or implementing code.
 ---
 
 # To Tickets
 
-Break the confirmed `SPEC.md` and, when present, the task directory's `HLD.md` into claimable **delivery tickets** under sibling `tickets/`. Each ticket is an independently verifiable end-to-end delivery, and each declares the other tickets that actually block it from starting.
+Break the confirmed `SPEC.md` and, when present, the task directory's `SOLUTION.md` into claimable **delivery tickets** under sibling `tickets/`. Each ticket is an independently verifiable end-to-end delivery, and each declares the other tickets that actually block it from starting.
 
 Wayfinding Map decisions that affect requirements must go through `to-spec` first. Purely technical decisions are absorbed by `solution-design` after the SPEC is confirmed. Stop and Call the Skill tool with "to-spec" when there is no SPEC.
 
@@ -25,15 +25,15 @@ Cite existing acceptance meaning. Derive delivery acceptance targets from the ci
 ## Inputs
 
 1. Read the full `SPEC.md`: Goal, requirements, bounds, acceptance, Out of scope, and decision basis. Do not guess scope from headings.
-2. If `HLD.md` exists in the same task directory, read the full HLD, D IDs, local implementation space, and migration / integration constraints. If it does not, check [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required); Call the Skill tool with "solution-design" when they hold.
+2. If `SOLUTION.md` exists in the same task directory, read the full SOLUTION, D IDs, local implementation space, and migration / integration constraints. If it does not, check [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required); Call the Skill tool with "solution-design" when they hold.
 3. Investigate the target repo, applicable `AGENTS.md`, domain vocabulary, ADRs, related call chains, and existing task conventions only when those facts would change a ticket's outcome, grain, or dependencies. Do not explore just to split tickets.
 4. Ticket titles and delivery descriptions use the project's domain language. Unresolved requirements, public contracts, bounds, or acceptance → Call the Skill tool with "grilling", or with "to-spec". High-level technical gaps → Call the Skill tool with "solution-design". Do not write assumptions as tickets.
 
-Tickets derive scope and acceptance from SPEC and shared design constraints from HLD. On conflict, return to the source owner; do not change upstream meaning.
+Tickets derive scope and acceptance from SPEC and shared design constraints from SOLUTION. On conflict, return to the source owner; do not change upstream meaning.
 
 Follow [Task Contract inheritance](../shared/task-contract.md#handoff-inheritance-and-change) using the existing ticket fields. A slice may narrow scope/constraints, never grant extra authority or replace an upstream AC. Do not copy a full contract into each ticket or add another state/configuration format. Confirm each slice has an identifiable observation method or a visible capability gap before execution; method details remain in project guidance or the handoff.
 
-`to-tickets` does not read or interpret the Profile's `requirement_authority`, an external PRD, or new requirements from chat. Those inputs must already be written and confirmed into the SPEC by `to-spec`. Do not write chat-level technical preferences onto tickets. Design decisions that affect several implementations must enter the HLD first.
+`to-tickets` does not read or interpret the Profile's `requirement_authority`, an external PRD, or new requirements from chat. Those inputs must already be written and confirmed into the SPEC by `to-spec`. Do not write chat-level technical preferences onto tickets. Design decisions that affect several implementations must enter the SOLUTION first.
 
 ## Split rules
 
@@ -46,20 +46,20 @@ A shared contract lands on the first end-to-end ticket that actually uses it. La
 
 When a mechanical change cannot land green as independent vertical slices, read [references/wide-refactors.md](references/wide-refactors.md) for the expand–contract exception.
 
-Tickets describe outcomes, not stale file paths, snippets, or step-by-step recipes. When an HLD exists, each ticket cites only the applicable D IDs and derives those decisions as Constraints. Do not copy the full HLD. The only exception is a state machine, schema, or shared type shape the HLD explicitly requires to land — keep only what is necessary and cite the D ID.
+Tickets describe outcomes, not stale file paths, snippets, or step-by-step recipes. When a SOLUTION exists, each ticket cites only the applicable D IDs and derives those decisions as Constraints. Do not copy the full SOLUTION. The only exception is a state machine, schema, or shared type shape the SOLUTION explicitly requires to land — keep only what is necessary and cite the D ID.
 
 ## Validate the split
 
-Before writing, form a candidate split and check it against the confirmed SPEC, optional HLD, and real blocking edges:
+Before writing, form a candidate split and check it against the confirmed SPEC, optional SOLUTION, and real blocking edges:
 
 1. **Title** — short, outcome-oriented name.
 2. **Blocked by** — real prior tickets, or "None — can start immediately".
 3. **What it delivers** — the end-to-end behaviour this ticket alone makes verifiable.
-4. **Design** — applicable HLD D IDs, or `None`.
+4. **Design** — applicable SOLUTION D IDs, or `None`.
 
 Choose ordinary ticket grain and blocking edges from the confirmed upstream contracts. Do not require user confirmation for ordinary execution decomposition.
 
-Stop and Call the Skill tool with the owning upstream skill only when decomposition exposes a product, scope, priority, rollout, compatibility, acceptance, or shared-design choice that the SPEC / HLD does not settle. Do not encode that choice as a ticket assumption.
+Stop and Call the Skill tool with the owning upstream skill only when decomposition exposes a product, scope, priority, rollout, compatibility, acceptance, or shared-design choice that the SPEC / SOLUTION does not settle. Do not encode that choice as a ticket assumption.
 
 ## Write local tickets
 
@@ -75,11 +75,11 @@ python3 <to-tickets-skill>/scripts/create-graph create-batch <task-dir> --input 
 
 The CLI assigns immutable `T001`-style IDs, resolves dependencies, initializes `open` lifecycle and empty execution facts, and returns the mapping and full graph. Schema, identity, execution facts and readiness belong to the graph tool; do not keep another ticket template here. The Markdown body (title, Delivery, Constraints, Delivery Acceptance) is the readable contract; the frontmatter holds machine facts only.
 
-AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / HLD prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
+AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / SOLUTION prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
-After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, continue directly with `graph-workflow` whether one ticket or several are active, but only when the user's current request authorises implementation. For planning-only requests, stop after the required planning artifacts are ready. `quick-implement` is only for a single SPEC / HLD with no graph.
+After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, continue directly with `graph-workflow` whether one ticket or several are active, but only when the user's current request authorises implementation. For planning-only requests, stop after the required planning artifacts are ready. `quick-implement` is only for a single SPEC / SOLUTION with no graph.
 
-For an upstream amendment, reconcile only tickets affected by the confirmed delta. Preserve unaffected contracts, lifecycle, and still-valid evidence. Do not rebuild the graph from scratch merely because `SPEC.md` or `HLD.md` changed.
+For an upstream amendment, reconcile only tickets affected by the confirmed delta. Preserve unaffected contracts, lifecycle, and still-valid evidence. Do not rebuild the graph from scratch merely because `SPEC.md` or `SOLUTION.md` changed.
 
 ## Script boundary
 

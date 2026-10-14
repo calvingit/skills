@@ -69,7 +69,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 访谈 `decisions.md`、术语与 ADR | [grilling](../grilling/SKILL.md) 组合 [domain-modeling](../domain-modeling/SKILL.md) |
 | `SPEC.md` | [to-spec](../to-spec/SKILL.md) |
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
-| 技术方案与设计决策（当前项目可能存储为 `HLD.md`） | [solution-design](../solution-design/SKILL.md) |
+| 技术方案与设计决策 | [solution-design](../solution-design/SKILL.md) |
 | `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../to-tickets/SKILL.md) |
 | attempt、已接受证据与最终交付记录 | [graph-workflow](../graph-workflow/SKILL.md) |
 

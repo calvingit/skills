@@ -115,7 +115,7 @@ Resolve one decision at a time by default. Continue to the next only when it is 
 5. When done: write evidence and answer; set `resolved` (or `superseded` if past the destination). Append a relative link and one-line gist to Decisions so far; drop from Frontier.
 6. Create newly well-defined tickets; clear matching Not yet specified entries. Recompute the frontier; move anything past the destination to Out of scope. Continue only when the next decision is a direct consequence with no added uncertainty; otherwise recommend the next ready ticket in the handoff.
 
-`MAP.md` and `decisions/` may update incrementally before the map is done. Do not create or edit downstream `SPEC.md`, `HLD.md`, or delivery tickets.
+`MAP.md` and `decisions/` may update incrementally before the map is done. Do not create or edit downstream `SPEC.md`, `SOLUTION.md`, or delivery tickets.
 
 ## Exit
 

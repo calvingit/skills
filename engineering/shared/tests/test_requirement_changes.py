@@ -41,7 +41,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.task = self.workspace / 'task'
         (self.task / 'tickets').mkdir(parents=True)
         (self.task / 'SPEC.md').write_text('# Spec\n1. **R1** — Run.\n- **AC1** — Covers: R1. Run.\n')
-        (self.task / 'HLD.md').write_text('# HLD\n- **D1** — Use graph.\n')
+        (self.task / 'SOLUTION.md').write_text('# Solution\n- **D1** — Use graph.\n')
         self.path = self.task / 'tickets/T001-test.md'
         self.path.write_text(dump_ticket(ticket()))
         self.code = self.workspace / 'src.py'

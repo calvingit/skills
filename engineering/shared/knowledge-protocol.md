@@ -23,7 +23,7 @@
 | --- | --- | --- |
 | 新领域概念或词义变化 | `domain-modeling` | 项目已有的术语来源 |
 | 领域关系、生命周期、不变量 | `domain-modeling` | 项目已有的领域模型来源，没有则不强建 |
-| 本次交付的设计决定 | `solution-design` | 技术方案（`HLD.md`） |
+| 本次交付的设计决定 | `solution-design` | 技术方案（`SOLUTION.md`） |
 | 难以撤回、需要背景才能理解的长期决定 | `domain-modeling`（ADR 门槛） | 项目已有的 ADR / 决策记录 |
 | 验证方法或能力缺口 | `verification-setup` | 项目验证方法与导航摘要 |
 | 稳定工程配置与资料位置 | `project-setup` | Profile |

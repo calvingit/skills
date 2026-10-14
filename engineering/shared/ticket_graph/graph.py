@@ -42,7 +42,7 @@ def validate_graph(
     tickets: list[dict[str, Any]],
     authority: dict[str, object],
     *,
-    has_hld: bool,
+    has_solution: bool,
 ) -> tuple[list[dict[str, str]], dict[str, list[str]]]:
     problems: list[dict[str, str]] = []
     by_id: dict[str, dict[str, Any]] = {}
@@ -67,13 +67,13 @@ def validate_graph(
             for acceptance_id in ticket["covers"]["spec_acceptance"]:
                 if acceptance_id not in spec_acceptance:
                     problems.append(problem("authority", "unknown_spec_acceptance", f"Ticket references unknown SPEC Acceptance ID: {acceptance_id}", ticket_id=ticket_id, path=path))
-            if ticket["referenced_design_decisions"] and not has_hld:
-                problems.append(problem("authority", "missing_hld", "Ticket references design decisions but HLD.md was not found.", ticket_id=ticket_id, path=path))
+            if ticket["referenced_design_decisions"] and not has_solution:
+                problems.append(problem("authority", "missing_solution", "Ticket references design decisions but SOLUTION.md was not found.", ticket_id=ticket_id, path=path))
             for decision in ticket["referenced_design_decisions"]:
                 if decision not in referenced_design_decisions:
-                    problems.append(problem("authority", "unknown_design_decision", f"Ticket references unknown HLD decision: {decision}", ticket_id=ticket_id, path=path))
+                    problems.append(problem("authority", "unknown_design_decision", f"Ticket references unknown SOLUTION decision: {decision}", ticket_id=ticket_id, path=path))
             if not ticket["covers"]["requirements"] and not ticket["covers"]["spec_acceptance"] and not ticket["referenced_design_decisions"]:
-                problems.append(problem("graph", "missing_delivery_coverage", "Ticket must cover a SPEC R/AC or an HLD D ID.", ticket_id=ticket_id, path=path))
+                problems.append(problem("graph", "missing_delivery_coverage", "Ticket must cover a SPEC R/AC or a SOLUTION D ID.", ticket_id=ticket_id, path=path))
 
         for dependency in ticket["dependencies"]:
             if dependency == ticket_id:

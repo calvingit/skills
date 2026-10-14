@@ -22,7 +22,7 @@ Classify unresolved choices before asking:
 | Choice | Owner and record |
 | --- | --- |
 | User-visible behaviour, scope, acceptance, compatibility or permissions, including external API fields, protocol limits and backend-defined states | User decides; confirmed requirements become SPEC input. |
-| Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `solution-design` review. Existing external-contract semantics remain requirements. |
+| Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as SOLUTION input for `solution-design` review. Existing external-contract semantics remain requirements. |
 | Private methods, file layout, local helpers or internal refactoring | Agent decides; do not ask the user. |
 
 A Scenario cannot settle an unconfirmed business choice: if alternative answers change behaviour (for example, soft versus permanent account deletion or recovery), resolve the choice here. Concrete examples of already settled behaviour belong to `to-spec`.
@@ -56,6 +56,6 @@ Create `acceptance-draft.md` only when a separate acceptance draft is needed for
 
 ## Finish
 
-The session is complete when all requirement-level decisions are settled. Implementation choices and unresolved design details may remain for HLD. Summarize the settled outcome and document locations, and obtain the user's confirmation of shared understanding before handing back to the caller.
+The session is complete when all requirement-level decisions are settled. Implementation choices and unresolved design details may remain for SOLUTION. Summarize the settled outcome and document locations, and obtain the user's confirmation of shared understanding before handing back to the caller.
 
 If interrupted, preserve unresolved questions alongside confirmed conclusions. This skill records the interview; it does not implement code or automatically rewrite downstream artifacts.

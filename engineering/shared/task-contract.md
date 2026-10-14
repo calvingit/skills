@@ -1,6 +1,6 @@
 # Task Contract
 
-A contract is the confirmed goal, bounds and completion basis of a task, not a required file or a new state machine. Use it when handing work across skills or contexts; a simple task can keep it in the conversation. Existing SPEC, ACCEPTANCE, solution design (`HLD.md`), tickets and project instructions retain their own responsibilities.
+A contract is the confirmed goal, bounds and completion basis of a task, not a required file or a new state machine. Use it when handing work across skills or contexts; a simple task can keep it in the conversation. Existing SPEC, ACCEPTANCE, solution design (`SOLUTION.md`), tickets and project instructions retain their own responsibilities.
 
 ## Resolve the contract
 
@@ -11,7 +11,7 @@ Establish these five items from confirmed sources before implementation; prose, 
 | `goal` | What observable result ends this task? | Confirmed conversation; SPEC Goal when persisted |
 | `scope` | Which behaviours and change areas are included or excluded? | Conversation or SPEC Scope / Out of Scope; ticket delivery slice |
 | `acceptance` | Which independently decidable criteria define success? | Conversation or SPEC AC; ACCEPTANCE scenarios reference those IDs |
-| `decision_boundary` | What may the agent decide, and which changes return to an owner? | Confirmed task constraints; the solution design (`HLD.md`) for shared technical decisions |
+| `decision_boundary` | What may the agent decide, and which changes return to an owner? | Confirmed task constraints; the solution design (`SOLUTION.md`) for shared technical decisions |
 | `evidence` | Which observations are sufficient, at which surface and with what limits? | Task evidence requirements / ACCEPTANCE; methods in project verification guidance |
 
 Resolve relevant `authority` and `recovery` from existing user/project instructions and Runtime controls. Make them explicit for consequential operations or nontrivial recovery; do not invent permissions or a retry policy to fill a template. Missing optional files are not missing task meaning. Ask only for unresolved information that changes the work or needs a user's decision; ordinary implementation choices remain with the agent.

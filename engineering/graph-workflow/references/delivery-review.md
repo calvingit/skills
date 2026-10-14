@@ -25,7 +25,7 @@ Preserve the initial simplify, verify and broad review reports with their candid
 
 Escalate when evidence shows a material impact beyond the prior review basis, including:
 
-- A public contract or shared architecture/HLD behaviour changes.
+- A public contract or shared architecture or SOLUTION behaviour changes.
 - A new module/dependency, previously unreviewed critical or security-sensitive path, or new cross-ticket integration surface is introduced or affected.
 - Targeted validation discovers an independent material defect, or invalidates the earlier risk judgement.
 

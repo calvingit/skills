@@ -12,7 +12,7 @@ During implementation, the main agent runs this slice's targeted tests and relat
 - Result: completed | blocked | failed | no_change
 - SPEC: <path>
 - ACCEPTANCE: <path | None>
-- HLD: <path | None>
+- SOLUTION: <path | None>
 - Baseline: <commit or equivalent fixed point>
 - Pre-existing changes: <included and excluded paths>
 

@@ -15,7 +15,7 @@ When the user explicitly asks where the architecture is most worth improving,
 read [candidate-mode.md](references/candidate-mode.md). An ordinary review may
 report an improvement opportunity, but must not expand into a repository-wide
 candidate search. Candidate discovery ends with a shortlist and user selection;
-it does not start `grilling`, HLD, ticket splitting, or implementation.
+it does not start `grilling`, SOLUTION, ticket splitting, or implementation.
 
 ## Basis
 

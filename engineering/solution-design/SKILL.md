@@ -1,13 +1,13 @@
 ---
 name: solution-design
-description: "Design the technical solution in HLD.md from a confirmed SPEC and existing system constraints: lock shared design decisions on module duties, types, interfaces, and integration constraints without widening scope. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
+description: "Create a technical solution design (SOLUTION.md) from a confirmed SPEC by recording design decisions, constraints, interfaces, and verification seams on the existing architecture. Prefer reuse; do not widen scope. Not for UI/UX, tickets, or local detailed design."
 ---
 
 # Solution Design
 
 Take a confirmed `SPEC.md` and current codebase facts, and form the technical solution and its design decisions for one delivery. Default to the smallest increment on the architecture, calling style, and naming already there. Do not treat the task as a greenfield architecture.
 
-The solution design is the final authority for the delivery's shared design decisions; current projects record it in `HLD.md`. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
+The solution design is the final authority for the delivery's shared design decisions, recorded in `SOLUTION.md`. Local detailed design includes private methods, helpers, and a single caller's internal callbacks.
 
 Consume the requirement-owned [Task Contract](../shared/task-contract.md); inherit goal, scope, AC and authority by reference. The solution design owns the derived shared decisions and their verification seams, not another acceptance or permission definition. Apply the [workflow policy](../shared/workflow-policy.md) independently of task size or ticket count.
 
@@ -55,7 +55,7 @@ Read the full SPEC, applicable agent instructions, architecture / domain docs, A
 - Expand-then-contract, data migration, a compatibility window, or an explicit integration order is required.
 - The user or project rules explicitly require a technical constraint several implementations share.
 
-Ticket count is not the test. A single execution unit may still need a solution design; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
+Ticket count is not the test. A single execution unit may still need a solution design; several independent tickets may not. If none of the conditions hold, report `solution_not_required` and why. Do not create `SOLUTION.md`, and do not load the create template or amendment flow.
 
 Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. For requirement conflicts or load-bearing technical fog, follow the [workflow policy](../shared/workflow-policy.md). Solution-design stop: return upstream only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance.
 
@@ -77,8 +77,8 @@ Do not ask about local helper extraction, private methods, file layout, or other
 
 ## Modes
 
-- **Create**: a solution design is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
-- **Amendment**: `HLD.md` exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
+- **Create**: a solution design is required and the task directory has no `SOLUTION.md`. Read [references/solution-template.md](references/solution-template.md) and follow its process and template.
+- **Amendment**: `SOLUTION.md` exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
 When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, Call the Skill tool with "to-tickets" for only the affected execution impact.
 
@@ -88,7 +88,7 @@ Repeated, structurally similar implementation friction against a shared decision
 
 Every D ID must cite at least one SPEC requirement (R / AC) or an observed codebase fact with path / symbol. Record the decision, reason, and trade-offs. A module name alone is not evidence. Do not create a decision without a traceable basis.
 
-Write confirmed decisions under `## Design Decisions` in `HLD.md` using the exact item shape in [references/hld-template.md](references/hld-template.md). The decision line must use `- **D1** — ...`; do not use `D1:` as the heading form.
+Write confirmed decisions under `## Design Decisions` in `SOLUTION.md` using the exact item shape in [references/solution-template.md](references/solution-template.md). The decision line must use `- **D1** — ...`; do not use `D1:` as the heading form.
 
 Do not create a separate `design-decisions.md`.
 
@@ -98,14 +98,14 @@ Keep integration order as technical prerequisites, not ticket IDs, assignments, 
 
 ## Handoff
 
-Report the `HLD.md` path, D IDs, local implementation space, unverified items and
+Report the `SOLUTION.md` path, D IDs, local implementation space, unverified items and
 downstream impact. Select execution using the [workflow policy](../shared/workflow-policy.md);
 when an existing graph is affected by amendment, Call the Skill tool with "to-tickets".
 Once the selected planning skill's entry conditions hold, Call the Skill tool with
 that skill name — do not ask the user to type it again. Implementation still
 requires current authorization.
 
-A confirmed D stays in `HLD.md`. If it will also bind future work beyond this delivery, hand it to `domain-modeling` and let its [ADR gate](../domain-modeling/SKILL.md#adr-gate) decide; do not write an ADR here or for every D.
+A confirmed D stays in `SOLUTION.md`. If it will also bind future work beyond this delivery, hand it to `domain-modeling` and let its [ADR gate](../domain-modeling/SKILL.md#adr-gate) decide; do not write an ADR here or for every D.
 
-This skill writes the solution design (`HLD.md`) only: ticket splitting, product implementation and UI/UX,
+This skill writes the solution design (`SOLUTION.md`) only: ticket splitting, product implementation and UI/UX,
 visual or interaction drafts keep their existing owners.

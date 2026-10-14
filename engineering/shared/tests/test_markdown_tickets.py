@@ -21,7 +21,7 @@ from test_ticket_graph import canonical_ticket
 E = Path(__file__).resolve().parents[2]
 SPEC = ("# Spec\n\n1. **R1** — Behavior.\n2. **R2** — Second.\n3. **R3** — Third.\n\n"
         "- **AC1** — Covers: R1. One.\n- **AC2** — Covers: R2. Two.\n- **AC3** — Covers: R3. Three.\n")
-HLD = "# HLD\n\n- **D1** — Shared decision.\n"
+SOLUTION = "# Solution\n\n- **D1** — Shared decision.\n"
 BASELINE = {"reference": "HEAD", "staged": [], "unstaged": [], "untracked": []}
 START = {"baseline": BASELINE, "existing_changes": {"included": [], "excluded": []}, "allowed_write_scope": ["src/**"]}
 PASS = {"verification": [{"command": "make test", "exit_code": 0, "summary": "ok"}]}
@@ -60,7 +60,7 @@ class MarkdownTicketTests(unittest.TestCase):
         self.task = Path(self.temp.name)
         (self.task / "tickets").mkdir()
         (self.task / "SPEC.md").write_text(SPEC)
-        (self.task / "HLD.md").write_text(HLD)
+        (self.task / "SOLUTION.md").write_text(SOLUTION)
 
     def contract(self, n, deps=()):
         return {"key": f"k{n}", "title": f"第{n}步: \"slice\"", "covers": {"requirements": [f"R{n}"], "spec_acceptance": [f"AC{n}"]},

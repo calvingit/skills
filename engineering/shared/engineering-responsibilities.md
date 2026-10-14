@@ -16,7 +16,7 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | --- | --- | --- |
 | `grilling` | 追问到关键选择确定，记录用户确认的决定 | 替用户做需求选择；写 SPEC、技术方案或实现 |
 | `to-spec` | 把已确认需求写成 `SPEC.md`（R / AC），按需维护 ACCEPTANCE | 设计内部实现；补写未决的业务决定 |
-| `solution-design` | 根据 SPEC、现有代码和约束确定技术方案，记录设计决策（当前项目可能存储为 `HLD.md`） | 改 SPEC 含义；拆票；局部实现细节 |
+| `solution-design` | 根据 SPEC、现有代码和约束确定技术方案，记录设计决策 | 改 SPEC 含义；拆票；局部实现细节 |
 | `to-tickets` | 用脚本创建或协调 `tickets/*.md`，确定拆分与真实依赖 | 引入新需求或设计；领取和执行 ticket |
 | `graph-workflow` | 选 ticket、派发原生 worker、核对证据、用状态命令写入 ticket 状态和交付记录 | 改产品代码；管理 Runtime 会话 |
 | `ticket-implement` | 在约定写范围内实现一张 ticket，补必要测试，报告实际自检 | 改 SPEC、技术方案或 tickets；调度其他任务 |
@@ -31,7 +31,7 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | --- | --- |
 | 需求决定（`decisions.md`） | 用户确认，`grilling` 记录 |
 | `SPEC.md` | `to-spec` |
-| 技术方案与设计决策（当前项目可能存储为 `HLD.md`） | `solution-design` |
+| 技术方案与设计决策 | `solution-design` |
 | `tickets/*.md` 契约与依赖 | `to-tickets`（create / reconcile 命令） |
 | ticket 状态、attempt 与 `.loop/` 交付记录 | `graph-workflow`（`update-status` 命令） |
 | 源代码与仓库测试 | 有图时为 `ticket-implement` worker，无图时为 `quick-implement` |
@@ -45,7 +45,7 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | --- | --- | --- | --- |
 | 需求、目标、任务范围、SPEC AC | 简单任务使用经确认的会话内容，保存为文档后，以 SPEC 中的工程需求快照为准 | 用户确认需求选择，由 `to-spec` 维护快照 | 技术方案、tickets、实现与验收引用当前快照，新输入改变快照时先修订 SPEC。 |
 | 独立维护版本的验收场景与证据规则 | 按需建立的 ACCEPTANCE | `to-spec` | 场景引用 SPEC R / AC，不再维护另一份同名 AC 定义，与 SPEC 有冲突时，停止受影响的工作并交回负责方。 |
-| 交付的技术方案与设计决策 | 以 `solution-design` 记录的技术方案为准（当前项目可能存储为 `HLD.md`），长期项目决策由已有架构文档 / ADR 维护 | 技术方案由 `solution-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，技术方案不自行取代长期约束，也不反向修改需求。 |
+| 交付的技术方案与设计决策 | 以 `solution-design` 记录的技术方案为准，长期项目决策由已有架构文档 / ADR 维护 | 技术方案由 `solution-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，技术方案不自行取代长期约束，也不反向修改需求。 |
 | 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
 | ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `graph-workflow` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
 | 最终交付候选与状态 | `.loop/delivery.json` | `graph-workflow` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
@@ -84,7 +84,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | grilling | 访谈及 decisions.md，并组合记录术语/ADR | 重要需求选择由用户决定，grilling 不决定局部实现，也不重写下游 | 当前事实、用户确认、未决 frontier |
 | wayfinding | MAP.md 与决策文件 | 解决跨会话依赖决策，不交付产品 | 可追溯答案、调查或实验，HITL 不由 Agent 代答 |
 | to-spec | SPEC、按需 ACCEPTANCE | 维护确认需求和验收语义，不设计内部实现 | 需求 authority、确认决策、外部契约 |
-| solution-design | 技术方案与设计决策（`HLD.md`） | 决定技术方案，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
+| solution-design | 技术方案与设计决策（`SOLUTION.md`） | 决定技术方案，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
 | to-tickets | 通过脚本创建/协调 tickets | 决定交付拆分与真实依赖，不引入新需求/设计 | 已确认 SPEC / 技术方案、覆盖及图校验 |
 | quick-implement | 单一目标实现、自检与收尾 | 不使用执行图，既有独立收尾规则仍适用 | 当前契约、真实 diff、自检与独立报告 |
 | ticket-implement | 当前 ticket 的代码、必要测试和局部简化 | 决定局部实现，将契约问题交回调用方 | 已确认行为、项目方法和实际本地检查 |
