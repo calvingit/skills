@@ -1,6 +1,6 @@
 ---
 name: ticket-implement
-description: "Implement one ticket's delivery behaviour within its agreed write scope."
+description: "Implement one ticket's delivery behaviour within its expected write scope; report to the caller before going beyond it."
 ---
 
 # Ticket Implement
