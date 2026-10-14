@@ -33,6 +33,12 @@ Keep implementation out of the glossary. File paths, class names, API paths, fie
 
 Generic programming ideas — timeout, retry, error types, factory — are usually not domain language. Ask: is this unique to this business context, or a generic engineering idea? Only the former enters the model.
 
+## When to update an existing domain model
+
+If the project already keeps a domain model authority (relationships, lifecycle, states, invariants — in `domain-model.md`, CONTEXT, architecture docs, or wherever the project put it), keep it current when a task confirms a lasting change to those facts, e.g. "a Refund is only allowed after the Payment is captured". Update the existing source in its own format, and list conflicts with code or the user instead of picking a side.
+
+If no such authority exists, do not create `domain-model.md` or a new layout for it. Put the term in the glossary, the decision through the ADR gate below, and report anything else as a finding. See the [knowledge protocol](../shared/knowledge-protocol.md) for routing observations to owners.
+
 ## Term format
 
 Each entry says what the thing *is*, not what the code does. Keep it to one or two sentences. When several words name the same concept, pick one canonical term and record the rest as avoided or compatible aliases. Prefer the project's existing format; otherwise:

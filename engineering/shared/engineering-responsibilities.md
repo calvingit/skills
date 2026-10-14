@@ -49,7 +49,7 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
 | ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `graph-workflow` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
 | 最终交付候选与状态 | `.loop/delivery.json` | `graph-workflow` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
-| 项目稳定工程知识与导航 | 使用已有项目指令、术语表和架构资料，通过 Profile 定位来源 | 项目资料由各自的维护者负责，`project-setup` 维护 Profile | 按需引用，不把当前任务、运行结果或授权复制进 Profile。 |
+| 项目稳定工程知识与导航 | 使用已有项目指令、术语表、领域模型和架构资料，通过 Profile 定位来源 | 项目资料由各自的维护者负责，术语、已有领域模型和 ADR 由 `domain-modeling` 维护，`project-setup` 维护 Profile | 按需引用，不把当前任务、运行结果或授权复制进 Profile。任务中的长期发现按[长期知识回写](knowledge-protocol.md)交给负责方。 |
 | 可执行验证方法与能力范围 | 现有项目脚本 / CI / 本地验证 Skill | 项目工具由其维护者负责，`verification-setup` 维护方法与导航摘要 | Profile 只提供链接和摘要，方法说明不成为需求来源，冒烟检查记录也不作为当前任务已通过验收的依据。 |
 | 当前候选的实际观察与审查结论 | 原执行者的命令记录、产物、verify / review 原文 | 实现者、验证者与审查者分别记录，由调用方判断适用性 | 状态脚本保存接受的事实，不解析报告、证明真实性或认证独立性。 |
 | 原生 worker 是否运行、已停止或可恢复 | Runtime 原生状态 | Runtime | 工程记录可以引用执行句柄（handle），但不重建会话状态机，ticket 状态不能证明写入方已停止。 |
@@ -94,7 +94,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | test-audit | 指定测试审计，以及获准的限定清理 | 给出保留/合并/重写/删除建议，不成为固定交付门 | 独立预期、真实执行、独有保护与维护成本 |
 | tdd | 实现中的行为测试、代码及局部重构 | 按 Red → Green → Refactor 执行，不拥有最终验收或任务调度 | 已实际运行的有效 Red/Green、独立预期与回归 |
 | codebase-design | 指定 Module / Interface / Seam 的局部设计判断 | 推荐局部形状，不扫描整体架构或替代领域语言 | 真实调用、信息隐藏、变化原因与删除试验 |
-| domain-modeling | 领域词汇与符合门槛的 ADR | 澄清模型，记录确认语义，不拥有访谈节奏或改需求 | 当前领域约定、契约、确认术语及真实取舍 |
+| domain-modeling | 领域词汇、已有领域模型与符合门槛的 ADR | 澄清模型，记录确认语义，不拥有访谈节奏或改需求 | 当前领域约定、契约、确认术语及真实取舍 |
 | review-architecture | 只读架构审查，以及显式候选发现 | 判断现状与影响，不预先实施目标架构 | 项目约束、路径/所有权、适用官方指导与反证 |
 | simplify | Review 或获准的限定修改 | 删除无当前职责的复杂度，不改变确认行为 | 实际使用方、持久化/外部契约与修改后验证 |
 | debug | 复现、诊断，以及获准的最小修复 | 先建立问题反馈，不扩大到架构重做 | 已运行的症状复现、可证伪假设及原复现回归 |
@@ -118,4 +118,4 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 
 ## 文档归属
 
-本文（谁负责什么）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `engineering/shared/`，治理规则见[维护规范](maintenance.md)，仓库入口是根目录 README。`docs/` 维护插件安装、发版和 Graph Workflow / Runtime 关系，`docs/evaluation/` 保存仓库验证场景和历史评估记录，`scripts/` 放仓库检查脚本；具体执行规则、格式与示例由所属 Skill 及其参考资料维护。图示的 JSON 源文件与 SVG 一起保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+本文（谁负责什么）、[长期知识回写](knowledge-protocol.md)（长期发现交给谁）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `engineering/shared/`，治理规则见[维护规范](maintenance.md)，仓库入口是根目录 README。`docs/` 维护插件安装、发版和 Graph Workflow / Runtime 关系，`docs/evaluation/` 保存仓库验证场景和历史评估记录，`scripts/` 放仓库检查脚本；具体执行规则、格式与示例由所属 Skill 及其参考资料维护。图示的 JSON 源文件与 SVG 一起保存在 `docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。

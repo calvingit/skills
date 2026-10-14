@@ -105,5 +105,7 @@ Once the selected planning skill's entry conditions hold, Call the Skill tool wi
 that skill name — do not ask the user to type it again. Implementation still
 requires current authorization.
 
+A confirmed D stays in `HLD.md`. If it will also bind future work beyond this delivery, hand it to `domain-modeling` and let its [ADR gate](../domain-modeling/SKILL.md#adr-gate) decide; do not write an ADR here or for every D.
+
 This skill writes the solution design (`HLD.md`) only: ticket splitting, product implementation and UI/UX,
 visual or interaction drafts keep their existing owners.
