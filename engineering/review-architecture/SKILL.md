@@ -24,10 +24,10 @@ Judge in this order. Do not dress personal taste as a standard:
 1. The user's explicit request and the current task's constraints.
 2. Repo-level agent instructions, architecture docs, ADRs, coding standards, and test / build rules.
 3. Facts proven by current code, call chains, runtime paths, tests, and runnable checks.
-4. Official architecture or best-practice guidance for this stack that is still current and directly relevant. Use `find-docs` when fresh external basis is needed, and distinguish project rules from external advice.
+4. Official architecture or best-practice guidance for this stack that is still current and directly relevant. Call the Skill tool with "find-docs" when fresh external basis is needed, and distinguish project rules from external advice.
 5. General design principles as an analysis lens only. They cannot prove non-compliance by themselves.
 
-When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Locality, use `codebase-design`'s shared vocabulary. This skill still *reviews the current design*. It does not finish a redesign in advance.
+When talking about Module, Interface, Depth, Seam, Adapter, Leverage, or Locality, Call the Skill tool with "codebase-design" for its shared vocabulary. This skill still *reviews the current design*. It does not finish a redesign in advance.
 
 ## Boundaries
 
@@ -51,31 +51,15 @@ Name what this round reviews and what "sound" means here.
 
 ### 2. Discover current architecture and rules
 
-Read relevant architecture entries from the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) and check them against current code. With no Profile, keep discovering dynamically. Do not run setup automatically.
+Read relevant architecture entries via [Profile resolution](../project-setup/references/profile.md#resolve-and-load) and check them against current code. With no Profile, keep discovering dynamically. Do not run setup automatically.
 
-Read what actually exists:
-
-- README, CONTRIBUTING, agent instructions, architecture docs, ADRs / decision records.
-- Entry points, composition / configuration, module / package bounds, dependency declarations, and test layout.
-- Related lint, dependency checks, architecture guards, build / test commands.
-- Official stack rules, only when they would actually change this judgement.
+Read what actually exists: README, CONTRIBUTING, agent instructions, architecture docs, ADRs; entry points, composition, module bounds, dependency declarations, test layout; related lint / architecture guards / build commands; official stack rules only when they would change this judgement.
 
 A document is not automatically fact. Check whether current code still matches it. History explains why a design exists. It does not replace current evidence.
 
 ### 3. Review through architecture lenses
 
-Read `references/classification-guide.md` as needed. Look at:
-
-- **Boundary / Ownership** — whether the right module owns duty, state, knowledge, and side effects.
-- **Dependency direction** — whether dependencies cross a layer they shouldn't, cycle, or leak knowledge backwards.
-- **Interface / Depth** — whether the interface hides complexity, or callers are forced to learn the implementation.
-- **State / Lifecycle** — whether state owner, concurrency, init, cancel, dispose, and recovery match the use.
-- **Data / Control Flow** — whether transforms, errors, events, and side effects are re-interpreted in several places.
-- **Testability / Replaceability** — whether tests verify behaviour through the production interface, and whether seams are real variation points.
-- **Standards conformance** — declared project constraints, or official stack rules that apply to this scene.
-- **Evolution cost** — whether an ordinary requirement must cross too many owners, keep several facts in sync, or edit unrelated areas.
-
-These are investigation lenses, not a scorecard that must be filled.
+Load [classification-guide.md](references/classification-guide.md) only when ranking or testing a concrete hypothesis — do not preload it for every review. Lenses (Boundary / Ownership, Interface / Depth, Seam / Adapter, Dependency Direction, State / Lifecycle, Data / Control Flow, Testability, Standards Conformance, Evolution Cost) are investigation aids, not a scorecard that must be filled.
 
 ### 4. Deep-read and seek counter-evidence
 
@@ -104,8 +88,7 @@ When nothing holds, say **no findings**. Do not invent architecture debt to comp
 
 ### 6. Report and stop
 
-For an ordinary architecture review, write a Markdown report from
-`references/report-template.md`. The report must make clear:
+When writing the report, load [report-template.md](references/report-template.md) (and [html-report.md](references/html-report.md) only if an HTML render is requested). The report must make clear:
 
 - scope / coverage / uncovered range
 - current architecture and applicable authorities

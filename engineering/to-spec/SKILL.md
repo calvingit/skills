@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: Turn confirmed requirements, the settled conversation, and codebase facts into a normative SPEC.md. Maintain ACCEPTANCE.md only when the task needs a separate acceptance protocol. Distinguish requirement constraints from high-level technical design, and decide whether downstream work needs an HLD or an execution graph.
+description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Not for HLD, tickets, or implementation.
 ---
 
 # To Spec
@@ -26,23 +26,21 @@ Technical constraints are allowed when they define required behaviour, including
 
 ## Entry
 
-Resolve requirement sources in this order: what the user named this turn → `requirement_authority` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)) → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
+Resolve requirement sources in this order: what the user named this turn → `requirement_authority` via [Profile resolution](../project-setup/references/profile.md#resolve-and-load) → repo facts → this skill's defaults. `external-manual` may use only the current snapshot the user supplied, and must mark unverified original external content. Do not pretend to have reached Feishu, WeCom, or another system.
 
-Stop and hand back to `grilling` when requirements, external behaviour, business bounds, permissions, public contracts, or acceptance still have open choices that would change the plan.
+Unsettled requirements or technical fog: follow the [workflow policy](../shared/workflow-policy.md) (`grilling` / `wayfinding` as fits).
 
-Stop and hand back to `wayfinding` when the destination can be named but a load-bearing path is still in technical fog and needs investigation across sessions.
+SPEC-specific stops:
 
-When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
-
-Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and route to `high-level-design` after the SPEC is confirmed.
-
-Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
+- When the user supplies a finished `MAP.md`: confirm Frontier is empty, Not yet specified holds no fog still pointing at the destination, and blocking decisions are finally confirmed. Read the map's low-resolution view and the decision files that affect requirements, public contracts, bounds, tests, or acceptance. Purely technical high-level decisions wait for `high-level-design`.
+- Unsettled module duties, internal Interfaces, shared types, dependency direction, or integration strategy do not block the spec. Record them as design concerns and, after the SPEC is confirmed, Call the Skill tool with "high-level-design".
+- Do not invent missing fields, errors, public contracts, acceptance seams, Business Constraints, or expected results. Keep investigating what the codebase can prove. Stop and say so when the user must decide.
 
 ## Modes
 
 - **Create**: no `SPEC.md` in the task directory. Follow the process below.
 - **Amendment**: an existing SPEC has requirement changes. Before proceeding, read [references/amendment.md](references/amendment.md).
-- Ticket granularity, dependencies, or execution facts with unchanged SPEC meaning go to `to-tickets` or the execution owner. Do not touch the SPEC.
+- Ticket granularity, dependencies, or execution facts with unchanged SPEC meaning → Call the Skill tool with "to-tickets" (or return to the execution owner). Do not touch the SPEC.
 
 ## Process
 
@@ -80,7 +78,14 @@ Once acceptance seams are decided, write from the templates. Read:
 - [references/spec-template.md](references/spec-template.md)
 - [references/acceptance-template.md](references/acceptance-template.md) only when separate acceptance is enabled.
 
-Without a separate acceptance protocol, check `R → AC` and decidable results before writing. When creating or amending `ACCEPTANCE.md`, run the bidirectional check `R → AC → scenario → expected result → executable evidence`. Protocol gaps go back to `grilling`. Do not disguise them as implementation tasks.
+Keep `R → AC` traceability and decidable expected results. AC are the sole behavioural acceptance authority; Scenarios / Examples only illustrate them and cannot add business rules. Evidence must support AC directly, with or without examples. A separate protocol records observation and evidence rules without redefining AC.
+
+#### Select behaviour examples only when useful
+
+- Keep an already unambiguous AC without examples. Prefer compact input → outcome Examples for meaningful branches or boundaries; use Given / When / Then Scenarios when state transitions, permissions, authentication or interacting conditions need context. Do not introduce a full BDD workflow.
+- Retain an example only if it rules out a plausible misreading, expresses a business boundary or distinct outcome, or makes a key confirmed behaviour concrete. Omit equivalent inputs, test-category checklists and implementation details; do not expand every AC into Happy / Error / Edge cases.
+- Stop when rules and key branches are clear and another example would not change an implementation decision. Nest an optional title under its AC, or cite that AC in a separate protocol; do not introduce Scenario IDs or a traceability matrix.
+- If different answers would change business behaviour, Call the Skill tool with "grilling" for the unresolved choice before specifying dependent examples. For “delete account”, soft deletion, permanence and recovery are decisions, not details an example may assume. Settled behaviour that only needs concrete expression stays here.
 
 ### 5. Consistency
 
@@ -93,7 +98,7 @@ Without a separate acceptance protocol, check `R → AC` and decidable results b
 7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
 8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
 
-Fix what confirmed context or the codebase can fix. Stop and hand back to `grilling` or `wayfinding` when a new decision is required.
+Fix what confirmed context or the codebase can fix. Stop and Call the Skill tool with "grilling", or with "wayfinding", when a new decision is required.
 
 ### 6. Write and hand off
 
@@ -109,16 +114,17 @@ Identify known observation methods or gaps without putting test recipes in SPEC.
 This skill forecasts whether several execution units are likely, not their count
 or split.
 
-Continue directly into the selected planning skill when its entry conditions
-hold. Enter `quick-implement` or `loop` only when implementation is authorized;
-otherwise finish with the required planning artifacts. Missing authority,
-unsettled requirements or load-bearing feasibility gaps return to their owner.
+When the selected planning skill's entry conditions hold, Call the Skill tool
+with that skill name. Call the Skill tool with "quick-implement", or with "loop",
+only when implementation is authorized; otherwise finish with the required planning
+artifacts. Missing authority, unsettled requirements or load-bearing feasibility
+gaps return to their owner.
 
 ## Change rules
 
 Amend here when behaviour, bounds, permissions, compatibility, public contracts
-or acceptance change. Resolve unsettled requirement choices through `grilling`
-on the affected branch first. Unchanged requirement meaning does not warrant a
+or acceptance change. Resolve unsettled requirement choices by calling the Skill
+tool with "grilling" on the affected branch first. Unchanged requirement meaning does not warrant a
 SPEC edit; use [contract change ownership](../shared/task-contract.md#handoff-inheritance-and-change)
 for design, graph or execution changes and preserve unaffected work. Amendment
 mode defines this skill's impact checks and handoff.

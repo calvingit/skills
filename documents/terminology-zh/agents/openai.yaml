@@ -1,0 +1,7 @@
+interface:
+  display_name: "中文术语审校"
+  short_description: "统一并校正中文技术术语，消除误译与术语漂移"
+  default_prompt: "使用 $terminology-zh 审校这些中文术语和译名，给出准确、一致的改法。"
+
+policy:
+  allow_implicit_invocation: false

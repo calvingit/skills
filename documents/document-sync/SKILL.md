@@ -1,6 +1,6 @@
 ---
 name: document-sync
-description: "检查文档是否与当前实现和规范一致，只更新受影响内容。"
+description: 检查文档是否与当前实现和规范一致，只更新受影响内容。适用于代码、配置或流程变化后同步 README、示例与图示；用户仅要求检查时只报告差异，明确要求同步时才改文件。
 ---
 
 # Document Sync

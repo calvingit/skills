@@ -1,6 +1,6 @@
 # Sync a SPEC / HLD amendment
 
-When tickets already exist and a SPEC or HLD amendment is confirmed, first confirm `loop` has stopped task dispatch, stopped all active workers, preserved partial receipts, and blocked active attempts. Reconciliation rejects graphs with in-progress attempts. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
+When tickets already exist and a SPEC or HLD amendment is confirmed, first follow the shared [Amendment stop-write protocol](../../shared/task-contract.md#amendment-stop-write-protocol): confirm `loop` has stopped task dispatch, stopped all active workers, preserved partial receipts, and blocked active attempts. Reconciliation rejects graphs with in-progress attempts. `to-tickets` does not manage subagents itself. Then compare old / new upstream contracts and the current graph:
 
 - Unaffected tickets keep immutable ID, contract, and current evidence.
 - An HLD design-only amendment does not change historical acceptance that still satisfies the SPEC. If done behaviour still matches the requirement but not the new design, keep its requirement evidence and create an explicit correction / migration ticket covering the affected Ds. Supersede only when the original delivery contract is replaced as a whole.
@@ -12,7 +12,7 @@ When tickets already exist and a SPEC or HLD amendment is confirmed, first confi
 
 Upstream contract change must not `reopen` a `done` ticket. `done → open` means SPEC and HLD are unchanged and overall delivery review found the original ticket did not satisfy its original contract. A SPEC or HLD amendment must keep still-valid evidence and express the change with amendment / correction / migration / replacement tickets or necessary `superseded`.
 
-Show the user an impact plan before `reconcile-batch`. Apply ordinary graph reconciliation from the confirmed upstream delta without another confirmation. If it exposes an unsettled requirement or shared-design choice, hand back to the owning upstream skill before writing. The CLI validates all dependencies, lineage, coverage, and current lifecycle, then recomputes readiness. Any dependency pointing at a `superseded` ticket must be deleted, replaced, or rewired so there is no dangling reference or cycle. If an active worker is still writing the same ticket, stop the sync and hand the lifecycle back to `loop`.
+Show the user an impact plan before `reconcile-batch`. Apply ordinary graph reconciliation from the confirmed upstream delta without another confirmation. If it exposes an unsettled requirement or shared-design choice, Call the Skill tool with the owning upstream skill before writing. The CLI validates all dependencies, lineage, coverage, and current lifecycle, then recomputes readiness. Any dependency pointing at a `superseded` ticket must be deleted, replaced, or rewired so there is no dangling reference or cycle. If an active worker is still writing the same ticket, stop the sync and Call the Skill tool with "loop" to resume lifecycle ownership.
 
 `superseded` is terminal and non-active. It is not on the frontier, does not cover current SPEC acceptance, and is not failure. It keeps the original evidence and records the supersession reason plus nullable replacement lineage.
 

@@ -1,6 +1,6 @@
 # Engineering Skills
 
-本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](ENGINEERING_KERNEL.md)。
+本目录提供软件项目的调研、开发、审查和维护能力，不绑定语言、框架或 Agent Runtime。本文用于选择入口和理解组合关系，具体执行规则由各 Skill 维护，跨 Skill 的事实与产物归属见[职责与边界](../engineering/shared/engineering-responsibilities.md)，跨 Skill 不变量基线见 [Engineering Kernel](../engineering/shared/ENGINEERING_KERNEL.md)。
 
 ## 设计原则
 
@@ -29,7 +29,7 @@
 
 各 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称。只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。新的需求决策交回用户，共享设计按 HLD 的 Design Review Gate 处理，普通实现细节由 Agent 判断。交接不授予提交、推送或分支操作权限。
 
-调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](engineering-responsibilities.md#调用契约invocation-contract)。
+调用分为用户工作流入口（Human Entry Point）、受调度角色（Orchestrated Role）和模型可主动选择的辅助能力（Model-discoverable Helper）。禁用隐式调用不等于仅限人类调用；已有授权下的显式交接与 worker 派发仍可继续。分类、当前 policy 与方法引用的区别见[调用契约](../engineering/shared/engineering-responsibilities.md#调用契约invocation-contract)。
 
 ## 项目准备
 
@@ -37,7 +37,13 @@
 
 Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链接和读取条件。Profile 定位项目知识与验证方法，不保存当前任务契约或运行结果，未知字段、已确认设置和旧配置迁移按[Profile 约定](../engineering/project-setup/references/profile.md)处理。缺少 Profile 或字段为 `auto` 时继续发现，显式入口失效或冲突须报告。
 
-[verification-setup](../engineering/verification-setup/SKILL.md) 复用仓库工具，创建或刷新项目本地验证方法并实际试运行，[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
+[verification-setup](../engineering/verification-setup/SKILL.md) 有两种范围：只盘点现有验证方法及其限制，不创建也不运行；或复用仓库工具，创建或刷新项目本地验证方法并实际试运行。[使用示例](../engineering/verification-setup/references/usage.md)说明首次建立、多端入口和增量维护。已有方法足够时直接使用，无需先配置 Profile 或生成验证 Skill。
+
+## 行为规格
+
+`to-spec` 以 AC 表达已确认行为；AC 已明确时无需实例。边界和分支优先用简短 Example，需要上下文的状态、权限等行为才用 Given / When / Then。实例只消除歧义，不补写未知业务决策，也不引入完整 BDD 流程。选择和停止规则见 [to-spec](../engineering/to-spec/SKILL.md#select-behaviour-examples-only-when-useful)。
+
+Scenario 不等于测试：`tdd` 按风险选择必要检查，`verify` 仍逐 AC 判断证据；新增实例本身不要求独立 ACCEPTANCE、执行状态或更多测试。
 
 ## 实现、测试与验收的组织
 
@@ -58,7 +64,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 ## 产物入口
 
-简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](engineering-responsibilities.md#事实与产物归属)。
+简单任务可以把已确认契约留在会话中，按需持久化的产物如下，写入责任和下游使用规则统一见[事实与产物归属](../engineering/shared/engineering-responsibilities.md#事实与产物归属)。
 
 | 产物 | 入口 |
 | --- | --- |
@@ -67,7 +73,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | `SPEC.md` | [to-spec](../engineering/to-spec/SKILL.md) |
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../engineering/to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
 | 共享技术设计 `HLD.md` | [high-level-design](../engineering/high-level-design/SKILL.md) |
-| `tickets/*.json` 契约与依赖 | [to-tickets](../engineering/to-tickets/SKILL.md) |
+| `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../engineering/to-tickets/SKILL.md) |
 | attempt、已接受证据与最终交付记录 | [loop](../engineering/loop/SKILL.md) |
 
 领域术语默认模板见 [Glossary 格式](../engineering/domain-modeling/GLOSSARY-FORMAT.md)；既有 `CONTEXT.md`、`DOMAIN.md`、`TERMS.md` 等仍可作为 authority，不强制迁移。项目背景、领域词汇和架构决策分别使用各自来源。
@@ -93,7 +99,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 | 当前目标 | 入口与职责 |
 | --- | --- |
-| 创建或维护项目验证方法、执行步骤和证据说明 | 使用 [verification-setup](../engineering/verification-setup/SKILL.md) 复用已有工具，生成或刷新本地 Skill，并记录实际试运行覆盖。 |
+| 创建或维护项目验证方法、执行步骤和证据说明 | 使用 [verification-setup](../engineering/verification-setup/SKILL.md)。只盘点时报告方法与限制；建立或维护时生成或刷新本地 Skill，并记录实际试运行覆盖。 |
 | 查询库、SDK 或服务在项目适用版本下的用法 | [find-docs](../engineering/find-docs/SKILL.md) |
 | 比较技术方案，形成选型或探索依据 | [tech-research](../engineering/tech-research/SKILL.md) |
 | 用户手动调用，理解当前代码、数据或控制流如何运行 | 使用 [how](../engineering/how/SKILL.md) 解释当前事实，不判断目标设计。 |
@@ -105,7 +111,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 明确要求多维项目审计 | 使用 [fuck-my-shit-mountain](../engineering/fuck-my-shit-mountain/SKILL.md)，保留显式调用策略，由它维护覆盖与报告要求，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | 使用 [improve-agents-md](../engineering/improve-agents-md/SKILL.md)，`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
-文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接、上下文审查及外部 Agent CLI 封装位于 `global/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
+文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接与学习辅助位于 `work/`，上下文审查与外部 Agent CLI 封装位于 `engineering/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
 
 会话级系统性问题先按 [Retro 实验规范](../.agents/skills/verify-engineering/references/retro-evaluation.md)收集真实证据并路由到现有 owner，不新增正式 Skill 或默认交付阶段。
 
@@ -115,4 +121,4 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 [![本地 Ticket 生命周期](diagrams/ticket-lifecycle.svg)](https://htmlpreview.github.io/?https://github.com/calvingit/skills/blob/main/docs/diagrams/ticket-lifecycle.html)
 
-维护 Skill 时按需读取[职责与边界](engineering-responsibilities.md)，上游适配规范也集中在那里。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。
+维护 Skill 时按需读取[职责与边界](../engineering/shared/engineering-responsibilities.md)，上游适配规范也集中在那里。各 Skill 不得再复制完整的流程路由表；入口选择指向[按风险选择流程](../engineering/shared/workflow-policy.md)或本文「选择入口」，只保留本 Skill 的硬性停止条件。收尾角色规则见[closeout-roles](../engineering/shared/closeout-roles.md)；修订停写顺序见[任务契约 · Amendment](../engineering/shared/task-contract.md#amendment-stop-write-protocol)。本仓库的检查与行为评估入口是 [verify-engineering](../.agents/skills/verify-engineering/SKILL.md)，静态检查和状态脚本测试只能支持各自覆盖范围的结论。

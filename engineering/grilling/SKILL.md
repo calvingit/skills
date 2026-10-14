@@ -25,6 +25,8 @@ Classify unresolved choices before asking:
 | Architecture boundaries, proposed public contract changes, shared models or long-term technical choices | Record as HLD input for `high-level-design` review. Existing external-contract semantics remain requirements. |
 | Private methods, file layout, local helpers or internal refactoring | Agent decides; do not ask the user. |
 
+A Scenario cannot settle an unconfirmed business choice: if alternative answers change behaviour (for example, soft versus permanent account deletion or recovery), resolve the choice here. Concrete examples of already settled behaviour belong to `to-spec`.
+
 Record unresolved design concerns without selecting an implementation. For example,
 `Current mode model may need future extensibility` describes a concern; a pattern
 choice does not belong in this interview.
@@ -44,11 +46,11 @@ Show the reply shortcut once per round. Keep numbering unique across rounds.
 
 ## Session documents
 
-Read `domain-modeling` on entry and apply it throughout the interview. Its domain questions join the same frontier; grilling owns the tree, rounds, and question cadence.
+Call the Skill tool with "domain-modeling" on entry and apply it throughout the interview. Its domain questions join the same frontier; grilling owns the tree, rounds, and question cadence.
 
-Resolve the session directory from the user's location or `task_contract` in the Profile linked by applicable `AGENTS.md` ([resolution](../project-setup/references/profile.md#resolve-and-load)); otherwise use a task-specific directory under `.grilling/` in the project. Resume existing session records when continuing the same task.
+Resolve the session directory from the user's location or `task_contract` via [Profile resolution](../project-setup/references/profile.md#resolve-and-load); otherwise use a task-specific directory under `.grilling/` in the project. Resume existing session records when continuing the same task.
 
-After each round, automatically update `decisions.md` with confirmed decisions, important reasons, observable acceptance, and unresolved questions. As terms or lasting decisions settle, use `domain-modeling` to update the glossary and write ADRs that pass its gate. Reuse established project locations; otherwise use the session directory. Follow its formats without duplicating records or requiring another approval to record confirmed conclusions.
+After each round, automatically update `decisions.md` with confirmed decisions, important reasons, observable acceptance, and unresolved questions. As terms or lasting decisions settle, Call the Skill tool with "domain-modeling" to update the glossary and write ADRs that pass its gate. Reuse established project locations; otherwise use the session directory. Follow its formats without duplicating records or requiring another approval to record confirmed conclusions.
 
 Create `acceptance-draft.md` only when a separate acceptance draft is needed for handoff or reuse; keep it to observable requirements, scenarios, expected results, and evidence sources.
 

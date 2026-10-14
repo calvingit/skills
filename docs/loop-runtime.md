@@ -35,7 +35,7 @@ Loop 直接读取审查结果字符串并根据内容作判断，脚本不解析
 python3 engineering/to-tickets/scripts/create-graph create-batch /path/to/task --input /path/to/request.json
 python3 engineering/to-tickets/scripts/validate-graph /path/to/task
 python3 engineering/loop/scripts/frontier /path/to/task
-python3 engineering/loop/scripts/record-attempt start /path/to/task T001 --input /path/to/start.json
+python3 engineering/loop/scripts/update-status start /path/to/task T001 --input /path/to/start.json
 python3 engineering/loop/scripts/update-status complete /path/to/task T001 --input /path/to/complete.json
 ```
 
@@ -43,7 +43,7 @@ python3 engineering/loop/scripts/update-status complete /path/to/task T001 --inp
 
 `.loop/` 仍位于任务目录，与 `SPEC.md`、`tickets/` 同级。现有图锁和临时事务目录也按任务隔离。脚本不建立项目级共享运行状态。
 
-将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.json`，可选 ACCEPTANCE / HLD 不作为额外前置要求。`record-attempt` 处理 start / retry，`update-status` 处理完成、阻塞、重开、事务恢复和最终交付。各输入的必需字段与示例由上面的参考资料维护。
+将示例中的 Skill 路径替换为已安装 Skill 的绝对路径，任务目录包含 SPEC 和 `tickets/*.md`。v3 不兼容旧 JSON Ticket；v2 任务在旧工具链执行完成并归档后再采用 v3，可选 ACCEPTANCE / HLD 不作为额外前置要求。所有状态写入（start / retry / block / unblock / complete / reopen）、事务恢复和最终交付都走 `update-status`，每次写入都返回更新后的图，Loop 直接用它决定下一张 ticket，不必再跑一次 `frontier`。各输入的必需字段与示例由上面的参考资料维护。
 
 正常状态流转是 open → in_progress → done，ready / blocked 是计算结果，`superseded` 由需求协调产生。Loop 在执行期间写图，worker 不写票据。ticket complete 表示 Loop 已确认全部本地 AC 有充分证据、本地检查实际成功，且没有未解决的阻断问题或必需的未验证范围，实际 review 原文可选。ticket done 不代表最终交付通过。
 
@@ -75,7 +75,7 @@ python3 <loop-skill>/scripts/frontier <task-dir>
 
 最终输入以 ticket 的 complete 格式为基础，将 `expected_attempt` 换成 prepare 返回的 `snapshot`，`evidence` 覆盖当前 SPEC 的所有 AC，并额外提供 `approved: true`、`unverified: []` 和 `review`。`review` 是最新独立审查的原始字符串；targeted report 引用保留的 broad report/候选，说明定向范围、finding 处理与原审查覆盖的适用性。ticket review 可选也不会降低这个要求。
 
-快照记录当前需求、完整 ticket JSON、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置，也不要将最终验收记录写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效，外部服务变化由 Loop 重新判断证据适用性。
+快照记录当前需求、完整 ticket 文件（frontmatter 与正文）、Git HEAD、文件内容/模式/链接和子模块代码，覆盖新增、未跟踪和删除的文件。仅当前任务的 `.loop/` 排除在快照之外，用于进度、报告及完成输入，不放需求、产品代码、测试或必要配置，也不要将最终验收记录写回已完成 ticket。无法读取的子模块不允许生成完整快照。代码、需求或图变动使原结论失效，外部服务变化由 Loop 重新判断证据适用性。
 
 ## 仓库验证
 

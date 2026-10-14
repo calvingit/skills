@@ -1,0 +1,7 @@
+interface:
+  display_name: "Codebase Design"
+  short_description: "Shared vocabulary for deep modules, seams, and dependency direction"
+  default_prompt: "Use $codebase-design vocabulary to judge this module's interface, seam, and dependency direction."
+
+policy:
+  allow_implicit_invocation: true

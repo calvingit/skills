@@ -1,0 +1,7 @@
+interface:
+  display_name: "Backend Development"
+  short_description: "Backend engineering checks for APIs, persistence, integrations, and background work"
+  default_prompt: "Use $backend-development to apply the relevant backend checks for this server-side change and call out contracts, failure modes, and operational risks."
+
+policy:
+  allow_implicit_invocation: true

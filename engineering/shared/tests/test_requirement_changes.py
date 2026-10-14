@@ -3,6 +3,7 @@ import copy
 import contextlib
 import io
 import test_bootstrap
+from test_bootstrap import dump_ticket, read_ticket
 import json
 import subprocess
 import tempfile
@@ -41,8 +42,8 @@ class RequirementChangesTests(unittest.TestCase):
         (self.task / 'tickets').mkdir(parents=True)
         (self.task / 'SPEC.md').write_text('# Spec\n1. **R1** — Run.\n- **AC1** — Covers: R1. Run.\n')
         (self.task / 'HLD.md').write_text('# HLD\n- **D1** — Use graph.\n')
-        self.path = self.task / 'tickets/T001-test.json'
-        self.path.write_text(json.dumps(ticket()))
+        self.path = self.task / 'tickets/T001-test.md'
+        self.path.write_text(dump_ticket(ticket()))
         self.code = self.workspace / 'src.py'
         self.code.write_text('print(1)\n')
         subprocess.run(['git', '-C', str(self.workspace), 'add', '.'], check=True)
@@ -73,11 +74,11 @@ class RequirementChangesTests(unittest.TestCase):
 
 
     def test_retention_preserves_evidence_and_allows_original_defect_reopen(self):
-        self.execute(); evidence = json.loads(self.path.read_text())['execution']['evidence']
+        self.execute(); evidence = read_ticket(self.path)['execution']['evidence']
         self.change()
         payload, code = self.retain()
         self.assertEqual(code, 0, payload)
-        self.assertEqual(json.loads(self.path.read_text())['execution']['evidence'], evidence)
+        self.assertEqual(read_ticket(self.path)['execution']['evidence'], evidence)
         result, code = mutate_ticket('reopen', self.task, 'T001', {'review_finding': 'Original AC failure', 'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
         self.assertEqual(code, 0, result)
 
@@ -179,12 +180,23 @@ class RequirementChangesTests(unittest.TestCase):
         other_report.write_text('Not this task execution output.')
         self.assertNotEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
         context = delivery.prepare(self.task, self.workspace)
-        stored = json.loads(self.path.read_text())
+        stored = read_ticket(self.path)
         stored['delivery_acceptance'][0]['description'] = 'Changed acceptance definition.'
-        self.path.write_text(json.dumps(stored))
+        self.path.write_text(dump_ticket(stored))
         with self.assertRaises(ValueError):
             delivery.complete(self.task, self.review_request(context))
 
+
+    # Handoff case G: Markdown ticket edits stale final review; .loop stays excluded.
+    def test_markdown_body_edit_invalidates_final_review(self):
+        self.execute()
+        context = delivery.prepare(self.task, self.workspace)
+        delivery.complete(self.task, self.review_request(context))
+        self.assertEqual(delivery.status(self.task)["state"], "passed")
+        (self.task / ".loop/notes.md").write_text("excluded")
+        self.assertEqual(delivery.status(self.task)["state"], "passed")
+        self.path.write_text(self.path.read_text().replace("## Constraints", "\n## Constraints"))
+        self.assertEqual(delivery.status(self.task)["state"], "stale")
 
     def test_final_review_rejects_missing_acceptance_and_failed_verification(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
@@ -222,10 +234,10 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'passed')
 
     def test_local_completion_releases_dependency_without_passing_delivery(self):
-        dependent = self.task / 'tickets/T002-dependent.json'
-        dependent.write_text(json.dumps(ticket(id='T002', dependencies=['T001'])))
+        dependent = self.task / 'tickets/T002-dependent.md'
+        dependent.write_text(dump_ticket(ticket(id="T002", dependencies=["T001"])))
         self.execute()
-        stored = json.loads(self.path.read_text())
+        stored = read_ticket(self.path)
         self.assertEqual(stored['lifecycle']['phase'], 'done')
         self.assertNotIn('review', stored['execution'])
         self.assertEqual(inspect(self.task)[0]['graph']['frontier'], ['T002'])
@@ -242,9 +254,9 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'not_reviewed')
 
     def test_local_reopen_preserves_unaffected_evidence_and_rejects_old_attempt(self):
-        stored = json.loads(self.path.read_text())
+        stored = read_ticket(self.path)
         stored['delivery_acceptance'].append({'id': 'AC2', 'description': 'Second local check.'})
-        self.path.write_text(json.dumps(stored))
+        self.path.write_text(dump_ticket(stored))
         attempt = self.start()
         evidence = {'AC1': {'result': 'passed', 'summary': 'First check.'},
                     'AC2': {'result': 'passed', 'summary': 'Unaffected second check.'}}
@@ -257,7 +269,7 @@ class RequirementChangesTests(unittest.TestCase):
             'review_finding': 'Final review found first behavior incorrect.',
             'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
         self.assertEqual(code, 0, result)
-        self.assertEqual(json.loads(self.path.read_text())['execution']['evidence'], {'AC2': evidence['AC2']})
+        self.assertEqual(read_ticket(self.path)['execution']['evidence'], {'AC2': evidence['AC2']})
         new_attempt = self.start()
         self.assertEqual(new_attempt, attempt + 1)
         before = self.path.read_bytes()
@@ -303,7 +315,7 @@ class RequirementChangesTests(unittest.TestCase):
         text = "# 人工审查\n符合需求。\n\n```text\nPASS 只是示例，不是解析指令\n```\n"
         result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **ticket_completion(review=text)})
         self.assertEqual(code, 0, result)
-        self.assertEqual(json.loads(self.path.read_text())["execution"]["review"], text)
+        self.assertEqual(read_ticket(self.path)["execution"]["review"], text)
         context = delivery.prepare(self.task, self.workspace)
         delivery.complete(self.task, {"snapshot": context["snapshot"], **completion(review=text)})
         stored = json.loads((self.task / ".loop/delivery.json").read_text())

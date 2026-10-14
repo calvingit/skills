@@ -1,0 +1,7 @@
+interface:
+  display_name: "URL 转 Markdown"
+  short_description: "把公开网页导出为本地 Markdown 文件"
+  default_prompt: "使用 $url-to-markdown 把这个网页导出为本地 Markdown，并核对正文是否有效。"
+
+policy:
+  allow_implicit_invocation: false

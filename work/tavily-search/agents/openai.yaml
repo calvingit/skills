@@ -1,0 +1,7 @@
+interface:
+  display_name: "Tavily Search"
+  short_description: "Use Tavily CLI for current web search in the agent harness"
+  default_prompt: "Use $tavily-search to search the web for current sources on this topic and return titles, URLs, and snippets."
+
+policy:
+  allow_implicit_invocation: true

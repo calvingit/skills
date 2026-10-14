@@ -1,18 +1,17 @@
-"""Batch graph creation, reconciliation, and recovery commands."""
+"""Create and reconcile v3 Markdown ticket graphs."""
 
 from __future__ import annotations
 
 import copy
 import json
 import re
-import shutil
 from pathlib import Path
 from typing import Any
 
 from ticket_graph.authority import authority_index, authority_fingerprint, bind_authority
 from ticket_graph.contracts import CURRENT_SCHEMA_VERSION, TICKET_ID_RE, envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_ticket
 from ticket_graph.graph import public_ticket, validate_graph
-from ticket_graph.store import acquire_write_lock, atomic_copy, commit_graph_transaction, release_lock, validated_snapshot
+from ticket_graph.store import acquire_write_lock, commit_graph_transaction, release_lock, validated_snapshot
 
 
 def slugify(title: object) -> str:
@@ -64,7 +63,7 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
                 request_problems.append(problem("graph", "unknown_candidate_dependency", f"Candidate {candidate['key']} has an unknown dependency."))
                 continue
             ticket_id = ids[candidate["key"]]
-            relative = f"tickets/{ticket_id}-{slugify(candidate['title'])}.json"
+            relative = f"tickets/{ticket_id}-{slugify(candidate['title'])}.md"
             ticket = {
                 "schema_version": CURRENT_SCHEMA_VERSION,
                 "id": ticket_id,
@@ -189,7 +188,7 @@ def reconcile_batch(
                     request_problems.append(problem("graph", "unknown_reconciliation_dependency", f"Create operation {operation['key']} has an unknown dependency."))
                     continue
                 ticket_id = ids_by_key[operation["key"]]
-                relative = f"tickets/{ticket_id}-{slugify(contract['title'])}.json"
+                relative = f"tickets/{ticket_id}-{slugify(contract['title'])}.md"
                 ticket = {
                     "schema_version": CURRENT_SCHEMA_VERSION,
                     "id": ticket_id,
@@ -312,3 +311,5 @@ def reconcile_batch(
         )
     finally:
         release_lock(descriptor)
+
+

@@ -14,6 +14,7 @@ from pathlib import Path
 
 from ticket_graph.authority import authority_index, authority_fingerprint
 from ticket_graph.queries import inspect
+from ticket_graph.ticket_markdown import parse_ticket
 from lifecycle import completion_problems
 from snapshot import _graph_files, _workspace_snapshot, _workspace_revision
 
@@ -93,7 +94,7 @@ def prepare(task_dir: Path, workspace: Path) -> dict:
         'hld': (task_dir / 'HLD.md').read_text() if (task_dir / 'HLD.md').is_file() else None,
         'acceptance': (task_dir / 'ACCEPTANCE.md').read_text() if (task_dir / 'ACCEPTANCE.md').is_file() else None,
         'spec_acceptance': sorted(ids['spec_acceptance']),
-        'tickets': {name: json.loads(data) for name, data in _graph_files(task_dir).items() if name.startswith('tickets/')},
+        'tickets': {name: parse_ticket(data.decode('utf-8'))[0] for name, data in _graph_files(task_dir).items() if name.startswith('tickets/') and name.endswith('.md')},
         'graph': graph,
     }
     if _snapshot(task_dir, workspace)[0] != token:

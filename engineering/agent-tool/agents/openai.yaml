@@ -1,0 +1,7 @@
+interface:
+  display_name: "Agent Tool"
+  short_description: "Manually run Claude Code, Codex, Kimi, Pi, or Grok via a unified CLI wrapper"
+  default_prompt: "使用 $agent-tool 按我指定的 CLI/provider/model 启动外部 Agent，并回报进程观察结果。"
+
+policy:
+  allow_implicit_invocation: false

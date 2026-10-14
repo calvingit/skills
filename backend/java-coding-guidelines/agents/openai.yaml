@@ -1,0 +1,7 @@
+interface:
+  display_name: "Java 编码规约"
+  short_description: "按项目约定与《Java 开发手册》检查 Java 编写、修改与审查"
+  default_prompt: "使用 $java-coding-guidelines 审查这段 Java 改动是否符合项目约定和编码规约，并指出必须修复的问题。"
+
+policy:
+  allow_implicit_invocation: true

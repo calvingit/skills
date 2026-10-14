@@ -1,6 +1,6 @@
 ---
 name: high-level-design
-description: Search the current codebase against a confirmed SPEC and create or amend a task-level HLD.md. Prefer reusing or extending the architecture already there. Lock module duties, shared types, interfaces, and integration constraints that several implementations must share. Not for UI/UX, ticket splitting, or local detailed design.
+description: "Create or amend HLD.md from a confirmed SPEC: lock shared module duties, types, interfaces, and integration constraints. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
 ---
 
 # High-Level Design
@@ -20,7 +20,7 @@ state/error semantics and integration/migration constraints. Tickets derive the
 execution split; implementation owns unconstrained local details.
 
 Do not change SPEC meaning. On conflict, stop and return the requirement or design
-to its owner under the Task Contract. Apply `codebase-design` to a specific
+to its owner under the Task Contract. Call the Skill tool with "codebase-design" for a specific
 Module / Interface / Seam when useful, without copying its general rules.
 
 ## Design from the codebase that exists
@@ -57,7 +57,7 @@ Read the full SPEC, applicable agent instructions, architecture / domain docs, A
 
 Ticket count is not the test. A single execution unit may still need an HLD; several independent tickets may not. If none of the conditions hold, report `hld_not_required` and why. Do not create `HLD.md`, and do not load the create template or amendment flow.
 
-Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. Stop and hand back to `grilling` / `to-spec` only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance. Hand back to `wayfinding` only when a load-bearing technical feasibility is genuinely unknown, limited code investigation or a small check cannot settle it, and the exploration needs to cross sessions.
+Ordinary technical choices are decided from repo evidence. Do not hand them to the user, and do not enter exploration just because an identical existing implementation is missing. For requirement conflicts or load-bearing technical fog, follow the [workflow policy](../shared/workflow-policy.md). HLD-specific stop: return upstream only when code facts conflict irreconcilably with the SPEC, public behaviour, persisted format, or an explicit architecture constraint, *and* that conflict would change requirement meaning, compatibility policy, permissions, scope, or acceptance.
 
 ## Design Review Gate
 
@@ -80,7 +80,7 @@ Do not ask about local helper extraction, private methods, file layout, or other
 - **Create**: an HLD is required and the task directory has no `HLD.md`. Read [references/hld-template.md](references/hld-template.md) and follow its process and template.
 - **Amendment**: an HLD exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
-When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, send only the affected execution impact to `to-tickets`.
+When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, Call the Skill tool with "to-tickets" for only the affected execution impact.
 
 Repeated, structurally similar implementation friction against a shared decision is an amendment signal, not a reason to keep adding local exceptions. See [amendment.md](references/amendment.md). One local edge case is not enough.
 
@@ -100,9 +100,10 @@ Keep integration order as technical prerequisites, not ticket IDs, assignments, 
 
 Report the HLD path, D IDs, local implementation space, unverified items and
 downstream impact. Select execution using the [workflow policy](../shared/workflow-policy.md);
-when an existing graph is affected by amendment, `to-tickets` coordinates it.
-Continue into the selected planning skill once its entry conditions hold, without
-asking the user to invoke it. Implementation still requires current authorization.
+when an existing graph is affected by amendment, Call the Skill tool with "to-tickets".
+Once the selected planning skill's entry conditions hold, Call the Skill tool with
+that skill name — do not ask the user to type it again. Implementation still
+requires current authorization.
 
 This skill writes HLD only: ticket splitting, product implementation and UI/UX,
 visual or interaction drafts keep their existing owners.

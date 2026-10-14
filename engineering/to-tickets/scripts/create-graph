@@ -2,7 +2,7 @@
 import _bootstrap
 from ticket_graph.command import parser, task_argument, request, run
 from planning import create_batch, reconcile_batch
-p = parser("Create or reconcile a confirmed execution graph; input fields use the shared v2 schema.")
+p = parser("Create or reconcile a confirmed v3 Markdown ticket graph.")
 p.add_argument('operation', choices=['create-batch', 'reconcile-batch'])
 task_argument(p)
 p.add_argument('--input', required=True, help='JSON request path, or - for stdin; see ../references/script-inputs.md')

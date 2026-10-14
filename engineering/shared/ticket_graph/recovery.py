@@ -67,6 +67,9 @@ def recover_transaction(
             problems = [problem("contract", "invalid_recovery_mode", "Recovery mode must be rollback or commit.")]
             return envelope("recover", ok=False, problems=problems), 1
 
+        # A crash mid-switch can leave the per-file temporary copy behind.
+        for leftover in (task_dir / "tickets").glob(".*.transaction.tmp"):
+            leftover.unlink(missing_ok=True)
         _, graph, committed_problems = validated_snapshot(task_dir, allow_transaction=True)
         if committed_problems:
             return envelope("recover", ok=False, graph=graph, problems=committed_problems), 1

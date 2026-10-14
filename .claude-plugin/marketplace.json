@@ -1,0 +1,17 @@
+{
+  "name": "calvingit",
+  "owner": {
+    "name": "calvingit"
+  },
+  "metadata": {
+    "description": "Calvin's agent skills: engineering workflow, backend, documents and work."
+  },
+  "plugins": [
+    {
+      "name": "calvin-skills",
+      "source": "./",
+      "version": "3.0.0",
+      "description": "Engineering workflow, backend, documents and work skills for coding agents."
+    }
+  ]
+}
