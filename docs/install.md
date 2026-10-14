@@ -31,8 +31,6 @@ claude plugin update calvin-skills@calvingit
 
 更新后重启会话，或在会话里运行 `/reload-plugins`。Claude Code 按 `version` 判断有没有新版本，只有发版改了版本号才会更新，平时推到 main 的提交不会到达已安装的用户。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认关闭。
 
-本地调试：`claude --plugin-dir /path/to/skills`。
-
 ## Codex
 
 安装：
@@ -55,8 +53,6 @@ codex plugin marketplace upgrade calvingit
 codex plugin add calvin-skills@calvingit
 ```
 
-本地调试：`codex plugin marketplace add /path/to/skills`。
-
 ## Cursor
 
 安装：
@@ -76,8 +72,6 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 删市场会同时卸载插件，加回来后要在 `/plugins` → Marketplace 里再装一次。团队市场可以在 Dashboard → Plugins & MCPs → Marketplace Settings 里打开 Enable Auto Refresh；仓库需要装 Cursor GitHub App，推送后最多 10 分钟同步到最新提交。
 
-本地调试：把仓库克隆或链接到 `~/.cursor/plugins/local/calvin-skills`，重启 Cursor。
-
 ## ZCode
 
 安装：
@@ -87,8 +81,6 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 3. 在 个人 分段找到 calvin-skills，点 安装。
 
 更新：在 设置 → 插件 的市场源面板里刷新 calvingit，再到 管理已安装 点 检查更新，有新版本时在插件详情页底部更新。ZCode 比较市场条目里的 `version` 和已安装插件的 `version`，只有发版才会提示更新。
-
-本地调试：添加插件市场时填仓库克隆的本地路径。
 
 ## 版本与发版
 
