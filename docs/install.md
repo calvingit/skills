@@ -1,6 +1,6 @@
 # 以插件方式安装
 
-仓库根目录就是一个插件 `calvin-skills`（marketplace `calvingit`），包含 `engineering/`、`backend/`、`documents/`、`work/` 下的全部 Skill。`docs/`、`scripts/` 等维护文件不是 Skill，不会被识别为插件内容。Claude Code、Codex、Cursor、ZCode 四个工具都实测过。
+仓库根目录就是一个插件 `zstack`（marketplace `calvingit`），包含 `engineering/`、`backend/`、`documents/`、`work/` 下的全部 Skill。`docs/`、`scripts/` 等维护文件不是 Skill，不会被识别为插件内容。Claude Code、Codex、Cursor、ZCode 四个工具都实测过。
 
 ## 各工具读取的配置
 
@@ -17,16 +17,16 @@
 
 ```text
 /plugin marketplace add calvingit/skills
-/plugin install calvin-skills@calvingit
+/plugin install zstack@calvingit
 ```
 
-命令行等价写法：`claude plugin marketplace add calvingit/skills`、`claude plugin install calvin-skills@calvingit`。
+命令行等价写法：`claude plugin marketplace add calvingit/skills`、`claude plugin install zstack@calvingit`。
 
 更新：
 
 ```bash
 claude plugin marketplace update calvingit
-claude plugin update calvin-skills@calvingit
+claude plugin update zstack@calvingit
 ```
 
 更新后重启会话，或在会话里运行 `/reload-plugins`。Claude Code 按 `version` 判断有没有新版本，只有发版改了版本号才会更新，平时推到 main 的提交不会到达已安装的用户。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认关闭。
@@ -39,10 +39,10 @@ claude plugin update calvin-skills@calvingit
 codex plugin marketplace add calvingit/skills
 ```
 
-然后在 Plugins Directory 中安装 “Calvin Skills”，或在项目 `.codex/config.toml` 启用：
+然后在 Plugins Directory 中安装 “ZStack”，或在项目 `.codex/config.toml` 启用：
 
 ```toml
-[plugins."calvin-skills@calvingit"]
+[plugins."zstack@calvingit"]
 enabled = true
 ```
 
@@ -50,7 +50,7 @@ enabled = true
 
 ```bash
 codex plugin marketplace upgrade calvingit
-codex plugin add calvin-skills@calvingit
+codex plugin add zstack@calvingit
 ```
 
 ## Cursor
@@ -61,7 +61,7 @@ codex plugin add calvin-skills@calvingit
 cursor-agent plugin marketplace add https://github.com/calvingit/skills
 ```
 
-然后在 `cursor-agent` 交互界面的 `/plugins` → Marketplace 里安装 Calvin Skills（命令行没有安装子命令）。团队（Teams / Enterprise）可以在 Dashboard → Plugins → Import from Repo 填仓库地址；公开发布需提交到 <https://cursor.com/marketplace/publish> 审核。
+然后在 `cursor-agent` 交互界面的 `/plugins` → Marketplace 里安装 ZStack（命令行没有安装子命令）。团队（Teams / Enterprise）可以在 Dashboard → Plugins → Import from Repo 填仓库地址；公开发布需提交到 <https://cursor.com/marketplace/publish> 审核。
 
 更新：个人市场不会自动更新，重启、`cursor-agent plugin marketplace update` 或在 `/plugins` 里重装都还停在原来的提交。只能删掉市场再加回来：
 
@@ -78,7 +78,7 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 1. 打开任意工作区，进入 设置 → 插件。
 2. 点右上角 创建 → 添加插件市场，填 `calvingit/skills`。
-3. 在 个人 分段找到 calvin-skills，点 安装。
+3. 在 个人 分段找到 zstack，点 安装。
 
 更新：在 设置 → 插件 的市场源面板里刷新 calvingit，再到 管理已安装 点 检查更新，有新版本时在插件详情页底部更新。ZCode 比较市场条目里的 `version` 和已安装插件的 `version`，只有发版才会提示更新。
 

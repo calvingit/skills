@@ -8,12 +8,12 @@
 
 ### 插件安装
 
-整个仓库是一个插件 `calvin-skills`，四个工具都实测过。更新、本地调试和发版说明见 [`docs/install.md`](./docs/install.md)。
+整个仓库是一个插件 `zstack`，四个工具都实测过。更新、本地调试和发版说明见 [`docs/install.md`](./docs/install.md)。
 
 | 工具 | 安装 |
 | --- | --- |
-| Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install calvin-skills@calvingit` |
-| Codex | `codex plugin marketplace add calvingit/skills`，再在 Plugins Directory 安装 Calvin Skills |
+| Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install zstack@calvingit` |
+| Codex | `codex plugin marketplace add calvingit/skills`，再在 Plugins Directory 安装 ZStack |
 | Cursor | `cursor-agent plugin marketplace add https://github.com/calvingit/skills`，再在 `/plugins` → Marketplace 安装 |
 | ZCode | 设置 → 插件 → 创建 → 添加插件市场，填 `calvingit/skills`，再在 个人 分段安装 |
 

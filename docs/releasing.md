@@ -7,7 +7,7 @@
    - `.cursor-plugin/plugin.json`
    - `.codex-plugin/plugin.json`
    - `.zcode-plugin/plugin.json`
-   - `.claude-plugin/marketplace.json` 里 calvin-skills 条目的 `version`（ZCode 拿它和已安装版本比较）
+   - `.claude-plugin/marketplace.json` 里 zstack 条目的 `version`（ZCode 拿它和已安装版本比较）
 2. 跑检查：
 
    ```bash

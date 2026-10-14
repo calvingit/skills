@@ -1,5 +1,5 @@
 {
-  "name": "calvin-skills",
+  "name": "zstack",
   "version": "3.1.1",
   "description": "Engineering workflow, backend, documents and work skills for coding agents.",
   "author": { "name": "calvingit" },
@@ -7,7 +7,7 @@
   "license": "MIT",
   "skills": ["./engineering/", "./backend/", "./documents/", "./work/"],
   "interface": {
-    "displayName": "Calvin Skills",
+    "displayName": "ZStack",
     "shortDescription": "Engineering workflow and work skills",
     "developerName": "calvingit",
     "category": "Developer Tools",

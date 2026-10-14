@@ -4,11 +4,11 @@
     "name": "calvingit"
   },
   "metadata": {
-    "description": "Calvin's agent skills: engineering workflow, backend, documents and work."
+    "description": "Agent skills for engineering workflow, backend, documents and work."
   },
   "plugins": [
     {
-      "name": "calvin-skills",
+      "name": "zstack",
       "source": "./",
       "version": "3.1.1",
       "description": "Engineering workflow, backend, documents and work skills for coding agents."
