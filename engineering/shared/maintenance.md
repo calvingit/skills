@@ -43,9 +43,9 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill，不新增�
 | 改动 | 方法 | 能证明什么 |
 | --- | --- | --- |
 | 任何文档或 Skill | `python3 scripts/check_repo.py`（本地链接与锚点、SKILL.md frontmatter、`agents/openai.yaml` 基本格式，再运行状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .` | 只证明格式和引用有效，不证明路由、约束强度或 Runtime 加载 |
-| 状态脚本（ticket graph、事务、CLI、交付快照） | `python3 engineering/shared/check.py`，测试在 `engineering/shared/tests/`；协议与回放场景见[状态工具验收边界](../../docs/evaluation/state-tools.md) | 临时仓库上的图、CLI 和快照行为，不执行真实 Agent 生命周期 |
-| 较大的流程改动：任务契约、路由、产物归属、验证判断 | 在隔离目录用当前候选 Skill 演练[工程机制行为场景](../../docs/evaluation/engineering-system-evaluation.md)，检查实际决定、文件和观察 | 只覆盖演练过的场景 |
-| 后端 Skill | 选用[后端行为场景与历史评估](../../docs/evaluation/backend-skills-evaluation.md) | 文本演练不等于真实数据库测试 |
+| 状态脚本（ticket graph、事务、CLI、交付快照） | `python3 engineering/shared/check.py`，测试在 `engineering/shared/tests/` | 临时仓库上的图、CLI 和快照行为，不执行真实 Agent 生命周期 |
+| 较大的流程改动：任务契约、路由、产物归属、验证判断 | 在隔离目录用当前候选 Skill 演练受影响的真实场景，检查实际决定、文件和观察 | 只覆盖演练过的场景 |
+| 后端 Skill | 用受影响的后端场景做隔离演练 | 文本演练不等于真实数据库测试 |
 
 按改动风险选择，不必每次跑全部。演练时记录候选（`HEAD` 加未提交改动）、实际命令、退出码、关键输出和覆盖缺口；只给执行者原始请求和输入，不附期望答案；验收用独立上下文。缺少前提（如 Python 3.10+、Git）时报告，不静默安装。
 
@@ -53,5 +53,5 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill，不新增�
 
 ## Retro 与实验
 
-- 会话级系统性问题按 [Retro 实验规范](../../docs/evaluation/retro-evaluation.md)收集真实证据，只观察、诊断并路由给现有负责方；没有正式 retro Skill，也不自动进入交付流程。
-- 固定三角色收尾与按风险选角色的比较，按[收尾角色实验](../../docs/evaluation/closeout-role-experiment.md)进行；取得证据并经评审前，现有收尾要求不变。
+- 会话级系统性问题收集真实证据，只观察、诊断并路由给现有负责方；没有正式 retro Skill，也不自动进入交付流程。
+- 收尾角色等流程调整，取得真实证据并经评审前，现有要求不变。

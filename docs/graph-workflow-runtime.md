@@ -81,4 +81,4 @@ python3 <graph-workflow-skill>/scripts/frontier <task-dir>
 
 仓库根目录执行 `python3 engineering/shared/check.py`，检查状态流转、需求协调、交付快照、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
 
-状态脚本的验收边界与 Graph Workflow 回放场景见[状态工具验收边界](evaluation/state-tools.md)。Runtime 行为需真实工作流证据。
+Runtime 行为需真实工作流证据。

@@ -39,7 +39,7 @@
 | [`backend/`](./backend/) | 后端技术栈规范、生产实践与疑难问题处理 |
 | [`documents/`](./documents/) | 文档转换、中英文润色、中文术语与事实同步 |
 | [`work/`](./work/) | 跨领域工具、会话辅助与学习 |
-| [`docs/`](./docs/) | 插件安装与发版、Graph Workflow/Runtime 说明、图示和仓库评估记录（`docs/evaluation/`） |
+| [`docs/`](./docs/) | 插件安装与发版、Graph Workflow/Runtime 说明和图示 |
 | [`scripts/`](./scripts/) | 仓库检查脚本 |
 
 许可见根目录 [`LICENSE`](./LICENSE)；第三方来源见 [`ATTRIBUTIONS.md`](./ATTRIBUTIONS.md)。
@@ -93,7 +93,7 @@
 | [`redis-best-practices`](./backend/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
 | [`mongodb-best-practices`](./backend/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
 
-`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。本仓库后端 Skill 的维护评估见[后端评估记录](./docs/evaluation/backend-skills-evaluation.md)。
+`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。
 
 ### Work Skills
 
