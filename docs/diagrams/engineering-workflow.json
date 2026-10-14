@@ -52,206 +52,188 @@
   },
   "lanes": [
     {
-      "id": "intake",
-      "label": "入口与判断"
+      "id": "req",
+      "label": "需求与设计"
     },
     {
-      "id": "discovery",
-      "label": "需求与探索"
-    },
-    {
-      "id": "design",
-      "label": "规范与设计"
-    },
-    {
-      "id": "execution",
+      "id": "exec",
       "label": "执行与交付"
-    },
-    {
-      "id": "ticket_run",
-      "label": "Ticket 实现与验证"
-    }
-  ],
-  "phases": [
-    {
-      "id": "understand",
-      "label": "理解问题",
-      "fromCol": 0,
-      "toCol": 1
-    },
-    {
-      "id": "formalize",
-      "label": "形成契约",
-      "fromCol": 2,
-      "toCol": 3,
-      "variant": "emphasis"
-    },
-    {
-      "id": "deliver_phase",
-      "label": "选择执行路径",
-      "fromCol": 4,
-      "toCol": 5,
-      "variant": "dashed"
     }
   ],
   "mainPath": [
-    "start",
-    "spec_check",
-    "spec",
-    "contract_check",
-    "high_level_design"
+    "to_tickets",
+    "loop",
+    "ticket_implement",
+    "verify"
   ],
   "nodes": [
     {
       "id": "start",
-      "lane": "intake",
-      "col": 0,
       "type": "frontend",
       "label": "当前任务",
       "sublabel": "核对契约与当前风险",
-      "tag": "START"
+      "tag": "START",
+      "lane": "req",
+      "col": 0,
+      "yOffset": -300,
+      "width": 150
     },
     {
       "id": "spec_check",
-      "lane": "intake",
-      "col": 3,
       "type": "security",
       "label": "SPEC 是否需要更新？",
       "sublabel": "区分缺失、变更与已确认",
       "tag": "DECISION",
-      "width": 124
+      "width": 124,
+      "lane": "req",
+      "col": 1,
+      "yOffset": -300
     },
     {
       "id": "scope_check",
-      "lane": "discovery",
-      "col": 1,
       "type": "security",
       "label": "需求与关键路径已明确？",
       "sublabel": "需求缺口与跨会话调查",
       "tag": "DECISION",
-      "width": 144
+      "width": 144,
+      "lane": "req",
+      "col": 1,
+      "yOffset": -150
     },
     {
       "id": "grilling",
-      "lane": "discovery",
-      "col": 0,
       "type": "external",
       "label": "grilling",
-      "sublabel": "分类需求与设计决策"
+      "sublabel": "分类需求与设计决策",
+      "lane": "req",
+      "col": 0,
+      "yOffset": -150,
+      "width": 150
     },
     {
       "id": "wayfinding",
-      "lane": "discovery",
-      "col": 2,
       "type": "external",
       "label": "wayfinding",
-      "sublabel": "MAP.md + decisions"
+      "sublabel": "MAP.md + decisions",
+      "lane": "req",
+      "col": 1,
+      "yOffset": 0
     },
     {
       "id": "to_spec",
-      "lane": "design",
-      "col": 2,
       "type": "backend",
       "label": "to-spec",
       "sublabel": "工程需求快照",
-      "tag": "OWNER"
+      "tag": "OWNER",
+      "lane": "req",
+      "col": 0,
+      "yOffset": 0,
+      "width": 150
     },
     {
       "id": "spec",
-      "lane": "design",
-      "col": 3,
       "type": "database",
       "label": "SPEC.md",
       "sublabel": "规范性需求来源",
-      "tag": "ARTIFACT"
+      "tag": "ARTIFACT",
+      "lane": "req",
+      "col": 0,
+      "yOffset": 150,
+      "width": 150
     },
     {
       "id": "contract_check",
-      "lane": "design",
-      "col": 4,
       "type": "security",
       "label": "需要共享设计？",
       "sublabel": "单一范围也可能需要 HLD",
       "tag": "DECISION",
-      "width": 118
+      "width": 118,
+      "lane": "req",
+      "col": 1,
+      "yOffset": 150
     },
     {
       "id": "high_level_design",
-      "lane": "design",
-      "col": 5,
       "type": "backend",
       "label": "solution-design",
       "sublabel": "共享设计 + 按需评审",
-      "width": 124
+      "width": 150,
+      "lane": "req",
+      "col": 0,
+      "yOffset": 300
     },
     {
       "id": "execution_check",
-      "lane": "execution",
-      "col": 5,
       "type": "security",
       "label": "已有或需要执行图？",
       "sublabel": "分别判断图与共享设计",
       "tag": "DECISION",
       "width": 158,
-      "yOffset": -60
+      "lane": "exec",
+      "col": 1,
+      "yOffset": -260
     },
     {
       "id": "quick_implement",
-      "lane": "execution",
-      "col": 4,
       "type": "frontend",
       "label": "quick-implement",
       "sublabel": "实现 + 三项独立收尾",
       "width": 112,
-      "yOffset": -60
+      "lane": "exec",
+      "col": 2,
+      "yOffset": -260
     },
     {
       "id": "to_tickets",
-      "lane": "execution",
-      "col": 5,
       "type": "backend",
       "label": "to-tickets",
       "sublabel": "tickets/*.md",
-      "yOffset": 60
+      "lane": "exec",
+      "col": 0,
+      "yOffset": -260,
+      "width": 150
     },
     {
       "id": "loop",
-      "lane": "execution",
-      "col": 4,
       "type": "messagebus",
       "label": "graph-workflow",
       "sublabel": "原生 worker + 证据判断",
-      "width": 160,
-      "yOffset": 60
+      "width": 150,
+      "lane": "exec",
+      "col": 0,
+      "yOffset": -130,
+      "height": 72
     },
     {
       "id": "delivery",
-      "lane": "execution",
-      "col": 2,
       "type": "cloud",
       "label": "verified delivery",
       "sublabel": "全部 AC 与必需收尾通过",
       "tag": "DONE",
-      "width": 124,
-      "yOffset": -60
+      "width": 150,
+      "lane": "exec",
+      "col": 0,
+      "yOffset": 260
     },
     {
       "id": "ticket_implement",
-      "lane": "ticket_run",
-      "col": 3,
       "type": "frontend",
       "label": "ticket-implement",
       "sublabel": "原生 worker 实现单张 ticket",
-      "width": 132
+      "width": 150,
+      "lane": "exec",
+      "col": 0,
+      "yOffset": 0
     },
     {
       "id": "verify",
-      "lane": "ticket_run",
-      "col": 4,
       "type": "security",
       "label": "verify",
       "sublabel": "独立逐 AC 证据判断",
-      "width": 124
+      "width": 150,
+      "lane": "exec",
+      "col": 0,
+      "yOffset": 130
     }
   ],
   "edges": [
@@ -265,7 +247,15 @@
       "from": "spec_check",
       "to": "scope_check",
       "label": "无 SPEC",
-      "role": "branch"
+      "role": "branch",
+      "fromSide": "bottom",
+      "toSide": "top",
+      "via": [
+        [
+          378.6,
+          195
+        ]
+      ]
     },
     {
       "id": "spec_changed",
@@ -273,21 +263,73 @@
       "to": "to_spec",
       "label": "有需求变更",
       "variant": "emphasis",
-      "role": "branch"
+      "role": "branch",
+      "fromSide": "top",
+      "toSide": "left",
+      "via": [
+        [
+          378.6,
+          56
+        ],
+        [
+          30,
+          56
+        ],
+        [
+          30,
+          420.0
+        ]
+      ],
+      "labelAt": [
+        290,
+        60
+      ]
     },
     {
       "id": "spec_current",
       "from": "spec_check",
       "to": "spec",
       "label": "已确认且无变更",
-      "role": "main"
+      "role": "main",
+      "fromSide": "right",
+      "toSide": "left",
+      "via": [
+        [
+          470.6,
+          120.0
+        ],
+        [
+          470.6,
+          44
+        ],
+        [
+          20,
+          44
+        ],
+        [
+          20,
+          570.0
+        ]
+      ]
     },
     {
       "id": "needs_grilling",
       "from": "scope_check",
       "to": "grilling",
       "label": "需求决策未定",
-      "role": "branch"
+      "role": "branch",
+      "fromSide": "left",
+      "toSide": "right",
+      "via": [
+        [
+          265,
+          270
+        ]
+      ],
+      "labelAt": [
+        265,
+        262
+      ]
     },
     {
       "id": "needs_wayfinding",
@@ -301,7 +343,8 @@
       "from": "scope_check",
       "to": "to_spec",
       "label": "需要持久化契约",
-      "variant": "emphasis"
+      "variant": "emphasis",
+      "toSide": "top"
     },
     {
       "id": "direct_or_quick",
@@ -314,14 +357,16 @@
       "id": "grilling_to_spec",
       "from": "grilling",
       "to": "scope_check",
-      "label": "已确认"
+      "label": "已确认",
+      "variant": "dashed"
     },
     {
       "id": "wayfinding_to_spec",
       "from": "wayfinding",
       "to": "to_spec",
       "label": "需要构建契约",
-      "role": "return"
+      "role": "return",
+      "variant": "dashed"
     },
     {
       "id": "spec_output",
@@ -376,16 +421,16 @@
       "id": "quick_delivery",
       "from": "quick_implement",
       "to": "delivery",
-      "variant": "emphasis"
+      "variant": "emphasis",
+      "fromSide": "right",
+      "toSide": "right"
     },
     {
       "id": "dispatch_implement",
       "from": "loop",
       "to": "ticket_implement",
       "label": "派发 worker",
-      "variant": "emphasis",
-      "fromSide": "bottom",
-      "toSide": "top"
+      "variant": "emphasis"
     },
     {
       "id": "implement_to_verify",
@@ -398,7 +443,10 @@
       "from": "verify",
       "to": "loop",
       "label": "结论与问题交回调用方",
-      "role": "return"
+      "role": "return",
+      "fromSide": "right",
+      "toSide": "bottom",
+      "variant": "dashed"
     },
     {
       "id": "loop_delivery",
@@ -406,7 +454,7 @@
       "to": "delivery",
       "variant": "emphasis",
       "fromSide": "left",
-      "toSide": "bottom"
+      "toSide": "left"
     },
     {
       "id": "design_needs_spec",
@@ -414,8 +462,8 @@
       "to": "to_spec",
       "label": "需 HLD，缺 SPEC",
       "role": "branch",
-      "fromSide": "left",
-      "toSide": "bottom"
+      "toSide": "bottom",
+      "variant": "dashed"
     },
     {
       "id": "existing_graph",
