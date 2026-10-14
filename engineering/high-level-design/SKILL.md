@@ -1,6 +1,6 @@
 ---
 name: high-level-design
-description: Create or amend HLD.md from a confirmed SPEC: lock shared module duties, types, interfaces, and integration constraints. Prefer reuse. Not for UI/UX, tickets, or local detailed design.
+description: "Create or amend HLD.md from a confirmed SPEC: lock shared module duties, types, interfaces, and integration constraints. Prefer reuse. Not for UI/UX, tickets, or local detailed design."
 ---
 
 # High-Level Design
