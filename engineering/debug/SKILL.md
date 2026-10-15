@@ -21,9 +21,9 @@ Discover domain docs, ADRs / decision records, and coding standards the way the 
 - Drive every means you have before asking the user. Prefer, in order: a failing test on the real call path; curl / CLI / browser automation; replay of a captured request, trace, or log; a throwaway script last.
 - The repro must assert the user's exact symptom — not "didn't crash", and not a nearby different failure.
 - For non-deterministic bugs, record the observed reproduction rate and conditions. No hard run counts or thresholds; a rate that can distinguish hypotheses is enough.
-- When you cannot reach a matching environment, ask the user for specific items: environment URL, test account (via env vars or a disposable account, never pasted in plain text), repro steps, logs / HAR / recording. Say why you need them and how far you got.
+- If your own means cannot reproduce it, say how far you got and ask whether the user wants to reproduce it in a real environment. Only if they agree, ask for what that needs, such as an environment URL, a test account (via env vars or a disposable account, never pasted in plain text), repro steps, or logs / HAR / recording. Do not ask for these by default.
 - Once it reproduces, minimise: cut inputs, config, and steps one at a time until every remaining element is load-bearing.
-- If it still cannot be reproduced, continue read-only investigation. Label every hypothesis from logs or call chains as unverified, and record the non-reproducible scope as a verification limit. An unverified hypothesis is never written as the root cause.
+- If the user declines or it still cannot be reproduced, continue read-only investigation. Label every hypothesis from logs or call chains as unverified, and record the non-reproducible scope as a verification limit. An unverified hypothesis is never written as the root cause.
 
 ## 2. Binary-search the cause
 
