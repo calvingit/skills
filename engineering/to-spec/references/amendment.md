@@ -16,4 +16,4 @@ An amendment re-evaluates only affected seams. Keep testing decisions that still
 
 Show the requirement delta, spec impact, and possibly affected SOLUTION decisions / tickets first. Follow the shared stop-write protocol before writing when a graph exists. Update in place after confirmation, then report kept, added, or removed R / AC IDs.
 
-When a SOLUTION exists, `solution-design` syncs affected Ds first, then `to-tickets` coordinates the graph. Do not edit downstream artifacts.
+When a SOLUTION exists, Call the Skill tool with "solution-design" to sync affected Ds and consume its returned result first. Then follow [Write and hand off](../SKILL.md#6-write-and-hand-off) within current authority; an affected existing graph requires `to-tickets` reconciliation before execution resumes. Do not edit downstream artifacts.

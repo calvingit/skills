@@ -1,32 +1,32 @@
 ---
 name: quick-implement
-description: Implement a single confirmed scope in the main agent, then delegate simplification, verification, and review. No execution graph.
+description: Implement the caller-selected confirmed scope in the main agent, then delegate simplification, verification, and review. No execution graph.
 ---
 
 # Quick Implement
 
-Implement one confirmed, single-scope goal in the main agent. Obey `SPEC.md` and `SOLUTION.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
+Implement the confirmed scope selected by the caller in the main agent. Obey `SPEC.md` and `SOLUTION.md` when they exist in the same directory, and leave evidence that can be checked. The goal contract may live only in the current session.
 
-quick-implement is a convenience entry point for small scoped changes. It is not a replacement workflow coordinator.
+quick-implement is an implementation entry point, not a workflow coordinator. Respect the caller's selected route even when the confirmed scope contains several independent fixes.
 
 Quick means no execution graph. It does not mean skipping solution-design checks, investigation, verification, simplification, or review. Task docs define the contract, not a code recipe. Re-investigate the current repo before implementing.
 
 ## Entry
 
-Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `SOLUTION.md` when they exist. Missing files do not block. Confirm the whole scope can finish reliably in the current context. Other entry selection follows the [workflow policy](../shared/workflow-policy.md).
+Resolve the [Task Contract](../shared/task-contract.md): confirmed goal/scope/AC, decision limits and sufficient evidence, with applicable authority/recovery. Read and obey `SPEC.md`, a separate `ACCEPTANCE.md`, or `SOLUTION.md` when they exist. Missing optional files do not block; required shared design still does. Assess context and verification risks, report them when relevant, and implement authorized slices. If the whole scope cannot reliably finish, report remaining work accurately. The caller owns route selection under the [workflow policy](../shared/workflow-policy.md); a route preference or unit count alone is not a hard stop.
 
 Hard stops (do not bypass):
 
-- A ticket graph already exists → do not use this skill; Call the Skill tool with "graph-workflow".
-- Scope needs several execution units, dependencies, or more than one fresh context → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
-- Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`SOLUTION.md`) → stop; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
+- A ticket graph already exists or active writers may overlap → pause affected writes and report to the caller. Do not bypass graph lifecycle, Runtime writer controls or the Task Contract's stop-write protocol. The caller resolves execution ownership before work resumes; do not launch another execution route yourself.
+- Unclear goal/scope/result, missing shared solution design across modules, or a conflict/gap in the recorded design decisions (`SOLUTION.md`) → pause affected operations; follow workflow-policy to `grilling` / `wayfinding` / `to-spec` / `solution-design` as fits. Do not silently change a shared contract while implementing.
 
-Escalate complex work to the owner of what is missing, starting at the first missing step; confirmed or unneeded steps are not redone:
+Return missing or conflicting contracts to their owner, pausing affected operations; confirmed or unneeded steps are not redone:
 
 - Missing requirement decisions → Call the Skill tool with "grilling" (load-bearing technical fog → "wayfinding").
 - Missing or outdated spec → Call the Skill tool with "to-spec".
 - Missing shared solution design → Call the Skill tool with "solution-design".
-- Several tasks with dependencies → Call the Skill tool with "to-tickets", then Call the Skill tool with "graph-workflow".
+
+A Graph Workflow recommendation may explain delivery dependencies or context risks, but cannot switch the selected route. Do not call `to-tickets` or `graph-workflow` to take over execution, create tickets, or create a graph. Continue unaffected authorized work and keep incomplete scope visible.
 
 ## Investigate and plan
 

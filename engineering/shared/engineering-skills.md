@@ -27,10 +27,10 @@
 | 需求已收敛且需要持久化规范 | [to-spec](../to-spec/SKILL.md) |
 | 多个模块、调用方或实现任务需要方案设计约束 | [solution-design](../solution-design/SKILL.md)，单一执行范围也可能需要技术方案。 |
 | 需要多个执行单元、依赖或统一调度 | [to-tickets](../to-tickets/SKILL.md) → [graph-workflow](../graph-workflow/SKILL.md) |
-| 单一范围、无需执行图 | [quick-implement](../quick-implement/SKILL.md)，quick-implement 是无需执行图的小范围入口，不替代 graph-workflow；简单局部修改可以直接处理。 |
+| 单一范围、无需执行图 | [quick-implement](../quick-implement/SKILL.md)，默认推荐用于无需执行图的完整交付范围；用户也可明确选择它处理多个独立修复，契约和收尾标准不变。简单局部修改可以直接处理。 |
 | 当前验收缺少充分、可重复的验证方法 | 先查找已有方法，再按需使用 [verification-setup](../verification-setup/SKILL.md)。 |
 
-各入口按需组合，不构成必经阶段。已有执行图时继续走 graph-workflow；`quick-implement` 中途发现需要多个执行单元、共享设计或尚未确认的需求时，复杂工作升级为 to-spec → solution-design → to-tickets → graph-workflow，从第一个缺失的环节开始，已确认或不需要的环节不重做。契约的来源、继承和授权规则见[任务契约](task-contract.md)。
+各入口按需组合，不构成必经阶段。上游调用方推荐路线，用户保留最终选择；`quick-implement` 不因多个执行单元或路线偏好自动转交 Graph Workflow。缺失需求或共享设计交回对应负责方，只暂停受影响操作；已有执行图和活跃写入者不得绕过，须先解决执行归属并遵守状态与停写保护。契约的来源、继承和授权规则见[任务契约](task-contract.md)。
 
 入口之间如何交接、哪些 Skill 可以派发哪些角色，见[调用关系](engineering-invocation.md)。
 

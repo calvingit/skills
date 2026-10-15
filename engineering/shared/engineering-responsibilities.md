@@ -86,7 +86,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 | to-spec | SPEC、按需 ACCEPTANCE | 维护确认需求和验收语义，不设计内部实现 | 需求 authority、确认决策、外部契约 |
 | solution-design | 技术方案与设计决策（`SOLUTION.md`） | 决定技术方案，长期方向须经 review gate，不改需求或拆票 | SPEC、真实调用方、项目约束和代码事实 |
 | to-tickets | 通过脚本创建/协调 tickets | 决定交付拆分与真实依赖，不引入新需求/设计 | 已确认 SPEC / 技术方案、覆盖及图校验 |
-| quick-implement | 单一目标实现、自检与收尾 | 不使用执行图，既有独立收尾规则仍适用 | 当前契约、真实 diff、自检与独立报告 |
+| quick-implement | 调用者选定范围的实现、自检与收尾 | 不使用执行图，既有独立收尾规则仍适用 | 当前契约、真实 diff、自检与独立报告 |
 | ticket-implement | 当前 ticket 的代码、必要测试和局部简化 | 决定局部实现，将契约问题交回调用方 | 已确认行为、项目方法和实际本地检查 |
 | graph-workflow | attempt、状态、报告及交付记录 | 选工作、调用角色、判断结果、流转状态，不管理 Runtime | 全部相关 AC 证据、原始报告、有效候选快照 |
 | verify | 只读验收，以及获准隔离资源中的探针/证据 | 逐条报告 PASS / FAIL / NOT VERIFIED，不修复或改状态 | 需求独立预期、可观察执行、证据可信度与覆盖限制 |

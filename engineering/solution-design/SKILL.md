@@ -80,7 +80,7 @@ Do not ask about local helper extraction, private methods, file layout, or other
 - **Create**: a solution design is required and the task directory has no `SOLUTION.md`. Read [references/solution-template.md](references/solution-template.md) and follow its process and template.
 - **Amendment**: `SOLUTION.md` exists, and the SPEC, codebase facts, or a confirmed design changed. Read [references/amendment.md](references/amendment.md). Amend the same file. Do not create a parallel version.
 
-When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, Call the Skill tool with "to-tickets" for only the affected execution impact.
+When SPEC meaning is unchanged, amend only the affected shared design decisions. Keep unrelated D IDs and design constraints intact; do not restart requirement planning. After the amendment, follow Handoff below for only the affected execution impact; an amendment does not transfer routing ownership.
 
 Repeated, structurally similar implementation friction against a shared decision is an amendment signal, not a reason to keep adding local exceptions. See [amendment.md](references/amendment.md). One local edge case is not enough.
 
@@ -99,11 +99,11 @@ Keep integration order as technical prerequisites, not ticket IDs, assignments, 
 ## Handoff
 
 Report the `SOLUTION.md` path, D IDs, local implementation space, unverified items and
-downstream impact. Select execution using the [workflow policy](../shared/workflow-policy.md);
-when an existing graph is affected by amendment, Call the Skill tool with "to-tickets".
-Once the selected planning skill's entry conditions hold, Call the Skill tool with
-that skill name — do not ask the user to type it again. Implementation still
-requires current authorization.
+downstream impact, including Design Review Gate status (`confirmed`, `not_required` or `pending`). Resolve any required user choice before finalizing that design; ordinary technical details need no extra approval.
+
+When called by `to-spec`, return these results to `to-spec` after the applicable gate. Do not call `to-tickets`, `quick-implement` or `graph-workflow` to continue execution; the caller owns that recommendation and handoff. Report any affected graph reconciliation to the caller. Calls required to stop existing writers under the amendment protocol still apply.
+
+When invoked directly by the user, recommend the next step using the [workflow policy](../shared/workflow-policy.md), respecting an already selected route. Call the Skill tool with the selected skill name only within current continuation authority; otherwise return the recommendation. An affected existing graph requires `to-tickets` reconciliation before execution resumes. Planning alone grants neither ticket creation nor implementation authority.
 
 A confirmed D stays in `SOLUTION.md`. If it will also bind future work beyond this delivery, hand it to `domain-modeling` and let its [ADR gate](../domain-modeling/SKILL.md#adr-gate) decide; do not write an ADR here or for every D.
 

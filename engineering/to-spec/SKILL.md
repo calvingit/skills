@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Not for SOLUTION, tickets, or implementation.
+description: Write confirmed requirements and codebase facts into SPEC.md; maintain ACCEPTANCE.md only when a separate acceptance protocol is needed. Delegate required shared design and recommend the next execution route; do not author SOLUTION, tickets, or implementation.
 ---
 
 # To Spec
@@ -106,19 +106,21 @@ After consistency holds, write into the task directory. Report acceptance seams,
 
 Do not edit SOLUTION, ticket contract, status, or evidence. Do not maintain tasks, frontier, status, retry, agent assignment, or any other execution graph inside the SPEC.
 
-After confirming the SPEC, apply the [workflow policy](../shared/workflow-policy.md).
-Use [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required)
-to judge shared design independently of execution decomposition. A required SOLUTION
-must precede implementation; otherwise report `solution_not_required` with its basis.
-Identify known observation methods or gaps without putting test recipes in SPEC.
-This skill forecasts whether several execution units are likely, not their count
-or split.
+After confirming the SPEC, make two independent decisions:
 
-When the selected planning skill's entry conditions hold, Call the Skill tool
-with that skill name. Call the Skill tool with "quick-implement", or with "graph-workflow",
-only when implementation is authorized; otherwise finish with the required planning
-artifacts. Missing authority, unsettled requirements or load-bearing feasibility
-gaps return to their owner.
+1. **Shared design**: apply the [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required), including shared Interface and lifecycle/cancellation changes even for a single delivery. When required, Call the Skill tool with "solution-design", passing the confirmed SPEC, relevant code facts, confirmed constraints and current authority. Let that skill own the design and its existing Design Review Gate; consume its returned result before recommending execution. Do not finalize a gated choice before user confirmation. Otherwise report `solution_not_required` with its basis. Identify observation methods or gaps without putting test recipes in SPEC.
+2. **Execution recommendation**: use the [workflow policy](../shared/workflow-policy.md). Recommend `quick-implement` for one complete delivery scope requiring no separately managed execution units, graph-managed dependencies or cross-context scheduling, when the current context can reliably finish it. Recommend `to-tickets` for separately deliverable units, real delivery dependencies or staged execution across contexts. Several independent fixes remain separate delivery units even if they fit one session. Forecast boundaries and dependencies, not ticket counts or a concrete split. Risk and verification difficulty inform evidence strategy, not ticket decomposition by themselves.
+
+Respect a route the user has already selected; explain any relevant risks without requiring another route confirmation. An existing graph and active writers still follow the Task Contract's lifecycle and stop-write protections.
+
+In the final reply, report a Handoff with:
+
+- **Requirements**: SPEC path and confirmation status.
+- **Technical Design**: `solution_required` / `solution_not_required`, SOLUTION path or None, reason, and Review Gate `confirmed` / `not_required` / `pending`.
+- **Recommended Next Step**: `quick-implement` / `to-tickets`, reason from delivery boundaries and dependencies, and an alternative when useful.
+- **Execution Authority**: whether continuing is authorized, and the next call or return action.
+
+Keep this recommendation in the reply, not SPEC or a new handoff file. If only planning is authorized, stop after the requested SPEC and necessary design; do not create tickets unless separately authorized. When continuing is authorized, Call the Skill tool with "quick-implement" or "to-tickets" for the selected route under the [Invocation Contract](../shared/engineering-invocation.md); implementation through Graph Workflow still requires implementation authority. A pending design gate blocks dependent execution, not a reason to invent approval or expand authority. Missing authority, unsettled requirements or load-bearing feasibility gaps return to their owner.
 
 ## Change rules
 

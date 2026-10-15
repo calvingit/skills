@@ -36,12 +36,12 @@
 
 grilling → to-spec → solution-design → to-tickets → graph-workflow → ticket-implement → verify
 
-各环节按需组合，不是必经阶段。前五个是 Human Entry Point，上一环完成后，已授权的工作流按交接继续下一环；`ticket-implement` 和 `verify` 是由 `graph-workflow` 派发的 Orchestrated Role。`quick-implement` 是无需执行图的小范围入口，不替代 `graph-workflow`，它自己派发 simplify、verify 和 code-review 收尾。
+各环节按需组合，不是必经阶段。前五个是 Human Entry Point，上一环完成后，已授权的工作流按交接继续下一环；`ticket-implement` 和 `verify` 是由 `graph-workflow` 派发的 Orchestrated Role。`to-spec` 在确认 SPEC 后独立判断共享设计和交付拆分：必要时显式调用 `solution-design`，消费返回结果后统一推荐 Quick 或 Tickets。`solution-design` 由 `to-spec` 调用时返回调用方，不接管下游路由；用户直接调用时可在授权内推荐并交接。`quick-implement` 执行调用者选定的范围，不因规模或独立单元数量自动切换到 Graph Workflow，仍自行派发 simplify、verify 和 code-review 收尾。
 
 交接规则：
 
 - 每个 Skill 完成职责后，由调用方按当前依据继续下游，普通交接无需用户再次输入 Skill 名称；继续时用 Skill tool 调用，不写散文式的 `run /xxx`。
-- 只要求规划时，在所需规划产物完成后停止；已授权实现时，继续相应实现路径。`to-tickets → graph-workflow` 仍以用户已授权实现为前提。
+- 只要求规划时，在所需规划产物完成后停止；仅要求 SPEC 和必要设计不授权创建 tickets；已授权实现时，继续相应实现路径。`to-tickets → graph-workflow` 仍以用户已授权实现为前提。
 - 新的需求决策交回用户；技术方案的取舍按 solution-design 的 Design Review Gate 处理；普通实现细节由 Agent 判断。
 - `debug` 按需调用 `simplify` 时，仍需明确范围和修改授权。
 
