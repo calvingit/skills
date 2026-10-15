@@ -50,7 +50,7 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 ### graph-workflow
 
 - graph-workflow 不在自己的上下文里内联执行这些 Skill，而是为每个角色派发原生 worker：`ticket-implement` 负责实现与修正，`simplify`、`verify`、`code-review` 负责最终收尾。三个收尾角色的分工见[收尾角色](closeout-roles.md)。
-- 它自己只写 ticket 状态、attempt 和 `.loop/` 交付记录，不修改源代码；需要修正时记录 correction attempt，再派发 `ticket-implement`。
+- 它自己只写 `.loop/` 运行状态（phase、attempt、证据）和交付记录，不修改 ticket 契约或源代码；需要修正时记录 correction attempt，再派发 `ticket-implement`。
 - 收到 `verify` 或 `code-review` 的问题后，由它判断影响，重新派发修正和受影响的复验；需求或技术方案冲突交回对应上游 Skill。
 
 ### ticket-implement
@@ -62,5 +62,5 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 ### verify
 
 - 可以检查代码、运行测试，并在调用方允许的隔离资源中建立探针、临时测试和证据文件。
-- 不得修改交付的代码、仓库测试或验收条件，不自行修复问题，也不改 ticket 状态或调度 Agent。
+- 不得修改交付的代码、仓库测试或验收条件，不自行修复问题，也不改 `.loop/state.json` 执行状态或调度 Agent。
 - 发现的缺陷、契约冲突和能力缺口返回给调用方；修复后由调用方重新派发验证。

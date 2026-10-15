@@ -42,14 +42,15 @@ def _snapshot(task_dir: Path, workspace: Path) -> tuple[str, dict]:
     artifact_root = task_dir / '.loop'
 
     def contents(root: Path) -> dict:
-        files = _workspace_snapshot(root)
+        # Execution output is skipped before hashing, so appending reports or
+        # progress records cannot invalidate the reviewed product candidate.
+        exclude = artifact_root if artifact_root.is_relative_to(root) else None
+        files = _workspace_snapshot(root, exclude)
         if files is None:
             raise ValueError('A readable Git workspace is required.')
         code = {}
         for relative, (_state, digest) in files.items():
             path = root / relative
-            if path.is_relative_to(artifact_root):
-                continue
             if path.is_file() and digest is None:
                 raise ValueError('Unable to fingerprint workspace file: ' + str(path))
             mode = path.lstat().st_mode if path.exists() or path.is_symlink() else None

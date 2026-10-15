@@ -56,7 +56,7 @@ def validate_graph(
     for ticket in tickets:
         ticket_id = ticket["id"]
         path = ticket["_path"]
-        active_ticket = ticket["lifecycle"]["phase"] != "superseded"
+        active_ticket = ticket["runtime"]["phase"] != "superseded"
         if active_ticket:
             requirements = authority.get("requirements", set())
             spec_acceptance = authority.get("spec_acceptance", set())
@@ -82,20 +82,20 @@ def validate_graph(
             target = by_id.get(dependency)
             if target is None:
                 problems.append(problem("graph", "dangling_dependency", f"Dependency does not exist: {dependency}", ticket_id=ticket_id, path=path))
-            elif target["lifecycle"]["phase"] == "superseded":
+            elif target["runtime"]["phase"] == "superseded":
                 problems.append(problem("graph", "dependency_on_superseded", f"Dependency points to superseded ticket: {dependency}", ticket_id=ticket_id, path=path))
-        if ticket["lifecycle"]["phase"] in {"in_progress", "done"}:
-            unfinished = [dependency for dependency in ticket["dependencies"] if dependency in by_id and by_id[dependency]["lifecycle"]["phase"] != "done"]
+        if ticket["runtime"]["phase"] in {"in_progress", "done"}:
+            unfinished = [dependency for dependency in ticket["dependencies"] if dependency in by_id and by_id[dependency]["runtime"]["phase"] != "done"]
             if unfinished:
-                problems.append(problem("graph", "active_with_unfinished_dependencies", f"{ticket['lifecycle']['phase']} ticket has unfinished dependencies: {', '.join(unfinished)}", ticket_id=ticket_id, path=path))
-        supersession = ticket["supersession"]
+                problems.append(problem("graph", "active_with_unfinished_dependencies", f"{ticket['runtime']['phase']} ticket has unfinished dependencies: {', '.join(unfinished)}", ticket_id=ticket_id, path=path))
+        supersession = ticket.get("supersession")
         if isinstance(supersession, dict) and supersession["replacement_ticket_id"] is not None:
             replacement_id = supersession["replacement_ticket_id"]
             replacement = by_id.get(replacement_id)
-            if replacement_id == ticket_id or replacement is None or replacement["lifecycle"]["phase"] == "superseded":
+            if replacement_id == ticket_id or replacement is None or replacement["runtime"]["phase"] == "superseded":
                 problems.append(problem("graph", "invalid_supersession_replacement", f"Supersession replacement must resolve to a different active ticket: {replacement_id}", ticket_id=ticket_id, path=path))
 
-    active = [ticket for ticket in tickets if ticket["lifecycle"]["phase"] in ACTIVE_PHASES]
+    active = [ticket for ticket in tickets if ticket["runtime"]["phase"] in ACTIVE_PHASES]
     coverage = {
         "requirements": sorted(authority.get("requirements", set()) - {value for ticket in active for value in ticket["covers"]["requirements"]}),
         "spec_acceptance": sorted(authority.get("spec_acceptance", set()) - {value for ticket in active for value in ticket["covers"]["spec_acceptance"]}),
@@ -106,7 +106,7 @@ def validate_graph(
             problems.append(problem("authority", "coverage_gap", f"Active graph does not cover {kind}: {', '.join(missing)}", field=kind))
 
     dependency_graph = {
-        ticket["id"]: [dependency for dependency in ticket["dependencies"] if dependency in by_id and by_id[dependency]["lifecycle"]["phase"] in ACTIVE_PHASES]
+        ticket["id"]: [dependency for dependency in ticket["dependencies"] if dependency in by_id and by_id[dependency]["runtime"]["phase"] in ACTIVE_PHASES]
         for ticket in active
     }
     for cycle in find_cycles(dependency_graph):
@@ -118,9 +118,9 @@ def blocked_reasons(ticket: dict[str, Any], by_id: dict[str, dict[str, Any]]) ->
     reasons: list[dict[str, object]] = []
     for dependency in ticket["dependencies"]:
         target = by_id.get(dependency)
-        if target is None or target["lifecycle"]["phase"] != "done":
+        if target is None or target["runtime"]["phase"] != "done":
             reasons.append({"source": "dependency", "ticket_id": dependency})
-    blocker = ticket["execution"]["blocker"]
+    blocker = ticket["runtime"].get("blocker")
     if blocker is not None:
         reasons.append({"source": "execution", **blocker})
     return reasons
@@ -133,7 +133,7 @@ def graph_projection(
     frontier: list[str] = []
     blocked: list[dict[str, object]] = []
     for ticket in tickets:
-        if ticket["lifecycle"]["phase"] != "open":
+        if ticket["runtime"]["phase"] != "open":
             continue
         reasons = blocked_reasons(ticket, by_id)
         if reasons:
@@ -141,30 +141,30 @@ def graph_projection(
         else:
             frontier.append(ticket["id"])
 
-    active = [ticket for ticket in tickets if ticket["lifecycle"]["phase"] in ACTIVE_PHASES]
+    active = [ticket for ticket in tickets if ticket["runtime"]["phase"] in ACTIVE_PHASES]
     return {
         "valid": valid,
         "frontier": frontier,
         "blocked": blocked,
         "in_progress": [
-            ticket["id"] for ticket in tickets if ticket["lifecycle"]["phase"] == "in_progress"
+            ticket["id"] for ticket in tickets if ticket["runtime"]["phase"] == "in_progress"
         ],
-        "done": [ticket["id"] for ticket in tickets if ticket["lifecycle"]["phase"] == "done"],
+        "done": [ticket["id"] for ticket in tickets if ticket["runtime"]["phase"] == "done"],
         "superseded": [
-            ticket["id"] for ticket in tickets if ticket["lifecycle"]["phase"] == "superseded"
+            ticket["id"] for ticket in tickets if ticket["runtime"]["phase"] == "superseded"
         ],
         "coverage_gaps": coverage
         if coverage is not None
         else {"requirements": [], "spec_acceptance": [], "referenced_design_decisions": []},
         "all_active_done": bool(active)
-        and all(ticket["lifecycle"]["phase"] == "done" for ticket in active),
+        and all(ticket["runtime"]["phase"] == "done" for ticket in active),
     }
 
 
 def ticket_readiness(
     ticket: dict[str, Any], by_id: dict[str, dict[str, Any]]
 ) -> tuple[str | None, list[dict[str, object]]]:
-    if ticket["lifecycle"]["phase"] != "open":
+    if ticket["runtime"]["phase"] != "open":
         return None, []
     reasons = blocked_reasons(ticket, by_id)
     return ("blocked" if reasons else "ready"), reasons

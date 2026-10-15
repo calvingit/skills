@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 import _bootstrap
 from ticket_graph.command import parser, task_argument, request, run
-from lifecycle import mutate_ticket
+from lifecycle import initialize_state, mutate_ticket
 from ticket_graph.recovery import recover_transaction
 from ticket_graph.contracts import envelope
 import delivery
 from pathlib import Path
 p = parser("Single entry for Graph Workflow's state writes and final delivery evidence; never executes an agent. Each write returns the updated graph.")
 TICKET_OPERATIONS = ['start', 'retry', 'block', 'unblock', 'complete', 'reopen']
-p.add_argument('operation', choices=[*TICKET_OPERATIONS, 'recover', 'delivery-prepare', 'delivery-complete'], help='start/retry open an attempt; complete approves ticket-local acceptance (review optional); delivery-complete requires final independent verification and review')
+p.add_argument('operation', choices=[*TICKET_OPERATIONS, 'recover', 'init-state', 'delivery-prepare', 'delivery-complete'], help='start/retry open an attempt; complete approves ticket-local acceptance (review optional); init-state rebuilds lost runtime state; delivery-complete requires final independent verification and review')
 task_argument(p)
 p.add_argument('target', nargs='?', help='Ticket ID, or commit/rollback for recover')
 p.add_argument('--input', help='JSON request path or -; see ../references/script-inputs.md')
@@ -18,6 +18,7 @@ if a.operation not in ['recover', 'delivery-prepare'] and not a.input: p.error('
 if a.operation in [*TICKET_OPERATIONS, 'recover'] and not a.target: p.error('target is required')
 def action():
     if a.operation == 'recover': return recover_transaction(a.task_dir, a.target)
+    if a.operation == 'init-state': return initialize_state(a.task_dir, request(a.input))
     if a.operation == 'delivery-prepare': return envelope(a.operation, ok=True, result=delivery.prepare(a.task_dir, a.workspace.resolve())), 0
     if a.operation == 'delivery-complete': return envelope(a.operation, ok=True, result=delivery.complete(a.task_dir, request(a.input))), 0
     return mutate_ticket(a.operation, a.task_dir, a.target, request(a.input))

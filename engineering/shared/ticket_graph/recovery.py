@@ -4,7 +4,9 @@ import shutil
 from pathlib import Path
 from typing import Any
 from .contracts import envelope, problem, validate_shape, validate_string_list
-from .store import acquire_write_lock, release_lock, validated_snapshot, atomic_copy
+from .store import (
+    acquire_write_lock, atomic_copy, release_lock, transaction_path_allowed, validated_snapshot,
+)
 
 def recover_transaction(
     task_dir: Path, mode: str
@@ -38,7 +40,7 @@ def recover_transaction(
             or not validate_string_list(original_files)
             or not validate_string_list(target_files, require_items=True)
             or any(
-                not relative.startswith("tickets/") or ".." in Path(relative).parts
+                not transaction_path_allowed(relative)
                 for relative in [*original_files, *target_files]
             )
         ):
@@ -68,8 +70,9 @@ def recover_transaction(
             return envelope("recover", ok=False, problems=problems), 1
 
         # A crash mid-switch can leave the per-file temporary copy behind.
-        for leftover in (task_dir / "tickets").glob(".*.transaction.tmp"):
-            leftover.unlink(missing_ok=True)
+        for directory in (task_dir / "tickets", task_dir / ".loop"):
+            for leftover in directory.glob(".*.transaction.tmp"):
+                leftover.unlink(missing_ok=True)
         _, graph, committed_problems = validated_snapshot(task_dir, allow_transaction=True)
         if committed_problems:
             return envelope("recover", ok=False, graph=graph, problems=committed_problems), 1

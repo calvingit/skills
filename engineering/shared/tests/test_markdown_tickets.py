@@ -1,4 +1,4 @@
-"""v3 Markdown ticket storage, lifecycle, and transaction recovery tests."""
+"""v4 Markdown ticket storage: contract documents, runtime state, transactions."""
 from __future__ import annotations
 
 import json
@@ -11,10 +11,9 @@ from pathlib import Path
 from unittest import mock
 
 import test_bootstrap
-from test_bootstrap import read_ticket
+from test_bootstrap import read_state, read_ticket, runtime_entry
 from ticket_graph import frontmatter, store
 from ticket_graph.ticket_markdown import TicketFormatError, parse_ticket, render_ticket
-from ticket_graph.queries import inspect
 from planning import reconcile_batch
 from test_ticket_graph import canonical_ticket
 
@@ -83,40 +82,56 @@ class MarkdownTicketTests(unittest.TestCase):
         return payload
 
     # Case A
-    def test_create_writes_markdown_with_disjoint_frontmatter_and_body(self):
-        self.create()
+    def test_create_writes_contract_markdown_and_initializes_runtime_state(self):
+        payload = self.create()
         self.assertEqual(list((self.task / "tickets").glob("*.json")), [])
         text = self.path("T001").read_text()
         head, body = text.split("\n---\n", 1)
-        for field in ("title", "what_to_build", "constraints", "delivery_acceptance"):
+        for field in ("title", "what_to_build", "constraints", "delivery_acceptance", "lifecycle", "execution"):
             self.assertNotIn(field + ":", head)
-        self.assertIn("schema_version: 3", head)
+        self.assertIn("schema_version: 4", head)
         self.assertIn("# 第1步: \"slice\"", body)
         for section in ("## Delivery", "## Constraints", "## Delivery Acceptance", "- **AC1** — Slice 1 observable."):
             self.assertIn(section, body)
         self.assertEqual(read_ticket(self.path("T001"))["constraints"], ["No new deps.", "Multi\nline constraint"])
+        state = read_state(self.task)
+        self.assertEqual(state["schema_version"], 1)
+        self.assertEqual(
+            {ticket_id: (entry["phase"], entry["attempt"]) for ticket_id, entry in state["tickets"].items()},
+            {"T001": ("open", 0), "T002": ("open", 0), "T003": ("open", 0)},
+        )
+        self.assertEqual(payload["graph"]["frontier"], ["T001"])
 
     # Case B
-    def test_lifecycle_updates_never_rewrite_a_hand_edited_body(self):
+    def test_lifecycle_updates_never_rewrite_the_contract_document(self):
         self.create()
         path = self.path("T001")
         head, body = path.read_text().split("\n---\n", 1)
         edited = body.replace("## Constraints", "\n\n## Constraints")  # Equivalent contract, different bytes.
         path.write_text(head + "\n---\n" + edited)
+        after_edit = path.read_bytes()
         self.update("start", "T001", START)
         self.update("block", "T001", {"blocker": {"category": "environment", "reason": "db down", "release_condition": "db up"}, "evidence": {}})
         self.update("unblock", "T001", {"release_evidence": "db is up"})
         self.update("start", "T001", START)
         retried = self.update("retry", "T001", {"baseline": BASELINE, "existing_changes": START["existing_changes"], "expected_attempt": 2, "findings": "fix"})
-        self.assertEqual(retried["result"]["ticket"]["execution"]["current_attempt"]["allowed_write_scope"], ["src/**"])  # Inherited.
+        self.assertEqual(retried["result"]["ticket"]["runtime"]["current_attempt"]["allowed_write_scope"], ["src/**"])  # Inherited.
         self.assertEqual(retried["graph"]["in_progress"], ["T001"])  # Callers use this graph; no re-query needed.
         self.update("complete", "T001", {"expected_attempt": 3, "evidence": {"AC1": {"result": "passed", "summary": "seen"}}, **PASS})
         self.update("reopen", "T001", {"review_finding": "regress", "invalidated_acceptance": ["AC1"], "upstream_unchanged": True})
+        self.assertEqual(path.read_bytes(), after_edit)
         self.assertEqual(path.read_text().split("\n---\n", 1)[1], edited)
-        stored = read_ticket(path)
-        self.assertEqual((stored["lifecycle"]["phase"], stored["execution"]["attempt_sequence"]), ("open", 3))
+        entry = runtime_entry(self.task, "T001")
+        self.assertEqual((entry["phase"], entry["attempt"]), ("open", 3))
 
-    def test_v3_rejects_json_tickets(self):
+    def test_render_refuses_to_store_runtime_progress_in_a_ticket(self):
+        ticket = canonical_ticket()
+        ticket["runtime"]["phase"] = "done"
+        with self.assertRaises(TicketFormatError) as caught:
+            render_ticket(ticket)
+        self.assertEqual(caught.exception.code, "unrepresentable_ticket")
+
+    def test_v4_rejects_json_tickets(self):
         self.create()
         md = self.path("T001")
         old = self.task / "tickets/T001-old.json"
@@ -132,12 +147,13 @@ class MarkdownTicketTests(unittest.TestCase):
         self.create()
         path = self.path("T001"); good = path.read_text()
         cases = {
-            "invalid_frontmatter": good.replace("schema_version: 3\n", "schema_version: 3\nschema_version: 3\n"),
-            "duplicated_authority": good.replace("schema_version: 3\n", "schema_version: 3\ntitle: \"x\"\n"),
+            "invalid_frontmatter": good.replace("schema_version: 4\n", "schema_version: 4\nschema_version: 4\n"),
+            "duplicated_authority": good.replace("schema_version: 4\n", "schema_version: 4\ntitle: \"x\"\n"),
             "invalid_ticket_body": good.replace("## Constraints", "## Notes"),
             "missing_frontmatter": good.split("\n---\n", 1)[1],
-            "invalid_frontmatter ": good.replace("schema_version: 3\n", "schema_version: 3\n_path: x\n"),
-            "unknown_field": good.replace("schema_version: 3\n", "schema_version: 3\nreadiness: ready\n"),
+            "invalid_frontmatter ": good.replace("schema_version: 4\n", "schema_version: 4\n_path: x\n"),
+            "unknown_field": good.replace("schema_version: 4\n", "schema_version: 4\nreadiness: ready\n"),
+            "invalid_frontmatter  ": good.replace("schema_version: 4\n", "schema_version: 4\nruntime:\n  phase: done\n"),
         }
         for expected, text in cases.items():
             with self.subTest(expected=expected):
@@ -147,7 +163,7 @@ class MarkdownTicketTests(unittest.TestCase):
                 self.assertIn(expected.strip(), {p["code"] for p in payload["problems"]})
         path.write_text(good)
         before = path.read_bytes()
-        path.write_text(good.replace("schema_version: 3\n", "schema_version: 3\nschema_version: 3\n"))
+        path.write_text(good.replace("schema_version: 4\n", "schema_version: 4\nschema_version: 4\n"))
         code, _ = run("graph-workflow/scripts/update-status", "start", str(self.task), "T001", "--input", "-", stdin=json.dumps(START))
         self.assertEqual(code, 1)
         path.write_bytes(before)
@@ -160,7 +176,7 @@ class MarkdownTicketTests(unittest.TestCase):
         code, payload = run("graph-workflow/scripts/frontier", str(self.task))
         self.assertIn("T001", payload["graph"]["stale_authority"])
 
-    # Case F: amendments on Markdown graphs
+    # Case F/Case G: amendments on Markdown graphs
     def test_reconcile_update_rewrites_body_and_supersede_keeps_it(self):
         self.create()
         t3_body = self.path("T003").read_text().split("\n---\n", 1)[1]
@@ -172,7 +188,8 @@ class MarkdownTicketTests(unittest.TestCase):
         self.assertEqual(code, 0, payload)
         self.assertIn("# Renamed slice", self.path("T002").read_text())
         self.assertEqual(self.path("T003").read_text().split("\n---\n", 1)[1], t3_body)
-        self.assertEqual(read_ticket(self.path("T003"))["lifecycle"]["phase"], "superseded")
+        self.assertEqual(runtime_entry(self.task, "T003")["phase"], "superseded")
+        self.assertEqual(read_ticket(self.path("T003"))["supersession"]["reason"], "Replaced")
 
     def test_update_status_runs_outside_repo(self):
         self.create()
@@ -185,6 +202,7 @@ class MarkdownTicketTests(unittest.TestCase):
     def test_transaction_prepare_failure_cleans_up(self):
         self.create()
         original = self.path("T002").read_bytes()
+        state_before = test_bootstrap.state_file(self.task).read_bytes()
         with mock.patch.object(store, "serialize_ticket", side_effect=OSError("disk full")):
             payload, code = reconcile_batch(self.task, {
                 "reason": "Change ticket title",
@@ -194,11 +212,19 @@ class MarkdownTicketTests(unittest.TestCase):
         self.assertEqual(code, 1, payload)
         self.assertFalse((self.task / ".ticket-graph-transaction").exists())
         self.assertEqual(self.path("T002").read_bytes(), original)
+        self.assertEqual(test_bootstrap.state_file(self.task).read_bytes(), state_before)
 
     def test_render_refuses_lossy_tickets(self):
-        bad = canonical_ticket(schema_version=3, what_to_build="text\n## Injected")
+        bad = canonical_ticket(what_to_build="text\n## Injected")
         with self.assertRaises(TicketFormatError):
             render_ticket(bad)
+
+    def test_parsed_ticket_carries_no_runtime_progress(self):
+        self.create()
+        ticket, _ = parse_ticket(self.path("T001").read_text())
+        self.assertNotIn("lifecycle", ticket)
+        self.assertNotIn("execution", ticket)
+        self.assertEqual(ticket["schema_version"], 4)
 
 
 if __name__ == "__main__":

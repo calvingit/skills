@@ -18,10 +18,18 @@ TICKET_ID_RE = re.compile(r"^T[0-9]{3,}$")
 LOCAL_ACCEPTANCE_RE = re.compile(r"^AC[0-9]+$")
 REQUIREMENT_ID_RE = re.compile(r"^R[0-9]+$")
 DESIGN_ID_RE = re.compile(r"^D[0-9]+$")
-# The shared schema owns field names and the storage version.
+# The shared schemas own field names and the storage versions.
 SCHEMA = json.loads((Path(__file__).resolve().parents[1] / "ticket-schema.json").read_text())
+RUNTIME_SCHEMA = json.loads((Path(__file__).resolve().parents[1] / "runtime-state-schema.json").read_text())
 CURRENT_SCHEMA_VERSION = SCHEMA["properties"]["schema_version"]["const"]
-TICKET_FIELDS = set(SCHEMA["required"])
+RUNTIME_SCHEMA_VERSION = RUNTIME_SCHEMA["properties"]["schema_version"]["const"]
+# The internal ticket object carries its contract plus the current runtime entry.
+TICKET_FIELDS = set(SCHEMA["properties"]) | {"runtime"}
+REQUIRED_FIELDS = set(SCHEMA["required"])
+ENTRY_FIELDS = set(RUNTIME_SCHEMA["$defs"]["ticket_state"]["properties"])
+ENTRY_REQUIRED_FIELDS = set(RUNTIME_SCHEMA["$defs"]["ticket_state"]["required"])
+EVIDENCE_FIELDS = set(RUNTIME_SCHEMA["$defs"]["evidence"]["properties"])
+EVIDENCE_REQUIRED_FIELDS = set(RUNTIME_SCHEMA["$defs"]["evidence"]["required"])
 
 
 def problem(
@@ -71,6 +79,7 @@ def validate_shape(
     path: str,
     ticket_id: str | None,
     field: str,
+    required: set[str] | None = None,
 ) -> list[dict[str, str]]:
     if not isinstance(value, dict):
         return [
@@ -84,7 +93,7 @@ def validate_shape(
             )
         ]
     problems: list[dict[str, str]] = []
-    for name in sorted(expected - value.keys()):
+    for name in sorted((expected if required is None else required) - value.keys()):
         nested = f"{field}.{name}" if field else name
         problems.append(
             problem(
@@ -173,23 +182,28 @@ def validate_summary_items(
     return problems
 
 
-def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
+def validate_contract(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
+    """Validate the stable delivery contract: frontmatter references and body."""
     ticket_id = ticket.get("id") if isinstance(ticket.get("id"), str) else None
-    problems = validate_shape(ticket, TICKET_FIELDS, path=path, ticket_id=ticket_id, field="")
-    if problems:
-        return problems
-
-    if ticket["schema_version"] != CURRENT_SCHEMA_VERSION:
-        problems.append(
+    # A ticket from another storage version is never read as a v4 contract, and
+    # one clear message is more useful than every field it does not share.
+    if ticket.get("schema_version") != CURRENT_SCHEMA_VERSION:
+        return [
             problem(
                 "contract",
                 "unsupported_schema_version",
-                f"Expected schema version {CURRENT_SCHEMA_VERSION}.",
+                f"Expected schema version {CURRENT_SCHEMA_VERSION}; convert older graphs with create-graph migrate-v3.",
                 ticket_id=ticket_id,
                 path=path,
                 field="schema_version",
             )
-        )
+        ]
+    problems = validate_shape(
+        ticket, TICKET_FIELDS, path=path, ticket_id=ticket_id, field="", required=REQUIRED_FIELDS
+    )
+    if problems:
+        return problems
+
     if not isinstance(ticket["schema_version"], int) or isinstance(ticket["schema_version"], bool):
         problems.append(invalid_field(path, ticket_id, "schema_version", "schema_version must be an integer."))
     if not non_empty_string(ticket["id"]) or not TICKET_ID_RE.fullmatch(ticket["id"]):
@@ -246,135 +260,8 @@ def validate_ticket(ticket: dict[str, Any], path: str) -> list[dict[str, str]]:
         if len(acceptance_ids) != len(set(acceptance_ids)):
             problems.append(problem("contract", "duplicate_acceptance_id", "Ticket acceptance IDs must be unique.", ticket_id=ticket_id, path=path, field="delivery_acceptance"))
 
-    lifecycle = ticket["lifecycle"]
-    lifecycle_problems = validate_shape(
-        lifecycle, {"phase"}, path=path, ticket_id=ticket_id, field="lifecycle"
-    )
-    problems.extend(lifecycle_problems)
-    phase: str | None = None
-    if not lifecycle_problems and isinstance(lifecycle, dict):
-        phase = lifecycle["phase"]
-        if not isinstance(phase, str) or phase not in {
-            "open",
-            "in_progress",
-            "done",
-            "superseded",
-        }:
-            problems.append(invalid_field(path, ticket_id, "lifecycle.phase", "Unsupported lifecycle phase."))
-
-    execution = ticket["execution"]
-    execution_fields = {"attempt_sequence", "evidence", "blocker", "current_attempt", "reopen_context"}
-    execution_problems = validate_shape(
-        execution, execution_fields | ({key for key in ("authority", "review") if key in execution} if isinstance(execution, dict) else set()), path=path, ticket_id=ticket_id, field="execution"
-    )
-    problems.extend(execution_problems)
-    if not execution_problems and isinstance(execution, dict):
-        if "review" in execution and not non_empty_string(execution["review"]):
-            problems.append(invalid_field(path, ticket_id, "execution.review", "Review must be a non-empty string."))
-        if "authority" in execution:
-            authority = execution["authority"]
-            errors = validate_shape(authority, {"fingerprint", "reason"}, path=path, ticket_id=ticket_id, field="execution.authority")
-            problems.extend(errors)
-            if not errors and (not isinstance(authority["fingerprint"], str) or not re.fullmatch(r"[0-9a-f]{64}", authority["fingerprint"]) or not non_empty_string(authority["reason"])):
-                problems.append(invalid_field(path, ticket_id, "execution.authority", "Authority requires a SHA-256 fingerprint and a reconciliation reason."))
-        sequence = execution["attempt_sequence"]
-        if not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 0:
-            problems.append(invalid_field(path, ticket_id, "execution.attempt_sequence", "attempt_sequence must be a non-negative integer."))
-
-        evidence = execution["evidence"]
-        if not isinstance(evidence, dict):
-            problems.append(invalid_field(path, ticket_id, "execution.evidence", "evidence must be an object keyed by local AC ID."))
-        else:
-            for acceptance_id, entry in evidence.items():
-                entry_field = f"execution.evidence.{acceptance_id}"
-                if acceptance_id not in acceptance_ids:
-                    problems.append(problem("graph", "unknown_evidence_acceptance", f"Evidence references unknown local Acceptance ID: {acceptance_id}", ticket_id=ticket_id, path=path, field=entry_field))
-                shape_problems = validate_shape(entry, {"result", "summary"}, path=path, ticket_id=ticket_id, field=entry_field)
-                problems.extend(shape_problems)
-                if not shape_problems and isinstance(entry, dict):
-                    if entry["result"] != "passed" or not non_empty_string(entry["summary"]):
-                        problems.append(invalid_field(path, ticket_id, entry_field, "Stored evidence requires result passed and a non-empty summary."))
-
-        blocker = execution["blocker"]
-        if blocker is not None:
-            shape_problems = validate_shape(blocker, {"category", "reason", "release_condition"}, path=path, ticket_id=ticket_id, field="execution.blocker")
-            problems.extend(shape_problems)
-            if not shape_problems and isinstance(blocker, dict):
-                if (
-                    not isinstance(blocker["category"], str)
-                    or blocker["category"]
-                    not in {"requirement", "design", "dependency", "environment", "permission", "external"}
-                ):
-                    problems.append(invalid_field(path, ticket_id, "execution.blocker.category", "Unsupported execution blocker category."))
-                if not non_empty_string(blocker["reason"]) or not non_empty_string(blocker["release_condition"]):
-                    problems.append(invalid_field(path, ticket_id, "execution.blocker", "Blocker reason and release_condition must be non-empty."))
-
-        current_attempt = execution["current_attempt"]
-        if current_attempt is not None and not isinstance(current_attempt, dict):
-            problems.append(invalid_field(path, ticket_id, "execution.current_attempt", "current_attempt must be an object or null."))
-        elif isinstance(current_attempt, dict):
-            attempt_field = "execution.current_attempt"
-            attempt_problems = validate_shape(
-                current_attempt,
-                {"number", "baseline", "existing_changes", "allowed_write_scope"},
-                path=path,
-                ticket_id=ticket_id,
-                field=attempt_field,
-            )
-            problems.extend(attempt_problems)
-            if not attempt_problems:
-                number = current_attempt["number"]
-                if not isinstance(number, int) or isinstance(number, bool) or number < 1 or number != sequence:
-                    problems.append(invalid_field(path, ticket_id, f"{attempt_field}.number", "Attempt number must be positive and equal attempt_sequence."))
-                baseline = current_attempt["baseline"]
-                baseline_problems = validate_shape(baseline, {"reference", "staged", "unstaged", "untracked"}, path=path, ticket_id=ticket_id, field=f"{attempt_field}.baseline")
-                problems.extend(baseline_problems)
-                if not baseline_problems and isinstance(baseline, dict):
-                    if not non_empty_string(baseline["reference"]):
-                        problems.append(invalid_field(path, ticket_id, f"{attempt_field}.baseline.reference", "Baseline reference must be non-empty."))
-                    for name in ("staged", "unstaged", "untracked"):
-                        if not validate_string_list(baseline[name]):
-                            problems.append(invalid_field(path, ticket_id, f"{attempt_field}.baseline.{name}", "Baseline paths must be unique non-empty strings."))
-                existing = current_attempt["existing_changes"]
-                existing_problems = validate_shape(existing, {"included", "excluded"}, path=path, ticket_id=ticket_id, field=f"{attempt_field}.existing_changes")
-                problems.extend(existing_problems)
-                if not existing_problems and isinstance(existing, dict):
-                    for name in ("included", "excluded"):
-                        if not validate_string_list(existing[name]):
-                            problems.append(invalid_field(path, ticket_id, f"{attempt_field}.existing_changes.{name}", "Existing-change paths must be unique non-empty strings."))
-                if not validate_string_list(current_attempt["allowed_write_scope"]):
-                    problems.append(invalid_field(path, ticket_id, f"{attempt_field}.allowed_write_scope", "allowed_write_scope must contain unique non-empty strings."))
-        if phase == "in_progress" and current_attempt is None:
-            problems.append(problem("graph", "missing_current_attempt", "An in_progress ticket requires current_attempt.", ticket_id=ticket_id, path=path))
-        if phase != "in_progress" and current_attempt is not None:
-            problems.append(problem("graph", "unexpected_current_attempt", "Only an in_progress ticket may keep current_attempt.", ticket_id=ticket_id, path=path))
-        if isinstance(phase, str) and phase in {"in_progress", "done"} and blocker is not None:
-            problems.append(problem("graph", "active_execution_blocker", f"A {phase} ticket cannot keep an execution blocker.", ticket_id=ticket_id, path=path))
-        if phase == "superseded" and blocker is not None:
-            problems.append(problem("graph", "superseded_execution_state", "A superseded ticket cannot keep an execution blocker.", ticket_id=ticket_id, path=path))
-        if phase == "done" and isinstance(evidence, dict):
-            missing = sorted(set(acceptance_ids) - evidence.keys())
-            if missing:
-                problems.append(problem("graph", "done_without_acceptance_evidence", f"Done ticket has no evidence for: {', '.join(missing)}", ticket_id=ticket_id, path=path))
-        reopen = execution["reopen_context"]
-        if reopen is not None and (
-            not isinstance(phase, str) or phase not in {"open", "in_progress"}
-        ):
-            problems.append(problem("graph", "unexpected_reopen_context", "reopen_context is only valid before a reopened ticket completes.", ticket_id=ticket_id, path=path))
-        if reopen is not None:
-            reopen_problems = validate_shape(reopen, {"review_finding", "invalidated_acceptance"}, path=path, ticket_id=ticket_id, field="execution.reopen_context")
-            problems.extend(reopen_problems)
-            if not reopen_problems and isinstance(reopen, dict):
-                if not non_empty_string(reopen["review_finding"]) or not validate_string_list(reopen["invalidated_acceptance"], pattern=LOCAL_ACCEPTANCE_RE, require_items=True):
-                    problems.append(invalid_field(path, ticket_id, "execution.reopen_context", "Reopen context requires a finding and unique invalidated local AC IDs."))
-                elif not set(reopen["invalidated_acceptance"]) <= set(acceptance_ids):
-                    problems.append(problem("graph", "unknown_reopen_acceptance", "Reopen context references an unknown local Acceptance ID.", ticket_id=ticket_id, path=path))
-
-    supersession = ticket["supersession"]
-    if phase == "superseded" and supersession is None:
-        problems.append(problem("graph", "missing_supersession", "A superseded ticket requires lineage.", ticket_id=ticket_id, path=path))
-    if phase != "superseded" and supersession is not None:
-        problems.append(problem("graph", "unexpected_supersession", "Only a superseded ticket may carry supersession lineage.", ticket_id=ticket_id, path=path))
+    # Supersession is a plan-revision fact of the contract, not execution state.
+    supersession = ticket.get("supersession")
     if supersession is not None:
         supersession_problems = validate_shape(supersession, {"reason", "replacement_ticket_id"}, path=path, ticket_id=ticket_id, field="supersession")
         problems.extend(supersession_problems)

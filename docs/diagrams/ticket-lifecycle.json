@@ -55,7 +55,7 @@
     {"id": "terminal", "label": "历史状态"}
   ],
   "states": [
-    {"id": "created", "type": "start", "label": "open", "sublabel": "create-batch 初始 lifecycle", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY"},
+    {"id": "created", "type": "start", "label": "open", "sublabel": "create-batch 初始化运行状态", "lane": "main", "col": 0, "step": "01", "tag": "ENTRY"},
     {"id": "ready", "type": "active", "label": "ready（动态）", "sublabel": "依赖完成且无 blocker", "lane": "main", "col": 1, "step": "02"},
     {"id": "in_progress", "type": "active", "label": "in_progress", "sublabel": "当前 attempt 已开始", "lane": "main", "col": 2, "step": "03"},
     {"id": "done", "type": "success", "label": "done", "sublabel": "本地 AC、成功检查与批准", "lane": "main", "col": 3, "step": "04", "tag": "COVERAGE"},

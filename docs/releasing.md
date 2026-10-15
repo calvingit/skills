@@ -1,6 +1,6 @@
 # 发版
 
-版本号按 semver，从 v3.0.0 开始（对应 Ticket v3）。不兼容的改动升主版本，新增能力升次版本，修正升修订号。
+版本号按 semver，从 v3.0.0 开始（插件版本与 Ticket schema 版本各自独立）。不兼容的改动升主版本，新增能力升次版本，修正升修订号。
 
 1. 把下面五处的 `version` 改成同一个新版本：
    - `.claude-plugin/plugin.json`

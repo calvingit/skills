@@ -4,8 +4,18 @@ import hashlib
 import subprocess
 from pathlib import Path
 
-def _workspace_status(workspace_root: Path) -> dict[str, str] | None:
-    """Return a complete git status probe, including ignored files."""
+from ticket_graph.runtime import STATE_FILE as STATE_RELATIVE
+
+def _excluded(path: Path, exclude: Path | None) -> bool:
+    """Whether a path is execution output of the task under review."""
+    return exclude is not None and (path == exclude or path.is_relative_to(exclude))
+
+def _workspace_status(workspace_root: Path, exclude: Path | None = None) -> dict[str, str] | None:
+    """Return a complete git status probe, including ignored files.
+
+    The current task's `.loop/` is skipped before hashing: its reports and
+    progress records are execution output, not part of the reviewed candidate.
+    """
     result = subprocess.run(
         [
             "git",
@@ -38,6 +48,8 @@ def _workspace_status(workspace_root: Path) -> dict[str, str] | None:
                 index += 1
         elif state == "!!" and relative.endswith("/"):
             ignored_root = workspace_root / relative.rstrip("/")
+            if _excluded(ignored_root, exclude):
+                continue
             expanded = False
             try:
                 for path in ignored_root.rglob("*"):
@@ -48,7 +60,7 @@ def _workspace_status(workspace_root: Path) -> dict[str, str] | None:
                 return None
             if not expanded:
                 status[relative] = state
-        else:
+        elif not _excluded(workspace_root / relative, exclude):
             status[relative] = state
     tracked = subprocess.run(
         ["git", "-C", str(workspace_root), "ls-files", "-z"],
@@ -60,12 +72,16 @@ def _workspace_status(workspace_root: Path) -> dict[str, str] | None:
     for relative_bytes in tracked.stdout.split(b"\0"):
         if relative_bytes:
             relative = relative_bytes.decode("utf-8", errors="surrogateescape")
+            if _excluded(workspace_root / relative, exclude):
+                continue
             status.setdefault(relative, "  ")
     return status
 
 
-def _workspace_snapshot(workspace_root: Path) -> dict[str, tuple[str, str | None]] | None:
-    status = _workspace_status(workspace_root)
+def _workspace_snapshot(
+    workspace_root: Path, exclude: Path | None = None
+) -> dict[str, tuple[str, str | None]] | None:
+    status = _workspace_status(workspace_root, exclude)
     if status is None:
         return None
     snapshot: dict[str, tuple[str, str | None]] = {}
@@ -100,4 +116,9 @@ def _graph_files(task_dir: Path) -> dict[str, bytes]:
     # Every ticket file counts, including stray legacy JSON, so any edit stales review.
     for path in sorted([*(task_dir / "tickets").glob("*.md"), *(task_dir / "tickets").glob("*.json")]):
         files[path.relative_to(task_dir).as_posix()] = path.read_bytes()
+    # Runtime progress counts for the same reason: reopening a ticket or
+    # re-recording evidence invalidates a review of the previous progress.
+    state = task_dir / STATE_RELATIVE
+    if state.is_file():
+        files[STATE_RELATIVE] = state.read_bytes()
     return files

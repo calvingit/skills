@@ -42,7 +42,7 @@ def list_tickets(
         by_id = {ticket["id"]: ticket for ticket in tickets}
         summaries: list[dict[str, object]] = []
         for ticket in tickets:
-            ticket_phase = ticket["lifecycle"]["phase"]
+            ticket_phase = ticket["runtime"]["phase"]
             ticket_ready, reasons = ticket_readiness(ticket, by_id)
             if phase is not None and ticket_phase != phase:
                 continue

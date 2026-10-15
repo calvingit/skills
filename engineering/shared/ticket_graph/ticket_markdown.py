@@ -1,10 +1,10 @@
-"""Markdown + YAML frontmatter ticket documents (schema v3).
+"""Markdown + YAML frontmatter ticket documents (schema v4).
 
-Frontmatter owns machine facts; the body owns the human contract:
+Frontmatter owns machine facts of the contract; the body owns the human contract:
 
     ---
     <schema_version, id, covers, referenced_design_decisions, dependencies,
-     lifecycle, execution, supersession>
+     supersession>
     ---
 
     # <title>
@@ -18,8 +18,9 @@ Frontmatter owns machine facts; the body owns the human contract:
     ## Delivery Acceptance
     - **AC1** — <description>
 
-No field lives in both places. Parsing yields the same internal ticket object
-the JSON v2 protocol used, so graph, lifecycle and authority code is unchanged.
+No field lives in both places. Lifecycle, attempts, evidence, blockers and
+authority are runtime state and live in ``.loop/state.json``, never in this
+document.
 """
 
 from __future__ import annotations
@@ -31,9 +32,11 @@ from . import frontmatter
 
 FRONTMATTER_FIELDS = (
     "schema_version", "id", "covers", "referenced_design_decisions", "dependencies",
-    "lifecycle", "execution", "supersession",
+    "supersession",
 )
 BODY_FIELDS = ("title", "what_to_build", "constraints", "delivery_acceptance")
+REPRESENTED_FIELDS = FRONTMATTER_FIELDS + BODY_FIELDS
+RUNTIME_KEY = "runtime"
 SECTIONS = ("Delivery", "Constraints", "Delivery Acceptance")
 ACCEPTANCE_RE = re.compile(r"^- \*\*(AC[0-9]+)\*\* — (.*)$")
 CONTINUATION = "  "
@@ -120,6 +123,11 @@ def parse_ticket(text: str) -> tuple[dict[str, Any], str]:
     internal = sorted(key for key in meta if key.startswith("_"))
     if internal:
         raise TicketFormatError("invalid_frontmatter", "Underscore keys are reserved: " + ", ".join(internal))
+    if RUNTIME_KEY in meta:
+        raise TicketFormatError(
+            "invalid_frontmatter",
+            "Execution state is stored in .loop/state.json and must not appear in the ticket contract.",
+        )
     misplaced = sorted(set(meta) & set(BODY_FIELDS))
     if misplaced:
         raise TicketFormatError("duplicated_authority", "Body-owned fields must not appear in frontmatter: " + ", ".join(misplaced))
@@ -157,14 +165,31 @@ def body_matches(body: str, ticket: dict[str, Any]) -> bool:
 
 
 def render_ticket(ticket: dict[str, Any], body: str | None = None) -> str:
-    """Serialize a ticket. An existing body is kept byte-for-byte when it still
-    states the same contract, so metadata updates never rewrite human text."""
-    meta = {key: ticket[key] for key in FRONTMATTER_FIELDS if key in ticket}
+    """Serialize a ticket contract. An existing body is kept byte-for-byte when it
+    still states the same contract, so metadata updates never rewrite human text.
+
+    Runtime progress is never written here: ``runtime`` is rejected instead of
+    being silently dropped, so no caller can store execution state in the ticket.
+    """
+    stored = {key: value for key, value in ticket.items() if key in REPRESENTED_FIELDS}
+    unrepresentable = sorted(
+        key for key in ticket
+        if not key.startswith("_") and key not in REPRESENTED_FIELDS
+    )
+    if unrepresentable:
+        raise TicketFormatError(
+            "unrepresentable_ticket",
+            f"Ticket {ticket.get('id')} cannot be stored in Markdown: " + ", ".join(unrepresentable),
+        )
+    meta = {
+        key: value for key, value in stored.items()
+        if key in FRONTMATTER_FIELDS and value is not None
+    }
     if body is None or not body_matches(body, ticket):
         body = render_body(ticket)
     text = "---\n" + frontmatter.dumps(meta) + "---\n" + body
     reparsed, _ = parse_ticket(text)
-    public = {key: value for key, value in ticket.items() if not key.startswith("_")}
+    public = {key: value for key, value in stored.items() if value is not None or key != "supersession"}
     if reparsed != public:
         raise TicketFormatError("unrepresentable_ticket", f"Ticket {ticket.get('id')} cannot be represented losslessly in Markdown.")
     return text

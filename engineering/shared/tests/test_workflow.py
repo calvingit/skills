@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 import test_bootstrap
-from test_bootstrap import dump_ticket, read_ticket
+from test_bootstrap import read_ticket, runtime_entry
 
 
 class WorkflowCliTests(unittest.TestCase):
@@ -35,5 +35,5 @@ class WorkflowCliTests(unittest.TestCase):
         for script, operation, request in [('update-status', 'start', start), ('update-status', 'complete', complete)]:
             result = subprocess.run([sys.executable, str(root / 'graph-workflow/scripts' / script), operation, str(self.task), 'T001', '--input', '-'], input=json.dumps(request), capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        ticket = read_ticket(next((self.task / 'tickets').glob('*.md')))
-        self.assertEqual(ticket['lifecycle']['phase'], 'done')
+        self.assertEqual(runtime_entry(self.task, 'T001')['phase'], 'done')
+        self.assertEqual(read_ticket(next((self.task / 'tickets').glob('*.md')))['schema_version'], 4)

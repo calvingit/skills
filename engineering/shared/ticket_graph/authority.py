@@ -81,10 +81,11 @@ def contract_fingerprint(task_dir: Path, ticket: dict) -> str:
 
 
 def bind_authority(task_dir: Path, ticket: dict, reason: str) -> None:
-    ticket["execution"]["authority"] = {
+    """Bind the current contract fingerprint to the ticket's runtime entry."""
+    ticket["runtime"]["authority"] = {
         "fingerprint": contract_fingerprint(task_dir, ticket), "reason": reason,
     }
 
 
 def authority_current(task_dir: Path, ticket: dict) -> bool:
-    return ticket["execution"].get("authority", {}).get("fingerprint") == contract_fingerprint(task_dir, ticket)
+    return ticket["runtime"].get("authority", {}).get("fingerprint") == contract_fingerprint(task_dir, ticket)

@@ -18,10 +18,10 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | `to-spec` | 把已确认需求写成 `SPEC.md`（R / AC），按需维护 ACCEPTANCE | 设计内部实现；补写未决的业务决定 |
 | `solution-design` | 根据 SPEC、现有代码和约束确定技术方案，记录设计决策 | 改 SPEC 含义；拆票；局部实现细节 |
 | `to-tickets` | 用脚本创建或协调 `tickets/*.md`，确定拆分与真实依赖 | 引入新需求或设计；领取和执行 ticket |
-| `graph-workflow` | 选 ticket、派发原生 worker、核对证据、用状态命令写入 ticket 状态和交付记录 | 改产品代码；管理 Runtime 会话 |
+| `graph-workflow` | 选 ticket、派发原生 worker、核对证据、用状态命令写入 `.loop/` 运行状态和交付记录 | 改产品代码；改写 ticket 契约；管理 Runtime 会话 |
 | `ticket-implement` | 在约定写范围内实现一张 ticket，补必要测试，报告实际自检 | 改 SPEC、技术方案或 tickets；调度其他任务 |
 | `quick-implement` | 无执行图时由主 Agent 实现单一范围，再派发 simplify、verify、code-review 收尾 | 建立或维护执行图；替代 graph-workflow |
-| `verify` | 独立逐条判断 AC 证据，输出 PASS / FAIL / NOT VERIFIED | 修复问题；改 ticket 状态；调度 Agent |
+| `verify` | 独立逐条判断 AC 证据，输出 PASS / FAIL / NOT VERIFIED | 修复问题；改执行状态；调度 Agent |
 
 ## 产物归属速查
 
@@ -33,7 +33,7 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | `SPEC.md` | `to-spec` |
 | 技术方案与设计决策 | `solution-design` |
 | `tickets/*.md` 契约与依赖 | `to-tickets`（create / reconcile 命令） |
-| ticket 状态、attempt 与 `.loop/` 交付记录 | `graph-workflow`（`update-status` 命令） |
+| 运行状态（lifecycle、attempt、证据与阻塞）、`.loop/state.json` 与最终交付记录 | `graph-workflow`（`update-status` 命令） |
 | 源代码与仓库测试 | 有图时为 `ticket-implement` worker，无图时为 `quick-implement` |
 | 验证证据与逐 AC 结论 | `verify`（只写调用方允许的隔离资源） |
 
@@ -46,13 +46,13 @@ Skill 负责需求、设计、执行图和交付判断，Runtime 负责会话和
 | 需求、目标、任务范围、SPEC AC | 简单任务使用经确认的会话内容，保存为文档后，以 SPEC 中的工程需求快照为准 | 用户确认需求选择，由 `to-spec` 维护快照 | 技术方案、tickets、实现与验收引用当前快照，新输入改变快照时先修订 SPEC。 |
 | 独立维护版本的验收场景与证据规则 | 按需建立的 ACCEPTANCE | `to-spec` | 场景引用 SPEC R / AC，不再维护另一份同名 AC 定义，与 SPEC 有冲突时，停止受影响的工作并交回负责方。 |
 | 交付的技术方案与设计决策 | 以 `solution-design` 记录的技术方案为准，长期项目决策由已有架构文档 / ADR 维护 | 技术方案由 `solution-design` 维护，长期记录由项目约定的负责方和 `domain-modeling` 维护 | 引用 D ID 或项目来源，技术方案不自行取代长期约束，也不反向修改需求。 |
-| 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
-| ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | ticket 的 lifecycle / execution | `graph-workflow` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果。 |
+| 交付拆分、依赖、本地 AC 与约束 | `tickets/*.md` 的正文（标题、Delivery、Constraints、Delivery Acceptance）与 frontmatter 引用/依赖；执行不修改这些契约 | `to-tickets` 通过 create / reconcile 命令 | 通过 `covers` 与 D 引用追溯上游，本地 AC 细化本次交付，其 ID 与 SPEC AC 分属不同命名空间。 |
+| ticket 生命周期、当前执行尝试（attempt）、已接受证据及执行阻塞 | 任务目录 `.loop/state.json`（不进入 Git） | `graph-workflow` 通过状态命令 | frontier 返回的 ready / blocked 状态由计算得出，不另建持久化进度表，worker 只返回原始结果；状态丢失时停止执行，需用户明确要求才重新初始化。 |
 | 最终交付候选与状态 | `.loop/delivery.json` | `graph-workflow` 通过 delivery 命令 | 查询当前快照，并将原始报告保留在 `.loop/`，不以摘要替换报告。 |
 | 项目稳定工程知识与导航 | 使用已有项目指令、术语表、领域模型和架构资料，通过 Profile 定位来源 | 项目资料由各自的维护者负责，术语、已有领域模型和 ADR 由 `domain-modeling` 维护，`project-setup` 维护 Profile | 按需引用，不把当前任务、运行结果或授权复制进 Profile。任务中的长期发现按[长期知识回写](knowledge-protocol.md)交给负责方。 |
 | 可执行验证方法与能力范围 | 现有项目脚本 / CI / 本地验证 Skill | 项目工具由其维护者负责，`verification-setup` 维护方法与导航摘要 | Profile 只提供链接和摘要，方法说明不成为需求来源，冒烟检查记录也不作为当前任务已通过验收的依据。 |
 | 当前候选的实际观察与审查结论 | 原执行者的命令记录、产物、verify / review 原文 | 实现者、验证者与审查者分别记录，由调用方判断适用性 | 状态脚本保存接受的事实，不解析报告、证明真实性或认证独立性。 |
-| 原生 worker 是否运行、已停止或可恢复 | Runtime 原生状态 | Runtime | 工程记录可以引用执行句柄（handle），但不重建会话状态机，ticket 状态不能证明写入方已停止。 |
+| 原生 worker 是否运行、已停止或可恢复 | Runtime 原生状态 | Runtime | 工程记录可以引用执行句柄（handle），但不重建会话状态机，记录的执行状态不能证明写入方已停止。 |
 
 交接摘要须标明来源与候选快照，恢复执行时与当前内容核对，不能因 ID 相同就认定语义未变。修订只同步受影响的派生产物和证据，保留仍有效的结果和历史 done 记录，规范变化通过协调执行图或安排修正交付处理，不能用历史记录证明当前任务已经完成。
 

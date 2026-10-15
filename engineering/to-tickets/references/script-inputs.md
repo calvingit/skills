@@ -21,7 +21,7 @@ Use Python 3.10+ on macOS/Linux. Resolve script paths from the installed skill, 
 }
 ```
 
-D references may be empty when SOLUTION is not required. `constraints` may be `[]` when the ticket has no specific constraint; entries, when present, must be non-empty and unique. Candidate dependencies name other candidate keys. Scripts allocate immutable IDs and initialize lifecycle/execution; callers do not supply either. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
+D references may be empty when SOLUTION is not required. `constraints` may be `[]` when the ticket has no specific constraint; entries, when present, must be non-empty and unique. Candidate dependencies name other candidate keys. Scripts allocate immutable IDs, write the v4 ticket contracts and initialize `.loop/state.json` (every ticket `open`, attempt 0, no evidence); callers supply neither. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
 
 ## Reconcile
 
@@ -37,7 +37,15 @@ Read [amendment rules](amendment.md) first. Request: `{"reason":"confirmed upstr
 | `replace_dependency` | `ticket_id`, `from`, `to` |
 | `retain_contract` | `ticket_id`, `reason`, `expected_authority` |
 
-Graph Workflow must stop writers and block active attempts before reconciliation. Completed contracts are not rewritten. Reconciliation is graph maintenance, not retry or Agent dispatch.
+Graph Workflow must stop writers and block active attempts before reconciliation. Completed contracts are not rewritten. Reconciliation switches the ticket contracts and the runtime entries in one transaction, so it never leaves a contract updated while progress still points at the old one. It is graph maintenance, not retry or Agent dispatch.
+
+## Convert an existing v3 task
+
+```bash
+python3 <to-tickets-skill>/scripts/create-graph migrate-v3 <task-dir>
+```
+
+One-off local conversion; see [version boundary](ticket-format.md#version-boundary). It refuses to overwrite runtime state, keeps ticket bodies and IDs, carries over the execution record it can confirm, and reports what it cannot.
 
 ## Validate
 
@@ -45,5 +53,5 @@ Graph Workflow must stop writers and block active attempts before reconciliation
 python3 <to-tickets-skill>/scripts/validate-graph <task-dir>
 ```
 
-Graph transaction recovery is available through `graph-workflow`'s `update-status recover` command.
+Graph transaction recovery is available through `graph-workflow`'s `update-status recover` command; a lost or unreadable `.loop/state.json` is rebuilt only through `update-status init-state` on an explicit user request.
 

@@ -71,7 +71,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 独立版本、跨 ticket 场景或复杂协议所需的 `ACCEPTANCE.md` | [验收模板](../to-spec/references/acceptance-template.md)，场景引用 SPEC R / AC。 |
 | 技术方案与设计决策 | [solution-design](../solution-design/SKILL.md) |
 | `tickets/*.md` 契约与依赖（Markdown 正文 + YAML frontmatter） | [to-tickets](../to-tickets/SKILL.md) |
-| attempt、已接受证据与最终交付记录 | [graph-workflow](../graph-workflow/SKILL.md) |
+| `.loop/state.json` 运行状态（phase、attempt、证据、阻塞）、attempt 报告与最终交付记录 | [graph-workflow](../graph-workflow/SKILL.md) |
 
 领域术语默认模板见 [Glossary 格式](../domain-modeling/GLOSSARY-FORMAT.md)；既有 `CONTEXT.md`、`DOMAIN.md`、`TERMS.md` 等仍可作为 authority，不强制迁移。项目背景、领域词汇和架构决策分别使用各自来源。
 

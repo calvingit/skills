@@ -1,15 +1,15 @@
-"""Create and reconcile v3 Markdown ticket graphs."""
+"""Create and reconcile v4 Markdown ticket graphs and their runtime state."""
 
 from __future__ import annotations
 
 import copy
-import json
 import re
 from pathlib import Path
 from typing import Any
 
+from ticket_graph import runtime
 from ticket_graph.authority import authority_index, authority_fingerprint, bind_authority
-from ticket_graph.contracts import CURRENT_SCHEMA_VERSION, TICKET_ID_RE, envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list, validate_ticket
+from ticket_graph.contracts import CURRENT_SCHEMA_VERSION, TICKET_ID_RE, envelope, invalid_field, non_empty_string, problem, validate_shape, validate_string_list
 from ticket_graph.graph import public_ticket, validate_graph
 from ticket_graph.store import acquire_write_lock, commit_graph_transaction, release_lock, validated_snapshot
 
@@ -18,6 +18,23 @@ def slugify(title: object) -> str:
     if not isinstance(title, str):
         return "ticket"
     return re.sub(r"[^\w]+", "-", title.strip().lower(), flags=re.UNICODE).strip("-") or "ticket"
+
+
+def new_ticket(ticket_id: str, contract: dict[str, Any], relative: str) -> dict[str, Any]:
+    """A ticket is its stable contract; progress starts empty in runtime state."""
+    return {
+        "schema_version": CURRENT_SCHEMA_VERSION,
+        "id": ticket_id,
+        "title": contract["title"],
+        "covers": contract["covers"],
+        "referenced_design_decisions": contract["referenced_design_decisions"],
+        "what_to_build": contract["what_to_build"],
+        "constraints": contract["constraints"],
+        "delivery_acceptance": contract["delivery_acceptance"],
+        "dependencies": contract["dependencies"],
+        "runtime": runtime.fresh_entry(),
+        "_path": relative,
+    }
 
 
 def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, object], int]:
@@ -64,23 +81,13 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
                 continue
             ticket_id = ids[candidate["key"]]
             relative = f"tickets/{ticket_id}-{slugify(candidate['title'])}.md"
-            ticket = {
-                "schema_version": CURRENT_SCHEMA_VERSION,
-                "id": ticket_id,
-                "title": candidate["title"],
-                "covers": candidate["covers"],
-                "referenced_design_decisions": candidate["referenced_design_decisions"],
-                "what_to_build": candidate["what_to_build"],
-                "constraints": candidate["constraints"],
-                "delivery_acceptance": candidate["delivery_acceptance"],
-                "dependencies": [ids[value] for value in dependencies],
-                "lifecycle": {"phase": "open"},
-                "execution": {"attempt_sequence": 0, "evidence": {}, "blocker": None, "current_attempt": None, "reopen_context": None},
-                "supersession": None,
-                "_path": relative,
-            }
+            ticket = new_ticket(
+                ticket_id,
+                {**candidate, "dependencies": [ids[value] for value in dependencies]},
+                relative,
+            )
             bind_authority(task_dir, ticket, "Confirmed initial delivery split.")
-            request_problems.extend(validate_ticket(public_ticket(ticket), relative))
+            request_problems.extend(runtime.validate_ticket(public_ticket(ticket), relative))
             tickets.append(ticket)
             created.append({"key": candidate["key"], "id": ticket_id, "path": relative})
         if request_problems:
@@ -90,7 +97,7 @@ def create_batch(task_dir: Path, request: dict[str, Any]) -> tuple[dict[str, obj
         problems = authority_problems + graph_problems
         if problems:
             return envelope("create-batch", ok=False, problems=problems), 1
-        transaction_problems = commit_graph_transaction(task_dir, tickets, "create-batch")
+        transaction_problems = commit_graph_transaction(task_dir, tickets, "create-batch", runtime.state_from(tickets))
         if transaction_problems:
             return envelope("create-batch", ok=False, problems=transaction_problems), 1
         _, graph, committed_problems = validated_snapshot(task_dir)
@@ -125,7 +132,7 @@ def reconcile_batch(
             return envelope("reconcile-batch", ok=False, graph=graph, problems=request_problems), 1
 
         source_fingerprint = authority_fingerprint(task_dir)
-        if any(ticket["lifecycle"]["phase"] == "in_progress" for ticket in tickets):
+        if any(ticket["runtime"]["phase"] == "in_progress" for ticket in tickets):
             # Reconciliation is one shared-task transaction. Callers stop workers
             # and block active attempts before changing any task authority.
             return envelope("reconcile-batch", ok=False, graph=graph, problems=[problem("transition", "active_attempts", "Stop workers and block active attempts before reconciliation.")]), 1
@@ -189,21 +196,7 @@ def reconcile_batch(
                     continue
                 ticket_id = ids_by_key[operation["key"]]
                 relative = f"tickets/{ticket_id}-{slugify(contract['title'])}.md"
-                ticket = {
-                    "schema_version": CURRENT_SCHEMA_VERSION,
-                    "id": ticket_id,
-                    "title": contract["title"],
-                    "covers": contract["covers"],
-                    "referenced_design_decisions": contract["referenced_design_decisions"],
-                    "what_to_build": contract["what_to_build"],
-                    "constraints": contract["constraints"],
-                    "delivery_acceptance": contract["delivery_acceptance"],
-                    "dependencies": resolved_dependencies,
-                    "lifecycle": {"phase": "open"},
-                    "execution": {"attempt_sequence": 0, "evidence": {}, "blocker": None, "current_attempt": None, "reopen_context": None},
-                    "supersession": None,
-                    "_path": relative,
-                }
+                ticket = new_ticket(ticket_id, {**contract, "dependencies": resolved_dependencies}, relative)
                 by_id[ticket_id] = ticket
                 created.append({"key": operation["key"], "id": ticket_id, "path": relative})
             elif name == "update_contract":
@@ -215,7 +208,8 @@ def reconcile_batch(
                 if shape_problems or ticket is None or not isinstance(changes, dict) or not changes or not set(changes) <= contract_fields:
                     request_problems.append(problem("transition", "invalid_contract_update", "Contract update requires an existing ticket and supported non-empty changes.", ticket_id=ticket_id if isinstance(ticket_id, str) else None))
                     continue
-                if ticket["lifecycle"]["phase"] != "open" or ticket["execution"]["current_attempt"] is not None or ticket["execution"]["evidence"]:
+                entry = ticket["runtime"]
+                if entry["phase"] != "open" or "current_attempt" in entry or entry.get("evidence"):
                     request_problems.append(problem("transition", "invalid_contract_update", "Only an unstarted open ticket without evidence may be updated in place.", ticket_id=ticket_id))
                     continue
                 for field, value in changes.items():
@@ -233,18 +227,19 @@ def reconcile_batch(
                 ticket_id = operation.get("ticket_id")
                 ticket = by_id.get(ticket_id) if isinstance(ticket_id, str) else None
                 replacement = resolve(operation.get("replacement")) if operation.get("replacement") is not None else None
-                if ticket is None or ticket["lifecycle"]["phase"] == "superseded" or not non_empty_string(operation.get("reason")):
+                if ticket is None or ticket["runtime"]["phase"] == "superseded" or not non_empty_string(operation.get("reason")):
                     request_problems.append(problem("transition", "invalid_supersession", "Supersession requires an existing active ticket and reason.", ticket_id=ticket_id if isinstance(ticket_id, str) else None))
                     continue
                 if operation.get("replacement") is not None and replacement is None:
                     request_problems.append(problem("graph", "invalid_supersession_replacement", "Replacement reference is invalid.", ticket_id=ticket_id))
                     continue
-                if ticket["lifecycle"]["phase"] == "in_progress" and operation.get("worker_stopped") is not True:
+                if ticket["runtime"]["phase"] == "in_progress" and operation.get("worker_stopped") is not True:
                     request_problems.append(problem("transition", "active_worker_not_stopped", "An in_progress ticket requires confirmed worker stop before supersession.", ticket_id=ticket_id))
                     continue
-                ticket["lifecycle"]["phase"] = "superseded"
-                ticket["execution"]["current_attempt"] = None
-                ticket["execution"]["blocker"] = None
+                ticket["runtime"]["phase"] = "superseded"
+                ticket["runtime"].pop("current_attempt", None)
+                ticket["runtime"].pop("blocker", None)
+                ticket["runtime"].pop("reopen_context", None)
                 ticket["supersession"] = {"reason": operation["reason"], "replacement_ticket_id": replacement}
                 superseded.add(ticket_id)
             elif name == "replace_dependency":
@@ -264,7 +259,7 @@ def reconcile_batch(
                 request_problems.extend(shape)
                 ticket_id = operation.get("ticket_id")
                 ticket = by_id.get(ticket_id) if isinstance(ticket_id, str) else None
-                if shape or ticket is None or ticket["lifecycle"]["phase"] == "superseded" or not non_empty_string(operation.get("reason")) or operation.get("expected_authority") != source_fingerprint:
+                if shape or ticket is None or ticket["runtime"]["phase"] == "superseded" or not non_empty_string(operation.get("reason")) or operation.get("expected_authority") != source_fingerprint:
                     request_problems.append(problem("authority", "invalid_retention", "Retention needs a current authority fingerprint and an explicit unchanged-contract/evidence judgement.", ticket_id=ticket_id))
                     continue
                 retained.add(ticket_id)
@@ -274,16 +269,16 @@ def reconcile_batch(
 
         for ticket_id in updated | {item["id"] for item in created}:
             ticket = by_id[ticket_id]
-            if ticket["lifecycle"]["phase"] == "done":
+            if ticket["runtime"]["phase"] == "done":
                 request_problems.append(problem("transition", "completed_contract_changed", "Do not rewrite a completed ticket or its dependency contract; create a correction ticket.", ticket_id=ticket_id))
             else:
                 # Evidence from a previous interrupted/blocked attempt is not
                 # silently revalidated by a dependency or contract update.
-                ticket["execution"]["evidence"] = {}
+                ticket["runtime"].pop("evidence", None)
                 bind_authority(task_dir, ticket, request["reason"])
         prospective = list(by_id.values())
         for ticket in prospective:
-            request_problems.extend(validate_ticket(public_ticket(ticket), ticket["_path"]))
+            request_problems.extend(runtime.validate_ticket(public_ticket(ticket), ticket["_path"]))
         if request_problems:
             return envelope("reconcile-batch", ok=False, graph=graph, problems=request_problems), 1
         authority, authority_problems = authority_index(task_dir)
@@ -295,7 +290,7 @@ def reconcile_batch(
             return envelope("reconcile-batch", ok=False, graph=graph, problems=problems), 1
         if authority_fingerprint(task_dir) != source_fingerprint:
             return envelope("reconcile-batch", ok=False, graph=graph, problems=[problem("authority", "upstream_changed", "Authority changed during reconciliation.")]), 1
-        transaction_problems = commit_graph_transaction(task_dir, prospective, "reconcile-batch")
+        transaction_problems = commit_graph_transaction(task_dir, prospective, "reconcile-batch", runtime.state_from(prospective))
         if transaction_problems:
             return envelope("reconcile-batch", ok=False, graph=graph, problems=transaction_problems), 1
         _, committed_graph, committed_problems = validated_snapshot(task_dir)
@@ -311,5 +306,3 @@ def reconcile_batch(
         )
     finally:
         release_lock(descriptor)
-
-

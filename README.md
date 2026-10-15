@@ -54,8 +54,8 @@
 | [`wayfinding`](./engineering/wayfinding/SKILL.md) | 跨会话理清依赖决策与探索路径。 |
 | [`to-spec`](./engineering/to-spec/SKILL.md) | 把已确认需求写成规范性 SPEC。 |
 | [`solution-design`](./engineering/solution-design/SKILL.md) | 对照 SPEC 与代码库确定或修订技术方案和设计决策。 |
-| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图。 |
-| [`graph-workflow`](./engineering/graph-workflow/SKILL.md) | 推进 ticket 图：派发、证据与状态。 |
+| [`to-tickets`](./engineering/to-tickets/SKILL.md) | 拆出可调度的交付 ticket 图；ticket 是稳定交付契约。 |
+| [`graph-workflow`](./engineering/graph-workflow/SKILL.md) | 推进 ticket 图：派发（默认 serial，用户可显式要求 swarm）、证据与 `.loop/state.json` 运行状态。 |
 | [`quick-implement`](./engineering/quick-implement/SKILL.md) | 无需执行图的小范围入口，不替代 graph-workflow；实现后收尾验证与审查。 |
 | [`ticket-implement`](./engineering/ticket-implement/SKILL.md) | 在约定写范围内实现单张 ticket。 |
 | [`tdd`](./engineering/tdd/SKILL.md) | 用红-绿-重构驱动单个行为。 |

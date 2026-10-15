@@ -63,7 +63,7 @@ Stop and Call the Skill tool with the owning upstream skill only when decomposit
 
 ## Write local tickets
 
-`tickets/*.md` (Markdown + YAML frontmatter, [format](references/ticket-format.md)) is the only execution graph. `to-tickets` does not write ticket files directly, scan max IDs, or maintain readiness, checkboxes, or evidence. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
+`tickets/*.md` (Markdown + YAML frontmatter, [format](references/ticket-format.md)) is the only execution graph, and a ticket is a **stable delivery contract**: execution never rewrites it. Lifecycle, attempts, evidence and blockers live in the task's Git-ignored `.loop/state.json` and belong to `graph-workflow`. `to-tickets` does not write ticket files directly, scan max IDs, or maintain readiness, checkboxes, or runtime progress. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
 
 Read [script inputs](references/script-inputs.md) for JSON request shapes. Use `python3 <to-tickets-skill>/scripts/create-graph create-batch --help` for the current command input.
 
@@ -73,22 +73,23 @@ Then:
 python3 <to-tickets-skill>/scripts/create-graph create-batch <task-dir> --input <request.json>
 ```
 
-The CLI assigns immutable `T001`-style IDs, resolves dependencies, initializes `open` lifecycle and empty execution facts, and returns the mapping and full graph. Schema, identity, execution facts and readiness belong to the graph tool; do not keep another ticket template here. The Markdown body (title, Delivery, Constraints, Delivery Acceptance) is the readable contract; the frontmatter holds machine facts only.
+The CLI assigns immutable `T001`-style IDs, resolves dependencies, writes the ticket contracts and initializes `.loop/state.json` with every ticket `open`, attempt 0 and no evidence, then returns the mapping and full graph. Schema, identity, runtime progress and readiness belong to the graph tool; do not keep another ticket template here. The Markdown body (title, Delivery, Constraints, Delivery Acceptance) is the readable contract; the frontmatter holds machine facts only.
 
 AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / SOLUTION prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
 
 After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, continue directly with `graph-workflow` whether one ticket or several are active, but only when the user's current request authorises implementation. For planning-only requests, stop after the required planning artifacts are ready. `quick-implement` is only for a single SPEC / SOLUTION with no graph.
 
-For an upstream amendment, reconcile only tickets affected by the confirmed delta. Preserve unaffected contracts, lifecycle, and still-valid evidence. Do not rebuild the graph from scratch merely because `SPEC.md` or `SOLUTION.md` changed.
+For an upstream amendment, reconcile only tickets affected by the confirmed delta. Preserve unaffected contracts, runtime progress, and still-valid evidence. Do not rebuild the graph from scratch merely because `SPEC.md` or `SOLUTION.md` changed. Reconciliation that changes contracts and runtime entries commits them in one transaction, so a failed reconciliation leaves neither half applied.
 
 ## Script boundary
 
-Resolve `<to-tickets-skill>` to this installed skill directory, never to the target project's working directory. Run with Python 3.10+ on macOS/Linux; no global CLI installation is needed. Keep sibling `engineering/shared/` with this skill: it owns [the ticket schema](../shared/ticket-schema.json), graph validation and transactional storage. Scripts do not infer requirements or design from documents; this skill supplies the confirmed candidate split.
+Resolve `<to-tickets-skill>` to this installed skill directory, never to the target project's working directory. Run with Python 3.10+ on macOS/Linux; no global CLI installation is needed. Keep sibling `engineering/shared/` with this skill: it owns [the ticket schema](../shared/ticket-schema.json), the [runtime state schema](../shared/runtime-state-schema.json), graph validation and transactional storage. Scripts do not infer requirements or design from documents; this skill supplies the confirmed candidate split.
 
-- `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; initialize empty execution facts.
-- `scripts/create-graph reconcile-batch`: apply an upstream amendment after Graph Workflow stops writers.
+- `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; write v4 ticket contracts and initialize `.loop/state.json`.
+- `scripts/create-graph reconcile-batch`: apply an upstream amendment after Graph Workflow stops writers; switch contracts and runtime state in one transaction.
 
 - `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
+- `scripts/create-graph migrate-v3`: one-off local conversion of an existing v3 task (execution records move from the tickets into `.loop/state.json`). Run it per task; report anything it cannot confirm instead of assuming completion.
 
 Use `constraints: []` when a ticket has no specific inherited constraint, rather than adding filler. Keep implementation recipes out of tickets.
 

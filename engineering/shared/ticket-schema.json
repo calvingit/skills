@@ -1,7 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "urn:engineering-skills:ticket:v3",
-  "title": "Graph Workflow ticket",
+  "$id": "urn:engineering-skills:ticket:v4",
+  "title": "Graph Workflow ticket contract",
+  "description": "The stable delivery contract of one ticket. Lifecycle, attempts, evidence, blockers and authority live in .loop/state.json; see runtime-state-schema.json.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -13,13 +14,10 @@
     "what_to_build",
     "constraints",
     "delivery_acceptance",
-    "dependencies",
-    "lifecycle",
-    "execution",
-    "supersession"
+    "dependencies"
   ],
   "properties": {
-    "schema_version": {"const": 3},
+    "schema_version": {"const": 4},
     "id": {"type": "string", "pattern": "^T[0-9]{3,}$"},
     "title": {"type": "string", "minLength": 1},
     "covers": {
@@ -48,121 +46,17 @@
       }
     },
     "dependencies": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^T[0-9]{3,}$"}},
-    "lifecycle": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["phase"],
-      "properties": {"phase": {"enum": ["open", "in_progress", "done", "superseded"]}}
-    },
-    "execution": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["attempt_sequence", "evidence", "blocker", "current_attempt", "reopen_context"],
-      "properties": {
-        "review": {"type": "string", "minLength": 1},
-        "authority": {
-          "type": "object", "additionalProperties": false,
-          "required": ["fingerprint", "reason"],
-          "properties": {
-            "fingerprint": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-            "reason": {"type": "string", "minLength": 1}
-          }
-        },
-        "attempt_sequence": {"type": "integer", "minimum": 0},
-        "evidence": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": ["result", "summary"],
-            "properties": {
-              "result": {"const": "passed"},
-              "summary": {"type": "string", "minLength": 1}
-            }
-          }
-        },
-        "blocker": {
-          "oneOf": [
-            {"type": "null"},
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["category", "reason", "release_condition"],
-              "properties": {
-                "category": {"enum": ["requirement", "design", "dependency", "environment", "permission", "external"]},
-                "reason": {"type": "string", "minLength": 1},
-                "release_condition": {"type": "string", "minLength": 1}
-              }
-            }
-          ]
-        },
-        "current_attempt": {
-          "oneOf": [
-            {"type": "null"},
-            {"$ref": "#/$defs/current_attempt"}
-          ]
-        },
-        "reopen_context": {
-          "oneOf": [
-            {"type": "null"},
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "required": ["review_finding", "invalidated_acceptance"],
-              "properties": {
-                "review_finding": {"type": "string", "minLength": 1},
-                "invalidated_acceptance": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^AC[0-9]+$"}}
-              }
-            }
-          ]
-        }
-      }
-    },
     "supersession": {
-      "oneOf": [
-        {"type": "null"},
-        {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["reason", "replacement_ticket_id"],
-          "properties": {
-            "reason": {"type": "string", "minLength": 1},
-            "replacement_ticket_id": {"type": ["string", "null"], "pattern": "^T[0-9]{3,}$"}
-          }
-        }
-      ]
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reason", "replacement_ticket_id"],
+      "properties": {
+        "reason": {"type": "string", "minLength": 1},
+        "replacement_ticket_id": {"type": ["string", "null"], "pattern": "^T[0-9]{3,}$"}
+      }
     }
   },
   "$defs": {
-    "path_list": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
-    "current_attempt": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["number", "baseline", "existing_changes", "allowed_write_scope"],
-      "properties": {
-        "number": {"type": "integer", "minimum": 1},
-        "baseline": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["reference", "staged", "unstaged", "untracked"],
-          "properties": {
-            "reference": {"type": "string", "minLength": 1},
-            "staged": {"$ref": "#/$defs/path_list"},
-            "unstaged": {"$ref": "#/$defs/path_list"},
-            "untracked": {"$ref": "#/$defs/path_list"}
-          }
-        },
-        "existing_changes": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["included", "excluded"],
-          "properties": {
-            "included": {"$ref": "#/$defs/path_list"},
-            "excluded": {"$ref": "#/$defs/path_list"}
-          }
-        },
-        "allowed_write_scope": {"$ref": "#/$defs/path_list"}
-      }
-    }
+    "path_list": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}}
   }
 }

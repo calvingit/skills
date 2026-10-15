@@ -3,7 +3,7 @@ import copy
 import contextlib
 import io
 import test_bootstrap
-from test_bootstrap import dump_ticket, read_ticket
+from test_bootstrap import dump_ticket, read_ticket, runtime_entry, write_ticket
 import json
 import subprocess
 import tempfile
@@ -43,7 +43,7 @@ class RequirementChangesTests(unittest.TestCase):
         (self.task / 'SPEC.md').write_text('# Spec\n1. **R1** — Run.\n- **AC1** — Covers: R1. Run.\n')
         (self.task / 'SOLUTION.md').write_text('# Solution\n- **D1** — Use graph.\n')
         self.path = self.task / 'tickets/T001-test.md'
-        self.path.write_text(dump_ticket(ticket()))
+        write_ticket(self.task, ticket(), 'T001-test.md')
         self.code = self.workspace / 'src.py'
         self.code.write_text('print(1)\n')
         subprocess.run(['git', '-C', str(self.workspace), 'add', '.'], check=True)
@@ -74,11 +74,11 @@ class RequirementChangesTests(unittest.TestCase):
 
 
     def test_retention_preserves_evidence_and_allows_original_defect_reopen(self):
-        self.execute(); evidence = read_ticket(self.path)['execution']['evidence']
+        self.execute(); evidence = runtime_entry(self.task, 'T001')['evidence']
         self.change()
         payload, code = self.retain()
         self.assertEqual(code, 0, payload)
-        self.assertEqual(read_ticket(self.path)['execution']['evidence'], evidence)
+        self.assertEqual(runtime_entry(self.task, 'T001')['evidence'], evidence)
         result, code = mutate_ticket('reopen', self.task, 'T001', {'review_finding': 'Original AC failure', 'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
         self.assertEqual(code, 0, result)
 
@@ -142,6 +142,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'stale')
         with self.assertRaises(ValueError): delivery.complete(self.task, self.review_request(context))
 
+
     def test_finalization_reports_and_updated_file_input_preserve_snapshot(self):
         from graph_cli import invoke_loop
         self.execute()
@@ -159,6 +160,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(delivery.status(self.task)['state'], 'passed')
         self.assertEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
 
+
     def test_final_snapshot_detects_added_untracked_changed_and_deleted_products(self):
         self.execute()
         added = self.workspace / 'new-test.py'
@@ -171,6 +173,7 @@ class RequirementChangesTests(unittest.TestCase):
             self.assertNotEqual(delivery._snapshot(self.task.resolve(), self.workspace.resolve())[0], context['snapshot'])
             with self.assertRaises(ValueError):
                 delivery.complete(self.task, self.review_request(context))
+
 
     def test_final_snapshot_keeps_other_task_artifacts_and_ticket_definitions(self):
         self.execute()
@@ -198,6 +201,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.path.write_text(self.path.read_text().replace("## Constraints", "\n## Constraints"))
         self.assertEqual(delivery.status(self.task)["state"], "stale")
 
+
     def test_final_review_rejects_missing_acceptance_and_failed_verification(self):
         self.execute(); context = delivery.prepare(self.task, self.workspace)
         request = self.review_request(context)
@@ -209,6 +213,7 @@ class RequirementChangesTests(unittest.TestCase):
             with self.assertRaises(ValueError): delivery.complete(self.task, invalid)
         self.assertEqual(delivery.status(self.task)['state'], 'pending')
 
+
     def test_final_delivery_still_requires_review_after_local_completion(self):
         self.execute()
         context = delivery.prepare(self.task, self.workspace)
@@ -218,6 +223,7 @@ class RequirementChangesTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             delivery.complete(self.task, request)
         self.assertEqual((self.task / '.loop/delivery.json').read_bytes(), before)
+
 
     def test_context_notes_do_not_invalidate_final_delivery(self):
         self.execute()
@@ -233,13 +239,14 @@ class RequirementChangesTests(unittest.TestCase):
         (notes / 'context.md').write_text('New execution observation.')
         self.assertEqual(delivery.status(self.task)['state'], 'passed')
 
+
     def test_local_completion_releases_dependency_without_passing_delivery(self):
         dependent = self.task / 'tickets/T002-dependent.md'
-        dependent.write_text(dump_ticket(ticket(id="T002", dependencies=["T001"])))
+        write_ticket(self.task, ticket(id="T002", dependencies=["T001"]), 'T002-dependent.md')
         self.execute()
-        stored = read_ticket(self.path)
-        self.assertEqual(stored['lifecycle']['phase'], 'done')
-        self.assertNotIn('review', stored['execution'])
+        stored = runtime_entry(self.task, 'T001')
+        self.assertEqual(stored['phase'], 'done')
+        self.assertNotIn('review', stored)
         self.assertEqual(inspect(self.task)[0]['graph']['frontier'], ['T002'])
         self.assertEqual(delivery.status(self.task)['state'], 'not_reviewed')
         start = {'baseline': {'reference': 'HEAD', 'staged': [], 'unstaged': [], 'untracked': []},
@@ -252,6 +259,7 @@ class RequirementChangesTests(unittest.TestCase):
         self.assertEqual(code, 0, result)
         self.assertTrue(inspect(self.task)[0]['graph']['delivery_ready'])
         self.assertEqual(delivery.status(self.task)['state'], 'not_reviewed')
+
 
     def test_local_reopen_preserves_unaffected_evidence_and_rejects_old_attempt(self):
         stored = read_ticket(self.path)
@@ -269,7 +277,10 @@ class RequirementChangesTests(unittest.TestCase):
             'review_finding': 'Final review found first behavior incorrect.',
             'invalidated_acceptance': ['AC1'], 'upstream_unchanged': True})
         self.assertEqual(code, 0, result)
-        self.assertEqual(read_ticket(self.path)['execution']['evidence'], {'AC2': evidence['AC2']})
+        self.assertEqual(
+            runtime_entry(self.task, 'T001')['evidence'],
+            {'AC2': {'attempt': attempt, 'summary': 'Unaffected second check.'}},
+        )
         new_attempt = self.start()
         self.assertEqual(new_attempt, attempt + 1)
         before = self.path.read_bytes()
@@ -297,7 +308,7 @@ class RequirementChangesTests(unittest.TestCase):
                    "existing_changes": {"included": [], "excluded": []}, "allowed_write_scope": ["src.py"]}
         result, code = mutate_ticket("start", self.task, "T001", request)
         self.assertEqual(code, 0, result)
-        return result["result"]["ticket"]["execution"]["attempt_sequence"]
+        return result["result"]["ticket"]["runtime"]["attempt"]
 
     def execute(self):
         attempt = self.start()
@@ -315,7 +326,7 @@ class RequirementChangesTests(unittest.TestCase):
         text = "# 人工审查\n符合需求。\n\n```text\nPASS 只是示例，不是解析指令\n```\n"
         result, code = mutate_ticket("complete", self.task, "T001", {"expected_attempt": attempt, **ticket_completion(review=text)})
         self.assertEqual(code, 0, result)
-        self.assertEqual(read_ticket(self.path)["execution"]["review"], text)
+        self.assertEqual(runtime_entry(self.task, "T001")["review"], text)
         context = delivery.prepare(self.task, self.workspace)
         delivery.complete(self.task, {"snapshot": context["snapshot"], **completion(review=text)})
         stored = json.loads((self.task / ".loop/delivery.json").read_text())
