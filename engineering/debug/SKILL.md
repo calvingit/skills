@@ -1,125 +1,66 @@
 ---
 name: debug
-description: Diagnosis loop for hard bugs, non-deterministic failures, and performance regressions. Fixing requires explicit authorisation.
+description: Reproduce, locate, and fix confirmed runtime problems, including hard-to-reproduce, non-deterministic failures and performance regressions. Diagnosis-only requests stop at the root cause without changing code.
 ---
 
 # Debug
 
-A discipline for confirmed runtime problems. Do not divert bug work into SPEC or ticket splitting.
+Debug like an experiment: every changed line traces to runtime evidence. Belt-and-suspenders that "might help" is a hypothesis, not a fix. When evidence refutes a hypothesis, revert what it motivated. Do not divert bug work into SPEC or ticket splitting.
 
-When exploring the codebase, discover domain docs, ADRs / decision records, and coding standards the way the project already lays them out. Check the working tree before editing. Do not assume these files live at a fixed path.
+Discover domain docs, ADRs / decision records, and coding standards the way the project already lays them out. Check the working tree before editing.
 
-## Authorisation
+## Before you start
 
-Write down expected behaviour, actual behaviour, and where the expectation comes from. If the expectation is unconfirmed, do not change code. Name the evidence gap and tell the user to run `grilling` — do not Call the Skill tool for grilling from debug.
-
-When the user asked for a fix, continue to the smallest fix after the bug is confirmed. When they asked only to diagnose, analyse, or investigate, stop at diagnosis.
-
-- Confirmed bug: fix the root cause, not the symptom.
-- Insufficient evidence, or not a bug: do not change code. Name the gap.
+- Write down expected behaviour, actual behaviour, and where the expectation comes from. If the expectation is unconfirmed, do not change code: name the gap and tell the user to run `grilling`.
+- When the user asked only to diagnose, analyse, or investigate, stop at the root cause. Continue to a fix only when they asked for one.
 - Do not commit, push, create a branch, or rewrite history on your own.
-- Skip a diagnosis phase only when the repro already isolates the root cause and the evidence can support a minimal fix — and say why.
-- Cross-layer, intermittent, environment, or performance problems run the full loop.
+- Redact every secret in commands, outputs, and user-supplied material as `<REDACTED>`. Keep credentials in env vars.
 
-## Redact
+## 1. Reproduce it yourself
 
-This skill has you show commands, outputs, and captured artifacts. **Redact every secret first** — write `<REDACTED>` in its place. Keep credentials in env vars, not in the command or the output. Quote only the lines that carry the signal.
+- Drive every means you have before asking the user. Prefer, in order: a failing test on the real call path; curl / CLI / browser automation; replay of a captured request, trace, or log; a throwaway script last.
+- The repro must assert the user's exact symptom — not "didn't crash", and not a nearby different failure.
+- For non-deterministic bugs, record the observed reproduction rate and conditions. No hard run counts or thresholds; a rate that can distinguish hypotheses is enough.
+- When you cannot reach a matching environment, ask the user for specific items: environment URL, test account (via env vars or a disposable account, never pasted in plain text), repro steps, logs / HAR / recording. Say why you need them and how far you got.
+- Once it reproduces, minimise: cut inputs, config, and steps one at a time until every remaining element is load-bearing.
+- If it still cannot be reproduced, continue read-only investigation. Label every hypothesis from logs or call chains as unverified, and record the non-reproducible scope as a verification limit. An unverified hypothesis is never written as the root cause.
 
-## Phase 1 — Build a feedback loop
+## 2. Binary-search the cause
 
-Seek a discriminating signal for the reported failure. A repeatable pass/fail loop improves diagnosis, but does not guarantee the cause or exclude useful investigation from captured observations. Preserve uncertainty when the available evidence cannot distinguish explanations.
+- List falsifiable hypotheses, each with a prediction: "If X is the cause, changing Y makes the bug disappear; changing Z makes it worse."
+- Each round, take the split that cuts the most remaining possibilities, get runtime evidence, eliminate. Don't guess.
+- When program state is unclear, instrument: debugger or REPL first, then targeted logs at distinguishing boundaries. Tag every debug log with a unique prefix such as `[DEBUG-a4f2]`. Never "log everything and grep".
+- For performance regressions, measure a baseline first.
+- If the subsystem is unfamiliar or a regression is suspected, trace code paths and history the way `how` / `why` would, or suggest the user run those skills. Do not call them from debug.
+- Before fixing, the surviving mechanism must have runtime evidence that distinguishes it from rival explanations.
 
-Prefer one command that can go red on *this* bug and that you can re-run:
+## 3. Fix
 
-1. A failing test at the seam on the real call path.
-2. curl, CLI, browser automation, or a captured-trace replay.
-3. A throwaway harness or script last.
+- Fix the root cause with the smallest change the evidence justifies. If the same pattern exists elsewhere, point it out.
+- If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, or internals. Call the Skill tool with "codebase-design" when the Seam / Interface itself may need to move.
 
-If cheap options cannot produce a red signal, escalate using `references/feedback-loop-escalation.md` — construction order, tightening for diagnostic value, and non-deterministic strategy.
+## 4. Regression test
 
-The loop must assert the user's exact symptom, not "didn't crash".
+- When a local test is cheap, turn the minimised repro into a test on the real production construction and call path. Watch it fail, fix, watch it pass (same cadence as `tdd`).
+- When the test would be expensive, integration-heavy, or unclear, skip it and state why in the report.
 
-The command-based feedback loop is established when you can name **one command** you have **already run at least once** (show the invocation and its redacted output) that is:
+## 5. Verify on the same surface
 
-- **Red-capable** — it drives the actual bug path and asserts the user's exact symptom, so it can go red on this bug and green once fixed.
-- **Repeatable** — same verdict every run, or, for flaky bugs, a recorded reproduction rate high enough to debug against.
-- **Agent-runnable** — you can run it unattended. When a human must be in the loop, structure it with `scripts/hitl-loop.template.sh` or an equivalent host-native interactive mechanism; the requirement is a re-runnable, captured loop, not one specific script.
+- Re-run the original, un-minimised repro from step 1. It must pass.
+- "Inconclusive" or a different environment is not a pass. Unit tests show branch behaviour, not bug absence.
+- Real-environment verification is optional. Without one, verify on the closest available environment and state "not verified in real environment" and what that gap leaves open.
 
-While building the loop, you may inspect code, logs, and the environment as read-only inputs. Do not execute a fix until your evidence can distinguish the current hypothesis from its rivals — normally a red-capable command; where the environment cannot reproduce, a recorded set of observations that together distinguish the hypothesis, with the non-reproducible parts kept as verification limits.
+## 6. Close out
 
-When you cannot build a loop, report that limit and what you tried; continue useful read-only investigation. Identify the minimum reproducing access, redacted artifact (HAR, log dump, recording), or authorized instrumentation needed to resolve the remaining uncertainty. You may still form hypotheses from read-only evidence — logs, call chains, state changes, captured artifacts — as long as each is explicitly labelled unverified; proposing a labelled hypothesis is not executing an unproven fix.
+- Remove all `[DEBUG-...]` instrumentation and throwaway scripts. Clean cross-session diagnosis notes per project convention, or state why they are kept.
+- Call the Skill tool with "simplify" only when the diff has a clear complexity problem or the user asks.
+- Suggest the commit order: failing test first, fix on top. The user decides whether to commit.
+- If the problem needs an architecture change after the fix, tell the user to run `review-architecture`. Do not widen this debug.
 
-## Phase 2 — Reproduce + minimise
+## Report
 
-Run the loop when you have one. Confirm it produces the failure the **user** described — not a nearby different failure. Record how reproducible it is.
-
-Cut inputs, callers, config, and steps one at a time until every remaining element is load-bearing. Capture the exact symptom: error, wrong output, or wrong timing.
-
-Reproduce and minimise before executing a fix. When the failure cannot be reproduced in available resources (production-only, non-deterministic, restricted environment), continue the investigation with labelled hypotheses from logs, call chains, and state changes, and record the non-reproducible scope as a verification limit — an unverified hypothesis must never be written as the root cause.
-
-## Phase 3 — Hypothesise
-
-List falsifiable hypotheses ranked by current evidence. If the evidence supports one strong hypothesis, do not invent extras to pad the list. Label each hypothesis with its current status: unverified, supported, or ruled out.
-
-Each hypothesis must state a prediction:
-
-> If <X> is the cause, then <changing Y> will make the bug disappear / <changing Z> will make it worse.
-
-Show the ranked list to the user and continue authorized investigation. Change one variable at a time only when the probe and its side effects are within the granted scope; diagnosis-only authorization does not grant product changes.
-
-## Phase 4 — Instrument
-
-Each probe maps to a Phase 3 prediction.
-
-1. Debugger / REPL if the env supports it.
-2. Targeted logs at the boundaries that distinguish hypotheses.
-3. Never "log everything and grep".
-
-Tag every debug log with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup becomes one grep.
-
-For performance regressions: measure a baseline first, then locate the regression and change the code. Do not substitute generalized logs for measurement.
-
-## Phase 5 — Fix + regression test
-
-Diagnosis-only mode stops here. Report root cause, ruled-out hypotheses, impact bounds, and behaviour the fix must preserve.
-
-Default fix mode:
-
-1. Turn the minimised repro into a regression test on the real production construction, public entry, and same call path.
-2. Watch it fail.
-3. Apply the smallest root-cause fix.
-4. Watch it pass.
-5. Re-run the original, un-minimised Phase 1 loop.
-
-When no repro exists and the fix rests on a distinguishing observation set instead, the fix is not verified until a regression check exists for the originally observed failure; record that as an explicit verification limit in the report.
-
-If no correct seam exists, do not expose `forTest`, mutable callbacks, delay parameters, noops, or internals. Call the Skill tool with "codebase-design" when the Seam / Interface itself may need to move. Do not widen a production API for tests unless that production change is justified.
-
-## Phase 6 — Simplify only when needed
-
-After the fix and regression pass, Call the Skill tool with "simplify" only when the current diff has a clear complexity problem or the user asks. Do not make simplify a required Debug stage.
-
-- `completed` with edits: re-run related tests and the applicable targeted static, format, and diff-whitespace checks.
-- `no_change`: keep the receipt; reuse verification that is still valid.
-- `blocked` or `failed`: stop and report. Do not pretend done.
-
-Simplification must not change error handling, lifecycle, concurrency, cancel, protocol, or user-observable behaviour.
-
-## Phase 7 — Cleanup
-
-Before declaring done:
-
-- Original repro no longer reproduces (re-run the Phase 1 loop).
-- Regression test passes, or the missing seam is recorded.
-- All `[DEBUG-...]` instrumentation and throwaway scripts are gone.
-- Cross-session diagnosis docs are cleaned up per project convention, or their keep-reason is stated.
-- `simplify`, if run, returned `completed` or `no_change`.
-- The report names root cause, change, validation, unverified items, and remaining risk.
-
-If the problem needs an architecture change *after* the fix, tell the user to run `review-architecture`. Do not Call the Skill tool for it from debug, and do not widen this debug.
+What was broken / root cause / fix / how you verified. Paste redacted failing-then-passing repro output verbatim. End with unverified items and remaining risk.
 
 ## Across sessions
 
-Create a minimal diagnosis checkpoint only when the work cannot finish in this session. Prefer the target repo's existing task / debug convention. With no convention, ask or keep state in the current session — do not invent a fixed filename at repo root.
-
-The checkpoint records symptom, expectation source, feedback command, observations, tested hypotheses, root-cause status, and next step. A new session reads it and continues from verified state. After the problem is solved, confirmed not a bug, or abandoned, state whether that checkpoint was cleaned or kept. Do not leave stale diagnosis as fact.
+When the work cannot finish in this session, leave a minimal checkpoint in the project's existing convention: symptom, expectation source, repro command, ruled-out hypotheses, next step. Do not invent a fixed filename at repo root. After the problem is solved or abandoned, say whether the checkpoint was cleaned or kept.
