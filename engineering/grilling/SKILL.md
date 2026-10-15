@@ -35,14 +35,28 @@ choice does not belong in this interview.
 
 Number questions and keep each focused on the decision, necessary context, and key consequences. Give a recommendation and its reason when supported. Use meaningful options or ask directly; do not force A/B/C. Accept free-form answers and alternatives.
 
-```markdown
-❓ **Q1** — **<decision>**: <context, question and meaningful choices>
-➡️ <recommendation and reason>
+````markdown
+### Q1. <decision>
+
+<necessary context and key consequences, one or two sentences>
+
+<the question>
+
+- **A.** <option>
+- **B.** <option>
+
+> **Recommend:** <option> — <reason>
+
+---
+
+### Q2. <decision>
+
+...
 
 **Reply:** `1A, 2: <answer or alternative>`
-```
+````
 
-Show the reply shortcut once per round. Keep numbering unique across rounds.
+Give each question its own heading, separate context, question, options and recommendation with blank lines, and put `---` between questions. Omit the option list when asking directly. Show the reply shortcut once, at the end of the round. Keep numbering unique across rounds.
 
 ## Session documents
 
