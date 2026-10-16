@@ -15,7 +15,7 @@ from ticket_graph.runtime import fresh_entry
 
 SCRIPT = Path(__file__).parent / "graph_cli.py"
 SCHEMAS = Path(__file__).parents[1]
-REPOSITORY = Path(__file__).parents[3]
+REPOSITORY = Path(__file__).parents[4]
 
 from ticket_graph.authority import bind_authority
 
@@ -1101,10 +1101,10 @@ class TicketGraphCliTests(unittest.TestCase):
     def test_workflow_contract_docs_are_markdown_only_and_command_aligned(self) -> None:
         paths = [
             REPOSITORY / "README.md",
-            REPOSITORY / "engineering" / "graph-workflow" / "SKILL.md",
-            REPOSITORY / "engineering" / "to-tickets" / "SKILL.md",
-            REPOSITORY / "engineering" / "shared" / "ticket-schema.json",
-            REPOSITORY / "engineering" / "shared" / "runtime-state-schema.json",
+            REPOSITORY / "engineering" / "skills" / "graph-workflow" / "SKILL.md",
+            REPOSITORY / "engineering" / "skills" / "to-tickets" / "SKILL.md",
+            REPOSITORY / "engineering" / "skills" / "shared" / "ticket-schema.json",
+            REPOSITORY / "engineering" / "skills" / "shared" / "runtime-state-schema.json",
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 

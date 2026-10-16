@@ -44,7 +44,7 @@ Changes to code, requirements, tests, fixtures, snapshots, verification configur
 
 ## State and execution boundaries
 
-Resolve `<graph-workflow-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status`. Tickets are Markdown contracts: never hand-edit their frontmatter, and expect no execution field there. `recover` repairs a graph transaction, not an Agent session.
+Resolve `<graph-workflow-skill>` to this installed skill directory; scripts use Python 3.10+ and sibling `engineering/skills/shared/`. Query with `scripts/frontier` or `scripts/graph-query`; write every ticket state change and delivery record with `scripts/update-status`. Tickets are Markdown contracts: never hand-edit their frontmatter, and expect no execution field there. `recover` repairs a graph transaction, not an Agent session.
 
 A ticket is a stable contract; its progress is ephemeral. `.loop/state.json` is the single source of the current phase, attempt, evidence, blocker and authority, and the graph is always queried with both stores merged — do not read or reconcile the two files by hand. Tickets that exist with no runtime state are never assumed unexecuted: the graph stops with `missing_runtime_state`, and only an explicit user instruction to re-initialize (after confirming the progress is lost) may rebuild it with `scripts/update-status init-state`. Do not commit `.loop/`.
 

@@ -25,7 +25,7 @@
 
 ## 安装与使用
 
-本仓库维护的是本地适配版本，安装时使用当前 checkout 中的 `engineering/fuck-my-shit-mountain/`，不要用重新下载的上游副本覆盖本地规则。完整目录包含 prompts、rubrics、templates 和 scripts，不能只复制 `SKILL.md`。
+本仓库维护的是本地适配版本，安装时使用当前 checkout 中的 `engineering/skills/fuck-my-shit-mountain/`，不要用重新下载的上游副本覆盖本地规则。完整目录包含 prompts、rubrics、templates 和 scripts，不能只复制 `SKILL.md`。
 
 来源记录：[Fuck_My_Shit_Mountain](https://github.com/XiNian-dada/Fuck_My_Shit_Mountain)。此链接用于追溯来源，不是本地适配版本的安装入口。
 
@@ -34,7 +34,7 @@
 需要分发包时，在本仓库根目录运行：
 
 ```bash
-python3 engineering/fuck-my-shit-mountain/scripts/package_skill.py --output /tmp/project-audit-skill.zip
+python3 engineering/skills/fuck-my-shit-mountain/scripts/package_skill.py --output /tmp/project-audit-skill.zip
 ```
 
 安装位置和是否支持目录链接由目标运行环境决定；文件可访问不等于已加载，安装后应核对发现结果。
@@ -96,7 +96,7 @@ fuck-my-shit-mountain/
 在仓库根目录运行离线脚本测试：
 
 ```bash
-PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s engineering/fuck-my-shit-mountain/tests -p 'test_report_lint.py'
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s engineering/skills/fuck-my-shit-mountain/tests -p 'test_report_lint.py'
 ```
 
 JSON Schema 回归测试使用 `jsonschema`；环境已提供该依赖时运行 `test_report_schema.py`。评分、证据、覆盖范围和报告格式以 Skill 入口引用的规则为准，这里不另列第二份强制要求。

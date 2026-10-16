@@ -2,7 +2,7 @@
 """Static checks for this skills repository.
 
 Checks local Markdown links and anchors, SKILL.md frontmatter, and
-agents/openai.yaml basics, then runs engineering/shared/check.py.
+agents/openai.yaml basics, then runs engineering/skills/shared/check.py.
 Usage: python3 scripts/check_repo.py [--no-state-tests]
 """
 import re
@@ -14,8 +14,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SKILL_DIRS = ("engineering", "backend", "documents", "work")
 # Example paths inside templates, not real links.
 IGNORED_LINKS = {
-    ("engineering/project-setup/references/profile.md", ".agents/engineering-profile.md"),
-    ("engineering/solution-design/references/solution-template.md", "SPEC.md"),
+    ("engineering/skills/project-setup/references/profile.md", ".agents/engineering-profile.md"),
+    ("engineering/skills/solution-design/references/solution-template.md", "SPEC.md"),
 }
 
 
@@ -55,7 +55,7 @@ def check_links():
 def check_skills():
     errors = []
     for top in SKILL_DIRS:
-        for skill in sorted((ROOT / top).glob("*/SKILL.md")):
+        for skill in sorted((ROOT / top).glob("skills/*/SKILL.md")):
             rel = skill.relative_to(ROOT).as_posix()
             m = re.match(r"---\n(.*?)\n---\n", skill.read_text(), re.S)
             if not m:
@@ -89,6 +89,9 @@ def check_plugins():
     import json
     errors, versions = [], {}
     for cat in CATEGORIES:
+        for extra in sorted((ROOT / cat).iterdir()):
+            if extra.name not in (".claude-plugin", "plugin.json", "skills"):
+                errors.append(f"{extra.relative_to(ROOT)}: put it under {cat}/skills/")
         for manifest in MANIFESTS:
             f = ROOT / cat / manifest
             if not f.exists():
@@ -97,9 +100,9 @@ def check_plugins():
             data = json.loads(f.read_text())
             if data.get("name") != f"zstack-{cat}":
                 errors.append(f"{f.relative_to(ROOT)}: name should be zstack-{cat}")
-            if manifest == ".claude-plugin/plugin.json" and data.get("skills") != ["./"]:
-                # skill 直接放在分类目录下，不写 skills 时 Claude Code 只找 ./skills/，会装上 0 个 skill
-                errors.append(f"{f.relative_to(ROOT)}: skills should be [\"./\"]")
+            if "skills" in data:
+                # skill 放在 <分类>/skills/ 下，靠各工具的默认发现；写了 skills 字段容易和默认路径冲突
+                errors.append(f"{f.relative_to(ROOT)}: drop the skills field; skills live in ./skills/")
             if manifest == "plugin.json" and data.get("$schema") != SPEC_SCHEMA:
                 errors.append(f"{f.relative_to(ROOT)}: $schema should be {SPEC_SCHEMA}")
             versions[str(f.relative_to(ROOT))] = data.get("version")
@@ -126,7 +129,7 @@ def main():
     print(f"links, skill metadata and plugin manifests: {'FAIL' if errors else 'OK'}")
     code = 1 if errors else 0
     if "--no-state-tests" not in sys.argv:
-        code |= subprocess.call([sys.executable, str(ROOT / "engineering/shared/check.py")], cwd=ROOT)
+        code |= subprocess.call([sys.executable, str(ROOT / "engineering/skills/shared/check.py")], cwd=ROOT)
     return code
 
 

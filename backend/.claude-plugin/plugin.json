@@ -7,8 +7,5 @@
   },
   "homepage": "https://github.com/calvingit/skills",
   "repository": "https://github.com/calvingit/skills",
-  "license": "MIT",
-  "skills": [
-    "./"
-  ]
+  "license": "MIT"
 }

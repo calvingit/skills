@@ -83,7 +83,7 @@ For an upstream amendment, reconcile only tickets affected by the confirmed delt
 
 ## Script boundary
 
-Resolve `<to-tickets-skill>` to this installed skill directory, never to the target project's working directory. Run with Python 3.10+ on macOS/Linux; no global CLI installation is needed. Keep sibling `engineering/shared/` with this skill: it owns [the ticket schema](../shared/ticket-schema.json), the [runtime state schema](../shared/runtime-state-schema.json), graph validation and transactional storage. Scripts do not infer requirements or design from documents; this skill supplies the confirmed candidate split.
+Resolve `<to-tickets-skill>` to this installed skill directory, never to the target project's working directory. Run with Python 3.10+ on macOS/Linux; no global CLI installation is needed. Keep sibling `engineering/skills/shared/` with this skill: it owns [the ticket schema](../shared/ticket-schema.json), the [runtime state schema](../shared/runtime-state-schema.json), graph validation and transactional storage. Scripts do not infer requirements or design from documents; this skill supplies the confirmed candidate split.
 
 - `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; write v4 ticket contracts and initialize `.loop/state.json`.
 - `scripts/create-graph reconcile-batch`: apply an upstream amendment after Graph Workflow stops writers; switch contracts and runtime state in one transaction.
