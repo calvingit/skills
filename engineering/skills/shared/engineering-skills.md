@@ -57,7 +57,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 系统审计指定测试的有效性和维护成本 | [test-audit](../test-audit/SKILL.md)，按需使用，不是交付门 |
 | 推进执行图、处理反馈并完成最终交付 | [graph-workflow](../graph-workflow/SKILL.md) |
 
-验证方法试运行成功、本地测试通过和任务验收通过需要不同的证据，理由见 [Verify 证据说明](../verify/references/evidence.md)。缺少可重复的验证方法时用 verification-setup，缺少仓库测试时交给实现方。`quick-implement` 和 graph-workflow 的收尾都需要独立的 simplify、verify 和 code-review，分工见[收尾角色](closeout-roles.md)，correction 的复验范围见[最终验收](../graph-workflow/references/delivery-review.md)，状态命令和 Runtime 边界见 [Graph Workflow 说明](../../../docs/graph-workflow-runtime.md)。
+验证方法试运行成功、本地测试通过和任务验收通过需要不同的证据，理由见 [Verify 证据说明](../verify/references/evidence.md)。缺少可重复的验证方法时用 verification-setup，缺少仓库测试时交给实现方。`quick-implement` 和 graph-workflow 的收尾都需要独立的 simplify、verify 和 code-review，分工见[收尾角色](closeout-roles.md)，correction 的复验范围见[最终验收](../graph-workflow/references/delivery-review.md)，状态命令和 Runtime 边界见 [Graph Workflow 说明](../../docs/graph-workflow-runtime.md)。
 
 ## 产物入口
 
@@ -114,8 +114,8 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 
 ## 图示
 
-[![Engineering Skills 工作流](../../../docs/diagrams/engineering-workflow.svg)](../../../docs/diagrams/engineering-workflow.svg)
+[![Engineering Skills 工作流](../../docs/diagrams/engineering-workflow.svg)](../../docs/diagrams/engineering-workflow.svg)
 
-[![本地 Ticket 生命周期](../../../docs/diagrams/ticket-lifecycle.svg)](../../../docs/diagrams/ticket-lifecycle.svg)
+[![本地 Ticket 生命周期](../../docs/diagrams/ticket-lifecycle.svg)](../../docs/diagrams/ticket-lifecycle.svg)
 
 维护本仓库时的约定见[维护规范](maintenance.md)；修订停写顺序见[任务契约 · Amendment](task-contract.md#amendment-stop-write-protocol)。

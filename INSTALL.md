@@ -9,7 +9,7 @@
 | `zstack-documents` | `documents/skills/` |
 | `zstack-work` | `work/skills/` |
 
-每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里（`engineering/skills/shared/` 是工程 skill 共用的契约和脚本，不是 skill）。插件根只放两份清单：`.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和根上的 `plugin.json`（[Agent Plugins](https://agent-plugins.org/) 1.0.0 通用清单）。仓库根只放市场文件。`docs/`、`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
+每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里（`engineering/skills/shared/` 是工程 skill 共用的契约和脚本，不是 skill）。插件根只放 `.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和一份 README，布局参照 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)。仓库根放市场文件和 INSTALL.md、RELEASING.md 等说明。`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
 
 ## 各工具读取的配置
 
@@ -97,6 +97,6 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 ## 版本与发版
 
-Claude Code 和 ZCode 只在版本号变化时更新；Codex 和 Cursor 更新时直接取 main 的最新提交。改版本号和发版步骤见 [releasing.md](./releasing.md)。
+Claude Code 和 ZCode 只在版本号变化时更新；Codex 和 Cursor 更新时直接取 main 的最新提交。改版本号和发版步骤见 [releasing.md](./RELEASING.md)。
 
-不用插件、手动链接单个 Skill 目录的方式见 [README](../README.md#手动安装)。
+不用插件、手动链接单个 Skill 目录的方式见 [README](./README.md#手动安装)。

@@ -17,7 +17,7 @@ Graph Workflow 直接读取审查结果字符串并根据内容作判断，脚�
 
 交接时提供当前任务、attempt、权威来源、基线、已有改动、验证入口和资源范围。优先复用已有上下文，必要时在任务 `.loop/` 中写简短的来源摘要，不强制 context 文件对、性能台账或另一套会话状态。摘要不替代代码、SPEC、技术方案和 ticket。复用同一 worker 时仍要重新交代当前 ticket、attempt、写入范围、验收来源和磁盘上已有的其他 ticket 变更，各 ticket 的 scope 与证据不合并。
 
-普通实现必须委派给 Runtime 原生 worker，默认串行：同一时间最多一个实现 worker，并优先复用同一 worker 的上下文。并行只在用户明确要求 swarm 时使用，且必须来自当前 ready frontier、无直接依赖、写入范围不重叠、共享构建缓存/测试进程/外部可变资源无冲突、无未决共享技术契约；不满足条件的 ticket 等下一轮。串行与 swarm 共用同一套 Frontier、Lifecycle、Authority、Evidence、Delivery Snapshot 与收尾要求，模式不改变契约或验收标准。交接输入见[委派说明](../engineering/skills/graph-workflow/references/context-and-delegation.md)。
+普通实现必须委派给 Runtime 原生 worker，默认串行：同一时间最多一个实现 worker，并优先复用同一 worker 的上下文。并行只在用户明确要求 swarm 时使用，且必须来自当前 ready frontier、无直接依赖、写入范围不重叠、共享构建缓存/测试进程/外部可变资源无冲突、无未决共享技术契约；不满足条件的 ticket 等下一轮。串行与 swarm 共用同一套 Frontier、Lifecycle、Authority、Evidence、Delivery Snapshot 与收尾要求，模式不改变契约或验收标准。交接输入见[委派说明](../skills/graph-workflow/references/context-and-delegation.md)。
 
 ## 状态脚本与部署
 
@@ -39,7 +39,7 @@ python3 engineering/skills/graph-workflow/scripts/update-status start /path/to/t
 python3 engineering/skills/graph-workflow/scripts/update-status complete /path/to/task T001 --input /path/to/complete.json
 ```
 
-输入定义见 [建图与协调](../engineering/skills/to-tickets/references/script-inputs.md)、[执行状态](../engineering/skills/graph-workflow/references/script-inputs.md)。
+输入定义见 [建图与协调](../skills/to-tickets/references/script-inputs.md)、[执行状态](../skills/graph-workflow/references/script-inputs.md)。
 
 `.loop/` 仍位于任务目录，与 `SPEC.md`、`tickets/` 同级，并带有自己的 `.gitignore`：`state.json` 保存当前执行进度，报告、命令记录和交付输入也放在这里。现有图锁和临时事务目录也按任务隔离。脚本不建立项目级共享运行状态，也不支持跨机器或云端同步。
 
@@ -67,7 +67,7 @@ python3 engineering/skills/graph-workflow/scripts/update-status complete /path/t
 
 ## 最终交付
 
-`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Graph Workflow Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，保存原报告后更新快照，默认转入 targeted closeout：独立重验受影响 SPEC AC、原 regression 和项目 mandatory gates，独立审查累积修正及相关路径，确认其余证据仍适用。只有实际影响扩大、原 broad review 依据失效时才升级 broad review，不因再次 delivery_ready 自动重跑全套收尾。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../engineering/skills/graph-workflow/references/delivery-review.md)。完成后记录判断：
+`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Graph Workflow Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，保存原报告后更新快照，默认转入 targeted closeout：独立重验受影响 SPEC AC、原 regression 和项目 mandatory gates，独立审查累积修正及相关路径，确认其余证据仍适用。只有实际影响扩大、原 broad review 依据失效时才升级 broad review，不因再次 delivery_ready 自动重跑全套收尾。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../skills/graph-workflow/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <graph-workflow-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>

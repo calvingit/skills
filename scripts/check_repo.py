@@ -79,18 +79,19 @@ def check_skills():
 
 
 CATEGORIES = ("engineering", "backend", "documents", "work")
-MANIFESTS = (".claude-plugin/plugin.json", "plugin.json")  # Claude 清单 + Agent Plugins 通用清单
+MANIFESTS = (".claude-plugin/plugin.json",)
 MARKETS = (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json")
-SPEC_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
+ALLOWED_TOP = {".claude-plugin", "README.md", "skills"}
+EXTRA_TOP = {"engineering": {"docs"}}
 
 
 def check_plugins():
-    """每个分类插件的两份清单齐全、名字正确、版本一致；市场文件列出全部插件。"""
+    """每个分类插件的 Claude 清单齐全、名字正确、版本一致；市场文件列出全部插件。"""
     import json
     errors, versions = [], {}
     for cat in CATEGORIES:
         for extra in sorted((ROOT / cat).iterdir()):
-            if extra.name not in (".claude-plugin", "plugin.json", "skills"):
+            if extra.name not in ALLOWED_TOP | EXTRA_TOP.get(cat, set()):
                 errors.append(f"{extra.relative_to(ROOT)}: put it under {cat}/skills/")
         for manifest in MANIFESTS:
             f = ROOT / cat / manifest
@@ -103,8 +104,6 @@ def check_plugins():
             if "skills" in data:
                 # skill 放在 <分类>/skills/ 下，靠各工具的默认发现；写了 skills 字段容易和默认路径冲突
                 errors.append(f"{f.relative_to(ROOT)}: drop the skills field; skills live in ./skills/")
-            if manifest == "plugin.json" and data.get("$schema") != SPEC_SCHEMA:
-                errors.append(f"{f.relative_to(ROOT)}: $schema should be {SPEC_SCHEMA}")
             versions[str(f.relative_to(ROOT))] = data.get("version")
     for m in MARKETS:
         f = ROOT / m
