@@ -43,7 +43,7 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill（2026-10-16
 | 改动 | 方法 | 能证明什么 |
 | --- | --- | --- |
 | 任何文档或 Skill | `python3 scripts/check_repo.py`（本地链接与锚点、SKILL.md frontmatter、`agents/openai.yaml` 基本格式，再运行状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .` | 只证明格式和引用有效，不证明路由、约束强度或 Runtime 加载 |
-| 状态脚本（ticket graph、事务、CLI、交付快照） | `python3 engineering/skills/shared/check.py`，测试在 `engineering/skills/shared/tests/` | 临时仓库上的图、CLI 和快照行为，不执行真实 Agent 生命周期 |
+| 状态脚本（ticket graph、事务、CLI、交付快照） | `python3 Engineering/skills/shared/check.py`，测试在 `Engineering/skills/shared/tests/` | 临时仓库上的图、CLI 和快照行为，不执行真实 Agent 生命周期 |
 | 较大的流程改动：任务契约、路由、产物归属、验证判断 | 在隔离目录用当前候选 Skill 演练受影响的真实场景，检查实际决定、文件和观察 | 只覆盖演练过的场景 |
 | 后端 Skill | 用受影响的后端场景做隔离演练 | 文本演练不等于真实数据库测试 |
 

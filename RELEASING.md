@@ -3,7 +3,7 @@
 版本号按 semver，从 v3.0.0 开始（插件版本与 Ticket schema 版本各自独立）。不兼容的改动升主版本，新增能力升次版本，修正升修订号。
 
 1. 四个插件用同一个版本号。把下面这些 `version` 全改成新版本：
-   - 每个分类目录（`engineering/`、`backend/`、`documents/`、`work/`）下的 `.claude-plugin/plugin.json`，共 4 个
+   - 每个分类目录（`Engineering/`、`Backend/`、`Documents/`、`Work/`）下的 `.claude-plugin/plugin.json`，共 4 个
    - `.claude-plugin/marketplace.json` 里四个 zstack-* 条目的 `version`（ZCode 拿它和已安装版本比较）
 
    `scripts/check_repo.py` 会检查这些版本号是否一致，漏改会报错。

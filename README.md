@@ -12,10 +12,10 @@
 
 | 插件 | 内容 |
 | --- | --- |
-| [`zstack-engineering`](./engineering/README.md) | 工程工作流：需求、设计、拆票、实现、调试、评审、验证 |
-| [`zstack-backend`](./backend/README.md) | 后端：API 契约、事件驱动、Java、MySQL/MongoDB/Redis |
-| [`zstack-documents`](./documents/README.md) | 文档：同步、中文术语、去 AI 腔、网页转 Markdown |
-| [`zstack-work`](./work/README.md) | 日常工作：讲解、交接、提示词优化、搜索、教学 |
+| [`zstack-engineering`](./Engineering/README.md) | 工程工作流：需求、设计、拆票、实现、调试、评审、验证 |
+| [`zstack-backend`](./Backend/README.md) | 后端：API 契约、事件驱动、Java、MySQL/MongoDB/Redis |
+| [`zstack-documents`](./Documents/README.md) | 文档：同步、中文术语、去 AI 腔、网页转 Markdown |
+| [`zstack-work`](./Work/README.md) | 日常工作：讲解、交接、提示词优化、搜索、教学 |
 
 各工具的装法（以 `zstack-engineering` 为例，其他插件换个名字）：
 
@@ -66,16 +66,16 @@ npx skills add vuejs-ai/skills --skill vue-best-practices
    - 项目内：`.agents/skills/<skill-name>`，或工具文档指定的路径
 3. 不要把整库当成单个 Skill 安装。`scripts/` 和根目录的说明文件只用于维护本仓库，不是 Skill。
 4. 带 `scripts/` 的 Skill（如 `agent-tool`、`url-to-markdown`、`graph-workflow`）需要本机有对应依赖（多为 Python 3 / Bash）；缺依赖时按该 Skill 正文说明处理。
-5. 若曾从 `global/` 安装 Skill，需按新路径重装：`context-audit` 与 `agent-tool` 现位于 `engineering/`，其余原 `global/` Skill 现位于 `work/`。
+5. 若曾从 `global/` 安装 Skill，需按新路径重装：`context-audit` 与 `agent-tool` 现位于 `Engineering/`，其余原 `global/` Skill 现位于 `Work/`。
 
 ## 目录
 
 | 目录 | 内容 |
 | --- | --- |
-| [`engineering/`](./engineering/) | 插件 zstack-engineering；`docs/` 下是 Graph Workflow 与 Runtime 说明和图示 |
-| [`backend/`](./backend/) | 插件 zstack-backend |
-| [`documents/`](./documents/) | 插件 zstack-documents |
-| [`work/`](./work/) | 插件 zstack-work |
+| [`Engineering/`](./Engineering/) | 插件 zstack-engineering；`docs/` 下是 Graph Workflow 与 Runtime 说明和图示 |
+| [`Backend/`](./Backend/) | 插件 zstack-backend |
+| [`Documents/`](./Documents/) | 插件 zstack-documents |
+| [`Work/`](./Work/) | 插件 zstack-work |
 | [`scripts/`](./scripts/) | 仓库检查脚本 |
 | [INSTALL.md](./INSTALL.md)、[RELEASING.md](./RELEASING.md) | 安装、更新与发版 |
 
@@ -83,10 +83,10 @@ npx skills add vuejs-ai/skills --skill vue-best-practices
 
 ## Maintenance Rules（维护规则）
 
-完整治理规则见 [Maintenance](./engineering/skills/shared/maintenance.md)。要点：
+完整治理规则见 [Maintenance](./Engineering/skills/shared/maintenance.md)。要点：
 
 - 收敛期：暂停新增全局工程 Skill，只有真实任务证明现有职责无法承接时才提出新增；新增的 Skill 须原子、独立、不绑定 Runtime。
 - 不新增 Runtime 抽象、通用编排层，也不添加 CI（`.github/workflows`）。
 - 文档用自然的中文，避免 AI 腔和翻译腔。
 - 维护某个 Skill 时只读相关文档，普通修改不要求预读全部 Skills 或建立完整 SPEC / tickets。
-- 提交前运行 `python3 scripts/check_repo.py`（链接、Skill 元数据，并调用 `engineering/skills/shared/check.py` 跑状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .`。这些检查不能代替 Skill 行为、GUI 或 Runtime 验证，较大流程改动按维护规则做行为演练。
+- 提交前运行 `python3 scripts/check_repo.py`（链接、Skill 元数据，并调用 `Engineering/skills/shared/check.py` 跑状态脚本测试）和 `git diff --check`；改动插件清单时运行 `claude plugin validate .`。这些检查不能代替 Skill 行为、GUI 或 Runtime 验证，较大流程改动按维护规则做行为演练。

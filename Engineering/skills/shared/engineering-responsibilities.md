@@ -120,4 +120,4 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 
 ## 文档归属
 
-本文（谁负责什么）、[长期知识回写](knowledge-protocol.md)（长期发现交给谁）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `engineering/skills/shared/`，治理规则见[维护规范](maintenance.md)，仓库入口是根目录 README。插件安装和发版写在仓库根的 INSTALL.md、RELEASING.md，Graph Workflow / Runtime 关系写在 `engineering/docs/`，`scripts/` 放仓库检查脚本；具体执行规则、格式与示例由所属 Skill 及其参考资料维护。图示的 JSON 源文件与 SVG 一起保存在 `engineering/docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。
+本文（谁负责什么）、[长期知识回写](knowledge-protocol.md)（长期发现交给谁）、[调用关系](engineering-invocation.md)（谁可以调用谁）和[使用指南](engineering-skills.md)（什么时候选哪个入口）放在 `Engineering/skills/shared/`，治理规则见[维护规范](maintenance.md)，仓库入口是根目录 README。插件安装和发版写在仓库根的 INSTALL.md、RELEASING.md，Graph Workflow / Runtime 关系写在 `Engineering/docs/`，`scripts/` 放仓库检查脚本；具体执行规则、格式与示例由所属 Skill 及其参考资料维护。图示的 JSON 源文件与 SVG 一起保存在 `Engineering/docs/diagrams/`。变更时更新受影响的入口，不另建重复协议。

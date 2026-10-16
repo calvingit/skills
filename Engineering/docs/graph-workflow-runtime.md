@@ -23,20 +23,20 @@ Graph Workflow 直接读取审查结果字符串并根据内容作判断，脚�
 
 | 目录 | 职责 |
 | --- | --- |
-| `engineering/skills/to-tickets/scripts/` | 创建、校验、按上游变更协调执行图，以及 v3 任务的一次性本地转换 |
-| `engineering/skills/graph-workflow/scripts/` | 查询可执行任务、记录 attempt、状态流转和最终交付快照 |
-| `engineering/skills/shared/` | ticket 契约与 runtime state schema、图校验、文件锁、事务与恢复 |
+| `Engineering/skills/to-tickets/scripts/` | 创建、校验、按上游变更协调执行图，以及 v3 任务的一次性本地转换 |
+| `Engineering/skills/graph-workflow/scripts/` | 查询可执行任务、记录 attempt、状态流转和最终交付快照 |
+| `Engineering/skills/shared/` | ticket 契约与 runtime state schema、图校验、文件锁、事务与恢复 |
 
 使用 Python 3.10+，当前文件锁实现支持 macOS/Linux。没有第三方 Python 包、Codex 或 Claude Code 依赖，最终代码快照检查需要 Git。安装或复制相关 skill 时须保留兄弟目录 `shared/`，仅复制单个 SKILL.md 不足以运行脚本。脚本通过自身位置加载共享代码，调用时不要求当前目录位于 Skills 仓库。
 
 从本仓库根目录调用的例子：
 
 ```bash
-python3 engineering/skills/to-tickets/scripts/create-graph create-batch /path/to/task --input /path/to/request.json
-python3 engineering/skills/to-tickets/scripts/validate-graph /path/to/task
-python3 engineering/skills/graph-workflow/scripts/frontier /path/to/task
-python3 engineering/skills/graph-workflow/scripts/update-status start /path/to/task T001 --input /path/to/start.json
-python3 engineering/skills/graph-workflow/scripts/update-status complete /path/to/task T001 --input /path/to/complete.json
+python3 Engineering/skills/to-tickets/scripts/create-graph create-batch /path/to/task --input /path/to/request.json
+python3 Engineering/skills/to-tickets/scripts/validate-graph /path/to/task
+python3 Engineering/skills/graph-workflow/scripts/frontier /path/to/task
+python3 Engineering/skills/graph-workflow/scripts/update-status start /path/to/task T001 --input /path/to/start.json
+python3 Engineering/skills/graph-workflow/scripts/update-status complete /path/to/task T001 --input /path/to/complete.json
 ```
 
 输入定义见 [建图与协调](../skills/to-tickets/references/script-inputs.md)、[执行状态](../skills/graph-workflow/references/script-inputs.md)。
@@ -81,6 +81,6 @@ python3 <graph-workflow-skill>/scripts/frontier <task-dir>
 
 ## 仓库验证
 
-仓库根目录执行 `python3 engineering/skills/shared/check.py`，检查契约与运行状态分离、状态流转、需求协调、交付快照、串行/swarm 派发约束、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
+仓库根目录执行 `python3 Engineering/skills/shared/check.py`，检查契约与运行状态分离、状态流转、需求协调、交付快照、串行/swarm 派发约束、CLI 和脱离仓库工作目录的脚本调用。不测试或承诺外部 Agent CLI、生产副作用、原生 Runtime 自身的会话恢复与持续运行。
 
 Runtime 行为需真实工作流证据。

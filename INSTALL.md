@@ -4,12 +4,12 @@
 
 | 插件 | 目录 |
 | --- | --- |
-| `zstack-engineering` | `engineering/skills/`（含 `shared/`） |
-| `zstack-backend` | `backend/skills/` |
-| `zstack-documents` | `documents/skills/` |
-| `zstack-work` | `work/skills/` |
+| `zstack-engineering` | `Engineering/skills/`（含 `shared/`） |
+| `zstack-backend` | `Backend/skills/` |
+| `zstack-documents` | `Documents/skills/` |
+| `zstack-work` | `Work/skills/` |
 
-每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里（`engineering/skills/shared/` 是工程 skill 共用的契约和脚本，不是 skill）。插件根只放 `.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和一份 README，布局参照 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)。仓库根放市场文件和 INSTALL.md、RELEASING.md 等说明。`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
+每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里（`Engineering/skills/shared/` 是工程 skill 共用的契约和脚本，不是 skill）。插件根只放 `.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和一份 README，布局参照 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)。仓库根放市场文件和 INSTALL.md、RELEASING.md 等说明。`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
 
 ## 各工具读取的配置
 

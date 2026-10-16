@@ -1101,10 +1101,10 @@ class TicketGraphCliTests(unittest.TestCase):
     def test_workflow_contract_docs_are_markdown_only_and_command_aligned(self) -> None:
         paths = [
             REPOSITORY / "README.md",
-            REPOSITORY / "engineering" / "skills" / "graph-workflow" / "SKILL.md",
-            REPOSITORY / "engineering" / "skills" / "to-tickets" / "SKILL.md",
-            REPOSITORY / "engineering" / "skills" / "shared" / "ticket-schema.json",
-            REPOSITORY / "engineering" / "skills" / "shared" / "runtime-state-schema.json",
+            REPOSITORY / "Engineering" / "skills" / "graph-workflow" / "SKILL.md",
+            REPOSITORY / "Engineering" / "skills" / "to-tickets" / "SKILL.md",
+            REPOSITORY / "Engineering" / "skills" / "shared" / "ticket-schema.json",
+            REPOSITORY / "Engineering" / "skills" / "shared" / "runtime-state-schema.json",
         ]
         text = "\n".join(path.read_text(encoding="utf-8") for path in paths)
 
