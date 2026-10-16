@@ -21,7 +21,7 @@ Prefer public behaviour over private structure. Do not widen production APIs or 
 
 ## Write useful tests
 
-Protect a confirmed contract, domain rule, meaningful failure mode, or known regression. Choose checks that exercise the relevant production path and survive internal refactoring. Read [tests.md](tests.md) for examples and [mocking.md](mocking.md) when using test doubles.
+Protect a confirmed contract, domain rule, meaningful failure mode, or known regression. Judge each check by two imagined edits: it fails when that behaviour breaks, and keeps passing when only the internals change. Read [tests.md](tests.md) for examples and [mocking.md](mocking.md) when using test doubles.
 
 Scenario / Example ≠ Test: examples illustrate confirmed AC, not a required test count. Select tests by behavioural risk and existing protection, and test levels by project verification capabilities; do not mechanically generate one test per Scenario or infer new rules from examples.
 

@@ -26,7 +26,7 @@ Long-running AI coding especially accumulates these obligations:
 - Injecting many dependencies, clocks, parsers, loggers, retry policies, or callbacks into business functions so they can be mocked.
 - interface → implementation → adapter → service → repository relays where each layer only forwards.
 - Exposing production APIs such as `retryCount`, `isInitialized`, `pendingOperations`, or lifecycle callbacks so tests can observe internals.
-- Repeating validation, copies, fallbacks, rollbacks, and defensive guards on trusted internal handoffs.
+- Repeating validation, copies, fallbacks, rollbacks, and defensive guards on trusted internal handoffs. A guard belongs where the state it handles is legitimate; where that state should never exist, it hides whatever produced it.
 - Adding factories, registries, strategies, or plugin seams for later extension when the current product path has one real implementation.
 - Keeping probes, feature flags, temporary adapters, compatibility branches, fixtures, or test/docs-only packages after the experiment, migration, or check is done.
 

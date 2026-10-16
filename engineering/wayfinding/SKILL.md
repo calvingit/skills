@@ -7,8 +7,6 @@ description: Map cross-session decisions when the destination is known but depen
 
 A destination can be named, but the way from here to it is still in **fog**, and the decision work will not fit in one session. Wayfinding maps that path. It does not deliver the destination.
 
-By default this skill produces decisions, not deliverables. The destination might be a SPEC, a locked decision, or — when Notes explicitly allow it — a change made in place.
-
 Use wayfinding only when the destination is known, multiple unresolved decisions depend on one another, and ordinary exploration cannot converge in one session. A large task by itself is not enough.
 
 ## Relationship with other flows
@@ -20,8 +18,6 @@ These labels help choose a flow; they are not Skill tool calls by themselves. Fu
 - Requirements settled, remaining uncertainty is technical structure → `solution-design`
 - Unknown facts need investigation rather than decisions → research
 - Decisions resolved, a build contract is needed → `to-spec`
-
-When the user names this flow and the destination is clear, enter directly. When *this* skill suggests switching from other work, state the reason and get confirmation first.
 
 ## First entry, resume, destination change
 
@@ -109,7 +105,7 @@ If there is no technical fog after investigation, do not create a map. When deci
 Resolve one decision at a time by default. Continue to the next only when it is a direct consequence of the current answer and introduces no additional uncertainty.
 
 1. Load the map's low-resolution view, then the chosen frontier ticket and necessary dependencies. Do not load the full history. Zoom related or closed tickets on demand.
-2. Claim and re-read (above). Stop on concurrent claim, edits, or conflict; keep both sides and hand back to the user.
+2. Claim and re-read (above).
 3. Resolve by type. A Grilling ticket asks the current local frontier in one round. After the user answers, do not ask whether to continue — record the round, recompute the local frontier, and if questions remain, recommend and ask the next round.
 4. Pause only to wait for answers already asked, when the ticket is done, when blocked, or for a closing handoff. "Should I continue?" is not a pause point.
 5. When done: write evidence and answer; set `resolved` (or `superseded` if past the destination). Append a relative link and one-line gist to Decisions so far; drop from Frontier.

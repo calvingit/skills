@@ -21,7 +21,7 @@ Name the invariant at risk and the failure window that can violate it.
 - POST/job/message handlers that are unsafe to retry.
 - Duplicate submissions create duplicate records or side effects.
 - Idempotency keys accepted but not enforced durably.
-- Background jobs can run twice after crash/restart.
+- Jobs or handlers where a second run, or a rerun after the previous one stopped halfway, does not converge to the same end state.
 - Retry logic repeats non-idempotent external calls.
 
 ### Concurrency Consistency
