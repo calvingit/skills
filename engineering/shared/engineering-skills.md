@@ -101,6 +101,8 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 比较技术方案，形成选型或探索依据 | [tech-research](../tech-research/SKILL.md) |
 | 用户手动调用，理解当前代码、数据或控制流如何运行 | 使用 [how](../how/SKILL.md) 解释当前事实，不判断目标设计。 |
 | 用户手动调用，追查当前设计、限制或兼容规则为何形成 | 使用 [why](../why/SKILL.md)，基于历史证据区分事实、推断和未知。 |
+| 用户手动调用，换一种表达形式理解当前话题 | 使用 [show-me](../show-me/SKILL.md)，选最小够用的文本、表格、图示或 HTML。 |
+| 用户手动调用，为一组改动起草 PR 描述 | 使用 [visual-pr](../visual-pr/SKILL.md)，在对话里给出描述，不创建或修改 PR。 |
 | 检验已有技术判断是否站得住 | 使用 [challenge](../challenge/SKILL.md)，未决需求访谈仍由 `grilling` 负责。默认使用单 reviewer，高影响且关键判断仍证据不足时，可按需升级为独立多 reviewer。 |
 | 审查代码变化、既有架构或无必要的复杂度 | 分别使用 `code-review`、`review-architecture`、`simplify` 的审查模式，`code-review` 对支撑安全性的非显然 invariant 做证据检查。默认使用单 reviewer，高影响且判断仍显著不确定时，可按需升级为独立多 reviewer。 |
 | 专项检查测试有效性、重复保护或维护成本 | 使用 [test-audit](../test-audit/SKILL.md)，默认只读，明确要求清理时才修改，不增加固定验收关卡。 |
@@ -108,7 +110,7 @@ Profile 默认保存为 `.agents/engineering-profile.md`，`AGENTS.md` 保留链
 | 明确要求多维项目审计 | 使用 [fuck-my-shit-mountain](../fuck-my-shit-mountain/SKILL.md)，保留显式调用策略，由它维护覆盖与报告要求，判断标准复用已有审查技能。 |
 | 创建或审校项目 Agent 指令 | 使用 [improve-agents-md](../improve-agents-md/SKILL.md)，`Engineering Skills Profile` 仍由 `project-setup` 维护。 |
 
-文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接与学习辅助位于 `work/`，上下文审查与外部 Agent CLI 封装位于 `engineering/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
+文档转换、中文润色、术语审校与文档同步位于 `documents/`，会话交接与学习辅助位于 `work/`，上下文审查、外部 Agent CLI 封装和可视化解释（show-me）位于 `engineering/`，按技能负责的问题分类，不以是否输出 Markdown 分类。
 
 ## 图示
 

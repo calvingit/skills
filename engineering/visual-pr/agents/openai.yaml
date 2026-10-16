@@ -1,0 +1,7 @@
+interface:
+  display_name: "Visual PR"
+  short_description: "Draft a PR description with a visual change outline for review; never edits the PR"
+  default_prompt: "Use $visual-pr to draft a description for the current branch's changes. Show it to me; do not edit or create the PR."
+
+policy:
+  allow_implicit_invocation: false

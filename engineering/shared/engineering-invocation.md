@@ -20,7 +20,7 @@
 
 用户可以直接启动这三类 Skill，但仍须满足该 Skill 的输入与授权边界。禁用隐式调用不等于仅限人类调用。
 
-仅用户手动触发的 Skill（当前明确包括 `how`、`why`）不得由其他 Skill 通过 Skill tool 代为拉起；需要时告诉用户自己运行。
+仅用户手动触发的 Skill（当前明确包括 `how`、`why`、`show-me`、`visual-pr`）不得由其他 Skill 通过 Skill tool 代为拉起；需要时告诉用户自己运行。
 
 ### 与宿主 policy 的对应
 

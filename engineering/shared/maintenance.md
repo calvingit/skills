@@ -4,7 +4,7 @@
 
 ## 新增 Skill 的标准
 
-Engineering Skills 处于收敛期：暂停新增全局工程 Skill，不新增通用编排层、Runtime 抽象或 CI（不添加 `.github/workflows`），优先修正已有职责、项目配置和工具入口。
+Engineering Skills 处于收敛期：暂停新增全局工程 Skill（2026-10-16 Calvin 明确批准的 show-me 迁入和 visual-pr 新增除外），不新增通用编排层、Runtime 抽象或 CI（不添加 `.github/workflows`），优先修正已有职责、项目配置和工具入口。
 
 只有真实任务证明现有职责无法承接某项能力时，才提出新增方案。新增的 Skill 须满足：
 

@@ -95,6 +95,8 @@ claude plugin install supply-chain-risk-auditor@calvingit
 | [`find-docs`](./engineering/find-docs/SKILL.md) | 按版本查找官方文档。 |
 | [`how`](./engineering/how/SKILL.md) | 用户手动调用：解释当前代码如何运行。 |
 | [`why`](./engineering/why/SKILL.md) | 用户手动调用：追查设计或限制成因。 |
+| [`show-me`](./engineering/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
+| [`visual-pr`](./engineering/visual-pr/SKILL.md) | 用户手动调用：起草带结构图的 PR 描述，只给出文本，不改 PR。 |
 | [`improve-agents-md`](./engineering/improve-agents-md/SKILL.md) | 创建或优化多工具适用的 AGENTS.md。 |
 | [`context-audit`](./engineering/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时内容和职责错位。 |
 | [`agent-tool`](./engineering/agent-tool/SKILL.md) | 手动调用 Claude Code、Codex、Kimi、Pi 或 Grok 的统一 CLI 封装。 |
@@ -123,7 +125,6 @@ claude plugin install supply-chain-risk-auditor@calvingit
 | [`explain-that`](./work/explain-that/SKILL.md) | 解释指定的局部内容，或用更少术语重述上一条完整回复。 |
 | [`handoff`](./work/handoff/SKILL.md) | 整理可供下一次会话接续的交接文档。 |
 | [`prompt-optimizer`](./work/prompt-optimizer/SKILL.md) | 优化任务提示词的目标、上下文、边界、输出和验证条件。 |
-| [`show-me`](./work/show-me/SKILL.md) | 按理解难点选择最小必要的文本、表格、图示、图片或交互式 HTML。 |
 | [`tavily-search`](./work/tavily-search/SKILL.md) | 为 Harness 提供基于 Tavily 的网页搜索。 |
 | [`teach`](./work/teach/SKILL.md) | 组织连续的主题学习、参考资料和学习记录。 |
 
