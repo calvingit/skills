@@ -1,6 +1,6 @@
 {
   "name": "zstack-documents",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown.",
   "author": {
     "name": "calvingit"
