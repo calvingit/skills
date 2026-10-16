@@ -19,7 +19,7 @@
 | Codex | 找不到自己的 `.codex-plugin` 时读 `.claude-plugin/plugin.json` | 找不到 `.agents/plugins/marketplace.json` 时读 `.claude-plugin/marketplace.json` |
 | ZCode | 依次找 `.zcode-plugin`、`.claude-plugin`、`.codex-plugin` | 同左，落到 `.claude-plugin/marketplace.json` |
 
-外部引用里 React、Vue 两个是没有清单的单个 skill 目录，Codex 识别不了，在 Codex 里改用 `npx skills add`，见 README。ZCode 读到的是 Claude 市场文件里的 `git-subdir` 写法，它的文档没写这种类型，外部插件在 ZCode 能否安装未验证。
+外部引用里 React、Vue 两个上游没有插件清单，条目用 `strict: false` 加 `skills` 字段在市场文件里声明插件内容（插件根是上游的 `skills/` 目录）。ZCode 能装 `git-subdir` 来源（supply-chain-risk-auditor 可以装），但它的文档写明插件清单是必需文件，没有清单时能否靠 `strict: false` 安装未验证。
 
 下面的命令以 `zstack-engineering` 为例，其他插件换名字即可。
 

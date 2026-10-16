@@ -45,14 +45,7 @@ claude plugin install supply-chain-risk-auditor@calvingit
 | `vue-best-practices` | [vuejs-ai/skills](https://github.com/vuejs-ai/skills/tree/c9d355ff23f654309dd02006be671859df0a134c/skills/vue-best-practices)，提交 `c9d355f` | MIT |
 | `web-quality-skills` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00)，提交 `afa8da9`，含性能、Core Web Vitals、可访问性、SEO 等 6 个 skill | MIT |
 
-Codex 不认没有插件清单的单个 skill 目录：市场里能看到 React 和 Vue 这两个，装上也用不了。在 Codex 里改用 `npx skills` 装：
-
-```bash
-npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices
-npx skills add vuejs-ai/skills --skill vue-best-practices
-```
-
-这样装的是上游最新版本，不跟着本仓库固定的提交走。
+React 和 Vue 两个上游只有裸的 skill 目录、没有插件清单，所以条目把插件根指向上游的 `skills/` 目录，再用 `strict: false` 和 `skills` 字段只挑出其中一个 skill。Claude Code 和 Codex 已实测各加载 1 个 skill。
 
 ### 手动安装
 
