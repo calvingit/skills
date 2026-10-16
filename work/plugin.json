@@ -1,8 +1,8 @@
 {
-  "name": "zstack-backend",
-  "displayName": "ZStack Backend",
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "zstack-work",
   "version": "4.0.1",
-  "description": "Backend skills: API contracts, event-driven design, Java and MySQL/MongoDB/Redis practices.",
+  "description": "Everyday work skills: explanations, handoff, prompt optimization, search and teaching.",
   "author": {
     "name": "calvingit"
   },
@@ -11,9 +11,6 @@
   "license": "MIT",
   "keywords": [
     "skills",
-    "backend"
-  ],
-  "skills": [
-    "./"
+    "work"
   ]
 }

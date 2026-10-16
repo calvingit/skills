@@ -1,18 +1,16 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "zstack-documents",
   "version": "4.0.1",
   "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown.",
-  "description_i18n": {
-    "en": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown.",
-    "zh-CN": "文档技能：文档同步、中文术语、去 AI 腔、网页转 Markdown。"
-  },
   "author": {
     "name": "calvingit"
   },
   "homepage": "https://github.com/calvingit/skills",
   "repository": "https://github.com/calvingit/skills",
   "license": "MIT",
-  "skills": [
-    "./"
+  "keywords": [
+    "skills",
+    "documents"
   ]
 }

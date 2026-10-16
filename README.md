@@ -22,7 +22,7 @@
 | 工具 | 安装 |
 | --- | --- |
 | Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install zstack-engineering@calvingit` |
-| Codex | `codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit` |
+| Codex | `codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit`。注意：目前 Codex 只认插件下 `skills/` 目录里的 skill，装上后看不到本仓库的 skill，暂时用[手动安装](#手动安装) |
 | Cursor | `cursor-agent plugin marketplace add https://github.com/calvingit/skills`，再在 `/plugins` → Marketplace 安装 |
 | ZCode | 设置 → 插件 → 创建 → 添加插件市场，填 `calvingit/skills`，再在 个人 分段安装 |
 
@@ -46,7 +46,7 @@ claude plugin install supply-chain-risk-auditor@calvingit
 | `vue-best-practices` | [vuejs-ai/skills](https://github.com/vuejs-ai/skills/tree/c9d355ff23f654309dd02006be671859df0a134c/skills/vue-best-practices)，提交 `c9d355f` | MIT |
 | `web-quality-skills` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00)，提交 `afa8da9`，含性能、Core Web Vitals、可访问性、SEO 等 6 个 skill | MIT |
 
-Codex 不认没有插件清单的单个 skill 目录，所以 Codex 市场里只有 `web-quality-skills`。React 和 Vue 那两个在 Codex 里用 `npx skills` 装：
+Codex 不认没有插件清单的单个 skill 目录：市场里能看到 React 和 Vue 这两个，装上也用不了。在 Codex 里改用 `npx skills` 装：
 
 ```bash
 npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices

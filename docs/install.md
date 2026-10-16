@@ -9,16 +9,20 @@
 | `zstack-documents` | `documents/` |
 | `zstack-work` | `work/` |
 
-每个分类目录就是一个插件根，各自带四个工具的清单，`skills` 都指向 `./`。根目录只放市场文件。`docs/`、`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
+每个分类目录就是一个插件根，只放两份清单：`.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和根上的 `plugin.json`（[Agent Plugins](https://agent-plugins.org/) 1.0.0 通用清单）。仓库根只放市场文件。`docs/`、`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
 
 ## 各工具读取的配置
 
 | 工具 | 插件配置（每个分类目录下） | 市场配置（仓库根） |
 | --- | --- | --- |
-| Claude Code | `<分类>/.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json` |
-| Codex | `<分类>/.codex-plugin/plugin.json` | `.agents/plugins/marketplace.json` |
-| Cursor | `<分类>/.cursor-plugin/plugin.json` | `.cursor-plugin/marketplace.json` |
-| ZCode | `<分类>/.zcode-plugin/plugin.json` | `.zcode-plugin/marketplace.json` |
+| Claude Code | `.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json` |
+| Codex | 找不到自己的 `.codex-plugin` 时读 `.claude-plugin/plugin.json` | 找不到 `.agents/plugins/marketplace.json` 时读 `.claude-plugin/marketplace.json` |
+| Cursor | `.claude-plugin/plugin.json`（未实测） | `.cursor-plugin/marketplace.json`（文档要求，保留） |
+| ZCode | 依次找 `.zcode-plugin`、`.claude-plugin`、`.codex-plugin` | 同左，落到 `.claude-plugin/marketplace.json` |
+
+Codex 只从插件根下的 `skills/` 目录发现 skill，而本仓库的 skill 直接放在分类目录下，所以 **Codex 目前能装上 zstack-* 插件，但看不到里面的 skill**（实测，拆分前后都如此）。要在 Codex 里用，暂时手动把 skill 目录链接到 `~/.codex/skills/`，见 [README](../README.md#手动安装)。
+
+外部引用里 React、Vue 两个是没有清单的单个 skill 目录，Codex 同样识别不了，在 Codex 里改用 `npx skills add`，见 README。ZCode 读到的是 Claude 市场文件里的 `git-subdir` 写法，它的文档没写这种类型，外部插件在 ZCode 能否安装未验证。
 
 下面的命令以 `zstack-engineering` 为例，其他插件换名字即可。
 
@@ -50,7 +54,7 @@ claude plugin update zstack-engineering@calvingit
 codex plugin marketplace add calvingit/skills
 ```
 
-然后在 Plugins Directory 中安装 “ZStack Engineering”，或在项目 `.codex/config.toml` 启用：
+然后在 Plugins Directory 中安装 zstack-engineering，或在项目 `.codex/config.toml` 启用：
 
 ```toml
 [plugins."zstack-engineering@calvingit"]

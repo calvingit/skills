@@ -1,4 +1,5 @@
 {
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "zstack-engineering",
   "version": "4.0.1",
   "description": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification.",
@@ -8,16 +9,8 @@
   "homepage": "https://github.com/calvingit/skills",
   "repository": "https://github.com/calvingit/skills",
   "license": "MIT",
-  "skills": [
-    "./"
-  ],
-  "interface": {
-    "displayName": "ZStack Engineering",
-    "shortDescription": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification.",
-    "developerName": "calvingit",
-    "category": "Developer Tools",
-    "capabilities": [
-      "Skills"
-    ]
-  }
+  "keywords": [
+    "skills",
+    "engineering"
+  ]
 }

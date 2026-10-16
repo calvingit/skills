@@ -1,8 +1,8 @@
 {
-  "name": "zstack-documents",
-  "displayName": "ZStack Documents",
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "zstack-backend",
   "version": "4.0.1",
-  "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown.",
+  "description": "Backend skills: API contracts, event-driven design, Java and MySQL/MongoDB/Redis practices.",
   "author": {
     "name": "calvingit"
   },
@@ -11,9 +11,6 @@
   "license": "MIT",
   "keywords": [
     "skills",
-    "documents"
-  ],
-  "skills": [
-    "./"
+    "backend"
   ]
 }

@@ -79,24 +79,29 @@ def check_skills():
 
 
 CATEGORIES = ("engineering", "backend", "documents", "work")
-TOOLS = (".claude-plugin", ".codex-plugin", ".cursor-plugin", ".zcode-plugin")
-MARKETS = (".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json",
-           ".cursor-plugin/marketplace.json", ".zcode-plugin/marketplace.json")
+MANIFESTS = (".claude-plugin/plugin.json", "plugin.json")  # Claude 清单 + Agent Plugins 通用清单
+MARKETS = (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json")
+SPEC_SCHEMA = "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json"
 
 
 def check_plugins():
-    """每个分类插件在四个工具下的清单齐全、名字正确、版本一致；市场文件列出全部插件。"""
+    """每个分类插件的两份清单齐全、名字正确、版本一致；市场文件列出全部插件。"""
     import json
     errors, versions = [], {}
     for cat in CATEGORIES:
-        for tool in TOOLS:
-            f = ROOT / cat / tool / "plugin.json"
+        for manifest in MANIFESTS:
+            f = ROOT / cat / manifest
             if not f.exists():
                 errors.append(f"{f.relative_to(ROOT)}: missing")
                 continue
             data = json.loads(f.read_text())
             if data.get("name") != f"zstack-{cat}":
                 errors.append(f"{f.relative_to(ROOT)}: name should be zstack-{cat}")
+            if manifest == ".claude-plugin/plugin.json" and data.get("skills") != ["./"]:
+                # skill 直接放在分类目录下，不写 skills 时 Claude Code 只找 ./skills/，会装上 0 个 skill
+                errors.append(f"{f.relative_to(ROOT)}: skills should be [\"./\"]")
+            if manifest == "plugin.json" and data.get("$schema") != SPEC_SCHEMA:
+                errors.append(f"{f.relative_to(ROOT)}: $schema should be {SPEC_SCHEMA}")
             versions[str(f.relative_to(ROOT))] = data.get("version")
     for m in MARKETS:
         f = ROOT / m
