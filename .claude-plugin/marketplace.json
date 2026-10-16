@@ -12,6 +12,17 @@
       "source": "./",
       "version": "3.2.1",
       "description": "Engineering workflow, backend, documents and work skills for coding agents."
+    },
+    {
+      "name": "supply-chain-risk-auditor",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/trailofbits/skills.git",
+        "path": "plugins/supply-chain-risk-auditor",
+        "sha": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0"
+      },
+      "description": "Trail of Bits 的依赖供应链风险审计（npm/PyPI/Go），外部引用，未复制进本仓库。",
+      "license": "CC-BY-SA-4.0"
     }
   ]
 }

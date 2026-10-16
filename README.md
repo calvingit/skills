@@ -17,6 +17,16 @@
 | Cursor | `cursor-agent plugin marketplace add https://github.com/calvingit/skills`，再在 `/plugins` → Marketplace 安装 |
 | ZCode | 设置 → 插件 → 创建 → 添加插件市场，填 `calvingit/skills`，再在 个人 分段安装 |
 
+### 外部引用的插件
+
+市场里还挂了一个外部插件 `supply-chain-risk-auditor`，来自 [trailofbits/skills](https://github.com/trailofbits/skills/tree/5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0/plugins/supply-chain-risk-auditor)，用来审计 npm、PyPI、Go 依赖的供应链风险。它的许可证是 CC BY-SA 4.0，所以没有复制进本仓库，市场条目只是指向原仓库，并固定在提交 `5c99c03`。要跟进上游，改各个 `marketplace.json` 里的提交号即可。
+
+```bash
+claude plugin install supply-chain-risk-auditor@calvingit
+```
+
+运行它需要 uv 和 Python 3.11 以上，最好也装上 `gh`。
+
 ### 手动安装
 
 把本仓库里需要的 Skill 目录放到所用 Agent 的 Skills 搜索路径；每个 Skill 是一个含 `SKILL.md` 的独立文件夹。
