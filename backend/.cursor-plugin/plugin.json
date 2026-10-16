@@ -1,7 +1,7 @@
 {
   "name": "zstack-backend",
   "displayName": "ZStack Backend",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Backend skills: API contracts, event-driven design, Java and MySQL/MongoDB/Redis practices.",
   "author": {
     "name": "calvingit"
