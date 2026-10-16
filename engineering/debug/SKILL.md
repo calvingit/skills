@@ -15,6 +15,7 @@ Discover domain docs, ADRs / decision records, and coding standards the way the 
 - When the user asked only to diagnose, analyse, or investigate, stop at the root cause. Continue to a fix only when they asked for one.
 - Do not commit, push, create a branch, or rewrite history on your own.
 - Redact every secret in commands, outputs, and user-supplied material as `<REDACTED>`. Keep credentials in env vars.
+- Treat production as read-only. Ask before any write there, such as creating data, changing config, or replaying requests with side effects.
 
 ## 1. Reproduce it yourself
 
