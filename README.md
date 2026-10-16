@@ -1,6 +1,6 @@
 # Agent Skills
 
-个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和工作会话/工具能力。可用于 Claude Code、Codex、Cursor 等 Coding Agent，不绑定单一框架或 Runtime。
+个人 Agent Skills 集合。以 Engineering 工作流为主（调研 → 需求 → 设计 → 实现 → 验证 → 审查），并包含后端生产实践、文档处理和工作会话/工具能力。可用于 Claude Code、Codex 等 Coding Agent，不绑定单一框架或 Runtime。
 
 > 本 README 是仓库入口，各插件的 skill 说明在插件目录的 README 里。维护前先读[维护规则](#maintenance-rules维护规则)：Engineering Skills 处于收敛期，优先修正已有职责与入口，勿轻易新增全局工程 Skill。
 
@@ -23,7 +23,6 @@
 | --- | --- |
 | Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install zstack-engineering@calvingit` |
 | Codex | `codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit` |
-| Cursor | `cursor-agent plugin marketplace add https://github.com/calvingit/skills`，再在 `/plugins` → Marketplace 安装 |
 | ZCode | 设置 → 插件 → 创建 → 添加插件市场，填 `calvingit/skills`，再在 个人 分段安装 |
 
 更新、本地调试和发版说明见 [INSTALL.md](./INSTALL.md)。原来的 `zstack` 插件已经删除，装过的话先卸载它再装新插件。

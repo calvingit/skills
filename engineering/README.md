@@ -9,7 +9,7 @@ claude plugin marketplace add calvingit/skills
 claude plugin install zstack-engineering@calvingit
 ```
 
-Codex：`codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit`。Cursor、ZCode 和更新、卸载的做法见 [INSTALL.md](../INSTALL.md)。
+Codex：`codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit`。ZCode 和更新、卸载的做法见 [INSTALL.md](../INSTALL.md)。
 
 ## 怎么用
 

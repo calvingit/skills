@@ -80,7 +80,7 @@ def check_skills():
 
 CATEGORIES = ("engineering", "backend", "documents", "work")
 MANIFESTS = (".claude-plugin/plugin.json",)
-MARKETS = (".claude-plugin/marketplace.json", ".cursor-plugin/marketplace.json")
+MARKETS = (".claude-plugin/marketplace.json",)
 ALLOWED_TOP = {".claude-plugin", "README.md", "skills"}
 EXTRA_TOP = {"engineering": {"docs"}}
 

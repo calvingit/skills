@@ -17,7 +17,6 @@
 | --- | --- | --- |
 | Claude Code | `.claude-plugin/plugin.json` | `.claude-plugin/marketplace.json` |
 | Codex | 找不到自己的 `.codex-plugin` 时读 `.claude-plugin/plugin.json` | 找不到 `.agents/plugins/marketplace.json` 时读 `.claude-plugin/marketplace.json` |
-| Cursor | `.claude-plugin/plugin.json`（未实测） | `.cursor-plugin/marketplace.json`（文档要求，保留） |
 | ZCode | 依次找 `.zcode-plugin`、`.claude-plugin`、`.codex-plugin` | 同左，落到 `.claude-plugin/marketplace.json` |
 
 外部引用里 React、Vue 两个是没有清单的单个 skill 目录，Codex 识别不了，在 Codex 里改用 `npx skills add`，见 README。ZCode 读到的是 Claude 市场文件里的 `git-subdir` 写法，它的文档没写这种类型，外部插件在 ZCode 能否安装未验证。
@@ -66,25 +65,6 @@ codex plugin marketplace upgrade calvingit
 codex plugin add zstack-engineering@calvingit
 ```
 
-## Cursor
-
-安装：
-
-```bash
-cursor-agent plugin marketplace add https://github.com/calvingit/skills
-```
-
-然后在 `cursor-agent` 交互界面的 `/plugins` → Marketplace 里安装需要的插件（命令行没有安装子命令）。团队（Teams / Enterprise）可以在 Dashboard → Plugins → Import from Repo 填仓库地址；公开发布需提交到 <https://cursor.com/marketplace/publish> 审核。
-
-更新：个人市场不会自动更新，重启、`cursor-agent plugin marketplace update` 或在 `/plugins` 里重装都还停在原来的提交。只能删掉市场再加回来：
-
-```bash
-cursor-agent plugin marketplace remove calvingit
-cursor-agent plugin marketplace add https://github.com/calvingit/skills
-```
-
-删市场会同时卸载插件，加回来后要在 `/plugins` → Marketplace 里再装一次。团队市场可以在 Dashboard → Plugins & MCPs → Marketplace Settings 里打开 Enable Auto Refresh；仓库需要装 Cursor GitHub App，推送后最多 10 分钟同步到最新提交。
-
 ## ZCode
 
 安装：
@@ -97,6 +77,6 @@ cursor-agent plugin marketplace add https://github.com/calvingit/skills
 
 ## 版本与发版
 
-Claude Code 和 ZCode 只在版本号变化时更新；Codex 和 Cursor 更新时直接取 main 的最新提交。改版本号和发版步骤见 [releasing.md](./RELEASING.md)。
+Claude Code 和 ZCode 只在版本号变化时更新；Codex 更新时直接取 main 的最新提交。改版本号和发版步骤见 [releasing.md](./RELEASING.md)。
 
 不用插件、手动链接单个 Skill 目录的方式见 [README](./README.md#手动安装)。
