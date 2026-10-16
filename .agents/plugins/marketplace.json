@@ -65,6 +65,19 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Security"
+    },
+    {
+      "name": "web-quality-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/addyosmani/web-quality-skills.git",
+        "sha": "afa8da942115f2961fdbfa80807ea0b232ff6c00"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
     }
   ]
 }

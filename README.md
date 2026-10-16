@@ -38,6 +38,23 @@ claude plugin install supply-chain-risk-auditor@calvingit
 
 运行它需要 uv 和 Python 3.11 以上，最好也装上 `gh`。
 
+另外三个前端相关的外部插件，同样只是引用、固定在某个提交：
+
+| 插件 | 来源 | 许可证 |
+| --- | --- | --- |
+| `react-best-practices` | [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills/tree/063bee94c3f4df8453406c830b0a7df0f2860278/skills/react-best-practices)，提交 `063bee9` | MIT（仓库没有 LICENSE 文件，只在 README 和 SKILL.md 里声明） |
+| `vue-best-practices` | [vuejs-ai/skills](https://github.com/vuejs-ai/skills/tree/c9d355ff23f654309dd02006be671859df0a134c/skills/vue-best-practices)，提交 `c9d355f` | MIT |
+| `web-quality-skills` | [addyosmani/web-quality-skills](https://github.com/addyosmani/web-quality-skills/tree/afa8da942115f2961fdbfa80807ea0b232ff6c00)，提交 `afa8da9`，含性能、Core Web Vitals、可访问性、SEO 等 6 个 skill | MIT |
+
+Codex 不认没有插件清单的单个 skill 目录，所以 Codex 市场里只有 `web-quality-skills`。React 和 Vue 那两个在 Codex 里用 `npx skills` 装：
+
+```bash
+npx skills add vercel-labs/agent-skills --skill vercel-react-best-practices
+npx skills add vuejs-ai/skills --skill vue-best-practices
+```
+
+这样装的是上游最新版本，不跟着本仓库固定的提交走。
+
 ### 手动安装
 
 把本仓库里需要的 Skill 目录放到所用 Agent 的 Skills 搜索路径；每个 Skill 是一个含 `SKILL.md` 的独立文件夹。

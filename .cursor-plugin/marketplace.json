@@ -36,6 +36,35 @@
         "sha": "5c99c03fb8a9ea568432ecbcba5d86e9f4ac2bf0"
       },
       "description": "Trail of Bits 的依赖供应链风险审计（npm/PyPI/Go），外部引用，未复制进本仓库。"
+    },
+    {
+      "name": "react-best-practices",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/vercel-labs/agent-skills.git",
+        "path": "skills/react-best-practices",
+        "sha": "063bee94c3f4df8453406c830b0a7df0f2860278"
+      },
+      "description": "Vercel 的 React/Next.js 性能规则，外部引用，未复制进本仓库。"
+    },
+    {
+      "name": "vue-best-practices",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/vuejs-ai/skills.git",
+        "path": "skills/vue-best-practices",
+        "sha": "c9d355ff23f654309dd02006be671859df0a134c"
+      },
+      "description": "vuejs-ai 的 Vue 3 最佳实践，外部引用，未复制进本仓库。"
+    },
+    {
+      "name": "web-quality-skills",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/addyosmani/web-quality-skills.git",
+        "sha": "afa8da942115f2961fdbfa80807ea0b232ff6c00"
+      },
+      "description": "Addy Osmani 的 Web 质量技能：性能、Core Web Vitals、可访问性、SEO，外部引用，未复制进本仓库。"
     }
   ]
 }
