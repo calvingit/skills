@@ -10,25 +10,25 @@
     {
       "name": "zstack-engineering",
       "source": "./Engineering",
-      "version": "4.0.3",
+      "version": "4.0.4",
       "description": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification."
     },
     {
       "name": "zstack-backend",
       "source": "./Backend",
-      "version": "4.0.3",
+      "version": "4.0.4",
       "description": "Backend skills: API contracts, event-driven design, Java and MySQL/MongoDB/Redis practices."
     },
     {
       "name": "zstack-documents",
       "source": "./Documents",
-      "version": "4.0.3",
+      "version": "4.0.4",
       "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown."
     },
     {
       "name": "zstack-work",
       "source": "./Work",
-      "version": "4.0.3",
+      "version": "4.0.4",
       "description": "Everyday work skills: explanations, handoff, prompt optimization, search and teaching."
     },
     {
