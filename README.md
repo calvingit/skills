@@ -8,14 +8,25 @@
 
 ### 插件安装
 
-整个仓库是一个插件 `zstack`，四个工具都实测过。更新、本地调试和发版说明见 [`docs/install.md`](./docs/install.md)。
+仓库按分类拆成四个插件，都在市场 `calvingit` 里，按需装：
+
+| 插件 | 内容 |
+| --- | --- |
+| `zstack-engineering` | 工程工作流：需求、设计、拆票、实现、调试、评审、验证 |
+| `zstack-backend` | 后端：API 契约、事件驱动、Java、MySQL/MongoDB/Redis |
+| `zstack-documents` | 文档：同步、中文术语、去 AI 腔、网页转 Markdown |
+| `zstack-work` | 日常工作：讲解、交接、提示词优化、搜索、教学 |
+
+各工具的装法（以 `zstack-engineering` 为例，其他插件换个名字）：
 
 | 工具 | 安装 |
 | --- | --- |
-| Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install zstack@calvingit` |
-| Codex | `codex plugin marketplace add calvingit/skills`，再在 Plugins Directory 安装 ZStack |
+| Claude Code | `/plugin marketplace add calvingit/skills`，再 `/plugin install zstack-engineering@calvingit` |
+| Codex | `codex plugin marketplace add calvingit/skills`，再 `codex plugin add zstack-engineering@calvingit` |
 | Cursor | `cursor-agent plugin marketplace add https://github.com/calvingit/skills`，再在 `/plugins` → Marketplace 安装 |
 | ZCode | 设置 → 插件 → 创建 → 添加插件市场，填 `calvingit/skills`，再在 个人 分段安装 |
+
+更新、本地调试和发版说明见 [`docs/install.md`](./docs/install.md)。原来的 `zstack` 插件已经删除，装过的话先卸载它再装新插件。
 
 ### 外部引用的插件
 

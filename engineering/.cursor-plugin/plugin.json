@@ -1,0 +1,19 @@
+{
+  "name": "zstack-engineering",
+  "displayName": "ZStack Engineering",
+  "version": "4.0.0",
+  "description": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification.",
+  "author": {
+    "name": "calvingit"
+  },
+  "homepage": "https://github.com/calvingit/skills",
+  "repository": "https://github.com/calvingit/skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "engineering"
+  ],
+  "skills": [
+    "./"
+  ]
+}

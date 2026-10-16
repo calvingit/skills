@@ -8,9 +8,24 @@
   },
   "plugins": [
     {
-      "name": "zstack",
-      "source": "./",
-      "description": "Engineering workflow, backend, documents and work skills for coding agents."
+      "name": "zstack-engineering",
+      "source": "./engineering",
+      "description": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification."
+    },
+    {
+      "name": "zstack-backend",
+      "source": "./backend",
+      "description": "Backend skills: API contracts, event-driven design, Java and MySQL/MongoDB/Redis practices."
+    },
+    {
+      "name": "zstack-documents",
+      "source": "./documents",
+      "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown."
+    },
+    {
+      "name": "zstack-work",
+      "source": "./work",
+      "description": "Everyday work skills: explanations, handoff, prompt optimization, search and teaching."
     },
     {
       "name": "supply-chain-risk-auditor",

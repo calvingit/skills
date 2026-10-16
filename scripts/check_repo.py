@@ -78,11 +78,47 @@ def check_skills():
     return errors
 
 
+CATEGORIES = ("engineering", "backend", "documents", "work")
+TOOLS = (".claude-plugin", ".codex-plugin", ".cursor-plugin", ".zcode-plugin")
+MARKETS = (".claude-plugin/marketplace.json", ".agents/plugins/marketplace.json",
+           ".cursor-plugin/marketplace.json", ".zcode-plugin/marketplace.json")
+
+
+def check_plugins():
+    """每个分类插件在四个工具下的清单齐全、名字正确、版本一致；市场文件列出全部插件。"""
+    import json
+    errors, versions = [], {}
+    for cat in CATEGORIES:
+        for tool in TOOLS:
+            f = ROOT / cat / tool / "plugin.json"
+            if not f.exists():
+                errors.append(f"{f.relative_to(ROOT)}: missing")
+                continue
+            data = json.loads(f.read_text())
+            if data.get("name") != f"zstack-{cat}":
+                errors.append(f"{f.relative_to(ROOT)}: name should be zstack-{cat}")
+            versions[str(f.relative_to(ROOT))] = data.get("version")
+    for m in MARKETS:
+        f = ROOT / m
+        data = json.loads(f.read_text())
+        names = {p["name"]: p for p in data.get("plugins", [])}
+        for cat in CATEGORIES:
+            entry = names.get(f"zstack-{cat}")
+            if entry is None:
+                errors.append(f"{m}: missing zstack-{cat}")
+            elif "version" in entry:
+                versions[f"{m}#zstack-{cat}"] = entry["version"]
+    if len(set(versions.values())) > 1:
+        for k, v in sorted(versions.items()):
+            errors.append(f"version mismatch: {k} = {v}")
+    return errors
+
+
 def main():
-    errors = check_links() + check_skills()
+    errors = check_links() + check_skills() + check_plugins()
     for e in errors:
         print("FAIL", e)
-    print(f"links and skill metadata: {'FAIL' if errors else 'OK'}")
+    print(f"links, skill metadata and plugin manifests: {'FAIL' if errors else 'OK'}")
     code = 1 if errors else 0
     if "--no-state-tests" not in sys.argv:
         code |= subprocess.call([sys.executable, str(ROOT / "engineering/shared/check.py")], cwd=ROOT)

@@ -1,0 +1,11 @@
+{
+  "name": "zstack-work",
+  "version": "4.0.0",
+  "description": "Everyday work skills: explanations, handoff, prompt optimization, search and teaching.",
+  "author": {
+    "name": "calvingit"
+  },
+  "homepage": "https://github.com/calvingit/skills",
+  "repository": "https://github.com/calvingit/skills",
+  "license": "MIT"
+}

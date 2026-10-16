@@ -5,10 +5,46 @@
   },
   "plugins": [
     {
-      "name": "zstack",
+      "name": "zstack-engineering",
       "source": {
         "source": "local",
-        "path": "./"
+        "path": "./engineering"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zstack-backend",
+      "source": {
+        "source": "local",
+        "path": "./backend"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zstack-documents",
+      "source": {
+        "source": "local",
+        "path": "./documents"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "zstack-work",
+      "source": {
+        "source": "local",
+        "path": "./work"
       },
       "policy": {
         "installation": "AVAILABLE",

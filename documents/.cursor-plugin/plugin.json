@@ -1,0 +1,19 @@
+{
+  "name": "zstack-documents",
+  "displayName": "ZStack Documents",
+  "version": "4.0.0",
+  "description": "Document skills: doc sync, Chinese terminology, unslop, URL to Markdown.",
+  "author": {
+    "name": "calvingit"
+  },
+  "homepage": "https://github.com/calvingit/skills",
+  "repository": "https://github.com/calvingit/skills",
+  "license": "MIT",
+  "keywords": [
+    "skills",
+    "documents"
+  ],
+  "skills": [
+    "./"
+  ]
+}

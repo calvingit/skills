@@ -1,0 +1,18 @@
+{
+  "name": "zstack-engineering",
+  "version": "4.0.0",
+  "description": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification.",
+  "description_i18n": {
+    "en": "Engineering workflow skills: spec, design, tickets, implementation, debugging, review and verification.",
+    "zh-CN": "工程工作流技能：需求、设计、拆票、实现、调试、评审与验证。"
+  },
+  "author": {
+    "name": "calvingit"
+  },
+  "homepage": "https://github.com/calvingit/skills",
+  "repository": "https://github.com/calvingit/skills",
+  "license": "MIT",
+  "skills": [
+    "./"
+  ]
+}
