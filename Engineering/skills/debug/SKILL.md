@@ -60,7 +60,12 @@ Discover domain docs, ADRs / decision records, and coding standards the way the 
 
 ## Report
 
-What was broken / root cause / fix / how you verified. Paste redacted failing-then-passing repro output verbatim. End with unverified items and remaining risk.
+What was broken / root cause / fix / how you verified. Paste redacted failing-then-passing repro output verbatim. Then add:
+
+- **Ruled-out hypotheses**: each hypothesis the evidence eliminated, and that evidence. Omit when nothing was ruled out.
+- **Durable findings**: only what passes all three gates: not evident from the final code, tests, or existing docs; useful beyond this fix; costly to forget (recurrence, material risk, or substantial re-investigation). For each, name the suggested owner per the [knowledge protocol](../shared/knowledge-protocol.md#authority-ownership), such as the regression test or a code comment when that carries it fully, otherwise the project's existing troubleshooting / runbook doc, domain docs, or ADR. Report only; do not write to those sources from debug. Write "none" when nothing qualifies.
+
+End with unverified items and remaining risk.
 
 ## Across sessions
 
