@@ -36,7 +36,7 @@
 | 稳定工程配置与资料位置 | `project-setup` | Profile |
 | 需求或验收含义 | 用户确认，`to-spec` 维护 | SPEC / ACCEPTANCE |
 
-其他项目资料（API 文档、编码规范、运维手册）由项目约定的维护者负责。负责方以[职责与边界](engineering-responsibilities.md)为准。
+其他项目资料（API 文档、编码规范、运维手册）由项目约定的维护者负责。负责方以[职责归属与调用关系](ownership-and-invocation.md)为准。
 
 ## Promotion
 

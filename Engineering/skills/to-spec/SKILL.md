@@ -120,7 +120,7 @@ In the final reply, report a Handoff with:
 - **Recommended Next Step**: `quick-implement` / `to-tickets`, reason from delivery boundaries and dependencies, and an alternative when useful.
 - **Execution Authority**: whether continuing is authorized, and the next call or return action.
 
-Keep this recommendation in the reply, not SPEC or a new handoff file. If only planning is authorized, stop after the requested SPEC and necessary design; do not create tickets unless separately authorized. When continuing is authorized, Call the Skill tool with "quick-implement" or "to-tickets" for the selected route under the [Invocation Contract](../shared/engineering-invocation.md); implementation through Graph Workflow still requires implementation authority. A pending design gate blocks dependent execution, not a reason to invent approval or expand authority. Missing authority, unsettled requirements or load-bearing feasibility gaps return to their owner.
+Keep this recommendation in the reply, not SPEC or a new handoff file. If only planning is authorized, stop after the requested SPEC and necessary design; do not create tickets unless separately authorized. When continuing is authorized, Call the Skill tool with "quick-implement" or "to-tickets" for the selected route under the [Invocation Contract](../shared/ownership-and-invocation.md); implementation through Graph Workflow still requires implementation authority. A pending design gate blocks dependent execution, not a reason to invent approval or expand authority. Missing authority, unsettled requirements or load-bearing feasibility gaps return to their owner.
 
 ## Change rules
 

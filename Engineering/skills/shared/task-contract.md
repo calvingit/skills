@@ -50,4 +50,4 @@ When amending an upstream authority (SPEC, solution design, or ticket graph) whi
 3. **Write authority** — Update only the responsible source after confirmation (or after that skill's own review gate when it applies).
 4. **Reconcile** — Hand off to the next owner (`solution-design` → `to-tickets`, or `to-tickets` for graph-only sync). Explicitly confirm unaffected contracts and evidence still apply under the new authority; a stable ID alone does not prove unchanged meaning. Keep still-valid historical done records; express changed behaviour with amendment / correction / migration / replacement tickets rather than reopening an old contract.
 
-The [ownership matrix](engineering-responsibilities.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.
+The [ownership matrix](ownership-and-invocation.md#事实与产物归属) defines writers and derived records. Workflow selection is governed by [workflow policy](workflow-policy.md), not by requiring every task to create every artifact.
