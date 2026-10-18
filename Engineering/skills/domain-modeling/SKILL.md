@@ -5,7 +5,7 @@ description: Build and sharpen a project's domain model. Use when terminology ne
 
 # Domain Modeling
 
-Actively build and sharpen the project's domain model as you design. This is the *active* discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. Merely *reading* existing domain docs for vocabulary is not this skill. This skill is for when you're changing the model, not just consuming it.
+Build and refine the project's domain model as you design: challenge terms, devise edge-case scenarios, and record glossary entries and decisions as soon as they settle. Use this skill when *actively changing* the model; reading existing domain docs for vocabulary is a separate activity.
 
 ## Discover authorities
 

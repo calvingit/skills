@@ -6,9 +6,9 @@ AI 可以同时修改产品代码、测试、fixture、mock、snapshot 和测试
 tests passed != acceptance satisfied
 ```
 
-单元测试仍然有价值，但在 AI Coding 里，它更准确的定位是快速反馈信号和回归约束，而不是正确性的自动证明。本仓库 TDD 的 red → green → refactor 小步循环是实现方法，不是 verify 的验收标准，是否 test-first 也不改变最终的独立验收要求。
+单元测试在 AI Coding 中提供快速反馈和回归约束，但测试通过不能代替正确性验证。本仓库 TDD 的 red → green → refactor 小步循环用于指导实现，不能充当 verify 的验收标准；是否 test-first 也不改变最终的独立验收要求。
 
-真正需要隔离的是“成功标准”而不只是 Agent 进程：
+Agent 进程需要隔离，验收所用的“成功标准”同样需要独立来源：
 
 ```text
 SPEC / confirmed AC

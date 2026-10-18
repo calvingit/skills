@@ -22,7 +22,7 @@ create artifacts only when they have useful content:
 | `learning-records/*.md` | Demonstrated understanding, stated prior knowledge and non-obvious insights that guide later lessons; use [the learning-record format](LEARNING-RECORD-FORMAT.md). |
 | `lessons/*.html` | Short, self-contained interactive lessons, numbered `0001-<dash-case-name>.html` onward. |
 | `reference/*.html` | Readable, printable quick references: syntax, algorithms, routines, glossaries or other compressed learning. |
-| `assets/*` | Styles and widgets genuinely shared by lessons. |
+| `assets/*` | Styles and widgets shared across lessons. |
 | `NOTES.md` | Teaching preferences and working notes for future sessions. |
 
 ## Choose and teach one lesson

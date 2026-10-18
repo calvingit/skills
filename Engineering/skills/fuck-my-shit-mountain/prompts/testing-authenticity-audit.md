@@ -4,7 +4,7 @@ Use the fuck-my-shit-mountain skill in **testing-authenticity mode**.
 
 Shared setup, coverage, report template, HTML, and lint rules live in `references/report-format.md`; load that reference before producing the report.
 
-Focus on whether tests provide **real confidence** or just green checkmarks. This is not about coverage percentage — it is about whether the tests would catch real bugs.
+Assess whether tests provide **real confidence** by identifying which concrete bugs they would catch. Green checkmarks and coverage percentages do not show that.
 
 Compare what the assertion actually observes with its required behaviour. Before removing or replacing a test, identify retained protection and a concrete failure a replacement must detect.
 

@@ -5,7 +5,7 @@ description: Convert public URLs into local Markdown files. Use when the user wa
 
 # URL To Markdown
 
-把公开网页转换成干净的 Markdown 文件，方便后续 Agent 阅读、总结、改写或继续加工。
+提取公开网页正文并保存为 Markdown 文件，供后续 Agent 阅读、总结或改写。
 
 ## 何时使用
 
@@ -16,7 +16,7 @@ description: Convert public URLs into local Markdown files. Use when the user wa
 - 想把博客、文档、文章、网页说明页保存为 Markdown。
 - 想先抓取网页内容，再让 Agent 做总结、翻译、重写、归档。
 
-如果用户只是想“看一下网页”，而不需要落地成文件，可以直接读取页面内容；但只要用户明确要保存、导出、交给后续流程使用，优先调用本 Skill。
+用户只是想“看一下网页”时，直接读取页面内容即可；明确要保存、导出或交给后续流程时，优先调用本 Skill。
 
 ## 处理流程
 
@@ -60,4 +60,4 @@ bash "$SKILL_DIR/scripts/fetch_markdown.sh" \
   "/tmp/post.md"
 ```
 
-如果用户随后要总结、翻译、改写或入库，应基于生成的 Markdown 文件继续工作，而不是重新抓取原网页。
+如果用户随后要总结、翻译、改写或入库，应直接使用生成的 Markdown 文件，不必重新抓取原网页。

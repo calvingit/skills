@@ -61,7 +61,7 @@ Establish the workload, bottleneck mechanism and supported impact before proposi
 ## Rules
 
 1. Do not suggest optimization unless there is a realistic scale or workload where it matters.
-2. Identify the bottleneck mechanism, not just the symptom.
+2. Trace the symptom back to the mechanism that produces it.
 3. Include the workload or conditions under which the issue becomes relevant.
 4. Prefer small, targeted optimizations over architectural changes when sufficient.
 

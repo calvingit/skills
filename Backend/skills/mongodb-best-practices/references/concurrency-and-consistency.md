@@ -10,7 +10,7 @@
 
 ## 读写保证
 
-分别确认 read preference（读取路由选择）、read concern（读取隔离与一致性级别）、write concern（写入确认条件）和 session（会话）的实际设置。write concern 包含复制确认、journal 及等待超时等相关条件，不只是是否收到网络响应。副本读取不保证能读到自己刚写入的数据；read concern 的 majority 与 write concern 中的 w: "majority" 也不是同一设置，不能笼统等同于最新读取或线性一致性。
+分别确认 read preference（读取路由选择）、read concern（读取隔离与一致性级别）、write concern（写入确认条件）和 session（会话）的实际设置。write concern 包含复制确认、journal 及等待超时等相关条件，收到网络响应并不等于写入已按这些条件确认。副本读取不保证能读到自己刚写入的数据；read concern 的 majority 与 write concern 中的 w: "majority" 也不是同一设置，不能笼统等同于最新读取或线性一致性。
 
 当业务需要因果顺序、快照或更强一致性时，核对相应的 session、concern 设置，以及拓扑和版本前提。不要为普通查询统一提高保证，也不要为降低延迟静默削弱已确认保证。
 

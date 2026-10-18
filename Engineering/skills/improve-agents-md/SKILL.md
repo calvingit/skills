@@ -5,7 +5,7 @@ description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。适用�
 
 # Improve AGENTS.md
 
-把 `AGENTS.md` 写成供 Coding Agent 执行任务的简明指南，保留有依据的项目规则。`AGENTS.md` 是地图，不是百科全书：权威内容留在项目原有位置（如 `docs/`、CONTRIBUTING、架构文档），这里只放稳定规则、指针和读取条件。
+把 `AGENTS.md` 写成供 Coding Agent 执行任务的简明指南，只放有仓库依据的稳定规则、指针和读取条件；权威内容留在项目原有位置（如 `docs/`、CONTRIBUTING、架构文档）。
 
 审查或建议任务只报告；创建、优化、修复或更新任务执行最小修改。删除规则可能改变预期行为，而仓库证据无法消除歧义时，先向用户确认。
 

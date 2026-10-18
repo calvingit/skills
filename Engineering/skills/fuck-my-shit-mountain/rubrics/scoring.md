@@ -2,7 +2,7 @@
 
 ## Principle
 
-Scores are **judgment-based, not formula-based.** The AI evaluates each dimension holistically based on the evidence collected, then assigns a score. There is no mechanical "Critical = -2.0" deduction — that produces inflated scores and false precision.
+**Every score comes from judgment.** Weigh all collected evidence for each dimension, then assign a score. Mechanical deductions such as "Critical = -2.0" inflate scores and create false precision.
 
 ## Scale
 
@@ -50,7 +50,7 @@ Use these descriptions as **guidance**, not rules. The final score is your judgm
 
 - Systemic issues in this dimension.
 - Multiple medium-or-higher severity findings.
-- The dimension needs deliberate investment, not just quick fixes.
+- The dimension needs deliberate investment; quick fixes do not cover it.
 - **One-sentence pattern:** "Systemic problems. Needs deliberate investment, not quick patches."
 
 ### 3.0 – 4.9 (Poor / Critical debt)

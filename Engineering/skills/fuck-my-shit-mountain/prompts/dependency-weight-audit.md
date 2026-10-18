@@ -4,7 +4,7 @@ Use the fuck-my-shit-mountain skill in **dependency-weight mode**.
 
 Shared setup, coverage, report template, HTML, and lint rules live in `references/report-format.md`; load that reference before producing the report.
 
-Focus on whether dependencies are pulling their weight — not just known vulnerabilities, but whether each dependency is justified relative to the project's scale.
+Assess whether each dependency is justified relative to the project's scale, weighing known vulnerabilities as one input.
 
 Establish what the dependency supplies, which APIs production uses, and measurable size impact when available. Compare keeping, inlining, replacing or removing it; identify the build/test checks needed after a change.
 

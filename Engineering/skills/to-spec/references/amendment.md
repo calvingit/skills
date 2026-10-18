@@ -10,7 +10,7 @@ For an amendment, split the delta into `added` / `changed` / `removed` / `no nor
 
 ## Acceptance and consistency
 
-An amendment re-evaluates only affected seams. Keep testing decisions that still cover the changed behaviour, and say so in the impact summary. Do not force re-confirmation when testing seams are unaffected. Recheck the applicable full SPEC and ACCEPTANCE, not only the delta.
+An amendment re-evaluates only affected seams. Keep testing decisions that still cover the changed behaviour, and say so in the impact summary. Do not force re-confirmation when testing seams are unaffected. Recheck the applicable full SPEC and ACCEPTANCE, using the delta only to locate what changed.
 
 ## Confirm and hand off
 

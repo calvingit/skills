@@ -1,6 +1,6 @@
 # 职责归属与调用关系
 
-本文供 Agent 执行时加载：回答「谁负责什么事实与产物」和「谁可以调用谁」。人向导读（如何选用、Skills 一览）由插件 README 承担；执行规则以本文和各 Skill 为准，不依赖 README。
+本文供 Agent 执行时加载，说明「谁负责什么事实与产物」和「谁可以调用谁」。面向人的选用指南和 Skills 一览放在插件 README 中；执行规则以本文和各 Skill 为准，不依赖 README。
 
 什么时候按风险选流程见 [workflow-policy](workflow-policy.md)；跨 Skill 交接的目标、范围、验收见 [task-contract](task-contract.md)；收尾角色分工见 [closeout-roles](closeout-roles.md)。
 
@@ -39,8 +39,8 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 
 ## 边界示例
 
-- **实现不做设计**：`ticket-implement` 发现技术方案不成立时，不自行改接口或设计决策，而是把冲突报告给调用方；`graph-workflow` 暂停受影响的工作，交回 `solution-design` 修订，再由 `to-tickets` 协调执行图。
-- **工作流不改代码**：`graph-workflow` 需要修正时不直接改源代码，而是记录 correction attempt，派发 worker 加载 `ticket-implement` 处理。
+- **实现不做设计**：`ticket-implement` 发现技术方案不成立时，把冲突交回调用方，不自行变更接口或设计决策；`graph-workflow` 暂停受影响的工作，交回 `solution-design` 修订，再由 `to-tickets` 协调执行图。
+- **工作流不改代码**：`graph-workflow` 不直接改源代码。需要修正时记录 correction attempt，派发 worker 加载 `ticket-implement` 处理。
 - **验证不修复**：`verify` 发现缺陷只报告结论和证据，不改代码。调用方（`graph-workflow` 或 `quick-implement`）据此安排修正：有图时交给 `ticket-implement`，修正后重新验证受影响的证据。
 
 任务契约（目标、范围、验收、决策边界和证据）及其六类边界属于跨 Skill 交接的共同依据，统一维护在 [task-contract](task-contract.md)；六类边界是 [Engineering Kernel](ENGINEERING_KERNEL.md) 不变量在工作流层的表述，本文不重复，也不改写。
@@ -50,7 +50,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 调用关系只说明三件事：谁可以发起调用，谁作为 worker 被派发，调用后各自的职责边界在哪里。它不描述 Runtime 如何创建或等待 worker，不定义生命周期，也不是新的 Skill metadata、注册表或依赖图。
 
 - 调用方负责选择下游、交代输入和范围，并消费下游的原始结果。
-- 被调用方只在自己的职责内工作；超出职责的问题交回调用方，而不是自行扩大范围。
+- 被调用方只在自己的职责内工作；遇到超出职责的问题，交回调用方处理。
 - 调用不扩大授权。交接不授予提交、推送、分支操作或外部发布权限，规划交接也不授予实现权限。
 
 ## 调用模型
@@ -88,7 +88,7 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 
 ### graph-workflow
 
-- graph-workflow 不在自己的上下文里内联执行这些 Skill，而是为每个角色派发原生 worker：`ticket-implement` 负责实现与修正，`simplify`、`verify`、`code-review` 负责最终收尾。三个收尾角色的分工见 [closeout-roles](closeout-roles.md)。
+- graph-workflow 为每个角色派发原生 worker，不在自己的上下文里内联执行这些 Skill：`ticket-implement` 负责实现与修正，`simplify`、`verify`、`code-review` 负责最终收尾。三个收尾角色的分工见 [closeout-roles](closeout-roles.md)。
 - 它自己只写 `.loop/` 运行状态（phase、attempt、证据）和交付记录，不修改 ticket 契约或源代码；需要修正时记录 correction attempt，再派发 `ticket-implement`。
 - 收到 `verify` 或 `code-review` 的问题后，由它判断影响，重新派发修正和受影响的复验；需求或技术方案冲突交回对应上游 Skill。
 
