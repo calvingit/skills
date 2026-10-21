@@ -107,6 +107,7 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill（2026-10-16
 
 - grilling 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/productivity/grilling/SKILL.md)，保留 design tree、frontier、round 和每轮批量提出整个 frontier 的机制；本地增加快捷回复格式、通用事实调查、项目内决策记录，以及与 domain-modeling 组合写入术语和 ADR。尚未做行为对比验证。
 - tdd 基于 [Matt 的原版](https://github.com/mattpocock/skills/blob/main/skills/engineering/tdd/SKILL.md)，保留行为测试与逐步反馈；2026-09-26 核对上游后，取消逐个测试边界的重复确认，技术测试边界不写入 SPEC，允许 Green 后局部重构，并要求预期值有独立依据。尚未替代真实项目中的长期效果评估。
+- code-review 的「Reversibility and detection」一条参考 warpdotdev/common-skills 的 [merge-risk](https://github.com/warpdotdev/common-skills/tree/8792394ff1b655e0af451b8fabb68ef0cfcbd208/.agents/skills/merge-risk)（MIT，提交 `8792394`）中的 Rollback cost 与 Error detection；单向门 / 双向门的说法来自 Matt Pocock 的 pr skill。不采用它的加权评分。
 
 ### Kernel 演进
 
