@@ -25,3 +25,5 @@
 ## 设计来源
 
 借鉴 pstack 的 [create-verification-skill](https://github.com/cursor/plugins/blob/main/pstack/skills/create-verification-skill/SKILL.md)：先从仓库查明运行、驱动、观察和隔离方法，生成本地技能后实际试运行，并在清理后保留证据。本仓库将创建和维护合在一个入口，沿用 `.agents/skills` 和已有 Profile，支持多端导航，保留全局 `verify` 的独立证据判断，不强制工具或测试层级。
+
+浏览器与 App 界面的驱动要求参考了 wshobson/agents 的 [e2e-testing-patterns](https://github.com/wshobson/agents/tree/0874a27b17a22e2b7c2e2bcd725768e0803cad06/plugins/developer-essentials/skills/e2e-testing-patterns)（MIT，提交 `0874a27`），只取选择器优先级、不用固定等待、用例自建数据和失败保留证据四点，不绑定 Playwright 或 Cypress。

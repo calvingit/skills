@@ -29,6 +29,8 @@ Use real repository commands, selectors, routes or public library callers. Recor
 
 Name mocked boundaries and the limits they impose. A simulated external response cannot prove a real provider integration. Behavioural tests alone do not prove visual or UX acceptance; specify comparison with an agreed visual reference or human assessment when required, without claiming a screenshot proves interaction timing.
 
+For browser and app UIs, prefer role, label or visible-text handles, then an explicit test id; avoid CSS classes, DOM position and generated attributes. Wait for an observable condition through the framework's retrying assertions, a specific response or a URL, never a fixed sleep or a global network-idle state. Give each case its own data and accounts, created and removed by that case through a public or test-support interface, so it can run alone or in parallel. Reuse a recorded signed-in state only when sign-in is not the behaviour under test. Keep the trace, screenshot or video from a failing attempt before rerunning; a case that passes only on retry is flaky, not passing.
+
 ## Evidence and cleanup
 
 Specify where the run stores action/result evidence, actual commands or tool calls, exit codes, environment, and the tested revision including relevant uncommitted changes. Existing project report formats suffice. Preserve only necessary data and omit credentials or personal data from retained output.
