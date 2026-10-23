@@ -10,7 +10,7 @@ Discover how this repository can establish observable behaviour, then create or 
 Choose the scope from the request:
 
 - **Discover only**: inventory existing methods and report them without modifying project files. The report lists each method's source, actual command, prerequisites, evidence scope, limits and execution status (not run). Update an existing Verification summary only when the caller explicitly authorises it, and keep it to navigation: surface, method entry, essential prerequisites, capability summary and limits, never a copied command list. Stop after [Discover before designing](#discover-before-designing). Do not create a local skill, feature map or helper, and do not run checks.
-- **Create or refresh**: build or repair a runnable method, then follow every section below, including the trial run. Discovery alone never makes a method operational.
+- **Create or refresh**: complete discovery, then read and follow [the project harness contract](references/project-harness.md), including authoring, registration, trial run and maintenance. Discovery alone never makes a method operational.
 
 See [usage examples and design source](references/usage.md) when establishing an entry or planning an incremental refresh.
 
@@ -27,26 +27,16 @@ When setup is requested for a delivery, read its [Task Contract](../shared/task-
 
 ## Create or refresh
 
-Use the repository's local skill convention; default to `.agents/skills/verify-<surface>/`. Update an existing equivalent in place rather than creating a competing entry. Use one skill when the run/drive/isolation recipe is shared; split only when surfaces need distinct recipes. For multiple skills, reuse or create one concise navigation entry mapping surfaces and cross-surface journeys to their guidance, without duplicating commands.
-
-Follow [the project harness contract](references/project-harness.md). Write concrete repository paths, commands or tool actions, prerequisites, observations and limits. Keep existing scripts as the execution authority; add a helper only when it removes repeated or fragile work. Do not add a generic runner, fixed test-level ladder, empty directories, or parallel configuration format.
-
-Record a small feature map inline, or in referenced feature files when it improves navigation. For each covered feature, identify its requirement/doc source, entry point, drive method, expected observable result, side effects and unsupported scope. Distinguish confirmed expectations from unconfirmed coverage candidates. Reuse existing mappings; do not copy SPEC or turn the map into a new requirements authority. Mark mapped but unexercised paths explicitly.
+Read and follow [authoring and registration](references/project-harness.md#author-and-register) before writing. Reuse existing methods and scripts; create only the requested local recipes, necessary helpers and navigation. The reference owns recipe layout, feature mapping and Profile updates.
 
 Keep writes within local verification skills, necessary helpers and their navigation links. Do not repair product code or rewrite assertions, fixtures, snapshots or baselines to hide a failed run. When a missing tool or test capability requires dependency, CI or product changes, describe the smallest gap and handle it as separate implementation work under the caller's authority. Do not silently install a preferred framework.
 
-Keep `verification_instructions` as the single verification navigation setting. When authorised, update it in the linked separate Profile and refresh its Verification summary with covered surfaces, recipe entries, prerequisites, and limits. Link authoritative recipes rather than copying commands or feature maps; label unexercised methods as declared capability. Preserve other fields and confirmed entries. Without a Profile, a short link in existing project instructions is enough; do not create a full Profile just for this skill. Respect scoped instructions and preserve unrelated edits.
-
 ## Prove the instructions
 
-Follow the generated instructions from their documented starting state. Check prerequisites and instance identity, launch if needed, drive one representative feature through its public interface, capture the action and observable result, then clean up. Repeat for each distinct recipe created or changed. A library or short-lived CLI does not need a persistent server.
-
-Use isolated test resources within the caller's permissions. Do not drive a user's shared session or mutate live business state. Clean up only resources this run owns, including after failure, and confirm evidence survives cleanup. Record actual commands/actions, working directory, versions/platform, revision plus relevant working-tree changes, exit codes and evidence paths in the caller's permitted output area. Keep current run logs out of stable Profile settings.
-
-Report separately what was written and what ran. Successful smoke execution validates that recipe and exercised path only, not every mapped feature or product AC. If execution is blocked or fails, retain an explicitly labelled draft for the affected recipe, report the observation and release condition or required repair, and do not call it operational. A healthy command for another surface does not clear the gap.
+Run the [trial and cleanup protocol](references/project-harness.md#trial-run-and-maintenance) for each distinct recipe created or changed. Use only permitted isolated resources; never drive a user's shared session or mutate live business state. A blocked or failed recipe remains a labelled draft. A smoke pass proves only the exercised path, not the feature map or task AC.
 
 ## Maintain without widening scope
 
-When guidance exists, compare it with the current sources and changed surfaces. Repair stale commands, paths, selectors, environment assumptions and mappings; remove obsolete guidance within scope, then rerun affected recipes. If nothing changed, verify the requested coverage without generating a cosmetic diff. Do not overwrite manual instructions or lower expected behaviour to match a regression. Return product failures and unresolved contract conflicts to their owner.
+Refresh only affected guidance under the same [maintenance protocol](references/project-harness.md#trial-run-and-maintenance). Preserve manual instructions, unrelated edits and expected behaviour; return product failures and contract conflicts to their owner.
 
 Report changed entries, reused tools, exercised coverage, retained evidence and outstanding gaps. Setup does not declare task acceptance, modify ticket state, or commit/push unless the caller authorised it.

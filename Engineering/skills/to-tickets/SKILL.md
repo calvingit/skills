@@ -9,13 +9,7 @@ Break the confirmed `SPEC.md` and, when present, the task directory's `SOLUTION.
 
 Wayfinding Map decisions that affect requirements must go through `to-spec` first. Purely technical decisions are absorbed by `solution-design` after the SPEC is confirmed. Stop and Call the Skill tool with "to-spec" when there is no SPEC.
 
-Every ticket must cite existing protocol meaning through `covers.requirements` and `covers.spec_acceptance`, for example:
-
-```json
-{"covers":{"requirements":["R1"],"spec_acceptance":["AC1"]},"delivery_acceptance":[{"id":"AC1","description":"..."}]}
-```
-
-Cite existing acceptance meaning. Derive delivery acceptance targets from the cited SPEC / AC; do not invent new acceptance semantics. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and Call the Skill tool with "to-spec" only when a scenario is missing an expected result.
+Every ticket derives delivery acceptance from SPEC / AC through `covers.requirements` and `covers.spec_acceptance`; do not invent new acceptance semantics. Graph checks must report `R` / `AC` / `D` coverage and ticket coverage. Check scenario coverage only when the task enabled independent acceptance scenarios, and Call the Skill tool with "to-spec" only when a scenario is missing an expected result.
 
 ## Modes
 
@@ -63,19 +57,15 @@ Stop and Call the Skill tool with the owning upstream skill only when decomposit
 
 ## Write local tickets
 
-`tickets/*.md` (Markdown + YAML frontmatter, [format](references/ticket-format.md)) is the only execution graph, and a ticket is a **stable delivery contract**: execution never rewrites it. Lifecycle, attempts, evidence and blockers live in the task's Git-ignored `.loop/state.json` and belong to `graph-workflow`. `to-tickets` does not write ticket files directly, scan max IDs, or maintain readiness, checkboxes, or runtime progress. After the split passes the checks above, build a `create-batch` JSON request. Each item supplies a temporary key, title, covers, applicable D IDs, what to build, constraints, delivery acceptance targets, and real dependencies expressed as temporary keys.
+`tickets/*.md` holds **stable delivery contracts**; execution never rewrites them. Lifecycle, attempts, evidence and blockers belong to `graph-workflow` in Git-ignored `.loop/state.json`. Do not hand-write tickets, allocate IDs, or maintain runtime progress here.
 
-Read [script inputs](references/script-inputs.md) for JSON request shapes. Use `python3 <to-tickets-skill>/scripts/create-graph create-batch --help` for the current command input.
-
-Then:
+After validating the split, read the applicable operation in [script inputs](references/script-inputs.md): `create-batch` for initial creation, `reconcile-batch` for a confirmed amendment after writers stop. Build its JSON request and use the installed skill's command. For initial creation:
 
 ```bash
 python3 <to-tickets-skill>/scripts/create-graph create-batch <task-dir> --input <request.json>
 ```
 
-The CLI assigns immutable `T001`-style IDs, resolves dependencies, writes the ticket contracts and initializes `.loop/state.json` with every ticket `open`, attempt 0 and no evidence, then returns the mapping and full graph. Schema, identity, runtime progress and readiness belong to the graph tool; do not keep another ticket template here. The Markdown body (title, Delivery, Constraints, Delivery Acceptance) is the readable contract; the frontmatter holds machine facts only.
-
-AC IDs must be unique inside a ticket. Full evidence identity is ticket ID plus local AC ID. Tickets cite the upstream contract through `covers.requirements`, `covers.spec_acceptance`, and `referenced_design_decisions` without copying SPEC / SOLUTION prose. An ordinary delivery ticket must cover at least one current `R` or SPEC `AC`. A design-only correction / migration must cite at least one D ID.
+Ticket-local AC IDs must be unique and remain distinct from SPEC AC IDs; evidence identifies both the ticket and its local AC. An ordinary delivery ticket must cover at least one current R or SPEC AC; a design-only correction / migration must cite at least one D ID. Use `constraints: []` when no specific inherited constraint applies.
 
 After the first graph create, report the CLI-computed frontier, blocked reasons, ID / path mapping, applicable D IDs, and unverified items. Once an execution graph exists, continue directly with `graph-workflow` whether one ticket or several are active, but only when the user's current request authorises implementation. For planning-only requests, stop after the required planning artifacts are ready. `quick-implement` is only for a single SPEC / SOLUTION with no graph.
 
@@ -83,15 +73,7 @@ For an upstream amendment, reconcile only tickets affected by the confirmed delt
 
 ## Script boundary
 
-Resolve `<to-tickets-skill>` to this installed skill directory, never to the target project's working directory. Run with Python 3.10+ on macOS/Linux; no global CLI installation is needed. Keep sibling `Engineering/skills/shared/` with this skill: it owns [the ticket schema](../shared/ticket-schema.json), the [runtime state schema](../shared/runtime-state-schema.json), graph validation and transactional storage. Scripts do not infer requirements or design from documents; this skill supplies the confirmed candidate split.
-
-- `scripts/create-graph create-batch`: allocate IDs and resolve dependencies; write v4 ticket contracts and initialize `.loop/state.json`.
-- `scripts/create-graph reconcile-batch`: apply an upstream amendment after Graph Workflow stops writers; switch contracts and runtime state in one transaction.
-
-- `scripts/validate-graph`: read-only schema, dependency, authority and coverage checks.
-- `scripts/create-graph migrate-v3`: one-off local conversion of an existing v3 task (execution records move from the tickets into `.loop/state.json`). Run it per task; report anything it cannot confirm instead of assuming completion.
-
-Use `constraints: []` when a ticket has no specific inherited constraint, rather than adding filler. Keep implementation recipes out of tickets.
+Scripts own schema, IDs, readiness and transactional storage; they do not infer requirements or design. Supply the confirmed split, preserve sibling `shared/`, and resolve commands from the installed skill rather than the target repository. Runtime requirements, read-only validation and legacy conversion are documented in [script inputs](references/script-inputs.md); use migration only for an existing v3 task. Do not maintain a parallel ticket template or state format.
 
 ## Handoff
 

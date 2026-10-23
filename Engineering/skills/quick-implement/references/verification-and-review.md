@@ -1,8 +1,6 @@
 # Verification and Review
 
-Follow the shared [close-out roles](../../shared/closeout-roles.md) for dedicated `simplify` → `verify` → `code-review` judgements, independence, and panel rules. This file adds the quick-implement receipt only.
-
-During implementation, the main agent runs this slice's targeted tests and related typechecks. At close-out, prepare the final candidate after any authorized simplification edits, then run the three roles in that order.
+This receipt records the results of [quick-implement closeout](../SKILL.md#close-out). Role execution and independence are defined by [close-out roles](../../shared/closeout-roles.md); the receipt adds no separate gate.
 
 ## Receipt
 

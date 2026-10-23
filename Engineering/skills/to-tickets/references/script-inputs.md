@@ -1,6 +1,6 @@
 # Graph script inputs
 
-Use Python 3.10+ on macOS/Linux. Resolve script paths from the installed skill, preserving sibling `shared/`. Inputs accept a UTF-8 JSON file or `--input -` for stdin. Success/error results are JSON; exit 0 means accepted, nonzero means rejected. These are state commands, not Agent commands.
+Use Python 3.10+ on macOS/Linux; no global CLI installation is needed. Resolve script paths from the installed skill, preserving sibling `shared/`, which owns the [ticket schema](../../shared/ticket-schema.json), [runtime state schema](../../shared/runtime-state-schema.json), validation and transactional storage. Inputs accept a UTF-8 JSON file or `--input -` for stdin. Success/error results are JSON; exit 0 means accepted, nonzero means rejected. These are state commands, not Agent commands. Read only the operation needed for the current task.
 
 ## Create
 
@@ -21,7 +21,9 @@ Use Python 3.10+ on macOS/Linux. Resolve script paths from the installed skill, 
 }
 ```
 
-D references may be empty when SOLUTION is not required. `constraints` may be `[]` when the ticket has no specific constraint; entries, when present, must be non-empty and unique. Candidate dependencies name other candidate keys. Scripts allocate immutable IDs, write the v4 ticket contracts and initialize `.loop/state.json` (every ticket `open`, attempt 0, no evidence); callers supply neither. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
+D references may be empty when SOLUTION is not required. `constraints` may be `[]` when the ticket has no specific constraint; entries, when present, must be non-empty and unique. Candidate dependencies name other candidate keys. Scripts allocate immutable `T001`-style IDs, resolve dependencies, write the v4 ticket contracts and initialize `.loop/state.json` (every ticket `open`, attempt 0, no evidence), then return the ID mapping and full graph. Callers supply neither IDs nor runtime state. Local AC IDs are scoped to each ticket, while `covers.spec_acceptance` references SPEC IDs.
+
+The [ticket format](ticket-format.md) keeps the readable contract in the Markdown body (title, Delivery, Constraints, Delivery Acceptance), with machine facts in frontmatter. Use `python3 <to-tickets-skill>/scripts/create-graph create-batch --help` for the current command input.
 
 ## Reconcile
 

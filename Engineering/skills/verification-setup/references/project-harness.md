@@ -2,6 +2,16 @@
 
 Use these responsibilities to write the local skill, not as a required CLI or schema. Omit inapplicable machinery and state meaningful limits. Another agent should be able to use the instructions without the setup conversation.
 
+## Author and register
+
+Use the repository's local skill convention; default to `.agents/skills/verify-<surface>/`. Update an existing equivalent in place. Share a skill where run/drive/isolation recipes are shared; split only for distinct recipes, with concise navigation across surfaces and journeys.
+
+Keep existing scripts as execution authority. Add a helper only for repeated or fragile work; do not add a generic runner, fixed test-level ladder, empty directories or parallel configuration format. Write concrete paths, commands/tool actions, prerequisites, observations and limits using the contract below.
+
+Reuse feature mappings or write a small inline [feature map](#minimal-feature-entry); use referenced feature files only when navigation benefits. Distinguish confirmed expectations from unconfirmed coverage candidates and mark unexercised paths. The map must not copy SPEC or become another requirements authority.
+
+When authorised, update the linked Profile's `verification_instructions` and Verification summary: surfaces, recipe links, prerequisites and limits. Do not copy commands or feature maps; label unexercised methods as declared capability. Preserve other fields and confirmed entries. Without a Profile, use a short link in existing project instructions rather than creating a full Profile. Respect scoped instructions and unrelated edits.
+
 ## Entry and selection
 
 - Give `SKILL.md` valid `name` and `description` frontmatter naming the surface and invocation context.
@@ -45,3 +55,13 @@ Use an inline table for a small harness; split files only when useful:
 | --- | --- | --- | --- | --- |
 
 Populate with repository facts and confirmed expectations; omit this empty skeleton from the generated output. Include alternative entries or failure paths only when they are relevant to the requested coverage. Link to existing tests/docs instead of copying them. Keep smoke-run coverage distinct from the full map.
+
+## Trial run and maintenance
+
+For each distinct recipe created or changed, follow it from its documented starting state: check prerequisites and instance identity, launch if needed, drive one representative feature through its public interface, capture the action/result, then follow [evidence and cleanup](#evidence-and-cleanup). Libraries and short-lived CLIs need no persistent server. Use only caller-permitted isolated resources, never a user's shared session or live business state.
+
+Record actual commands/actions, working directory, versions/platform, revision plus relevant working-tree changes, exit codes and retained evidence paths. Keep run logs out of stable Profile settings and confirm evidence survives cleanup, including after failed runs.
+
+Report what was written separately from what ran. A smoke pass establishes only that recipe's exercised path and environment. Blocked or failed recipes remain explicitly labelled drafts; report the observation and release condition or required repair. Another surface's healthy command cannot clear the gap.
+
+For existing guidance, compare current sources and changed surfaces, repair stale commands, paths, selectors, environment assumptions and mappings, remove obsolete guidance within scope, then rerun affected recipes. If nothing changed, verify the requested coverage without a cosmetic diff. Preserve manual instructions and expected behaviour; return product failures and unresolved contract conflicts to their owner.

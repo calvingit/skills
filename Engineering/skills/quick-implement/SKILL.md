@@ -45,15 +45,9 @@ A Graph Workflow recommendation may explain delivery dependencies or context ris
 
 ## Close-out
 
-Close-out requires three separate independent judgements — simplification review, per-AC verification, and change review — each consumed from its own role's actual report. Worker creation, waiting and context assignment are Runtime mechanics; a dispatched worker existing is not proof its role judgement ran. Follow [close-out and receipt details](references/verification-and-review.md):
+Before dispatch, read and follow [close-out roles](../shared/closeout-roles.md). Run `simplify` in Review mode → `verify` → `code-review`, each in a separate dedicated native sub-agent, and consume each actual report. Apply simplification edits only with explicit authorization; prepare the final candidate after any such edits. After required fixes, rerun affected independent verification and review.
 
-1. Dispatch a dedicated native sub-agent that loads `simplify` (Call the Skill tool with "simplify", or pass its resolved `SKILL.md`) in Review mode and consume its findings.
-2. Dispatch a separate native `verify` sub-agent the same way (Call the Skill tool with "verify", or pass its resolved `SKILL.md`) for every applicable AC and project gate.
-3. Dispatch another native `code-review` sub-agent the same way (Call the Skill tool with "code-review", or pass its resolved `SKILL.md`) for the implemented scope; consume
-   the actual report and rerun affected independent checks after required fixes.
-4. Declare done only with sufficient AC evidence, passed required verification
-   and review, and no unresolved high-risk issue. Commit only with explicit
-   authorization, containing this task's changes; do not push on your own.
+Declare done only with sufficient evidence for every applicable AC and project gate, completed independent closeout, and no unresolved high-risk issue. Commit only this task's changes with explicit authorization; do not push on your own. Use the [implementation receipt](references/verification-and-review.md#receipt) to report the result.
 
 ## Boundaries
 

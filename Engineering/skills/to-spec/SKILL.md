@@ -9,16 +9,7 @@ Write the settled consensus, requirement authority, and codebase facts into the 
 
 Create when there is no SPEC. Amend the same file when an existing SPEC's requirements are added, changed, removed, or clarified. Do not re-interview the whole requirement, split tickets, or implement code.
 
-`SPEC.md` is the workflow's **engineering requirement snapshot**. It contains:
-
-- problem
-- goal
-- scope
-- behavioural requirements
-- business constraints
-- external technical constraints
-- compatibility constraints
-- observable acceptance
+`SPEC.md` is the workflow's **engineering requirement snapshot**: problem, goal, scope, behavioural requirements, business / external technical / compatibility constraints, and observable acceptance.
 
 Technical constraints are allowed when they define required behaviour, including API contracts, field semantics, protocol limitations, and backend-defined states. `SPEC.md` does not contain classes, modules, internal interfaces, implementation approaches, file changes, derived solution design, or an execution graph. An external PRD or user input can be upstream requirement authority. It cannot replace a confirmed SPEC as the driver of SOLUTION, tickets, or implementation. Do not publish to an external tracker unless the user asks. Do not create a parallel authority such as `SPEC-v2.md`.
 
@@ -82,21 +73,14 @@ Keep `R → AC` traceability and decidable expected results. AC are the sole beh
 
 #### Select behaviour examples only when useful
 
-- Keep an already unambiguous AC without examples. Prefer compact input → outcome Examples for meaningful branches or boundaries; use Given / When / Then Scenarios when state transitions, permissions, authentication or interacting conditions need context. Do not introduce a full BDD workflow.
-- Retain an example only if it rules out a plausible misreading, expresses a business boundary or distinct outcome, or makes a key confirmed behaviour concrete. Omit equivalent inputs, test-category checklists and implementation details; do not expand every AC into Happy / Error / Edge cases.
-- Stop when rules and key branches are clear and another example would not change an implementation decision. Nest an optional title under its AC, or cite that AC in a separate protocol; do not introduce Scenario IDs or a traceability matrix.
-- If different answers would change business behaviour, Call the Skill tool with "grilling" for the unresolved choice before specifying dependent examples. For “delete account”, soft deletion, permanence and recovery are decisions, not details an example may assume. Settled behaviour that only needs concrete expression stays here.
+Keep unambiguous AC without examples. When examples clarify a real branch or prevent a plausible misreading, apply [example selection](references/spec-template.md#behaviour-examples); do not invent behaviour or add Scenario IDs. Unsettled business choices go to `grilling` before writing dependent examples.
 
 ### 5. Consistency
 
-1. Problem, Goal, and Scope describe the same problem and goal.
-2. `R` and `AC` IDs are unique and stable; every in-scope `R` is covered by at least one `AC`.
-3. Each `AC` can be judged on its own and traces to a confirmed requirement or an authoritative expected source.
-4. Every business or external technical constraint has an upstream basis. Explicit API, platform, protocol, backend-state, or compatibility requirements retain their source; derived architecture belongs to SOLUTION.
-5. Acceptance Seams identify observable user-visible or external-contract results and their expected source; test strategy and internal verification seams stay in SOLUTION.
-6. Bounds, defaults, Out of Scope, and acceptance do not conflict or silently expand.
-7. No placeholders, untreated conflicts, invented facts, or silently skipped blockers.
-8. Requirement Authority records source, snapshot bounds, and unverified items as they are.
+1. Problem, Goal, Scope, bounds, defaults, exclusions and acceptance agree without expanding the confirmed task.
+2. `R` / `AC` IDs are unique and stable; every in-scope R has AC coverage. Each AC is independently decidable and grounded in a confirmed requirement or authoritative expected source.
+3. Constraints retain their upstream basis, and Acceptance Seams retain their public observations and expected sources. Derived architecture, test strategy and internal verification seams stay in SOLUTION.
+4. Requirement Authority records source, snapshot bounds and unverified items accurately. Leave no placeholders, invented facts, untreated conflicts or silently skipped blockers.
 
 Fix what confirmed context or the codebase can fix. Stop and Call the Skill tool with "grilling", or with "wayfinding", when a new decision is required.
 
@@ -109,7 +93,7 @@ Do not edit SOLUTION, ticket contract, status, or evidence. Do not maintain task
 After confirming the SPEC, make two independent decisions:
 
 1. **Shared design**: apply the [solution-design entry conditions](../solution-design/SKILL.md#when-a-solution-design-is-required), including shared Interface and lifecycle/cancellation changes even for a single delivery. When required, Call the Skill tool with "solution-design", passing the confirmed SPEC, relevant code facts, confirmed constraints and current authority. Let that skill own the design and its existing Design Review Gate; consume its returned result before recommending execution. Do not finalize a gated choice before user confirmation. Otherwise report `solution_not_required` with its basis. Identify observation methods or gaps without putting test recipes in SPEC.
-2. **Execution recommendation**: use the [workflow policy](../shared/workflow-policy.md). Recommend `quick-implement` for one complete delivery scope requiring no separately managed execution units, graph-managed dependencies or cross-context scheduling, when the current context can reliably finish it. Recommend `to-tickets` for separately deliverable units, real delivery dependencies or staged execution across contexts. Several independent fixes remain separate delivery units even if they fit one session. Forecast boundaries and dependencies, not ticket counts or a concrete split. Risk and verification difficulty inform evidence strategy, not ticket decomposition by themselves.
+2. **Execution recommendation**: read and apply the [workflow policy](../shared/workflow-policy.md#select-only-necessary-capabilities) to recommend `quick-implement` or `to-tickets` from delivery boundaries and dependencies. Do not split tickets here. This decision is independent of whether shared design was required; risk and verification difficulty alone do not require decomposition.
 
 Respect a route the user has already selected; explain any relevant risks without requiring another route confirmation. An existing graph and active writers still follow the Task Contract's lifecycle and stop-write protections.
 

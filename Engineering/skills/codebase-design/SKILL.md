@@ -9,36 +9,34 @@ Design **deep modules**: a lot of behaviour behind a small interface, placed at 
 
 This skill answers **HOW** a known design point should be shaped. It does not judge whether the whole architecture is sound, and it does not scan the repo for architecture problems — that is `review-architecture`.
 
-The aim is leverage for callers, locality for maintainers, and testability for everyone.
-
 ## Glossary
 
 Use these meanings within Module / Interface / Seam design discussions. Preserve the project's established domain terms and external contract names; clarify mappings when needed rather than renaming components, services, or APIs to match this glossary. These are analysis terms, not a replacement for the project's domain model.
 
-**Module** — anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice, with one caller-visible Interface. _Avoid_: unit, component, service.
+**Module** — anything with one caller-visible Interface and an Implementation, from a function to a tier-spanning slice. _Avoid_: unit, component, service.
 
-**Interface** — everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics. _Avoid_: API, signature (too narrow — they refer only to the type-level surface).
+**Interface** — everything a caller must know: signatures, invariants, ordering, errors, configuration and performance. Do not reduce this meaning to an API signature.
 
-**Implementation** — what's inside a module, its body of code. Distinct from **Adapter**: a thing can be a small adapter with a large implementation (a Postgres repo) or a large adapter with a small implementation (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.
+**Implementation** — the module's internal code. **Adapter** describes its role at a Seam, not its implementation size.
 
-**Depth** — a property of a Module, assessed relative to its Interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is **deep** when a large amount of behaviour sits behind a small interface, **shallow** when the interface is nearly as complex as the implementation.
+**Depth** — behaviour available per unit of Interface a caller or test must learn. A deep module hides substantial behaviour behind a small interface; a shallow one exposes nearly its implementation's complexity.
 
-**Seam** _(Michael Feathers)_ — a variation point where you can alter behaviour without editing the code at that point. A Seam may be a public Interface, an internal boundary, an I/O or process boundary, or an external system. Where to put it is its own design decision, distinct from what goes behind it. _Avoid_: boundary (overloaded with DDD's bounded context).
+**Seam** _(Michael Feathers)_ — a variation point where behaviour can change without editing code at that point: public or internal Interface, I/O, process or external system. Placement is a separate decision from Implementation. _Avoid_: boundary (overloaded with DDD's bounded context).
 
-**Adapter** — a concrete thing that satisfies an interface at a seam. Describes *role* (what slot it fills), not substance (what's inside).
+**Adapter** — a concrete implementation of an Interface at a Seam.
 
-**Leverage** — what callers get from depth: more capability per unit of interface they learn. One implementation pays back across N call sites and M tests.
+**Leverage** — caller capability per unit of Interface learned.
 
-**Locality** — what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.
+**Locality** — change, bugs, knowledge and verification concentrated with their owner rather than spread across callers.
 
 ## Principles
 
-- **Hide complexity behind the right owner.** Necessary complexity belongs in the module that understands it, not spread across callers. Callers should say what they want, not re-learn how the inside works. Watch for repeated wiring, validation, or protocol steps; callers that must know an internal state-machine order; simple behaviour assembled from low-level details across files; and production APIs that exist to expose test switches, noops, delays, callbacks, or mutable state.
+- **Hide complexity behind the right owner.** Callers express intent rather than repeat wiring, validation, protocols or internal state-machine steps. Production APIs should not exist to expose test controls.
 - **Design the Interface from observable behaviour.** Name the capability, inputs, outputs, failure semantics, lifecycle, and cancel / concurrency constraints first. Do not reverse-engineer a public interface from existing classes, tables, or a vendor SDK. Keep the interface small and complete, in the language of the domain or task, without leaking unrelated internals, and usable by real production callers.
-- **Put Seams at real variation points.** Good seams already exist: a public Interface, I/O Adapter, process boundary, clock or random source, external system, storage, or UI. Do not add a seam because tests are awkward. Ask whether production also benefits from that boundary, whether it is a real ownership or variation reason, and whether existing public Interfaces already let tests observe the behaviour. If only tests need it, do not widen the production Interface. Adapter count is a clue, not proof of a real or hypothetical seam. Even one production adapter may isolate vendor protocol, lifecycle, errors or ownership. Judge the boundary by the complexity and change it isolates; do not add a forwarding port that provides no such value.
-- **Keep adapters at the edge.** Vendor SDKs, HTTP, databases, filesystems, and platform APIs stay on the adapter side. Core modules should not spread vendor-specific types, errors, or config without cause. Don't wrap every dependency. An adapter earns its keep by occupying a stable seam, isolating change, or offering a better internal contract.
-- **Prefer locality over speculative reuse.** Rules that change together should live together. Abstract only when several real callers or variation points already exist, or when a real boundary must hide complexity. Names like factory, strategy, repository, manager, or service do not make an abstraction real.
-- **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface. A module can have **internal seams** (private to its implementation, used by its own tests) as well as the **external seam** at its interface.
+- **Put Seams at real variation points.** Use existing public Interfaces, I/O, process, clock/random, storage or UI boundaries when sufficient. Require a production ownership or variation benefit; awkward tests alone do not justify widening the Interface. Judge by isolated complexity and change, not adapter count: one adapter can still isolate vendor protocol, lifecycle or errors. Reject forwarding ports that add no such value.
+- **Keep adapters at the edge.** Isolate vendor SDKs, HTTP, databases, filesystems and platform APIs when doing so hides change or improves the internal contract. Do not spread vendor types, errors or configuration without cause, or wrap every dependency.
+- **Prefer locality over speculative reuse.** Keep rules that change together with one owner. Abstract for several real callers or existing variation points, or for a real boundary that hides complexity, not a pattern name.
+- **Depth is relative to the Interface.** Internal parts may be small, mockable and swappable. Keep private test seams internal rather than exposing them through the caller-facing Interface.
 - **The interface is the test surface.** Callers and tests cross the same seam. If you want to test *past* the interface, the module is probably the wrong shape.
 
 ## The deletion test
