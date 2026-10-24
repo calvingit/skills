@@ -81,6 +81,21 @@
       },
       "description": "Addy Osmani 的 Web 质量技能：性能、Core Web Vitals、可访问性、SEO，外部引用，未复制进本仓库。",
       "license": "MIT"
+    },
+    {
+      "name": "security-audit",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/cloudflare/security-audit-skill.git",
+        "path": "skills",
+        "sha": "c1c8a8c1471069fb0e188eeaff69b8e8db6564a8"
+      },
+      "description": "Cloudflare 的安全审计 skill：信任边界、漏洞审查与安全报告，外部引用，未复制进本仓库。",
+      "license": "MIT",
+      "strict": false,
+      "skills": [
+        "./security-audit"
+      ]
     }
   ]
 }

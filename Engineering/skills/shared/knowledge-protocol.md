@@ -1,6 +1,6 @@
 # 长期知识回写
 
-本文是 [Engineering Kernel](ENGINEERING_KERNEL.md) K03–K05 在长期项目知识上的具体应用，只回答一个问题：任务中发现了一个以后还需要知道的事实，接下来怎么办。它不是 Skill，也不是新的存储位置。
+本文是 [Engineering Kernel](engineering-kernel.md) K03–K05 在长期项目知识上的具体应用，只回答一个问题：任务中发现了一个以后还需要知道的事实，接下来怎么办。它不是 Skill，也不是新的存储位置。
 
 ## Purpose
 

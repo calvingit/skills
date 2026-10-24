@@ -38,7 +38,7 @@
 
 grilling → to-spec → solution-design → to-tickets → graph-workflow → ticket-implement → verify
 
-不必走完每一环。执行时，有图就按 `graph-workflow` 的派发实现与收尾；无图且范围单一时默认 [`quick-implement`](./skills/quick-implement/SKILL.md)，不自动切到 Graph Workflow。除非任务明确要求收敛需求，否则不要自行从 `grilling` 重开主链路。`to-spec` 确认 SPEC 后可按需交给 `solution-design`，再推荐 Quick 或 Tickets。Graph Workflow 与 Runtime 见 [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)。
+不必走完每一环。执行时，有图就按 `graph-workflow` 的派发实现与收尾；无图且范围单一时默认 [`quick-implement`](./skills/quick-implement/SKILL.md)，不自动切到 Graph Workflow。除非任务明确要求收敛需求，否则不要自行从 `grilling` 重开主链路。`to-spec` 确认 SPEC 后可按需交给 `solution-design`，再推荐 Quick 或 Tickets。Graph Workflow 与 Runtime 见 [Graph Workflow 与 Runtime](./docs/graph-workflow-runtime.md)。各环节的真实产物形态见[全链示例](./docs/example-task/README.md)。
 
 [![Engineering Skills 工作流](./docs/diagrams/engineering-workflow.svg)](./docs/diagrams/engineering-workflow.svg)
 
@@ -112,7 +112,7 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 
 | 文档 | 内容 |
 | --- | --- |
-| [Engineering Kernel](./skills/shared/ENGINEERING_KERNEL.md) | 跨 Skill 的不变量基线 |
+| [Engineering Kernel](./skills/shared/engineering-kernel.md) | 跨 Skill 的不变量基线 |
 | [任务契约](./skills/shared/task-contract.md) | 目标、范围、验收、决策边界、证据与 Amendment 停写 |
 | [职责归属与调用关系](./skills/shared/ownership-and-invocation.md) | 事实权威来源、调用模型、三种写法、角色边界 |
 | [流程选择](./skills/shared/workflow-policy.md) | 按风险选择流程 |
@@ -168,7 +168,6 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 | [`improve-agents-md`](./skills/improve-agents-md/SKILL.md) | 创建或优化多工具适用的 AGENTS.md |
 | [`context-audit`](./skills/context-audit/SKILL.md) | 审查 Agent 上下文中的重复、冲突、过时与职责错位 |
 | [`agent-tool`](./skills/agent-tool/SKILL.md) | Claude Code / Codex / Kimi / Pi / Grok 的统一 CLI 封装 |
-| [`fuck-my-shit-mountain`](./skills/fuck-my-shit-mountain/SKILL.md) | **Project Audit**（目录名 `fuck-my-shit-mountain`）：按若干维度做证据审计；仅显式调用 |
 
 ### 仅显式调用
 

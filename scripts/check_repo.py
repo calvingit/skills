@@ -78,6 +78,21 @@ def check_skills():
     return errors
 
 
+def check_skill_refs():
+    """`Call the Skill tool with "name"` 引用的 Skill 必须有对应的 skills/<name>/SKILL.md。"""
+    known = {p.parent.name for top in SKILL_DIRS for p in (ROOT / top).glob("skills/*/SKILL.md")}
+    errors = []
+    for md in tracked_markdown():
+        rel = md.relative_to(ROOT).as_posix()
+        for line in md.read_text().splitlines():
+            if "Skill tool" not in line:
+                continue
+            for name in re.findall(r'"([a-z][a-z0-9-]*)"', line):
+                if name not in known:
+                    errors.append(f'{rel}: Skill tool references "{name}" with no skills/{name}/SKILL.md')
+    return errors
+
+
 CATEGORIES = ("Engineering", "Backend", "Documents", "Work")  # 目录名；插件名是 zstack-<小写>
 MANIFESTS = (".claude-plugin/plugin.json",)
 MARKETS = (".claude-plugin/marketplace.json",)
@@ -122,7 +137,7 @@ def check_plugins():
 
 
 def main():
-    errors = check_links() + check_skills() + check_plugins()
+    errors = check_links() + check_skills() + check_plugins() + check_skill_refs()
     for e in errors:
         print("FAIL", e)
     print(f"links, skill metadata and plugin manifests: {'FAIL' if errors else 'OK'}")

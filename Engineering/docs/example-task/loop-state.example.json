@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "tickets": {
+    "T001": {
+      "attempt": 1,
+      "authority": {
+        "fingerprint": "fb35c07983abd89db15f8e4e4a5168f6ce9605be823a2f643a0c60915a9db9bb",
+        "reason": "Execution contract confirmed at start."
+      },
+      "evidence": {
+        "AC1": {
+          "attempt": 1,
+          "summary": "test/lib/csv_order_writer_test.rb 全绿（转义/空值/金额/BOM）；test/controllers/admin/export_test.rb happy path 通过"
+        },
+        "AC2": {
+          "attempt": 1,
+          "summary": "契约测试断言 Content-Disposition=orders-20261024.csv 与 UTF-8 BOM"
+        }
+      },
+      "phase": "done"
+    },
+    "T002": {
+      "attempt": 1,
+      "authority": {
+        "fingerprint": "0cd4079e49fcf81fd83fc67a88606f73596bf694041d754870f1f95e9e8f18f5",
+        "reason": "Execution contract confirmed at start."
+      },
+      "current_attempt": {
+        "allowed_write_scope": [
+          "app/controllers/admin/order_controller.rb",
+          "test/controllers/admin/export_test.rb"
+        ],
+        "baseline": {
+          "reference": "HEAD",
+          "staged": [
+            "app/controllers/admin/order_controller.rb"
+          ],
+          "unstaged": [],
+          "untracked": []
+        },
+        "existing_changes": {
+          "excluded": [],
+          "included": [
+            "app/controllers/admin/order_controller.rb"
+          ]
+        },
+        "number": 1
+      },
+      "phase": "in_progress"
+    },
+    "T003": {
+      "attempt": 0,
+      "authority": {
+        "fingerprint": "bec440ec71b3c93dc515843308a8a29f818fa9b652226a8d7320b0292ac8fc67",
+        "reason": "Confirmed initial delivery split."
+      },
+      "phase": "open"
+    }
+  }
+}

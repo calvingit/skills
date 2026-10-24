@@ -41,7 +41,7 @@ Requirement 定义目标，AC 定义必须满足的行为；Scenario / Example �
 - 实现发现技术方案不成立时，交回调用方暂停受影响工作，再由 `solution-design` 修订、`to-tickets` 协调图；不得就地改写设计决策。
 - 验证发现缺陷时只报告证据。调用方安排实现者修正，再独立复验；Graph Workflow 自己不改代码。
 
-任务契约（目标、范围、验收、决策边界和证据）及其六类边界属于跨 Skill 交接的共同依据，统一维护在 [task-contract](task-contract.md)；六类边界是 [Engineering Kernel](ENGINEERING_KERNEL.md) 不变量在工作流层的表述，本文不重复，也不改写。
+任务契约（目标、范围、验收、决策边界和证据）及其六类边界属于跨 Skill 交接的共同依据，统一维护在 [task-contract](task-contract.md)；六类边界是 [Engineering Kernel](engineering-kernel.md) 不变量在工作流层的表述，本文不重复，也不改写。
 
 ## 调用原则
 
@@ -86,7 +86,7 @@ grilling → to-spec → solution-design → to-tickets → graph-workflow → t
 
 ### graph-workflow
 
-为实现与修正派发加载 `ticket-implement` 的原生 worker；最终收尾按 [closeout-roles](closeout-roles.md) 派发三个独立角色，不内联代做。只写 `.loop/` 状态和交付记录。收到问题后判断影响，记录 correction attempt 并派发修正及受影响的复验；契约冲突交回上游。
+为实现与修正派发加载 `ticket-implement` 的原生 worker；最终收尾按 [closeout-roles](closeout-roles.md) 的风险分级派发独立角色（默认全三），不内联代做。只写 `.loop/` 状态和交付记录。收到问题后判断影响，记录 correction attempt 并派发修正及受影响的复验；契约冲突交回上游。
 
 ### ticket-implement
 

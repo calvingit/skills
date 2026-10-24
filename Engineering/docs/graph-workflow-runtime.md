@@ -67,7 +67,7 @@ python3 Engineering/skills/graph-workflow/scripts/update-status complete /path/t
 
 ## 最终交付
 
-`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Graph Workflow Manager 委派专用 `simplify` worker 并准备最终快照，再分别调用独立 verify 和 code-review，代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，保存原报告后更新快照，默认转入 targeted closeout：独立重验受影响 SPEC AC、原 regression 和项目 mandatory gates，独立审查累积修正及相关路径，确认其余证据仍适用。只有实际影响扩大、原 broad review 依据失效时才升级 broad review，不因再次 delivery_ready 自动重跑全套收尾。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../skills/graph-workflow/references/delivery-review.md)。完成后记录判断：
+`all_active_done` 是历史状态，`delivery_ready` 表示可以开始整体验收。Graph Workflow Manager 按 closeout-roles 的风险分级委派专用 `simplify` worker（低风险层级可省略并记录）并准备最终快照，再分别调用独立 verify 和 code-review（交付脚本强制非空 review），代码停止变化后才能验收。必要修正通过图允许的 reopen 或修正 ticket 处理，保存原报告后更新快照，默认转入 targeted closeout：独立重验受影响 SPEC AC、原 regression 和项目 mandatory gates，独立审查累积修正及相关路径，确认其余证据仍适用。只有实际影响扩大、原 broad review 依据失效时才升级 broad review，不因再次 delivery_ready 自动重跑全套收尾。缺少任何必需结果时保留已完成 tickets，恢复未完成的最终验收，不能将最终交付标为 passed。完整步骤见[最终验收](../skills/graph-workflow/references/delivery-review.md)。完成后记录判断：
 
 ```bash
 python3 <graph-workflow-skill>/scripts/update-status delivery-prepare <task-dir> --workspace <repo-root>

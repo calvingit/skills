@@ -45,7 +45,7 @@ A Graph Workflow recommendation may explain delivery dependencies or context ris
 
 ## Close-out
 
-Before dispatch, read and follow [close-out roles](../shared/closeout-roles.md). Run `simplify` in Review mode → `verify` → `code-review`, each in a separate dedicated native sub-agent, and consume each actual report. Apply simplification edits only with explicit authorization; prepare the final candidate after any such edits. After required fixes, rerun affected independent verification and review.
+Before dispatch, read and follow [close-out roles](../shared/closeout-roles.md). Select the close-out tier from the contract's blast radius (default full: `simplify` in Review mode → `verify` → `code-review`), run the required roles each in a separate dedicated native sub-agent, and consume each actual report. Record any tier reduction and its basis in the receipt; an omitted role is never reported as passed. Apply simplification edits only with explicit authorization; prepare the final candidate after any such edits. After required fixes, rerun affected independent verification and review.
 
 Declare done only with sufficient evidence for every applicable AC and project gate, completed independent closeout, and no unresolved high-risk issue. Commit only this task's changes with explicit authorization; do not push on your own. Use the [implementation receipt](references/verification-and-review.md#receipt) to report the result.
 

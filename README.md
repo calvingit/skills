@@ -37,6 +37,12 @@ claude plugin install supply-chain-risk-auditor@calvingit
 
 运行它需要 uv 和 Python 3.11 以上，最好也装上 `gh`。
 
+审计相关的 `security-audit`（Cloudflare）同样只引用、不复制，固定在提交 `c1c8a8c`，MIT：
+
+```bash
+claude plugin install security-audit@calvingit
+```
+
 另外三个前端相关的外部插件，同样只是引用、固定在某个提交：
 
 | 插件 | 来源 | 许可证 |
@@ -110,7 +116,7 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill（2026-10-16
 
 ### Kernel 演进
 
-[Engineering Kernel](./Engineering/skills/shared/ENGINEERING_KERNEL.md) 只收录跨 Skill 的不变量。修改 Kernel 须有真实的不变量错误或缺口，并说明受影响的 Skill；不确定时先报告，不顺手改。Kernel 不代替项目契约、角色写入边界或强制门禁，也不能作为删减既有门禁的文字依据，门禁的改变须有行为证据。
+[Engineering Kernel](./Engineering/skills/shared/engineering-kernel.md) 只收录跨 Skill 的不变量。修改 Kernel 须有真实的不变量错误或缺口，并说明受影响的 Skill；不确定时先报告，不顺手改。Kernel 不代替项目契约、角色写入边界或强制门禁，也不能作为删减既有门禁的文字依据，门禁的改变须有行为证据。
 
 ### 文字约定
 
@@ -132,4 +138,4 @@ Engineering Skills 处于收敛期：暂停新增全局工程 Skill（2026-10-16
 ### Retro 与实验
 
 - 会话级系统性问题收集真实证据，只观察、诊断并路由给现有负责方；没有正式 retro Skill，也不自动进入交付流程。
-- 收尾角色等流程调整，取得真实证据并经评审前，现有要求不变。
+- 收尾角色等流程调整，取得真实证据并经评审前，现有要求不变。2026-10-24 经所有者评审批准，落地了风险分级收尾（见 closeout-roles 的 Role selection by risk）；后续调整仍须真实证据与评审。

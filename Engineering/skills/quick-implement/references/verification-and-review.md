@@ -13,6 +13,7 @@ This receipt records the results of [quick-implement closeout](../SKILL.md#close
 - SOLUTION: <path | None>
 - Baseline: <commit or equivalent fixed point>
 - Pre-existing changes: <included and excluded paths>
+- Close-out tier: full | verify-review | verify-only — <blast-radius basis>
 
 ### Landed changes
 
@@ -30,12 +31,12 @@ This receipt records the results of [quick-implement closeout](../SKILL.md#close
 ### Simplification
 
 - Mode: Review (dedicated sub-agent)
-- Result: completed | no_change | blocked
+- Result: completed | no_change | blocked | not_run (tier)
 - Findings and any explicitly authorized changes: <report or None>
 
 ### Review
 
-<Original Markdown review report or its retained path, with conclusion and unresolved findings>
+<Original Markdown review report or its retained path, with conclusion and unresolved findings; or "Not run — verify-only tier, <basis>" (never reported as passed)>
 
 ### Unverified
 

@@ -1,8 +1,16 @@
 # Close-out roles
 
-Shared rules for the three independent close-out judgements used by `quick-implement` and `graph-workflow`. Role separation and evidence consumption live here; worker creation, waiting, and context assignment belong to Runtime. Workflow-specific sequencing (receipts, delivery-prepare, correction closeout, broaden triggers) stays in each caller.
+Shared rules for the three independent close-out judgements used by `quick-implement` and `graph-workflow`. Role separation and evidence consumption live here; worker creation, waiting, and context assignment belong to Runtime. Workflow-specific sequencing (receipts, delivery-prepare, correction closeout, broaden triggers) stays in each caller. Initial close-out selects its roles under [Role selection by risk](#role-selection-by-risk) (owner-approved 2026-10-24); the full tier remains the default.
 
-Whether to select roles by risk instead of running all three is a separate behaviour decision; both callers currently require all three on initial closeout.
+## Role selection by risk
+
+Initial close-out selects its roles from blast-radius facts of the confirmed contract, not from size labels or line counts. Record the selected tier and its basis in the close-out receipt; an omitted role is recorded as not run, never as passed.
+
+- **Full** (default): `simplify` (Review mode), `verify` and `code-review`.
+- **Verify-review**: `verify` + `code-review`; omit `simplify` when the change introduces no new abstraction, compatibility path, extension point or shared contract.
+- **Verify-only**: `verify` alone, for a single-scope behaviour fix with no public-contract, cross-module, security, permission, data or migration surface and sufficient existing checks.
+
+`verify` is never omitted. A user request, a project gate, or a high-impact fact (shared contract, cross-module impact, security/permission/data/migration surface, wide blast radius) requires the full tier and cannot be reduced. Reduction applies to the caller's initial close-out; after findings, each caller's correction rules apply unchanged. For Graph Workflow final delivery, an independent `code-review` report is additionally mandated by the delivery-state script, so reduction there is limited to `simplify`.
 
 ## Simplification
 
@@ -26,4 +34,4 @@ Use code-review's [report guidance](../code-review/references/output-contract.md
 
 ## Independence
 
-Missing required simplify, verify, or code-review results leave close-out incomplete. Do not infer a pass from local checks. Any authorised substitution must preserve its authority, executor, and coverage evidence. A dispatched worker existing is not proof its role judgement ran.
+Missing simplify, verify, or code-review results required by the selected tier, the caller or a project gate leave close-out incomplete. Do not infer a pass from local checks, and do not infer that an omitted role would have passed. Any authorised substitution must preserve its authority, executor, and coverage evidence. A dispatched worker existing is not proof its role judgement ran.

@@ -1,7 +1,0 @@
-interface:
-  display_name: "Project Audit"
-  short_description: "Evidence-based multidimensional codebase audit (explicit invocation only)"
-  default_prompt: "Use $fuck-my-shit-mountain to audit this repository in full mode and write a concise report."
-
-policy:
-  allow_implicit_invocation: false
