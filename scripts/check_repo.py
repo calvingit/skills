@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Static checks for this skills repository.
 
-Checks local Markdown links and anchors, SKILL.md frontmatter, and
-agents/openai.yaml basics, then runs Engineering/skills/shared/check.py.
-Usage: python3 scripts/check_repo.py [--no-state-tests]
+Checks local Markdown links and anchors, SKILL.md frontmatter,
+agents/openai.yaml basics, and plugin/marketplace manifests.
+Usage: python3 scripts/check_repo.py
 """
 import re
 import subprocess
@@ -11,12 +11,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL_DIRS = ("Engineering", "Backend", "Documents", "Work")
+SKILL_DIRS = ("Backend", "Documents", "Work")
 # Example paths inside templates, not real links.
-IGNORED_LINKS = {
-    ("Engineering/skills/project-setup/references/profile.md", ".agents/engineering-profile.md"),
-    ("Engineering/skills/solution-design/references/solution-template.md", "SPEC.md"),
-}
+IGNORED_LINKS = set()
 
 
 def slug(heading):
@@ -93,11 +90,10 @@ def check_skill_refs():
     return errors
 
 
-CATEGORIES = ("Engineering", "Backend", "Documents", "Work")  # 目录名；插件名是 zstack-<小写>
+CATEGORIES = ("Backend", "Documents", "Work")  # 目录名；插件名是 zstack-<小写>
 MANIFESTS = (".claude-plugin/plugin.json",)
 MARKETS = (".claude-plugin/marketplace.json",)
 ALLOWED_TOP = {".claude-plugin", "README.md", "skills"}
-EXTRA_TOP = {"Engineering": {"docs"}}
 
 
 def check_plugins():
@@ -106,7 +102,7 @@ def check_plugins():
     errors, versions = [], {}
     for cat in CATEGORIES:
         for extra in sorted((ROOT / cat).iterdir()):
-            if extra.name not in ALLOWED_TOP | EXTRA_TOP.get(cat, set()):
+            if extra.name not in ALLOWED_TOP:
                 errors.append(f"{extra.relative_to(ROOT)}: put it under {cat}/skills/")
         for manifest in MANIFESTS:
             f = ROOT / cat / manifest
@@ -130,6 +126,8 @@ def check_plugins():
                 errors.append(f"{m}: missing zstack-{cat.lower()}")
             elif "version" in entry:
                 versions[f"{m}#zstack-{cat.lower()}"] = entry["version"]
+        if "zstack-engineering" in names:
+            errors.append(f"{m}: zstack-engineering has been removed; drop this plugin entry")
     if len(set(versions.values())) > 1:
         for k, v in sorted(versions.items()):
             errors.append(f"version mismatch: {k} = {v}")
@@ -141,10 +139,7 @@ def main():
     for e in errors:
         print("FAIL", e)
     print(f"links, skill metadata and plugin manifests: {'FAIL' if errors else 'OK'}")
-    code = 1 if errors else 0
-    if "--no-state-tests" not in sys.argv:
-        code |= subprocess.call([sys.executable, str(ROOT / "Engineering/skills/shared/check.py")], cwd=ROOT)
-    return code
+    return 1 if errors else 0
 
 
 if __name__ == "__main__":

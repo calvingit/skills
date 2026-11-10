@@ -1,7 +1,0 @@
-interface:
-  display_name: "Review Architecture"
-  short_description: "Read-only review of whether current architecture is sound against project constraints and relevant stack guidance"
-  default_prompt: "Use review-architecture for a read-only architecture review of the current codebase, with evidence-backed findings from current code, project rules, and official stack guidance when it applies."
-
-policy:
-  allow_implicit_invocation: false

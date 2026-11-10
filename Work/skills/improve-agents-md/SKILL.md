@@ -37,7 +37,7 @@ description: 创建或优化适用于多种 Coding Agent 的 AGENTS.md。适用�
 - Claude Code v2.1.277 起直接读取 `AGENTS.md`，版本更低时提示用户升级，不新建 `CLAUDE.md`。工作目录或上级目录存在 `CLAUDE.md`、`CLAUDE.local.md` 时，Claude Code 只读它们而不读 `AGENTS.md`：只写 `@AGENTS.md` 的文件建议删除，有实际内容的先报告，经用户确认再合并。
 - 创建文档或调整结构时，读取[默认结构](references/default-structure.md)。
 
-`Engineering Skills Profile` 由 `project-setup` 维护，默认位于 `.agents/engineering-profile.md`，`AGENTS.md` 只保留入口与读取条件。按[配置读取与迁移约定](../project-setup/references/profile.md)保留已有入口和配置，旧内嵌块在获准迁移前保持可读。优化指令不自动授权迁移、重建或重新配置 Profile，冲突须报告。跨上下文职责审查需要时，告诉用户运行 `context-audit`，不要从本 Skill 用 Skill tool 代为拉起。
+若项目已有 Engineering Skills Profile（默认 `.agents/engineering-profile.md`，或以 `AGENTS.md` 标明的路径为准），`AGENTS.md` 只保留入口与读取条件，不复制 Profile 正文。保留已有入口和配置；旧的嵌入块（`<!-- engineering-skills-profile:start -->` 至 `<!-- engineering-skills-profile:end -->`）在获准迁移前保持可读。优化指令不自动授权迁移、重建或重新配置 Profile，冲突须报告。跨上下文职责审查需要时，告诉用户运行 `context-audit`，不要从本 Skill 用 Skill tool 代为拉起。
 
 ## 输出
 

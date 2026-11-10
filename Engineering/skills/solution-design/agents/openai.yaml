@@ -1,7 +1,0 @@
-interface:
-  display_name: "Solution Design"
-  short_description: "Technical solution design in SOLUTION.md, from a confirmed SPEC"
-  default_prompt: "Use $solution-design to read the confirmed SPEC.md, search related implementations and call chains, and create or amend a minimal-increment solution design in SOLUTION.md on the existing architecture."
-
-policy:
-  allow_implicit_invocation: false

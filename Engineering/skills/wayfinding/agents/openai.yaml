@@ -1,7 +1,0 @@
-interface:
-  display_name: "Wayfinding"
-  short_description: "Chart a cross-session technical decision map and work the current frontier"
-  default_prompt: "Use $wayfinding to chart and work a decision map for technical or design uncertainty inside a confirmed destination."
-
-policy:
-  allow_implicit_invocation: false

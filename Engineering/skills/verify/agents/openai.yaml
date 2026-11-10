@@ -1,7 +1,0 @@
-interface:
-  display_name: "Verify"
-  short_description: "Judge acceptance using project guidance and credible evidence"
-  default_prompt: "Use $verify to discover project verification guidance, independently check each confirmed Acceptance Criterion against the current candidate, and report PASS, FAIL or NOT VERIFIED with observable evidence."
-
-policy:
-  allow_implicit_invocation: false

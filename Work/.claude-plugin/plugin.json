@@ -1,7 +1,7 @@
 {
   "name": "zstack-work",
-  "version": "4.0.4",
-  "description": "Everyday work skills: explanations, handoff, prompt optimization, search and teaching.",
+  "version": "5.0.0",
+  "description": "Everyday work skills: explanations, handoff, prompt optimization, search, teaching, context audit, AGENTS.md improvement, documentation lookup and agent CLI wrapper.",
   "author": {
     "name": "calvingit"
   },

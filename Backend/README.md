@@ -13,7 +13,7 @@ Codex：`codex plugin marketplace add calvingit/skills`，再 `codex plugin add 
 
 ## 怎么用
 
-这些 skill 在写、改或审查后端代码时由 Agent 自动选用。实现、验证与审查流程仍由 zstack-engineering 负责，两者可以一起装。
+这些 skill 在写、改或审查后端代码时由 Agent 自动选用。实现、验证与审查流程请使用 [cstack](https://github.com/calvingit/cstack)。
 
 ## Skills
 
@@ -26,7 +26,5 @@ Codex：`codex plugin marketplace add calvingit/skills`，再 `codex plugin add 
 | [`mysql-best-practices`](./skills/mysql-best-practices/SKILL.md) | MySQL 生产问题诊断和高风险数据库变更审查。 |
 | [`redis-best-practices`](./skills/redis-best-practices/SKILL.md) | Redis 建模、缓存与协调逻辑审查，运行诊断和恢复风险评估。 |
 | [`mongodb-best-practices`](./skills/mongodb-best-practices/SKILL.md) | MongoDB 文档模型、查询索引、并发更新与运行变更审查。 |
-
-`backend-development` 按改动边界加载检查项；`api-contracts` / `event-driven-backend` 分别管契约与异步副作用。实现、验证与审查流程仍由 Engineering Skills 负责。
 
 `backend-development` 按改动边界加载检查项；`api-contracts` 和 `event-driven-backend` 分别管契约和异步副作用。

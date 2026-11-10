@@ -1,15 +1,14 @@
 # 以插件方式安装
 
-仓库按分类目录拆成四个插件，市场都是 `calvingit`：
+仓库按分类目录拆成三个插件，市场都是 `calvingit`：
 
 | 插件 | 目录 |
 | --- | --- |
-| `zstack-engineering` | `Engineering/skills/`（含 `shared/`） |
 | `zstack-backend` | `Backend/skills/` |
 | `zstack-documents` | `Documents/skills/` |
 | `zstack-work` | `Work/skills/` |
 
-每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里（`Engineering/skills/shared/` 是工程 skill 共用的契约和脚本，不是 skill）。插件根只放 `.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和一份 README，布局参照 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)。仓库根放市场文件和 INSTALL.md、RELEASING.md 等说明。`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。
+每个分类目录就是一个插件根，skill 都放在它下面的 `skills/` 里。插件根只放 `.claude-plugin/plugin.json`（Claude Code 格式，其他工具也读它）和一份 README，布局参照 [anthropics/knowledge-work-plugins](https://github.com/anthropics/knowledge-work-plugins)。仓库根放市场文件和 INSTALL.md、RELEASING.md 等说明。`scripts/` 不属于任何插件。原来的整仓插件 `zstack` 已删除，装过的先卸载。原先的 `zstack-engineering` 也已删除，工程工作流请改用 [cstack](https://github.com/calvingit/cstack)。
 
 ## 各工具读取的配置
 
@@ -21,7 +20,7 @@
 
 外部引用里 React、Vue 两个上游没有插件清单，条目用 `strict: false` 加 `skills` 字段在市场文件里声明插件内容（插件根是上游的 `skills/` 目录）。ZCode 能装 `git-subdir` 来源（supply-chain-risk-auditor 可以装），但它的文档写明插件清单是必需文件，没有清单时能否靠 `strict: false` 安装未验证。
 
-下面的命令以 `zstack-engineering` 为例，其他插件换名字即可。
+下面的命令以 `zstack-work` 为例，其他插件换名字即可。
 
 ## Claude Code
 
@@ -29,16 +28,16 @@
 
 ```text
 /plugin marketplace add calvingit/skills
-/plugin install zstack-engineering@calvingit
+/plugin install zstack-work@calvingit
 ```
 
-命令行等价写法：`claude plugin marketplace add calvingit/skills`、`claude plugin install zstack-engineering@calvingit`。
+命令行等价写法：`claude plugin marketplace add calvingit/skills`、`claude plugin install zstack-work@calvingit`。
 
 更新：
 
 ```bash
 claude plugin marketplace update calvingit
-claude plugin update zstack-engineering@calvingit
+claude plugin update zstack-work@calvingit
 ```
 
 更新后重启会话，或在会话里运行 `/reload-plugins`。Claude Code 按 `version` 判断有没有新版本，只有发版改了版本号才会更新，平时推到 main 的提交不会到达已安装的用户。想自动更新，在 `/plugin` → Marketplaces 里选中 calvingit，打开 Enable auto-update；第三方市场默认关闭。
@@ -51,10 +50,10 @@ claude plugin update zstack-engineering@calvingit
 codex plugin marketplace add calvingit/skills
 ```
 
-然后在 Plugins Directory 中安装 zstack-engineering，或在项目 `.codex/config.toml` 启用：
+然后在 Plugins Directory 中安装 zstack-work，或在项目 `.codex/config.toml` 启用：
 
 ```toml
-[plugins."zstack-engineering@calvingit"]
+[plugins."zstack-work@calvingit"]
 enabled = true
 ```
 
@@ -62,7 +61,7 @@ enabled = true
 
 ```bash
 codex plugin marketplace upgrade calvingit
-codex plugin add zstack-engineering@calvingit
+codex plugin add zstack-work@calvingit
 ```
 
 ## ZCode
